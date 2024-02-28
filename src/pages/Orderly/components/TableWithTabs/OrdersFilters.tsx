@@ -85,7 +85,7 @@ const OrdersFilters = ({
   }, [orderType, marketList]);
 
   return (
-    <div className="w-full px-5 pb-5 flex justify-between items-center">
+    <div className="w-full flex justify-between items-center">
       <div
         className={`flex items-center w-225 border rounded-lg p-1`}
         style={{

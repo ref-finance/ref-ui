@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { TokenMetadata } from 'src/services/ft-contract';
@@ -44,6 +44,9 @@ import {
   ArrowGrey,
 } from '../../../components/icon';
 import Big from 'big.js';
+import { constOrderlyPageSize } from 'src/pages/Orderly/orderly/constant';
+import OrderlyPortfolioPaginate from 'src/pages/Orderly/OrderlyPortfolio/OrderlyPortfolioPaginate';
+import OrderlyPortfolioOrdersMobile from 'src/pages/Orderly/OrderlyPortfolio/OrderlyPortfolioOrdersMobile';
 
 const OrderlyIcon = () => (
   <svg
@@ -153,6 +156,12 @@ export const usePortableOrderlyTable = ({
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
   const { marketList, allTokens } = useMarketlist();
   const { curLeverage } = useLeverage();
+  const [filteredData, setFilteredData] = useState<any>();
+  const [filteredPaginateData, setFilteredPaginateData] = useState({
+    current_page: 1,
+    records_per_page: constOrderlyPageSize,
+    total: 0,
+  });
 
   const OpenbookBtn = ({ usable }: { usable: boolean }) => (
     <div className="flex items-center">
@@ -221,6 +230,55 @@ export const usePortableOrderlyTable = ({
     </button>
   );
 
+  const ordersTablePaginateNode = (
+    <OrderlyPortfolioPaginate
+      total={filteredPaginateData?.total}
+      pageSize={filteredPaginateData?.records_per_page}
+      page={filteredPaginateData?.current_page}
+    />
+  );
+
+  const ordersTableFilterNode = (
+    <div className={'flex gap-2 items-center px-5 pb-5'}>
+      <OrdersFilters
+        orderType={orderType}
+        setOrderType={setOrderType}
+        chooseMarketSymbol={chooseMarketSymbol}
+        setChooseMarketSymbol={setChooseMarketSymbol}
+        chooseOrderSide={chooseOrderSide}
+        setChooseOrderSide={setChooseOrderSide}
+        showMarketSelector={showMarketSelector}
+        setShowMarketSelector={setShowMarketSelector}
+        showSideSelector={showSideSelector}
+        setShowSideSelector={setShowSideSelector}
+        marketList={marketList}
+      />
+      {ordersTablePaginateNode}
+    </div>
+  );
+
+  const ordersTableGetData = async ({ page, status }) => {
+    const result = await getPortfolioAllOrders({
+      accountId,
+      OrderProps: {
+        // page: orderType > 0 ? Math.ceil(page / 50) : page,
+        // size: orderType > 0 ? 500 : 10,
+        page,
+        size: constOrderlyPageSize,
+        status,
+        broker_id: refOnly ? 'ref_dex' : '',
+        symbol: chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
+        // @ts-ignore
+        side:
+          chooseOrderSide === 'both_side' ? '' : chooseOrderSide.toUpperCase(),
+        order_type:
+          chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase(),
+      },
+    });
+
+    return result;
+  };
+
   const ordersTable: PortfolioTable = {
     title: intl.formatMessage({
       id: 'orders',
@@ -231,177 +289,48 @@ export const usePortableOrderlyTable = ({
       {
         id: 'open_orders',
         default: 'Open Orders',
+        pagination: false,
         rightComp: (usable: boolean) => <OpenbookBtn usable={usable} />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
+        mobileHeader: ordersTablePaginateNode,
         mobileRender: (order) => {
-          const {
-            symbol,
-            side,
-            created_time,
-            price,
-            average_executed_price,
-            quantity,
-            executed,
-            broker_name,
-          } = order;
-
           return (
-            <div
-              className={`m-2 p-3 gap-2 rounded-xl`}
-              style={{ backgroundColor: '#7E8A931A' }}
-              onClick={() => openTrades && openTrades(order)}
+            <OrderlyPortfolioOrdersMobile
+              order={order}
+              marketList={marketList}
+              openTrades={openTrades}
             >
-              <div className="w-8/12 inline-block">
-                <div className={`p-0.5 my-0.5 flex items-center`}>
-                  <div
-                    className={`px-2 pt-0.5 text-sm mr-2 inline-flex items-center justify-center rounded-md gotham_bold text-dark5 ${
-                      side === 'BUY' ? 'bg-greenLight' : 'bg-redLight'
-                    }`}
-                  >
-                    {intl.formatMessage({
-                      id: side?.toLowerCase(),
-                      defaultMessage: side,
-                    })}
-                  </div>
-                  <div className="flex items-center ">
-                    {marketList.find((m) => m.textId === symbol)?.withSymbol}
-                  </div>
-                </div>
+              <div className="" style={{ height: '9px', width: '9px' }}>
+                <CircularProgressbar
+                  styles={buildStyles({
+                    pathColor: order?.side === 'BUY' ? '#62C340' : '#FF6A8E',
+                    strokeLinecap: 'butt',
+                    trailColor: 'transparent',
+                  })}
+                  background={false}
+                  strokeWidth={50}
+                  value={order?.executed || 0}
+                  maxValue={order?.quantity}
+                />
               </div>
-              <div className="w-4/12 inline-block text-right">
-                <div
-                  className={`p-0.5 text-xs my-1 flex justify-end items-center`}
-                >
-                  <span className="mr-1">
-                    {parseFloat(
-                      new Big(
-                        (executed / (quantity || executed)) * 100
-                      ).toFixed(2)
-                    )}
-                    % filled
-                  </span>
-
-                  <div className="flex justify-end items-center relative">
-                    <div
-                      className="flex items-center relative ml-1.5 justify-center border border-dashed rounded-full border-portfolioGreenColor"
-                      style={{
-                        height: '14px',
-                        width: '14px',
-                      }}
-                    >
-                      <div
-                        className=""
-                        style={{
-                          height: '9px',
-                          width: '9px',
-                        }}
-                      >
-                        <CircularProgressbar
-                          styles={buildStyles({
-                            pathColor: side === 'BUY' ? '#62C340' : '#FF6A8E',
-                            strokeLinecap: 'butt',
-                            trailColor: 'transparent',
-                          })}
-                          background={false}
-                          strokeWidth={50}
-                          value={executed || 0}
-                          maxValue={quantity}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-8/12 inline-block">
-                <div className={`p-0.5 text-xs my-1 text-white`}>
-                  <span>
-                    {quantity || executed}
-                    <span
-                      className="text-10px p-1 text-gray2 mx-1"
-                      style={{
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(126, 138, 147, 0.15)',
-                      }}
-                    >
-                      {parseSymbol(symbol).symbolFrom}
-                    </span>
-                    * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
-                    <span
-                      className="text-10px p-1 text-gray2 mx-1"
-                      style={{
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(126, 138, 147, 0.15)',
-                      }}
-                    >
-                      USDC.e
-                    </span>
-                  </span>
-                </div>
-              </div>
-              <div className="w-4/12 inline-block text-right">
-                <span>
-                  Total&nbsp;
-                  <span className="text-white gotham_bold">
-                    {(quantity * (price || average_executed_price)).toFixed(1)}
-                  </span>
-                </span>
-              </div>
-              <div className="w-8/12 inline-block">
-                <div className={`p-0.5 text-xs my-1`}>
-                  <span>{formatTimeDate(created_time)}</span>
-                </div>
-              </div>
-              <div className="w-4/12 inline-block text-right">
-                <div
-                  className={`p-0.5 text-xs my-1 flex justify-end items-center`}
-                >
-                  {broker_name ? `from ${broker_name.replace('DEX', '')}` : ''}
-                </div>
-              </div>
-            </div>
+            </OrderlyPortfolioOrdersMobile>
           );
         },
-        tableTopComponent: (
-          <OrdersFilters
-            orderType={orderType}
-            setOrderType={setOrderType}
-            chooseMarketSymbol={chooseMarketSymbol}
-            setChooseMarketSymbol={setChooseMarketSymbol}
-            chooseOrderSide={chooseOrderSide}
-            setChooseOrderSide={setChooseOrderSide}
-            showMarketSelector={showMarketSelector}
-            setShowMarketSelector={setShowMarketSelector}
-            showSideSelector={showSideSelector}
-            setShowSideSelector={setShowSideSelector}
-            marketList={marketList}
-          />
-        ),
+        tableTopComponent: ordersTableFilterNode,
         filter: true,
-        getData: ({ page }: { page: number }) => {
-          return getPortfolioAllOrders({
-            accountId,
-            OrderProps: {
-              page: orderType > 0 ? Math.ceil(page / 50) : page,
-              size: orderType > 0 ? 500 : 10,
-              // @ts-ignore
-              status:
-                chooseOrderStatus === 'all'
-                  ? 'INCOMPLETE'
-                  : chooseOrderStatus.toUpperCase(),
-              broker_id: refOnly ? 'ref_dex' : '',
-              symbol:
-                chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
-              // @ts-ignore
-              side:
-                chooseOrderSide === 'both_side'
-                  ? ''
-                  : chooseOrderSide.toUpperCase(),
-              order_type:
-                chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase(),
-            },
+        getData: async ({ page }: { page: number }) => {
+          return ordersTableGetData({
+            page,
+            status:
+              chooseOrderStatus === 'all'
+                ? 'INCOMPLETE'
+                : chooseOrderStatus.toUpperCase(),
           });
         },
+        setFilteredPaginateData,
+        setFilteredData,
+        filteredData,
         defaultSort: 'created_time',
         columns: [
           {
@@ -466,19 +395,14 @@ export const usePortableOrderlyTable = ({
             key: '@price',
             colSpan: 2,
             header: '@Price',
-            render: ({ price, symbol }) =>
-              price?.toFixed(
-                symbol.includes('BTC') || symbol.includes('ETH') ? 2 : 4
-              ) || '-',
+            render: ({ price, symbol }) => processPrice(price, symbol),
           },
           {
             key: 'avg_price',
             colSpan: 2,
             header: 'Avg.Price',
             render: ({ average_executed_price, symbol }) =>
-              average_executed_price?.toFixed(
-                symbol.includes('BTC') || symbol.includes('ETH') ? 2 : 4
-              ) || '-',
+              processPrice(average_executed_price, symbol),
           },
           {
             key: 'est_total',
@@ -513,191 +437,60 @@ export const usePortableOrderlyTable = ({
       {
         id: 'history',
         default: 'History',
+        pagination: false,
         rightComp: (usable: boolean) => <OpenbookBtn usable={usable} />,
         tableRowType: 'card',
         tableRowEmpty: 'no_orders_found',
+        mobileHeader: ordersTablePaginateNode,
         mobileRender: (order) => {
-          const {
-            symbol,
-            side,
-            created_time,
-            price,
-            average_executed_price,
-            quantity,
-            executed,
-            broker_name,
-            status,
-          } = order;
-
           return (
-            <div
-              className={`m-2 p-3 gap-2 rounded-xl`}
-              style={{ backgroundColor: '#7E8A931A' }}
-              onClick={() => openTrades && openTrades(order)}
+            <OrderlyPortfolioOrdersMobile
+              order={order}
+              marketList={marketList}
+              openTrades={openTrades}
             >
-              <div className="w-8/12 inline-block">
-                <div className={`p-0.5 my-0.5 flex items-center`}>
-                  <div
-                    className={`px-2 pt-0.5 text-sm mr-2 inline-flex items-center justify-center rounded-md gotham_bold text-dark5 ${
-                      side === 'BUY' ? 'bg-greenLight' : 'bg-redLight'
-                    }`}
-                  >
-                    {intl.formatMessage({
-                      id: side?.toLowerCase(),
-                      defaultMessage: side,
-                    })}
-                  </div>
-                  <div className="flex items-center ">
-                    {marketList.find((m) => m.textId === symbol)?.withSymbol}
-                  </div>
-                </div>
+              <div
+                style={{
+                  height: '8px',
+                  width: '8px',
+                  position: 'absolute',
+                  right: '2px',
+                  top: '2px',
+                }}
+              >
+                <CircularProgressbar
+                  styles={buildStyles({
+                    pathColor: order?.side === 'BUY' ? '#62C340' : '#FF6A8E',
+                    strokeLinecap: 'butt',
+                    trailColor: 'transparent',
+                  })}
+                  background={false}
+                  strokeWidth={50}
+                  value={
+                    !order?.quantity && order?.status === 'CANCELLED'
+                      ? 0
+                      : order?.executed || 0
+                  }
+                  maxValue={order?.quantity || order?.executed}
+                />
               </div>
-              <div className="w-4/12 inline-block text-right">
-                <div
-                  className={`p-0.5 text-xs my-1 flex justify-end items-center`}
-                >
-                  <span className="mr-1">
-                    {parseFloat(
-                      new Big(
-                        (executed / (quantity || executed)) * 100
-                      ).toFixed(2)
-                    )}
-                    % filled
-                  </span>
-
-                  <div className="flex justify-end items-center relative">
-                    <div
-                      className={`flex items-center relative ml-1.5 justify-center items-center 
-                      border border-dashed rounded-full 
-                      ${
-                        side === 'BUY'
-                          ? ' border-portfolioGreenColor'
-                          : 'border-sellRed'
-                      }`}
-                      style={{
-                        height: '14px',
-                        width: '14px',
-                      }}
-                    >
-                      <div
-                        className=""
-                        style={{
-                          height: '8px',
-                          width: '8px',
-                          position: 'absolute',
-                          right: '2px',
-                          top: '2px',
-                        }}
-                      >
-                        <CircularProgressbar
-                          styles={buildStyles({
-                            pathColor: side === 'BUY' ? '#62C340' : '#FF6A8E',
-                            strokeLinecap: 'butt',
-                            trailColor: 'transparent',
-                          })}
-                          background={false}
-                          strokeWidth={50}
-                          value={
-                            !quantity && status === 'CANCELLED'
-                              ? 0
-                              : executed || 0
-                          }
-                          maxValue={quantity || executed}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-8/12 inline-block">
-                <div className={`p-0.5 text-xs my-1 text-white`}>
-                  <span>
-                    {quantity || executed}
-                    <span
-                      className="text-10px p-1 text-gray2 mx-1"
-                      style={{
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(126, 138, 147, 0.15)',
-                      }}
-                    >
-                      {parseSymbol(symbol).symbolFrom}
-                    </span>
-                    * {price?.toFixed(2) || average_executed_price?.toFixed(2)}
-                    <span
-                      className="text-10px p-1 text-gray2 mx-1"
-                      style={{
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(126, 138, 147, 0.15)',
-                      }}
-                    >
-                      USDC.e
-                    </span>
-                  </span>
-                </div>
-              </div>
-              <div className="w-4/12 inline-block text-right">
-                <span>
-                  Total&nbsp;
-                  <span className="text-white gotham_bold">
-                    {(quantity * (price || average_executed_price)).toFixed(1)}
-                  </span>
-                </span>
-              </div>
-              <div className="w-8/12 inline-block">
-                <div className={`p-0.5 text-xs my-1`}>
-                  <span>{formatTimeDate(created_time)}</span>
-                </div>
-              </div>
-              <div className="w-4/12 inline-block text-right">
-                <div
-                  className={`p-0.5 text-xs my-1 flex justify-end items-center`}
-                >
-                  {broker_name ? `from ${broker_name.replace('DEX', '')}` : ''}
-                </div>
-              </div>
-            </div>
+            </OrderlyPortfolioOrdersMobile>
           );
         },
-        tableTopComponent: (
-          <OrdersFilters
-            orderType={orderType}
-            setOrderType={setOrderType}
-            chooseMarketSymbol={chooseMarketSymbol}
-            setChooseMarketSymbol={setChooseMarketSymbol}
-            chooseOrderSide={chooseOrderSide}
-            setChooseOrderSide={setChooseOrderSide}
-            showMarketSelector={showMarketSelector}
-            setShowMarketSelector={setShowMarketSelector}
-            showSideSelector={showSideSelector}
-            setShowSideSelector={setShowSideSelector}
-            marketList={marketList}
-          />
-        ),
+        tableTopComponent: ordersTableFilterNode,
         filter: true,
         getData: ({ page }: { page: number }) => {
-          return getPortfolioAllOrders({
-            accountId,
-            OrderProps: {
-              page: orderType > 0 ? Math.ceil(page / 50) : page,
-              size: orderType > 0 ? 500 : 10,
-              // @ts-ignore
-              status:
-                chooseOrderStatus === 'all'
-                  ? 'COMPLETED'
-                  : chooseOrderStatus.toUpperCase(),
-              broker_id: refOnly ? 'ref_dex' : '',
-              symbol:
-                chooseMarketSymbol === 'all_markets' ? '' : chooseMarketSymbol,
-              // @ts-ignore
-              side:
-                chooseOrderSide === 'both_side'
-                  ? ''
-                  : chooseOrderSide.toUpperCase(),
-              order_type:
-                chooseOrderType === 'all' ? '' : chooseOrderType.toUpperCase(),
-            },
+          return ordersTableGetData({
+            page,
+            status:
+              chooseOrderStatus === 'all'
+                ? 'COMPLETED'
+                : chooseOrderStatus.toUpperCase(),
           });
         },
+        setFilteredPaginateData,
+        setFilteredData,
+        filteredData,
         defaultSort: 'created_time',
         columns: [
           {
@@ -763,21 +556,14 @@ export const usePortableOrderlyTable = ({
             colSpan: 3,
             header: '@Price',
             render: ({ price, average_executed_price, symbol }) =>
-              (price || average_executed_price)?.toPrecision(
-                (price || average_executed_price).toString().split('.')[0]
-                  .length +
-                  (symbol.includes('ETH') || symbol.includes('BTC') ? 2 : 4)
-              ) || '-',
+              processPrice(price || average_executed_price, symbol),
           },
           {
             key: 'avg_price',
             colSpan: 3,
             header: 'Avg.Price',
             render: ({ average_executed_price, symbol }) =>
-              average_executed_price?.toPrecision(
-                average_executed_price.toString().split('.')[0].length +
-                  (symbol.includes('ETH') || symbol.includes('BTC') ? 2 : 4)
-              ) || '-',
+              processPrice(average_executed_price, symbol),
           },
           {
             key: 'est_total',
@@ -845,6 +631,7 @@ export const usePortableOrderlyTable = ({
                 >
                   {['assets', 'wallet', 'available_orderly'].map((key, i) => (
                     <th
+                      key={key}
                       className={`col-span-2 pb-2${
                         i === 2 ? ' text-right' : ' text-left'
                       }${i === 1 ? ' pl-5' : ''}`}
@@ -859,7 +646,10 @@ export const usePortableOrderlyTable = ({
               </thead>
               <tbody className=" block overflow-auto flex-col px-3">
                 {rows.map(({ tokenMeta, near, available }: any) => (
-                  <tr className="table-fixed grid grid-cols-6 gap-4 lg:border-t border-white border-opacity-10 text-white">
+                  <tr
+                    className="table-fixed grid grid-cols-6 gap-4 lg:border-t border-white border-opacity-10 text-white"
+                    key={tokenMeta?.id}
+                  >
                     <td className="col-span-2 flex py-2 relative">
                       <div className="flex items-center">
                         <img
@@ -1690,7 +1480,15 @@ export const usePortableOrderlyTable = ({
       },
     ],
   };
-
+  function processPrice(price, symbol) {
+    if (price) {
+      return symbol.includes('BTC') || symbol.includes('ETH')
+        ? price.toFixed(2)
+        : price;
+    } else {
+      return '-';
+    }
+  }
   return {
     ordersTable,
     assetsTables,

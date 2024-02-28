@@ -44,6 +44,7 @@ import BigNumber from 'bignumber.js';
 import { Cell, Pie, PieChart, Sector } from 'recharts';
 import getConfig from 'src/services/config';
 import Big from 'big.js';
+import { BLACK_TOKEN_IDS_IN_POOL } from '../LiquidityPage/LiquidityPage';
 
 function StablePoolList({
   searchBy,
@@ -66,11 +67,13 @@ function StablePoolList({
 
   const [clicked, setClicked] = useState<boolean>(false);
 
-  const allStablePoolData = useAllStablePoolData();
+  let allStablePoolData = useAllStablePoolData();
 
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
-
+  allStablePoolData = _.filter(allStablePoolData, (pool) =>
+    pool?.tokens?.every((token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id))
+  );
   const filterFunc = (p: PoolData) => {
     const b1 =
       option === 'ALL'
