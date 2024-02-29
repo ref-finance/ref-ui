@@ -303,7 +303,9 @@ export const ModalTransactionContent = ({
 
       <div className={'flex flex-col justify-between flex-1 w-full'}>
         <div
-          className={'flex justify-center items-center -token-info gap-2 mb-5'}
+          className={
+            'flex justify-center items-center -token-info gap-2 mb-5 flex-wrap'
+          }
           style={{ maxWidth: 500 }}
         >
           {prefix}

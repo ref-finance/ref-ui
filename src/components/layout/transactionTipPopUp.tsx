@@ -48,8 +48,14 @@ export enum TRANSACTION_STATE {
 export const getURLInfo = () => {
   const search = window.location.search;
 
-  const pathname = window.location.pathname;
-
+  let pathname = window.location.pathname;
+  if (window.location.href.includes('#')) {
+    const split = window.location.href.split('#');
+    const hashStr = split?.[1];
+    if (hashStr) {
+      pathname += `#${hashStr}`;
+    }
+  }
   const errorType = new URLSearchParams(search).get('errorType');
 
   const errorCode = new URLSearchParams(search).get('errorCode');
