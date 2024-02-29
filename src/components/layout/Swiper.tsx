@@ -38,7 +38,7 @@ export default function AdSwiper() {
             }}
             loop={true}
           >
-            <SwiperSlide>
+            {/* <SwiperSlide>
               <div
                 onClick={closePop}
                 className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
@@ -53,7 +53,7 @@ export default function AdSwiper() {
               >
                 {is_mobile ? <NearPoolMobile /> : <NearPool />}
               </div>
-            </SwiperSlide>
+            </SwiperSlide> */}
             <SwiperSlide>
               <div
                 onClick={closePop}
