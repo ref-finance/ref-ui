@@ -408,7 +408,9 @@ export function YourLiquidityBox(props: {
 
   function goAddliquidityV2() {
     const url_pool_id = get_pool_name(poolDetail.pool_id);
-    history.push(`/addLiquidityV2#${url_pool_id}`);
+    history.push(`/addLiquidityV2#${url_pool_id}`, {
+      prevUrl: location.pathname,
+    });
   }
 
   return (
@@ -557,7 +559,7 @@ export function YourLiquidityBox(props: {
           }}
           color="#fff"
           borderRadius={'8px'}
-          className={`flex-grow w-1 h-11 text-center text-sm text-white focus:outline-none mr-2.5`}
+          className={`goliqv2 flex-grow w-1 h-11 text-center text-sm text-white focus:outline-none mr-2.5`}
         >
           <FormattedMessage id="add" />
         </GradientButton>
@@ -581,7 +583,7 @@ export function YourLiquidityBox(props: {
             }}
             disabled={is_in_farming || !is_in_farming_done}
             color="#fff"
-            className={`flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+            className={`btn-remove flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
               is_in_farming || !is_in_farming_done
                 ? 'opacity-30 pointer-events-none'
                 : ''

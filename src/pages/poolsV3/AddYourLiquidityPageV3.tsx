@@ -171,7 +171,7 @@ function AddYourLiquidityPageV3() {
     if (currentSelectedPool && tokenX && tokenY) {
       const { fee } = currentSelectedPool;
       const link = get_pool_name(`${tokenX.id}|${tokenY.id}|${fee}`);
-      history.replace(`#${link}`);
+      history.replace(`#${link}`, history.location.state);
     }
   }, [currentSelectedPool, tokenX, tokenY]);
 
@@ -512,11 +512,12 @@ function AddYourLiquidityPageV3() {
     }
     return false;
   }
+
   function goYourLiquidityPage() {
-    if (history.length == 2) {
-      history.push('/yourliquidity');
+    if (history.location?.state?.prevUrl) {
+      history.push(history.location?.state?.prevUrl);
     } else {
-      history.goBack();
+      history.push('/yourliquidity');
     }
   }
   function switchSelectedFee(fee: number) {

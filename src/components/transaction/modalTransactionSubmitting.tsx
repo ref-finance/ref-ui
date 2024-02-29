@@ -24,6 +24,7 @@ import {
 import IconWithdrawWallet from '../../assets/svg/icon-withdraw-wallet.svg';
 import { useWalletStore } from 'src/stores/loginAccountData';
 import { CONST_MYNEAR_TRANSACTIONS } from 'src/constants/constLocalStorage';
+import { shortenDecimal } from 'src/utils/numbers';
 
 const { explorerUrl } = getConfig();
 
@@ -327,9 +328,9 @@ const WithdrawLayout = ({ tokensData }: any) => {
   const node = tokensData?.map((d, i) => {
     const { token, amount } = d || {};
     return (
-      <div className="flex gap-1 display-token" key={i}>
-        <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
-        {token?.symbol}
+      <div className="flex gap-1 display-token" key={i} title={amount}>
+        <DisplayIcon token={token} height={'20px'} width={'20px'} />{' '}
+        {shortenDecimal(amount)} {token?.symbol}
       </div>
     );
   });
@@ -381,7 +382,11 @@ const ClaimFeeLayout = ({ tokensData }: any) => {
       return <BsArrowRight key={i} />;
     }
     return (
-      <div className="flex gap-1 items-center display-token" key={i}>
+      <div
+        className="flex gap-1 items-center display-token"
+        key={i}
+        title={amount}
+      >
         <DisplayIcon token={token} height={'20px'} width={'20px'} />{' '}
         {shortenDecimal(amount)} {token?.symbol}
       </div>
@@ -494,21 +499,4 @@ const showTransactionToast = (actionData, transactionData) => {
       sessionStorage.removeItem('WALLETS_TX_ERROR');
     }
   }
-};
-
-const shortenDecimal = (num, precision = 12) => {
-  if (!num) {
-    return num;
-  }
-  const split = String(num).split('.');
-  if (split?.length <= 1) {
-    return num;
-  }
-  let decimal = split[1];
-  if (decimal?.length > precision) {
-    decimal = decimal.substring(0, precision);
-    return `${split[0]}.${decimal}...`;
-  }
-
-  return num;
 };

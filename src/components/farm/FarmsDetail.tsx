@@ -46,6 +46,7 @@ import {
   percent,
   formatWithCommas,
   calculateFairShare,
+  shortenDecimal,
 } from '../../utils/numbers';
 import BigNumber from 'bignumber.js';
 import {
@@ -3202,12 +3203,8 @@ export function StakeModal(props: {
       transactionId,
       page: constTransactionPage.farm,
       data: {
-        prefix: `Supplying ${toPrecision(
-          amount,
-          3,
-          undefined,
-          undefined,
-          true
+        prefix: `Supplying ${shortenDecimal(
+          toPrecision(amount, 3, undefined, undefined, true)
         )}`,
         tokens: tokensNode,
       },
