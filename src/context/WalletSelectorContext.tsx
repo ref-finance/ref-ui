@@ -138,7 +138,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           chainId: `near:${getConfig().networkId}`,
           // iconUrl: walletIcons['wallet-connect'],
         }),
-        setupNearMobileWallet(),
+        setupNearMobileWallet({
+          dAppMetadata: {
+            name: 'ref finance',
+            logoUrl:
+              'https://avatars.githubusercontent.com/u/79397795?s=200&v=4', //Add yout logo url here
+            url: 'https://app.ref.finance',
+          },
+        }),
       ],
     });
     const _modal = setupModal(_selector, {
