@@ -3204,7 +3204,7 @@ export function StakeModal(props: {
       page: constTransactionPage.farm,
       data: {
         prefix: `Supplying ${shortenDecimal(
-          toPrecision(amount, 3, undefined, undefined, true)
+          amount, 12
         )}`,
         tokens: tokensNode,
       },
