@@ -382,7 +382,7 @@ const ClaimFeeLayout = ({ tokensData }: any) => {
     }
     return (
       <div className="flex gap-1 items-center display-token" key={i}>
-        <DisplayIcon token={token} height={'20px'} width={'20px'} /> {amount}{' '}
+        <DisplayIcon token={token} height={'20px'} width={'20px'} /> {shortenDecimal(amount)}{' '}
         {token?.symbol}
       </div>
     );
@@ -398,6 +398,7 @@ const ClaimFeeLayout = ({ tokensData }: any) => {
 const CommonLayout = ({ tokensData }: any) => {
   const node = tokensData?.map((d, i) => {
     const { token, amount, symbol, tokenGroup } = d || {};
+
     if (Array.isArray(tokenGroup)) {
       return (
         <div className="flex items-center" key={i}>
@@ -415,15 +416,16 @@ const CommonLayout = ({ tokensData }: any) => {
     }
 
     if (symbol === '+') {
-      return <HiOutlinePlusSm key={i} />;
+      return <HiOutlinePlusSm key={i} style={{ margin: '0 10px' }} />;
     }
     if (symbol === '>') {
       return <BsArrowRight key={i} />;
     }
     return (
       <div
-        className="flex gap-1 items-center display-token"
+        className="flex gap-2 items-center display-token text-left"
         key={token?.symbol + amount}
+        title={amount}
       >
         <DisplayIcon
           token={token}
@@ -431,7 +433,7 @@ const CommonLayout = ({ tokensData }: any) => {
           width={'20px'}
           style={{ marginTop: -3 }}
         />{' '}
-        {amount} {token?.symbol}
+        {shortenDecimal(amount)} {token?.symbol}
       </div>
     );
   });
@@ -493,3 +495,20 @@ const showTransactionToast = (actionData, transactionData) => {
     }
   }
 };
+
+const shortenDecimal = (num, precision=12) =>{
+  if(!num){
+    return num
+  }
+  const split = String(num).split(".")
+  if(!split?.length){
+    return num
+  }
+  let decimal = split[1]
+  if(decimal.length>precision){
+    decimal = decimal.substring(0,precision)
+    return `${split[0]}.${decimal}...`
+  }
+
+ return num
+}
