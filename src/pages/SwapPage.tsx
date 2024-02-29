@@ -464,11 +464,11 @@ function SwapPage() {
               />
             )}
           </section>
-          {/* {!isMobile && (
+          {!isMobile && (
             <div className="lg:w-480px  text-white mt-5">
               <AdSwiper />
             </div>
-          )} */}
+          )}
           {!isMobile && swapMode === SWAP_MODE.NORMAL && (
             <div className="lg:w-480px  text-white mt-5">
               <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
@@ -477,11 +477,11 @@ function SwapPage() {
         </div>
       </div>
 
-      {/* {isMobile && (
+      {isMobile && (
         <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
           <AdSwiper />
         </div>
-      )} */}
+      )}
     </SwapProContext.Provider>
   );
 }
