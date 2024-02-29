@@ -3191,7 +3191,11 @@ export function StakeModal(props: {
   function operationStake() {
     setStakeLoading(true);
     const transactionId = String(Date.now());
-    const tokensNode = [];
+    const tokensNode = [
+      {
+        amount,
+      },
+    ];
     // @ts-ignore
     pool?.tokens_meta_data?.forEach((d, i) => {
       tokensNode.push({
@@ -3203,9 +3207,7 @@ export function StakeModal(props: {
       transactionId,
       page: constTransactionPage.farm,
       data: {
-        prefix: `Supplying ${shortenDecimal(
-          amount, 12
-        )}`,
+        prefix: `Supplying`,
         tokens: tokensNode,
       },
       // onClose:onRequestClose
@@ -3756,14 +3758,11 @@ export function UnStakeModal(props: {
             {
               tokenGroup: pool?.tokens_meta_data,
             },
+            {
+              amount
+            }
           ],
-          suffix: `${toPrecision(
-            amount,
-            3,
-            false,
-            false,
-            true
-          )} ${tokensName} LP tokens`,
+          suffix: `${tokensName} LP tokens`,
         },
       });
 

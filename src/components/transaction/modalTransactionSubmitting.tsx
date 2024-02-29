@@ -437,6 +437,7 @@ const CommonLayout = ({ tokensData }: any) => {
           height={'20px'}
           width={'20px'}
           style={{ marginTop: -3 }}
+          className={!token?.icon && 'hidden'}
         />{' '}
         {shortenDecimal(amount)} {token?.symbol}
       </div>

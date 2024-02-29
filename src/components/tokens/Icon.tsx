@@ -158,8 +158,8 @@ export function DisplayIcon({
 }) {
   const styles = {
     ...style,
-    height: height,
-    width: width,
+    height,
+    width,
   };
 
   if (!token?.icon) {
