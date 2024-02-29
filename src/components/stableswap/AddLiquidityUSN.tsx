@@ -345,7 +345,6 @@ export default function AddLiquidityComponentUSN(props: {
   }
 
   async function submit() {
-    console.info('alUSN', canDeposit);
     if (canDeposit) {
       history.push('/deposit');
       return;

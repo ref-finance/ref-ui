@@ -170,15 +170,15 @@ export const ModalTransactionContent = ({
   const isHereSubmitting = wallet?.id === 'here-wallet' && !transactionResponse;
 
   useEffect(() => {
-    console.info(
-      'statusChanged==>',
-      status,
-      isComplete,
-      transactionId,
-      transactionResponse?.transactionId,
-      actionData,
-      tokens
-    );
+    // console.info(
+    //   'statusChanged==>',
+    //   status,
+    //   isComplete,
+    //   transactionId,
+    //   transactionResponse?.transactionId,
+    //   actionData,
+    //   tokens
+    // );
 
     if (status) {
       if (status === 'pending' || isRedirectWalletPage) {
