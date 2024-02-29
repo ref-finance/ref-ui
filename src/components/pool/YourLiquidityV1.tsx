@@ -109,7 +109,7 @@ import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
-import { useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import { constTransactionPage, useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
 
 const is_mobile = isMobile();
 const { BLACK_TOKEN_LIST } = getConfig();
@@ -1992,7 +1992,17 @@ export function YourLiquidityAddLiquidityModal(
 
   const selectBalances = useTokenBalances();
   const [farmV2Counts, setFarmV2Counts] = useState<Record<string, number>>();
-  const transtionsExcuteDataStore = useTranstionsExcuteDataStore();
+
+  const processTransactionPending = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionPending
+  );
+  const processTransactionSuccess = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionSuccess
+  );
+  const processTransactionError = useTranstionsExcuteDataStore(
+    (state) => state.processTransactionError
+  );
+
   useEffect(() => {
     if (!candPools) return;
     Promise.all(candPools.map((p) => canFarmV2(p.id))).then((res) => {
@@ -2345,12 +2355,35 @@ export function YourLiquidityAddLiquidityModal(
   }
 
   function submit() {
+    const transactionId = String(Date.now());
     const token0 = tokens.find((token) => token.id === pool.tokenIds[0]);
     const token1 = tokens.find((token) => token.id === pool.tokenIds[1]);
     const amount0 =
       token0.id === tokens[0].id ? firstTokenAmount : secondTokenAmount;
     const amount1 =
       token1.id === tokens[1].id ? secondTokenAmount : firstTokenAmount;
+
+    processTransactionPending({
+      transactionId,
+      page: constTransactionPage.pool,
+      data: {
+        prefix: 'Supplying',
+        tokens: [
+          {
+            token: token0,
+            amount: amount0,
+          },
+          {
+            symbol: '+',
+          },
+          {
+            token: token1,
+            amount: amount1,
+          },
+        ],
+      },
+    });
+
     return addLiquidityToPool({
       id: pool.id,
       tokenAmounts: [
@@ -2358,11 +2391,14 @@ export function YourLiquidityAddLiquidityModal(
         { token: token1, amount: amount1 },
       ],
     })
-      .then(() => {
-        transtionsExcuteDataStore.setActionStatus('resolved');
+      .then(({response}) => {
+        processTransactionSuccess({
+          transactionResponse: response,
+          transactionId,
+        });
       })
       .catch((e) => {
-        transtionsExcuteDataStore.setActionStatus('rejected');
+        processTransactionError({ error: e, transactionId });
       });
   }
 
@@ -2386,7 +2422,7 @@ export function YourLiquidityAddLiquidityModal(
           tokens[0].id === tokens[1].id ||
           disabled_add
         }
-        className="focus:outline-none  w-full text-lg"
+        className="solidbutton focus:outline-none w-full text-lg"
         onClick={handleClick}
         loading={buttonLoading}
         padding={'p-4'}

@@ -501,11 +501,11 @@ const shortenDecimal = (num, precision=12) =>{
     return num
   }
   const split = String(num).split(".")
-  if(!split?.length){
+  if(split?.length<=1){
     return num
   }
   let decimal = split[1]
-  if(decimal.length>precision){
+  if(decimal?.length>precision){
     decimal = decimal.substring(0,precision)
     return `${split[0]}.${decimal}...`
   }
