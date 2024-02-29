@@ -1890,9 +1890,7 @@ function AddYourLiquidityPageV3() {
         {/* head */}
         <div
           className=" xs:w-full max-w-max text-farmText flex items-center mb-5 cursor-pointer hover:text-white"
-          onClick={() => {
-            history.goBack();
-          }}
+          onClick={goYourLiquidityPage}
         >
           <div
             className="cursor-pointer flex items-center justify-center w-6 h-6"
