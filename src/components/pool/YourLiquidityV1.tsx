@@ -109,7 +109,10 @@ import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
-import { constTransactionPage, useTranstionsExcuteDataStore } from '../../stores/transtionsExcuteData';
+import {
+  constTransactionPage,
+  useTranstionsExcuteDataStore,
+} from '../../stores/transtionsExcuteData';
 
 const is_mobile = isMobile();
 const { BLACK_TOKEN_LIST } = getConfig();
@@ -2391,7 +2394,7 @@ export function YourLiquidityAddLiquidityModal(
         { token: token1, amount: amount1 },
       ],
     })
-      .then(({response}) => {
+      .then(({ response }) => {
         processTransactionSuccess({
           transactionResponse: response,
           transactionId,

@@ -382,8 +382,8 @@ const ClaimFeeLayout = ({ tokensData }: any) => {
     }
     return (
       <div className="flex gap-1 items-center display-token" key={i}>
-        <DisplayIcon token={token} height={'20px'} width={'20px'} /> {shortenDecimal(amount)}{' '}
-        {token?.symbol}
+        <DisplayIcon token={token} height={'20px'} width={'20px'} />{' '}
+        {shortenDecimal(amount)} {token?.symbol}
       </div>
     );
   });
@@ -496,19 +496,19 @@ const showTransactionToast = (actionData, transactionData) => {
   }
 };
 
-const shortenDecimal = (num, precision=12) =>{
-  if(!num){
-    return num
+const shortenDecimal = (num, precision = 12) => {
+  if (!num) {
+    return num;
   }
-  const split = String(num).split(".")
-  if(split?.length<=1){
-    return num
+  const split = String(num).split('.');
+  if (split?.length <= 1) {
+    return num;
   }
-  let decimal = split[1]
-  if(decimal?.length>precision){
-    decimal = decimal.substring(0,precision)
-    return `${split[0]}.${decimal}...`
+  let decimal = split[1];
+  if (decimal?.length > precision) {
+    decimal = decimal.substring(0, precision);
+    return `${split[0]}.${decimal}...`;
   }
 
- return num
-}
+  return num;
+};

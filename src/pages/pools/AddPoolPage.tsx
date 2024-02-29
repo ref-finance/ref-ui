@@ -319,17 +319,14 @@ export function AddPoolModal(
                     processTransactionPending({
                       transactionId,
                       page: constTransactionPage.pool,
-                      data:{
-                        prefix:'Create New Pool',
-                        tokens:[
+                      data: {
+                        prefix: 'Create New Pool',
+                        tokens: [
                           {
-                            tokenGroup: [
-                              token1,
-                              token2
-                            ],
+                            tokenGroup: [token1, token2],
                           },
-                        ]
-                      }
+                        ],
+                      },
                     });
                     addSimpleLiquidityPool([token1.id, token2.id], Number(v))
                       .then(({ txHash, response }) => {
