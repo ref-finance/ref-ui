@@ -3768,10 +3768,10 @@ export function UnStakeModal(props: {
           prefix: 'Unstake',
           tokens: [
             {
-              amount,
+              tokenGroup: pool?.tokens_meta_data,
             },
             {
-              tokenGroup: pool?.tokens_meta_data,
+              amount,
             },
           ],
           suffix: `${tokensName} LP Tokens`,
