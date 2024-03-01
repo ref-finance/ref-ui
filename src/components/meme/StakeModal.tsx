@@ -104,7 +104,7 @@ function StakeModal(props: any) {
       transactionId,
       page: constTransactionPage.meme,
       data: {
-        prefix: 'Supplying',
+        prefix: 'Stake',
         tokens: [
           {
             token: seed?.token_meta_data,

@@ -89,7 +89,7 @@ function UnStakeModal(props: any) {
       transactionId,
       page: constTransactionPage.meme,
       data: {
-        prefix: 'Removing',
+        prefix: 'Unstake',
         tokens: [
           {
             token: seed?.token_meta_data,

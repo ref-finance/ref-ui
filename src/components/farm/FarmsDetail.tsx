@@ -3191,24 +3191,29 @@ export function StakeModal(props: {
   function operationStake() {
     setStakeLoading(true);
     const transactionId = String(Date.now());
-    const tokensNode = [
-      {
-        amount,
-      },
-    ];
-    // @ts-ignore
+    let tokensName = '';
     pool?.tokens_meta_data?.forEach((d, i) => {
-      tokensNode.push({
-        token: d,
-      });
+      if (i !== 0) {
+        tokensName += `-`;
+      }
+      tokensName += `${d.symbol}`;
     });
 
     processTransactionPending({
       transactionId,
       page: constTransactionPage.farm,
       data: {
-        prefix: `Supplying`,
-        tokens: tokensNode,
+        prefix: `Stake`,
+        tokens: [
+          {
+            amount,
+          },
+          {
+            tokenGroup: pool?.tokens_meta_data,
+          },
+        ],
+        suffix: `${tokensName}`,
+        // tokens: tokensNode,
       },
       // onClose:onRequestClose
     });
@@ -3747,22 +3752,29 @@ export function UnStakeModal(props: {
   function operationUnStake() {
     setUnStakeLoading(true);
     const transactionId = String(Date.now());
-    const tokensName = pool?.token_symbols?.toString();
+    let tokensName = '';
+    pool?.tokens_meta_data?.forEach((d, i) => {
+      if (i !== 0) {
+        tokensName += `-`;
+      }
+      tokensName += `${d.symbol}`;
+    });
+
     if (unStakeType == 'free') {
       processTransactionPending({
         transactionId,
         page: constTransactionPage.farm,
         data: {
-          prefix: 'Removing',
+          prefix: 'Unstake',
           tokens: [
-            {
-              tokenGroup: pool?.tokens_meta_data,
-            },
             {
               amount,
             },
+            {
+              tokenGroup: pool?.tokens_meta_data,
+            },
           ],
-          suffix: `${tokensName} LP tokens`,
+          suffix: `${tokensName} LP Tokens`,
         },
       });
 

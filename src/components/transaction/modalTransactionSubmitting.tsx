@@ -436,7 +436,6 @@ const CommonLayout = ({ tokensData }: any) => {
           token={token}
           height={'20px'}
           width={'20px'}
-          style={{ marginTop: -3 }}
           className={!token?.icon && 'hidden'}
         />{' '}
         {shortenDecimal(amount)} {token?.symbol}
@@ -444,7 +443,7 @@ const CommonLayout = ({ tokensData }: any) => {
     );
   });
 
-  return <div className="flex items-center gap-1">{node}</div>;
+  return <div className="flex items-center gap-2">{node}</div>;
 };
 
 const showTransactionToast = (actionData, transactionData) => {
