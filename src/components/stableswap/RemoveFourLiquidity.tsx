@@ -250,14 +250,11 @@ export function RemoveFourLiquidityComponent(props: {
             {
               tokenGroup: tokens,
             },
+            {
+              amount: toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, max_burn_shares)
+            }
           ],
-          suffix: `${toPrecision(
-            toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, max_burn_shares),
-            3,
-            false,
-            false,
-            true
-          )} ${tokensName} LP tokens`,
+          suffix: `${tokensName} LP tokens`,
         },
       });
       return removeLiquidityByTokensFromStablePool({
@@ -531,7 +528,7 @@ export function RemoveFourLiquidityComponent(props: {
         {isSignedIn ? (
           <SolidButton
             disabled={!canSubmit || buttonLoading}
-            className={`remove_liquidity focus:outline-none px-4 w-full text-lg`}
+            className={`btn-remove-liquidity focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               if (canSubmit) {
                 setButtonLoading(true);
