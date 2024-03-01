@@ -3759,8 +3759,8 @@ export function UnStakeModal(props: {
               tokenGroup: pool?.tokens_meta_data,
             },
             {
-              amount
-            }
+              amount,
+            },
           ],
           suffix: `${tokensName} LP tokens`,
         },

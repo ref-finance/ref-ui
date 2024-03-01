@@ -292,8 +292,9 @@ export const refFiManyFunctionCalls = async (
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
   const { wallet } = getCurrentWallet();
-
-  await ledgerTipTrigger(wallet);
+  if (location?.pathname?.includes('/orderbook')) {
+    await ledgerTipTrigger(wallet);
+  }
 
   return (await wallet.wallet()).signAndSendTransaction({
     signerId: wallet.getAccountId()!,
@@ -341,7 +342,9 @@ export const executeMultipleTransactions = async (
     });
   });
 
-  await ledgerTipTrigger(wallet);
+  if (location?.pathname?.includes('/orderbook')) {
+    await ledgerTipTrigger(wallet);
+  }
   try {
     const walletRes = await wallet.wallet();
     const res = await walletRes.signAndSendTransactions({
@@ -402,7 +405,9 @@ export const executeMultipleTransactionsV2 = async (
   });
 
   try {
-    await ledgerTipTrigger(wallet);
+    if (location?.pathname?.includes('/orderbook')) {
+      await ledgerTipTrigger(wallet);
+    }
   } catch (e) {
     console.error('ledgerErr', e);
   }
@@ -449,7 +454,9 @@ export const refFarmFunctionCall = async ({
   amount,
 }: RefFiFunctionCallOptions) => {
   const { wallet } = getCurrentWallet();
-  await ledgerTipTrigger(wallet);
+  if (location?.pathname?.includes('/orderbook')) {
+    await ledgerTipTrigger(wallet);
+  }
 
   if ((await wallet.wallet()).id === 'sender') {
     return window.near
@@ -543,7 +550,9 @@ export const refFarmManyFunctionCalls = async (
 
   const { wallet } = getCurrentWallet();
 
-  await ledgerTipTrigger(wallet);
+  if (location?.pathname?.includes('/orderbook')) {
+    await ledgerTipTrigger(wallet);
+  }
 
   return (await wallet.wallet()).signAndSendTransaction({
     signerId: wallet.getAccountId()!,

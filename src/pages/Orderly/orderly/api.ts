@@ -55,8 +55,7 @@ const announceLedgerAccessKey = async (accountId: string) => {
   const keyPairLedger = KeyPair.fromRandom('ed25519');
 
   const wallet = await window.selector.wallet();
-
-  if (wallet.id === 'ledger') {
+  if (wallet.id === 'ledger' && location?.pathname?.includes('/orderbook')) {
     await ledgerTipTrigger(window.selector);
   }
 
