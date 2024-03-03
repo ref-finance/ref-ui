@@ -213,12 +213,11 @@ export function AccountModel(props: any) {
             <span>{getAccountName(wallet.getAccountId())}</span>
 
             <span className="flex items-center ">
-              {
-                currentWalletIcon &&
+              {currentWalletIcon && (
                 <span className="mr-1">
                   <img src={currentWalletIcon} className="w-3 h-3" alt="" />
                 </span>
-              }
+              )}
               <span className="text-xs text-primaryText">
                 {currentWalletName || '-'}
               </span>

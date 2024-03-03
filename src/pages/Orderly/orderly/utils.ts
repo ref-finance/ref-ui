@@ -106,13 +106,24 @@ export const getPublicKey = async (accountId: string) => {
   if (selectedWalletId === 'sender') {
     // @ts-ignore
 
-    return getSenderAccessKey()?.['publicKey'];
+    return getSenderAccessKey()?.publicKey;
   }
 
   if (selectedWalletId === 'meteor-wallet') {
     const keyStore = new keyStores.BrowserLocalStorageKeyStore(
       window.localStorage,
       '_meteor_wallet'
+    );
+    const publicKey = (await keyStore.getKey(getConfig().networkId, accountId))
+      ?.getPublicKey()
+      ?.toString();
+
+    return publicKey;
+  }
+  if (selectedWalletId === 'keypom') {
+    const keyStore = new keyStores.BrowserLocalStorageKeyStore(
+      window.localStorage,
+      'keypom:'
     );
     const publicKey = (await keyStore.getKey(getConfig().networkId, accountId))
       ?.getPublicKey()
@@ -166,6 +177,13 @@ export const generateRequestSignatureHeader = async ({
     const accessKeys = getSenderAccessKey();
 
     keyPair = KeyPair.fromString('ed25519:' + accessKeys.secretKey);
+    signature = keyPair?.sign(Buffer.from(message))?.signature;
+  } else if (selectedWalletId === 'keypom') {
+    const keyStore = new keyStores.BrowserLocalStorageKeyStore(
+      undefined,
+      'keypom:'
+    );
+    const keyPair = await keyStore.getKey(getConfig().networkId, accountId);
     signature = keyPair?.sign(Buffer.from(message))?.signature;
   } else {
     const keyStore = new keyStores.BrowserLocalStorageKeyStore();
