@@ -2468,6 +2468,15 @@
     nanoid "3.3.4"
     query-string "^7.1.1"
 
+"@mintbase-js/wallet@0.5.0-beta.6":
+  version "0.5.0-beta.6"
+  resolved "https://registry.yarnpkg.com/@mintbase-js/wallet/-/wallet-0.5.0-beta.6.tgz#2787f6992ed829e67d07828be84d16dd6f590a5d"
+  integrity sha512-22MDqUDMZm3puGEI8dv927Wtc5olRgGb5E7h67b1a5+N2DTKcLPmoHhzj0TFT3BmI9snrhq4MdAEvS785cjq1Q==
+  dependencies:
+    "@near-wallet-selector/core" "^8.5.4"
+    bn.js "^5.2.1"
+    near-api-js "^2.1.4"
+
 "@mischnic/json-sourcemap@^0.1.0":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@mischnic/json-sourcemap/-/json-sourcemap-0.1.1.tgz#0ef9b015a8f575dd9a8720d9a6b4dbc988425906"
@@ -2748,6 +2757,16 @@
     js-sha256 "0.9.0"
     rxjs "7.8.1"
 
+"@near-wallet-selector/core@^8.5.4":
+  version "8.9.5"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.9.5.tgz#15e49f17252ee4e54a1c9719b8c2b98fd71aae74"
+  integrity sha512-wJiCL8M7z6tkNMY5H4n63/SZCmlW0Z15H6R1biWgpRuMDlVjhQOzxrmQggb1jbK4nYkzXyARNKyPh2gcRUuS+w==
+  dependencies:
+    borsh "0.7.0"
+    events "3.3.0"
+    js-sha256 "0.9.0"
+    rxjs "7.8.1"
+
 "@near-wallet-selector/here-wallet@^8.5.4":
   version "8.7.0"
   resolved "https://registry.npmjs.org/@near-wallet-selector/here-wallet/-/here-wallet-8.7.0.tgz#be01991208baf5f18d19074da8f676cc07911813"
@@ -2787,6 +2806,13 @@
     "@meteorwallet/sdk" "0.8.0"
     "@near-wallet-selector/core" "8.7.0"
     "@near-wallet-selector/wallet-utils" "8.7.0"
+
+"@near-wallet-selector/mintbase-wallet@^8.9.4":
+  version "8.9.5"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/mintbase-wallet/-/mintbase-wallet-8.9.5.tgz#4baea3e5b4ef62f46ce987b0df60fe8dd92aea73"
+  integrity sha512-COYFPUP39C5M4Slzq13nZ1RDrmeOJKGnUxcbpsIb5knEP2puIbqpvjfjUmiixKhH9L6hsKwroTyNqFZuiAnifA==
+  dependencies:
+    "@mintbase-js/wallet" "0.5.0-beta.6"
 
 "@near-wallet-selector/modal-ui@^8.5.4":
   version "8.7.0"
@@ -12944,7 +12970,7 @@ near-api-js@^0.39.0:
     text-encoding-utf-8 "^1.0.2"
     tweetnacl "^1.0.1"
 
-near-api-js@^2.1.1:
+near-api-js@^2.1.1, near-api-js@^2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/near-api-js/-/near-api-js-2.1.4.tgz#562bb7047bf3699fbdf78f9a6620366069ad7cd9"
   integrity sha512-e1XicyvJvQMtu7qrG8oWyAdjHJJCoy+cvbW6h2Dky4yj7vC85omQz/x7IgKl71VhzDj2/TGUwjTVESp6NSe75A==
