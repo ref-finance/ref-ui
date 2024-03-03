@@ -18,7 +18,11 @@ import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
 import { Contract, KeyPair, utils } from 'near-api-js';
 
-import { getNormalizeTradingKey, toNonDivisibleNumber } from './utils';
+import {
+  getNormalizeTradingKey,
+  toNonDivisibleNumber,
+  getNearMobileWalletKeyPairObject,
+} from './utils';
 import {
   getAddFunctionCallKeyTransaction,
   keyStore,
@@ -111,15 +115,19 @@ export let contract;
 
 const announceKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
-
   if (
     wallet.id === 'ledger' ||
     wallet.id === 'here-wallet' ||
-    wallet.id === 'nightly'
+    wallet.id === 'nightly' ||
+    wallet.id === 'near-mobile-wallet'
   ) {
-    await announceLedgerAccessKey(accountId);
-
-    // const account = await near.account(ORDERLY_ASSET_MANAGER);
+    if (wallet.id !== 'near-mobile-wallet') {
+      await announceLedgerAccessKey(accountId);
+    }
+    if (wallet.id === 'near-mobile-wallet') {
+      const keyPair = getNearMobileWalletKeyPairObject();
+      keyStore.setKey(getConfig().networkId, accountId, keyPair);
+    }
 
     contract = await near.loadContract(ORDERLY_ASSET_MANAGER, {
       sender: accountId,
@@ -151,7 +159,6 @@ const announceKey = async (accountId: string) => {
       .account()
       .functionCall(ORDERLY_ASSET_MANAGER, 'user_announce_key', {});
   }
-
   return await wallet.signAndSendTransaction({
     signerId: accountId,
     actions: [
@@ -174,7 +181,8 @@ const setTradingKey = async (accountId: string) => {
   if (
     wallet.id === 'ledger' ||
     wallet.id === 'here-wallet' ||
-    wallet.id === 'nightly'
+    wallet.id === 'nightly' ||
+    wallet.id === 'near-mobile-wallet'
   ) {
     // @ts-ignore
     if (!contract) {
@@ -194,7 +202,6 @@ const setTradingKey = async (accountId: string) => {
         key: getNormalizeTradingKey(),
       });
   }
-
   return await wallet.signAndSendTransaction({
     signerId: accountId,
     actions: [

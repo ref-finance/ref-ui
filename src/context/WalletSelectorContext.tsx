@@ -145,7 +145,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
             url: 'https://app.ref.finance',
           },
         }),
-
       ],
     });
     const _modal = setupModal(_selector, {
