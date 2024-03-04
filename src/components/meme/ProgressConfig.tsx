@@ -91,11 +91,15 @@ const NEKO_CONFIG = {
 };
 const DRAGON_CONFIG = {
   head: is_mobile ? (
-    <DragonHeadMobile className="relative" style={{ top: '-26px' }} />
+    <DragonHeadMobile className="relative" style={{ top: '-21px' }} />
   ) : (
-    <DragonHead className="relative" style={{ top: '-51px' }} />
+    <DragonHead className="relative" style={{ top: '-36px' }} />
   ),
-  tail: is_mobile ? <DragonTailMobile /> : <DragonTail />,
+  tail: is_mobile ? (
+    <DragonTailMobile style={{ marginTop: '1px' }} />
+  ) : (
+    <DragonTail />
+  ),
   body: (initWidth, addWidth, percent) => {
     const w = Big(initWidth || 0)
       .plus(addWidth || 0)
@@ -103,12 +107,16 @@ const DRAGON_CONFIG = {
     return (
       <div className="flex justify-center relative">
         <div
-          style={{ width: `${w + 'px'}`, top: is_mobile ? '1px' : '0px' }}
+          style={{
+            width: `${w + 'px'}`,
+            top: is_mobile ? '1px' : '0px',
+            marginLeft: is_mobile ? '0' : '-2px',
+          }}
           className="relative overflow-hidden"
         >
           {is_mobile ? <DragonBodyMobile /> : <DragonBody />}
         </div>
-        <span className="absolute lg:top-2 xsm:top-0.5 lg:text-xl xsm:text-sm text-white gotham_bold z-10">
+        <span className="absolute lg:top-1 xsm:top-0.5 lg:text-xl xsm:text-sm xsm:-ml-2 text-white gotham_bold z-10">
           {percent || ''}
         </span>
       </div>
@@ -135,7 +143,7 @@ const SHITZU_CONFIG = {
         >
           {is_mobile ? <ShitzuBodyMobile /> : <ShitzuBody />}
         </div>
-        <span className="absolute lg:top-6 xsm:top-4 lg:text-xl xsm:text-sm text-black gotham_bold z-10 transform translate-x-4">
+        <span className="absolute lg:top-6 xsm:top-4 lg:text-xl xsm:text-sm xsm:-ml-4 text-black gotham_bold z-10 transform translate-x-4">
           {percent || ''}
         </span>
       </div>
