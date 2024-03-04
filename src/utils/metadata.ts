@@ -56,6 +56,7 @@ const icons: { [tokenId: string]: string } = {
   'farm.berryclub.ek.near': 'https://assets.ref.finance/images/cucumber.png',
   'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near':
     'https://assets.ref.finance/images/HAPI.png',
+  'sol.token.a11bd.near': 'https://assets.ref.finance/images/SOLAllbridge.png',
 };
 
 export default icons;
