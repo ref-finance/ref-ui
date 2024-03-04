@@ -229,6 +229,8 @@ export default function getConfig(
           '2497',
           '2194',
           '2320',
+          '4513',
+          '4514',
         ],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
@@ -551,6 +553,8 @@ export default function getConfig(
           '2497',
           '2194',
           '2320',
+          '4513',
+          '4514',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,

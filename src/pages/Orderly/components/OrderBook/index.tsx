@@ -185,7 +185,9 @@ function groupOrdersByPrecision({
 
 export function getDecimalPlaceByNumber(precision: number) {
   const str = precision.toString();
-
+  if (str.indexOf('e-') > -1) {
+    return +str.split('e-')[1];
+  }
   if (str.indexOf('.') === -1) return 0;
   else return str.split('.')[1].length;
 }

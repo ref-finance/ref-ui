@@ -193,6 +193,16 @@ const SeedsBox = () => {
     </div>`;
     return result;
   }
+  function getFarmAPYTip(seed_id) {
+    const b = getSeedApr(lpSeeds[seed_id]);
+    const result = `<div class="px-2 text-xs text-farmText">
+          <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
+              <span>Farm APR</span>
+              <span class="text-white text-sm">${formatPercentage(b)}</span>
+          </div>
+    </div>`;
+    return result;
+  }
   return (
     <div className="grid gap-4 mt-14 xsm:grid-cols-1 xsm:grid-rows-1 lg:grid-cols-2 lg:grid-rows-2 xsm:mx-3">
       {Object.entries(seeds).map(([seed_id, seed]) => {
@@ -227,34 +237,33 @@ const SeedsBox = () => {
                   <span className="text-xl gotham_bold text-white">
                     {seed.token_meta_data.symbol}
                   </span>
-                  {hasLpSeed ? (
+                  <div
+                    data-class="reactTip"
+                    data-tooltip-id={`lp_farm_${seed_id}`}
+                    data-place="top"
+                    data-tooltip-html={
+                      hasLpSeed ? getFarmAPYTip(seed_id) : comeSoonTip()
+                    }
+                  >
                     <div
                       onClick={() => {
-                        goFarmDetail(seed_id);
+                        if (hasLpSeed) {
+                          goFarmDetail(seed_id);
+                        }
                       }}
-                      className="flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 cursor-pointer"
+                      className={`flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 ${
+                        hasLpSeed
+                          ? 'cursor-pointer'
+                          : 'opacity-30 cursor-not-allowed'
+                      }`}
                     >
                       <span className="text-xs text-white">
                         {seed.token_meta_data.symbol}/NEAR
                       </span>
                       <ArrowRightIcon />
                     </div>
-                  ) : (
-                    <div
-                      data-class="reactTip"
-                      data-tooltip-id={`lp_farm_${seed_id}`}
-                      data-place="top"
-                      data-tooltip-html={comeSoonTip()}
-                    >
-                      <div className="flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 opacity-30 cursor-not-allowed">
-                        <span className="text-xs text-white">
-                          {seed.token_meta_data.symbol}/NEAR
-                        </span>
-                        <ArrowRightIcon />
-                      </div>
-                      <CustomTooltip id={`lp_farm_${seed_id}`} />
-                    </div>
-                  )}
+                    <CustomTooltip id={`lp_farm_${seed_id}`} />
+                  </div>
                 </div>
                 <p className="text-sm text-primaryText xsm:hidden">
                   {memeConfig.description[seed_id]}
@@ -278,8 +287,8 @@ const SeedsBox = () => {
                 seed={seeds[seed_id]}
                 pending={is_pending}
                 ended={is_ended}
-                subValue={getSeedApr(lpSeeds[seed_id])}
-                subTargetValue={hasLpSeed ? '' : '-'}
+                // subValue={getSeedApr(lpSeeds[seed_id])}
+                // subTargetValue={hasLpSeed ? '' : '-'}
                 isAPY={true}
               />
               <Template title="Feeders" value={getFeeder(seed_id)} />
@@ -481,7 +490,7 @@ function Template({
         </div>` +
       farmStr +
       `</div>
-        <div class="flex items-center justify-between text-xs text-farmText gap-3.5 mt-2">
+        <div class="hidden items-center justify-between text-xs text-farmText gap-3.5 mt-2">
           <span>Farm APR</span>
           <span class="text-white text-sm">${
             subTargetValue || formatPercentage(subValue)

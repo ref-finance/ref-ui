@@ -1434,7 +1434,7 @@ export function RecentTransactions({
     }
   }
 
-  const renderSwapTransactions = swapTransaction.map((tx) => {
+  const renderSwapTransactions = swapTransaction.map((tx, index) => {
     const swapIn = tokens.find((t) => t.id === tx.token_in);
 
     const swapOut = tokens.find((t) => t.id === tx.token_out);
@@ -1465,14 +1465,15 @@ export function RecentTransactions({
     );
     return (
       <tr
+        key={tx.receipt_id + index}
         className={`text-sm lg:grid lg:grid-cols-3 text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
-        <td className="gap-1 p-4 lg:flex items-center">
-          <span className="col-span-1 text-white" title={swapInAmount}>
+        <td className="gap-1 p-4 lg:flex lg:flex-wrap items-center">
+          <span className="col-span-1 text-white mr-1" title={swapInAmount}>
             {displayInAmount}
           </span>
 
-          <span className="ml-1 text-primaryText">
+          <span className="text-primaryText">
             {toRealSymbol(swapIn.symbol)}
           </span>
         </td>
@@ -1516,7 +1517,7 @@ export function RecentTransactions({
     );
   });
 
-  const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
+  const renderLiquidityTransactions = liquidityTransactions.map((tx, index) => {
     const { amounts } = tx;
     const renderTokens: any[] = [];
     const amountsObj: any[] = JSON.parse(amounts.replace(/\'/g, '"'));
@@ -1539,6 +1540,7 @@ export function RecentTransactions({
 
     return (
       <tr
+        key={tx.receipt_id + index}
         className={`text-sm lg:grid  overflow-hidden lg:grid-cols-${
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
