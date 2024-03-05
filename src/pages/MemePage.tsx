@@ -34,8 +34,8 @@ import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
-import { MobileBanner } from '../components/meme/ani_mobile';
 import { PageContainer } from 'src/components/layout/PageContainer';
+import { MobileBanner, MobileBannerBg } from '../components/meme/ani_mobile';
 
 function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
@@ -231,8 +231,14 @@ function MemePage() {
     >
       <div className="-mt-12 xsm:mt-0">
         {is_mobile ? (
-          <div className="flex items-center justify-center">
-            <MobileBanner className="w-full transform scale-105" />
+          <div
+            className="relative flex items-center justify-center w-full bg-greenLight"
+            style={{ height: '432px' }}
+          >
+            <div className="w-full h-full absolute opacity-10">
+              <MobileBannerBg style={{ height: '432px', width: '100%' }} />
+            </div>
+            <MobileBanner className="w-full transform" />
           </div>
         ) : (
           <Banner />
