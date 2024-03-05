@@ -6,6 +6,6 @@
   "module": "charting_library.esm.js",
   "types": "charting_library.d.ts",
   "devDependencies": {
-    "@babel/core": "^7.20.12"
+    "@babel/core": "7.24.0"
   }
 }

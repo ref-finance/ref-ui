@@ -5,7 +5,7 @@ import { translate } from '@near-wallet-selector/core';
 const Banner = () => {
   return (
     <div
-      className="flex items-center justify-center w-full  bg-greenLight"
+      className="relative flex items-center justify-center w-full  bg-greenLight"
       style={{ height: '688px' }}
     >
       <img
@@ -8564,7 +8564,7 @@ uJDHsvWir66UsbwASrCetGMkOA76o8AcvORjX0k5uNg3sHZPfQV5MT8PaTgw5GGMi/AQGG3DWHm0
 nR/Cw8fBZ7/l41gMrDw7x6NDdB382uXBuXnwWGM/NJ5gv4Ee5EGc0p95YYhZtx3qDzi9/gr/50e8
 XsgCdgAAAABJRU5ErkJggg=="
       />
-      <BannerCoreBg className="absolute" />
+      <BannerCoreBg className="absolute -top-2" />
       {/* for custom */}
       <div
         className="absolute hidden"
