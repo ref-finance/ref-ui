@@ -22,6 +22,7 @@ const CHEDDAR_ID = 'token.cheddar.near';
 const CUCUMBER_ID = 'farm.berryclub.ek.near';
 const HAPI_ID = 'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near';
 const WOO_ID = '4691937a7508860f876c9c0a2a617e7d9e945d4b.factory.bridge.near';
+const BLACKDRAGON_ID = 'blackdragon.tkn.near';
 
 export const REF_META_DATA = {
   decimals: 18,
@@ -190,6 +191,7 @@ export const ftGetTokenMetadata = async (
       metadata.id === CUCUMBER_ID ||
       metadata.id === HAPI_ID ||
       metadata.id === WOO_ID ||
+      metadata.id === BLACKDRAGON_ID ||
       metadata.id === WRAP_NEAR_CONTRACT_ID
     ) {
       metadata.icon = metadataDefaults[id];
