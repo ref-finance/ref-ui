@@ -5,7 +5,6 @@ import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';
 import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
-import { setupNearWallet } from '@near-wallet-selector/near-wallet';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupSender } from '@near-wallet-selector/sender';
 import { setupLedger } from '@near-wallet-selector/ledger';
@@ -23,7 +22,6 @@ import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet'
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
-import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
 import {
@@ -104,9 +102,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         // @ts-ignore
         setupHereWallet(),
-        setupNearWallet({
-          // iconUrl: walletIcons['near-wallet'],
-        }),
         setupSender({
           // iconUrl: walletIcons['sender'],
         }),
