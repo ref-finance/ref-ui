@@ -57,6 +57,8 @@ const icons: { [tokenId: string]: string } = {
   'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near':
     'https://assets.ref.finance/images/HAPI.png',
   'sol.token.a11bd.near': 'https://assets.ref.finance/images/SOLAllbridge.png',
+  'blackdragon.tkn.near':
+    'https://assets.ref.finance/images/blackdragon-icon.png',
 };
 
 export default icons;
