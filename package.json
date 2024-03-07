@@ -105,6 +105,7 @@
     "@near-wallet-selector/meteor-wallet": "^8.5.4",
     "@near-wallet-selector/modal-ui": "^8.5.4",
     "@near-wallet-selector/my-near-wallet": "^8.5.4",
+    "@near-wallet-selector/near-mobile-wallet": "^8.9.5",
     "@near-wallet-selector/neth": "^7.9.1",
     "@near-wallet-selector/nightly": "^8.5.4",
     "@near-wallet-selector/sender": "^8.5.4",

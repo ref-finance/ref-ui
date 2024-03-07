@@ -99,7 +99,19 @@ const getSenderAccessKey = () => {
 
   return keyStoreSender.accessKey;
 };
-
+export function getNearMobileWalletKeyPairObject() {
+  const storage = JSON.parse(
+    localStorage.getItem('near-mobile-signer:session') || '{}'
+  );
+  const networkId = getConfig().networkId;
+  const privateKey =
+    storage?.[networkId]?.accounts?.[storage?.[networkId]?.activeAccount];
+  if (privateKey) {
+    const keyPair = KeyPair.fromString(privateKey);
+    return keyPair;
+  }
+  return null;
+}
 export const getPublicKey = async (accountId: string) => {
   const selectedWalletId = getSelectedWalletId();
 
@@ -132,6 +144,11 @@ export const getPublicKey = async (accountId: string) => {
     return publicKey;
   }
 
+  if (selectedWalletId === 'near-mobile-wallet') {
+    const keyPair = getNearMobileWalletKeyPairObject();
+    return keyPair?.getPublicKey()?.toString();
+  }
+
   const publicKey = (await keyStore.getKey(getConfig().networkId, accountId))
     ?.getPublicKey()
     ?.toString();
@@ -140,7 +157,6 @@ export const getPublicKey = async (accountId: string) => {
 };
 
 // get signature function
-
 export const generateMessage = (
   time_stamp: number,
   method: OFF_CHAIN_METHOD | undefined,
@@ -177,6 +193,9 @@ export const generateRequestSignatureHeader = async ({
     const accessKeys = getSenderAccessKey();
 
     keyPair = KeyPair.fromString('ed25519:' + accessKeys.secretKey);
+    signature = keyPair?.sign(Buffer.from(message))?.signature;
+  } else if (selectedWalletId === 'near-mobile-wallet') {
+    const keyPair = getNearMobileWalletKeyPairObject();
     signature = keyPair?.sign(Buffer.from(message))?.signature;
   } else if (selectedWalletId === 'keypom') {
     const keyStore = new keyStores.BrowserLocalStorageKeyStore(

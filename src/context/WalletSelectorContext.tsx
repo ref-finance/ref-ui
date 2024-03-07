@@ -18,6 +18,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
+import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
@@ -160,6 +161,13 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           },
           instantSignInSpecs: {
             url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
+          },
+        }),
+        setupNearMobileWallet({
+          dAppMetadata: {
+            name: 'ref finance',
+            logoUrl: 'https://assets.ref.finance/images/REF-black-logo.png',
+            url: 'https://app.ref.finance',
           },
         }),
       ],

@@ -214,7 +214,15 @@ export default function SlippageSelector({
   }, [swapMode]);
 
   const [hoverSlider, setHoverSlider] = useState(false);
-
+  const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
+  const trisDisbaled =
+    selectedWalletId === 'near-snap' ||
+    selectedWalletId === 'near-mobile-wallet';
+  useEffect(() => {
+    if (trisDisbaled) {
+      setEnableTri(false);
+    }
+  }, [trisDisbaled]);
   return (
     <div className="relative z-50 font-normal">
       <div
@@ -333,15 +341,26 @@ export default function SlippageSelector({
 
                 <div className="frcb w-full my-2 text-sm">
                   <div className="frcs">
-                    <TriAndAuroraLedger />
+                    <TriAndAuroraLedger
+                      className={`${trisDisbaled ? 'opacity-50' : ''}`}
+                    />
 
-                    <span className="ml-2 text-white text-sm">Trisolaris</span>
+                    <span
+                      className={`ml-2  text-sm ${
+                        trisDisbaled ? 'text-primaryText' : 'text-white'
+                      }`}
+                    >
+                      Trisolaris
+                    </span>
                   </div>
-
-                  <CustomSwitchSwap
-                    isOpen={enableTri}
-                    setIsOpen={setEnableTri}
-                  />
+                  {trisDisbaled ? (
+                    <CustomSwitchSwap isOpen={false} />
+                  ) : (
+                    <CustomSwitchSwap
+                      isOpen={enableTri}
+                      setIsOpen={setEnableTri}
+                    />
+                  )}
                 </div>
 
                 <div className="frcb w-full  text-sm">
