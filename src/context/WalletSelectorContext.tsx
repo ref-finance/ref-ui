@@ -146,7 +146,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           },
         }),
         setupBitgetWallet({}),
-        setupMintbaseWallet({}),
         setupMintbaseWallet({
           walletUrl: 'https://wallet.mintbase.xyz',
           deprecated: false,
