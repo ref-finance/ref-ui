@@ -22,6 +22,7 @@ const CHEDDAR_ID = 'token.cheddar.near';
 const CUCUMBER_ID = 'farm.berryclub.ek.near';
 const HAPI_ID = 'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near';
 const WOO_ID = '4691937a7508860f876c9c0a2a617e7d9e945d4b.factory.bridge.near';
+const SOL_ID = 'sol.token.a11bd.near';
 const BLACKDRAGON_ID = 'blackdragon.tkn.near';
 
 export const REF_META_DATA = {
@@ -157,13 +158,13 @@ export const ftGetTokenMetadata = async (
   accountPage?: boolean
 ): Promise<TokenMetadata> => {
   try {
-    let metadata = await db.allTokens().where({ id: id }).first();
+    let metadata = await db.allTokens().where({ id }).first();
     if (!metadata) {
       metadata = await ftViewFunction(id, {
         methodName: 'ft_metadata',
       });
       await db.allTokens().put({
-        id: id,
+        id,
         name: metadata.name,
         symbol: metadata.symbol,
         decimals: metadata.decimals,
@@ -191,10 +192,14 @@ export const ftGetTokenMetadata = async (
       metadata.id === CUCUMBER_ID ||
       metadata.id === HAPI_ID ||
       metadata.id === WOO_ID ||
-      metadata.id === BLACKDRAGON_ID ||
-      metadata.id === WRAP_NEAR_CONTRACT_ID
+      metadata.id === WRAP_NEAR_CONTRACT_ID ||
+      metadata.id === SOL_ID ||
+      metadata.id === BLACKDRAGON_ID
     ) {
       metadata.icon = metadataDefaults[id];
+      if (metadata.id === SOL_ID) {
+        metadata.symbol = 'SOL.Allbridge';
+      }
     }
     return {
       id,
