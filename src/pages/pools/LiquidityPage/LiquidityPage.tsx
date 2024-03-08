@@ -54,7 +54,7 @@ import {
   REF_UNI_V3_SWAP_CONTRACT_ID,
   USDTT_USDCC_USDT_USDC_POOL_ID,
   USDT_USDC_POOL_ID,
-  // FRAX_USDC_POOL_ID,
+  FRAX_USDC_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -2314,7 +2314,7 @@ function StablePoolCard({
   const is_new_pool =
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID;
-  // poolData.pool.id == FRAX_USDC_POOL_ID;
+  poolData.pool.id == FRAX_USDC_POOL_ID;
   return (
     <div
       className="mb-4 xs:mb-2 md:mb-2"
