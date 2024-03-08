@@ -293,6 +293,7 @@ export const ModalTransactionContent = ({
     <CustomModal
       isOpen={isOpen}
       onClose={canClose && handleClose}
+      onOutsideClick={canClose && handleClose}
       className={`modal-transaction-submitting gantari_font ${className || ''}`}
     >
       <div className={'-loading-info'}>
