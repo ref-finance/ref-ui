@@ -12,6 +12,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
             simpleName: 'lava rpc',
           },
+          betaRpc: {
+            url: 'https://beta.rpc.mainnet.near.org',
+            simpleName: 'official beta rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
           //   simpleName: 'blockpi rpc',
@@ -74,6 +78,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
           lavaRpc: {
             url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
             simpleName: 'lava rpc',
+          },
+          betaRpc: {
+            url: 'https://beta.rpc.mainnet.near.org',
+            simpleName: 'official beta rpc',
           },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
@@ -229,6 +237,7 @@ export default function getConfig(
           '2497',
           '2194',
           '2320',
+          '4514',
         ],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
@@ -562,6 +571,7 @@ export default function getConfig(
           '2497',
           '2194',
           '2320',
+          '4514',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
