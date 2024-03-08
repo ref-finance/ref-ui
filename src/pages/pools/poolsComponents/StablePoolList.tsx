@@ -7,7 +7,7 @@ import {
   USD_CLASS_STABLE_POOL_IDS,
   USDTT_USDCC_USDT_USDC_POOL_ID,
   USDT_USDC_POOL_ID,
-  // FRAX_USDC_POOL_ID,
+  FRAX_USDC_POOL_ID,
 } from 'src/services/near';
 import _, { find } from 'lodash';
 import { FormattedMessage } from 'react-intl';
@@ -344,8 +344,8 @@ function StablePoolCard({
   const isMobile = useClientMobile();
   const is_new_pool =
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
-    poolData.pool.id == USDT_USDC_POOL_ID;
-  // poolData.pool.id == FRAX_USDC_POOL_ID;
+    poolData.pool.id == USDT_USDC_POOL_ID ||
+    poolData.pool.id == FRAX_USDC_POOL_ID;
   return (
     <div
       className="mb-4 xs:mb-2 md:mb-2"
