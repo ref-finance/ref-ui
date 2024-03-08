@@ -256,15 +256,15 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         ],
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID || 4513,
-        FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID || 4514,
+        // FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID || 4514,
         USDT_USDC_TOKEN_IDS: [
           'usdt.tether-token.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
-        FRAX_USDC_TOKEN_IDS: [
-          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
-          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
-        ],
+        // FRAX_USDC_TOKEN_IDS: [
+        //   '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
+        //   '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        // ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
@@ -584,15 +584,15 @@ export default function getConfig(
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID || 4513,
-        FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID || 4514,
+        // FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID || 4514,
         USDT_USDC_TOKEN_IDS: [
           'usdt.tether-token.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
-        FRAX_USDC_TOKEN_IDS: [
-          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
-          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
-        ],
+        // FRAX_USDC_TOKEN_IDS: [
+        //   '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
+        //   '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        // ],
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
           'usdt.tether-token.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
@@ -671,7 +671,7 @@ export function getExtraStablePoolConfig(
           '3689',
           '4179',
           '4513',
-          '4514',
+          // '4514',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -683,10 +683,10 @@ export function getExtraStablePoolConfig(
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
         },
-        FRAX_USDC_POOL_INDEX: {
-          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
-          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
-        },
+        // FRAX_USDC_POOL_INDEX: {
+        //   '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+        //   '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        // },
       };
     case 'development':
     case 'pub-testnet':
@@ -854,7 +854,7 @@ export function getExtraStablePoolConfig(
           '3689',
           '4179',
           '4513',
-          '4514',
+          // '4514',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -866,10 +866,10 @@ export function getExtraStablePoolConfig(
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
         },
-        FRAX_USDC_POOL_INDEX: {
-          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
-          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
-        },
+        // FRAX_USDC_POOL_INDEX: {
+        //   '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+        //   '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        // },
       };
   }
 }
