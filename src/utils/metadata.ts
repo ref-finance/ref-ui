@@ -57,6 +57,10 @@ const icons: { [tokenId: string]: string } = {
   'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near':
     'https://assets.ref.finance/images/HAPI.png',
   'sol.token.a11bd.near': 'https://assets.ref.finance/images/SOLAllbridge.png',
+  'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near':
+    'https://assets.ref.finance/images/sFRAX_coin.svg',
+  '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near':
+    'https://assets.ref.finance/images/FRAX_coin.svg',
   'blackdragon.tkn.near':
     'https://assets.ref.finance/images/blackdragon-icon.png',
 };
