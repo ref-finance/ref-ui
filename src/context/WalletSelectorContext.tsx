@@ -18,6 +18,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
+import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
@@ -131,6 +132,10 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           },
           chainId: `near:${getConfig().networkId}`,
           // iconUrl: walletIcons['wallet-connect'],
+        }),
+        setupMintbaseWallet({
+          walletUrl: 'https://wallet.mintbase.xyz',
+          deprecated: false,
         }),
       ],
     });
