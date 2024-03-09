@@ -40,6 +40,7 @@ import {
   useTranstionsExcuteDataStore,
 } from 'src/stores/transtionsExcuteData';
 
+import getConfig from '../../services/config';
 const is_mobile = isMobile();
 
 export interface ITxParams {
@@ -302,8 +303,12 @@ const SeedsBox = () => {
       {Object.entries(seeds).map(([seed_id, seed]) => {
         const is_pending = isPending(seed);
         const is_ended = isEnded(seed);
+        const meme_contract_id = getConfig()?.REF_MEME_FARM_CONTRACT_ID;
         const stakeButtonDisabled =
-          !user_balances[seed_id] || +user_balances[seed_id] == 0 || is_pending;
+          !user_balances[seed_id] ||
+          +user_balances[seed_id] == 0 ||
+          is_pending ||
+          meme_contract_id == 'meme-farming.ref-labs.near';
 
         const unStakeButtonDisabled =
           +(user_seeds[seed_id]?.free_amount || 0) == 0;

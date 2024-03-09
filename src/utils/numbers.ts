@@ -356,6 +356,9 @@ export function multiply(factor1: string, factor2: string) {
 }
 
 export const percent = (numerator: string, denominator: string) => {
+  if (new Big(denominator || '0').eq(0)) {
+    return 0;
+  }
   return math.evaluate(`(${numerator} / ${denominator}) * 100`);
 };
 
