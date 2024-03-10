@@ -361,6 +361,10 @@ export default function getConfig(
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
         ],
+        USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
+        FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID,
+        USDT_USDC_TOKEN_IDS: [],
+        FRAX_USDC_TOKEN_IDS: [],
         BLACK_TOKEN_LIST: [],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
@@ -449,6 +453,10 @@ export default function getConfig(
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
         ],
+        USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
+        FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID,
+        USDT_USDC_TOKEN_IDS: [],
+        FRAX_USDC_TOKEN_IDS: [],
         BLACK_TOKEN_LIST: [],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
@@ -749,6 +757,8 @@ export function getExtraStablePoolConfig(
           'usdt.fakes.testnet': 2,
           'usdc.fakes.testnet': 3,
         },
+        USDT_USDC_POOL_INDEX: {},
+        FRAX_USDC_POOL_INDEX: {},
       };
     case 'testnet':
       return {
@@ -802,6 +812,8 @@ export function getExtraStablePoolConfig(
           'usdt.fakes.testnet': 2,
           'usdc.fakes.testnet': 3,
         },
+        USDT_USDC_POOL_INDEX: {},
+        FRAX_USDC_POOL_INDEX: {},
       };
     default:
       return {
