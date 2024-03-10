@@ -134,7 +134,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           // iconUrl: walletIcons['wallet-connect'],
         }),
         setupMintbaseWallet({
-          walletUrl: 'https://wallet.mintbase.xyz',
+          // walletUrl: 'https://wallet.mintbase.xyz',
+          walletUrl: 'https://testnet.wallet.mintbase.xyz',
           deprecated: false,
         }),
       ],

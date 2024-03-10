@@ -1176,7 +1176,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
   unregister = false,
 }: RemoveLiquidityByTokensFromStablePoolOptions) => {
   const tokenIds = tokens.map((token) => token.id);
-
+  debugger;
   const withDrawTransactions: Transaction[] = [];
 
   for (let i = 0; i < tokenIds.length; i++) {
@@ -1254,7 +1254,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
   ];
   let need_split = false;
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
-  if (selectedWalletId == 'ledger') {
+  if (selectedWalletId == 'ledger' || selectedWalletId == 'mintbase-wallet') {
     need_split = true;
   }
   if (explorerType !== ExplorerType.Firefox && !need_split) {
