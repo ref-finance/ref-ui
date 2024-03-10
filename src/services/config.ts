@@ -12,6 +12,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
             simpleName: 'lava rpc',
           },
+          betaRpc: {
+            url: 'https://beta.rpc.mainnet.near.org',
+            simpleName: 'official beta rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
           //   simpleName: 'blockpi rpc',
@@ -74,6 +78,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
           lavaRpc: {
             url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
             simpleName: 'lava rpc',
+          },
+          betaRpc: {
+            url: 'https://beta.rpc.mainnet.near.org',
+            simpleName: 'official beta rpc',
           },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
@@ -229,8 +237,6 @@ export default function getConfig(
           '2497',
           '2194',
           '2320',
-          '4513',
-          '4514',
         ],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
@@ -256,6 +262,16 @@ export default function getConfig(
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        ],
+        USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID || 4513,
+        FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID || 4514,
+        USDT_USDC_TOKEN_IDS: [
+          'usdt.tether-token.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
+        FRAX_USDC_TOKEN_IDS: [
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
         REF_MEME_FARM_CONTRACT_ID:
@@ -344,6 +360,10 @@ export default function getConfig(
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
         ],
+        USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
+        FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID,
+        USDT_USDC_TOKEN_IDS: [],
+        FRAX_USDC_TOKEN_IDS: [],
         BLACK_TOKEN_LIST: [],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
@@ -432,6 +452,10 @@ export default function getConfig(
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
         ],
+        USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
+        FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID,
+        USDT_USDC_TOKEN_IDS: [],
+        FRAX_USDC_TOKEN_IDS: [],
         BLACK_TOKEN_LIST: [],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
@@ -553,8 +577,6 @@ export default function getConfig(
           '2497',
           '2194',
           '2320',
-          '4513',
-          '4514',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
@@ -576,6 +598,16 @@ export default function getConfig(
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
+        USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID || 4513,
+        FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID || 4514,
+        USDT_USDC_TOKEN_IDS: [
+          'usdt.tether-token.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
+        FRAX_USDC_TOKEN_IDS: [
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
           'usdt.tether-token.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
@@ -645,12 +677,29 @@ export function getExtraStablePoolConfig(
           'usdt.tether-token.near': 1,
         },
 
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '4179'],
+        RATED_POOLS_IDS: [
+          '3514',
+          '3515',
+          '3612',
+          '3688',
+          '3689',
+          '4179',
+          '4513',
+          '4514',
+        ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
+        },
+        USDT_USDC_POOL_INDEX: {
+          'usdt.tether-token.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        FRAX_USDC_POOL_INDEX: {
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
         },
       };
     case 'development':
@@ -706,6 +755,8 @@ export function getExtraStablePoolConfig(
           'usdt.fakes.testnet': 2,
           'usdc.fakes.testnet': 3,
         },
+        USDT_USDC_POOL_INDEX: {},
+        FRAX_USDC_POOL_INDEX: {},
       };
     case 'testnet':
       return {
@@ -759,6 +810,8 @@ export function getExtraStablePoolConfig(
           'usdt.fakes.testnet': 2,
           'usdc.fakes.testnet': 3,
         },
+        USDT_USDC_POOL_INDEX: {},
+        FRAX_USDC_POOL_INDEX: {},
       };
     default:
       return {
@@ -811,12 +864,29 @@ export function getExtraStablePoolConfig(
           'usdt.tether-token.near': 1,
         },
 
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '4179'],
+        RATED_POOLS_IDS: [
+          '3514',
+          '3515',
+          '3612',
+          '3688',
+          '3689',
+          '4179',
+          '4513',
+          '4514',
+        ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
+        },
+        USDT_USDC_POOL_INDEX: {
+          'usdt.tether-token.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        FRAX_USDC_POOL_INDEX: {
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
         },
       };
   }

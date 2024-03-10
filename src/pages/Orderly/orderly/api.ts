@@ -115,7 +115,8 @@ const announceKey = async (accountId: string) => {
   if (
     wallet.id === 'ledger' ||
     wallet.id === 'here-wallet' ||
-    wallet.id === 'nightly'
+    wallet.id === 'nightly' ||
+    wallet.id === 'mintbase-wallet'
   ) {
     await announceLedgerAccessKey(accountId);
 
@@ -174,7 +175,8 @@ const setTradingKey = async (accountId: string) => {
   if (
     wallet.id === 'ledger' ||
     wallet.id === 'here-wallet' ||
-    wallet.id === 'nightly'
+    wallet.id === 'nightly' ||
+    wallet.id === 'mintbase-wallet'
   ) {
     // @ts-ignore
     if (!contract) {

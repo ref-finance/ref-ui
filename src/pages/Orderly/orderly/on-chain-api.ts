@@ -62,7 +62,8 @@ const is_orderly_key_announced = async (
   if (
     selectedWalletId === 'ledger' ||
     selectedWalletId === 'here-wallet' ||
-    selectedWalletId === 'nightly'
+    selectedWalletId === 'nightly' ||
+    selectedWalletId === 'mintbase-wallet'
   ) {
     if (!valid) {
       return false;
@@ -89,7 +90,8 @@ const is_trading_key_set = async (user: string) => {
   if (
     selectedWalletId === 'ledger' ||
     selectedWalletId === 'here-wallet' ||
-    selectedWalletId === 'nightly'
+    selectedWalletId === 'nightly' ||
+    selectedWalletId === 'mintbase-wallet'
   ) {
     const valid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
@@ -128,7 +130,7 @@ const get_user_trading_key = async (user: string) => {
     methodName: 'get_user_trading_key',
     args: {
       user,
-      orderly_key: orderly_key,
+      orderly_key,
     },
   });
 };
