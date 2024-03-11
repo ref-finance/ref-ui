@@ -2784,7 +2784,7 @@
     react "18.2.0"
     react-dom "18.2.0"
 
-"@near-wallet-selector/my-near-wallet@8.7.0", "@near-wallet-selector/my-near-wallet@^8.5.4":
+"@near-wallet-selector/my-near-wallet@^8.5.4":
   version "8.7.0"
   resolved "https://registry.npmjs.org/@near-wallet-selector/my-near-wallet/-/my-near-wallet-8.7.0.tgz#69adb8ea3a511f3d446781df680326f092f94c09"
   integrity sha512-UDL+KHvkLbDtN1WanpGrVCWIQ4XBPUlwohNScwWC2CKSI/M7lQGsHeKWffgxuzTO6mMedH9QHvbnWc8OjF34zQ==
@@ -2799,14 +2799,6 @@
   dependencies:
     "@near-wallet-selector/core" "8.9.5"
     "@peersyst/near-mobile-signer" "1.0.11"
-
-"@near-wallet-selector/near-wallet@^8.5.4":
-  version "8.7.0"
-  resolved "https://registry.npmjs.org/@near-wallet-selector/near-wallet/-/near-wallet-8.7.0.tgz#ffaf93f8f5a5b6826a643d50f274acbfa6f96fb5"
-  integrity sha512-e8LG/HVrBUKQH1YCZ1x4eJtzm5jL21z3CsooQpkB5/Gl/6q/uzhiBrTObCLdYE5AGnecsPydk4eRLpeP3z1TwQ==
-  dependencies:
-    "@near-wallet-selector/core" "8.7.0"
-    "@near-wallet-selector/my-near-wallet" "8.7.0"
 
 "@near-wallet-selector/neth@^7.9.1":
   version "7.9.3"
