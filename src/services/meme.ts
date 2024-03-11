@@ -289,7 +289,7 @@ export function getMemeConfig(): any {
         'blackdragon.fakes.testnet':
           'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'shitzu.fakes.testnet':
-          'Shitzu is entirely community-run and no longer controlled by Bastion.',
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
       lp_farm: {
         'lonk.fakes.testnet': '716',
@@ -300,6 +300,8 @@ export function getMemeConfig(): any {
       token_icon: {
         'neko.fakes.testnet':
           'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
+        'blackdragon.fakes.testnet':
+          'https://assets.ref.finance/images/blackdragon-icon.png',
       },
     };
   } else if (env == 'testnet') {
@@ -312,7 +314,7 @@ export function getMemeConfig(): any {
         'blackdragon.fakes.testnet':
           'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'shitzu.fakes.testnet':
-          'Shitzu is entirely community-run and no longer controlled by Bastion.',
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
       lp_farm: {
         'lonk.fakes.testnet': '716',
@@ -323,6 +325,8 @@ export function getMemeConfig(): any {
       token_icon: {
         'neko.fakes.testnet':
           'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
+        'blackdragon.fakes.testnet':
+          'https://assets.ref.finance/images/blackdragon-icon.png',
       },
     };
   } else {
@@ -335,7 +339,7 @@ export function getMemeConfig(): any {
         'blackdragon.tkn.near':
           'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'token.0xshitzu.near':
-          'Shitzu is entirely community-run and no longer controlled by Bastion.',
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
       lp_farm: {
         'token.lonkingnearbackto2024.near': '4314',
@@ -346,6 +350,8 @@ export function getMemeConfig(): any {
       token_icon: {
         'ftv2.nekotoken.near':
           'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
+        'blackdragon.tkn.near':
+          'https://assets.ref.finance/images/blackdragon-icon.png',
       },
     };
   }
