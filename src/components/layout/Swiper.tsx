@@ -35,7 +35,7 @@ export default function AdSwiper() {
               delay: 10000,
               disableOnInteraction: false,
             }}
-            loop
+            loop={false}
           >
             <SwiperSlide>
               <div
@@ -48,29 +48,11 @@ export default function AdSwiper() {
                 className="relative cursor-pointer"
                 onClick={() => {
                   window.open(
-                    'https://x.com/finance_ref/status/1762132293194330253?s=20'
+                    '/v2farms/4179-r'
                   );
                 }}
               >
                 {is_mobile ? <StablecoinFARMMobile /> : <StablecoinFARM />}
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <div
-                onClick={closePop}
-                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
-              >
-                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
-              </div>
-              <div
-                className="relative cursor-pointer"
-                onClick={() => {
-                  window.open(
-                    'https://x.com/finance_ref/status/1762132293194330253?s=20'
-                  );
-                }}
-              >
-                {is_mobile ? <FARXFARMMobile /> : <FARXFARM />}
               </div>
             </SwiperSlide>
           </Swiper>
