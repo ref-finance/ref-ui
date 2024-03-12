@@ -11,14 +11,14 @@ export default function AdSwiper() {
   const [closeStatus, setCloseStatus] = useState(true);
   useEffect(() => {
     const popupSwiper = localStorage.getItem('ad-announcement');
-    if (popupSwiper == '9') {
+    if (popupSwiper == '10') {
       setCloseStatus(true);
     } else {
       setCloseStatus(false);
     }
   }, []);
   const closePop = (e: any) => {
-    localStorage.setItem('ad-announcement', '9');
+    localStorage.setItem('ad-announcement', '10');
     e.stopPropagation();
     setCloseStatus(true);
   };
