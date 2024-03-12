@@ -1157,7 +1157,6 @@ const ftGetTokenMetadata = async (id) => {
     //     icon: metadata.icon,
     //   });
     // }
-    console.log(metadata);
     if (metadata.id === WRAP_NEAR_CONTRACT_ID) {
       return {
         ...metadata,
