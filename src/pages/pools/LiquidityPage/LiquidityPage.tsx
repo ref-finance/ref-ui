@@ -2654,7 +2654,7 @@ function StablePoolList({
 
     return b1 && b2;
   };
-
+  const pinned_pool_ids = [USDTT_USDCC_USDT_USDC_POOL_ID, FRAX_USDC_POOL_ID];
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
     const v1 = Number(p1?.poolTVL?.toString() || 0);
     const v2 = Number(p2?.poolTVL?.toString() || 0);
@@ -2676,12 +2676,10 @@ function StablePoolList({
       getPoolFeeAprTitle(vol2.toString(), standPool2) +
       (farmAprById?.[p2.pool.id] || 0) * 100;
 
-    const is_p1_sort_top =
-      p1.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
-    const is_p2_sort_top =
-      p2.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID && !clicked;
+    const is_p1_sort_top = pinned_pool_ids.includes(p1.pool.id);
+    const is_p2_sort_top = pinned_pool_ids.includes(p2.pool.id);
 
-    if (is_p1_sort_top) return 1;
+    if (is_p1_sort_top) return -1;
     if (is_p2_sort_top) return 1;
 
     if (orderStable === 'desc') {

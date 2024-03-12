@@ -289,7 +289,7 @@ export function getMemeConfig(): any {
         'blackdragon.fakes.testnet':
           'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'shitzu.fakes.testnet':
-          'Shitzu is entirely community-run and no longer controlled by Bastion.',
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
       lp_farm: {
         'lonk.fakes.testnet': '716',
@@ -314,7 +314,7 @@ export function getMemeConfig(): any {
         'blackdragon.fakes.testnet':
           'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'shitzu.fakes.testnet':
-          'Shitzu is entirely community-run and no longer controlled by Bastion.',
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
       lp_farm: {
         'lonk.fakes.testnet': '716',
@@ -339,7 +339,7 @@ export function getMemeConfig(): any {
         'blackdragon.tkn.near':
           'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
         'token.0xshitzu.near':
-          'Shitzu is entirely community-run and no longer controlled by Bastion.',
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
       lp_farm: {
         'token.lonkingnearbackto2024.near': '4314',

@@ -1648,11 +1648,12 @@ export const frontConfig = {
   '79': '98',
 };
 export const frontConfigBoost = {
+  '4514': 102,
+  '4179': 101,
   '79': '100',
   '3': '99',
   '4': '98',
   'phoenix-bonds.near|wrap.near|2000': '97',
-  '4179': '96',
 };
 
 export function getFarmClassification(): any {
@@ -1726,6 +1727,7 @@ export function getFarmClassification(): any {
         '3807',
         '4276',
         '4369',
+        '4514',
       ],
       eth: [
         '605',
@@ -1759,6 +1761,7 @@ export function getFarmClassification(): any {
         '3689',
         '3699',
         '4179',
+        '4514',
       ],
       meme: ['4314', '3807', '4276', '4369'],
     };
