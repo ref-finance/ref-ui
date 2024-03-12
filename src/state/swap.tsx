@@ -770,8 +770,6 @@ export const useSwapV3 = ({
 
     if (foundPool && foundPool.state === 'Paused') return null;
 
-    // return null;
-
     if (getConfig().DCL_POOL_BLACK_LIST.includes(pool_id)) return null;
 
     return quote({
@@ -809,7 +807,7 @@ export const useSwapV3 = ({
 
     if (!storedPools) {
       setQuoteDone(true);
-      return null;
+      return;
     }
 
     const allDCLPools = JSON.parse(
@@ -1020,7 +1018,7 @@ export const useLimitOrder = ({
       .then((res) => {
         if (res.state === 'Paused') {
           setMostPoolDetail(null);
-          return null;
+          return;
         }
         setMostPoolDetail(res);
       })
@@ -1034,7 +1032,7 @@ export const useLimitOrder = ({
 
   useEffect(() => {
     if (notLimitMode || !tokenIn || !tokenOut) {
-      return null;
+      return;
     }
     Promise.all(
       V3_POOL_FEE_LIST.map((fee) =>
@@ -1136,7 +1134,7 @@ export const useLimitOrder = ({
   }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode, indexerFail]);
 
   useEffect(() => {
-    if (!poolToOrderCounts) return null;
+    if (!poolToOrderCounts) return;
 
     const countValues = Object.values(poolToOrderCounts);
 

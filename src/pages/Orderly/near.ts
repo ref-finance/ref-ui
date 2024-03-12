@@ -37,11 +37,20 @@ export interface Transaction {
 }
 
 export const keyStore = new keyStores.BrowserLocalStorageKeyStore();
+export const keyStoreKeypom = new keyStores.BrowserLocalStorageKeyStore(
+  undefined,
+  'keypom:'
+);
 
 export const config = getConfig();
 
 export const near = new Near({
   keyStore,
+  headers: {},
+  ...config,
+});
+export const nearKeypom = new Near({
+  keyStore: keyStoreKeypom,
   headers: {},
   ...config,
 });
