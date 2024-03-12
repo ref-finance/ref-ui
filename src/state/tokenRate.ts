@@ -55,7 +55,7 @@ export const useTokenRate24h = ({
   };
 
   useEffect(() => {
-    if (!token || !base_token) return null;
+    if (!token || !base_token) return;
     func();
   }, [base_token?.id, token?.id]);
 

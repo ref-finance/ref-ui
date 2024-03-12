@@ -18,6 +18,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
+import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
@@ -32,6 +33,7 @@ import {
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
+import { setupKeypom } from '@keypom/selector';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -91,6 +93,24 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     setAccounts(newAccounts);
   };
 
+  const KEYPOM_OPTIONS = {
+    beginTrial: {
+      landing: {
+        title: 'Welcome!',
+      },
+    },
+    wallets: [
+      {
+        name: 'MyNEARWallet',
+        description: 'Secure your account with a Seed Phrase',
+        redirectUrl: `https://${
+          getConfig().networkId
+        }.mynearwallet.com/linkdrop/ACCOUNT_ID/SECRET_KEY`,
+        iconUrl: 'INSERT_ICON_URL_HERE',
+      },
+    ],
+  };
+
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
       network: getConfig().networkId as NetworkId,
@@ -131,6 +151,24 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           },
           chainId: `near:${getConfig().networkId}`,
           // iconUrl: walletIcons['wallet-connect'],
+        }),
+        setupKeypom({
+          networkId: getConfig().networkId as NetworkId,
+          signInContractId: CONTRACT_ID,
+          trialAccountSpecs: {
+            url: '/trial-accounts/ACCOUNT_ID#SECRET_KEY',
+            modalOptions: KEYPOM_OPTIONS,
+          },
+          instantSignInSpecs: {
+            url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
+          },
+        }),
+        setupNearMobileWallet({
+          dAppMetadata: {
+            name: 'ref finance',
+            logoUrl: 'https://assets.ref.finance/images/REF-black-logo.png',
+            url: 'https://app.ref.finance',
+          },
         }),
       ],
     });

@@ -18,22 +18,20 @@ import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
 import { Contract, KeyPair, utils } from 'near-api-js';
 
-import { getNormalizeTradingKey, toNonDivisibleNumber } from './utils';
 import {
-  getAddFunctionCallKeyTransaction,
-  keyStore,
-  ONE_YOCTO_NEAR,
-  ORDERLY_ASSET_MANAGER,
-} from '../near';
+  getNormalizeTradingKey,
+  toNonDivisibleNumber,
+  getNearMobileWalletKeyPairObject,
+} from './utils';
 import {
   Transaction,
-  getFunctionCallTransaction,
+  keyStore,
   near,
-  getGas,
-  getAmount,
+  nearKeypom,
+  keyStoreKeypom,
+  ORDERLY_ASSET_MANAGER,
 } from '../near';
 
-import { REGISTER_DEPOSIT_AMOUNT } from './on-chain-api';
 import { getFTmetadata } from '../near';
 import Big from 'big.js';
 import { getOrderlyConfig } from '../config';
@@ -56,37 +54,56 @@ const announceLedgerAccessKey = async (accountId: string) => {
   if (wallet.id === 'ledger') {
     await ledgerTipTrigger(window.selector);
   }
+  if (wallet.id === 'keypom') {
+    keyStoreKeypom.setKey(getConfig().networkId, accountId, keyPairLedger);
+    const fullKey = localStorage.getItem(
+      `near-api-js:keystore:${accountId}:${getConfig().networkId}`
+    );
+    const keyPair = KeyPair.fromString(fullKey);
+    keyStore.setKey(getConfig().networkId, accountId, keyPair);
+    const account = await near.account(accountId);
+    await account.addKey(
+      keyPairLedger.getPublicKey().toString(),
+      ORDERLY_ASSET_MANAGER,
+      [
+        'addMessage',
+        'user_deposit_native_token',
+        'user_request_withdraw',
+        'user_announce_key',
+        'user_request_set_trading_key',
+        'create_user_account',
+      ]
+    );
+  } else {
+    keyStore.setKey(getConfig().networkId, accountId, keyPairLedger);
 
-  keyStore.setKey(getConfig().networkId, accountId, keyPairLedger);
+    const addKeyRes = await wallet.signAndSendTransaction({
+      signerId: accountId,
+      receiverId: accountId,
+      actions: [
+        {
+          type: 'AddKey',
+          params: {
+            publicKey: keyPairLedger.getPublicKey().toString(),
+            accessKey: {
+              permission: {
+                receiverId: ORDERLY_ASSET_MANAGER,
 
-  const addKeyRes = await wallet.signAndSendTransaction({
-    signerId: accountId,
-    receiverId: accountId,
-    actions: [
-      {
-        type: 'AddKey',
-        params: {
-          publicKey: keyPairLedger.getPublicKey().toString(),
-          accessKey: {
-            permission: {
-              receiverId: ORDERLY_ASSET_MANAGER,
-
-              methodNames: [
-                'addMessage',
-                'user_deposit_native_token',
-                'user_request_withdraw',
-                'user_announce_key',
-                'user_request_set_trading_key',
-                'create_user_account',
-              ],
+                methodNames: [
+                  'addMessage',
+                  'user_deposit_native_token',
+                  'user_request_withdraw',
+                  'user_announce_key',
+                  'user_request_set_trading_key',
+                  'create_user_account',
+                ],
+              },
             },
           },
         },
-      },
-    ],
-  });
-
-  // localStorage.setItem()
+      ],
+    });
+  }
 
   const handlePopTrigger = () => {
     const el = document.getElementsByClassName(
@@ -111,17 +128,21 @@ export let contract;
 
 const announceKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
-
   if (
     wallet.id === 'ledger' ||
     wallet.id === 'here-wallet' ||
-    wallet.id === 'nightly'
+    wallet.id === 'nightly' ||
+    wallet.id === 'keypom' ||
+    wallet.id === 'near-mobile-wallet'
   ) {
-    await announceLedgerAccessKey(accountId);
-
-    // const account = await near.account(ORDERLY_ASSET_MANAGER);
-
-    contract = await near.loadContract(ORDERLY_ASSET_MANAGER, {
+    if (wallet.id !== 'near-mobile-wallet') {
+      await announceLedgerAccessKey(accountId);
+    } else {
+      const keyPair = getNearMobileWalletKeyPairObject();
+      keyStore.setKey(getConfig().networkId, accountId, keyPair);
+    }
+    const targetNear = wallet.id === 'keypom' ? nearKeypom : near;
+    contract = await targetNear.loadContract(ORDERLY_ASSET_MANAGER, {
       sender: accountId,
       viewMethods: [
         'user_token_balance',
@@ -151,7 +172,6 @@ const announceKey = async (accountId: string) => {
       .account()
       .functionCall(ORDERLY_ASSET_MANAGER, 'user_announce_key', {});
   }
-
   return await wallet.signAndSendTransaction({
     signerId: accountId,
     actions: [
@@ -174,7 +194,9 @@ const setTradingKey = async (accountId: string) => {
   if (
     wallet.id === 'ledger' ||
     wallet.id === 'here-wallet' ||
-    wallet.id === 'nightly'
+    wallet.id === 'nightly' ||
+    wallet.id === 'keypom' ||
+    wallet.id === 'near-mobile-wallet'
   ) {
     // @ts-ignore
     if (!contract) {
@@ -194,7 +216,6 @@ const setTradingKey = async (accountId: string) => {
         key: getNormalizeTradingKey(),
       });
   }
-
   return await wallet.signAndSendTransaction({
     signerId: accountId,
     actions: [
