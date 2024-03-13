@@ -57,7 +57,7 @@ module.exports = {
       remove: ['CaseSensitivePathsPlugin', 'IgnorePlugin'],
     },
     configure: (webpackConfig) => {
-      webpackConfig.devtool = 'source-map';
+      webpackConfig.devtool = 'hidden-source-map';
 
       webpackConfig.optimization.splitChunks = {
         cacheGroups: {
