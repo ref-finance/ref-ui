@@ -46,7 +46,7 @@ export const ModalTransactionSubmitting = () => {
   }
 
   const isShowingHereModal =
-    wallet?.id === 'here-wallet' && actionData.status === 'pending';
+    wallet?.id === 'here-wallet' && actionData?.status === 'pending';
   const disableTransactionModal = isShowingHereModal;
 
   useEffect(() => {
