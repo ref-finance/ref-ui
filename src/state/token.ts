@@ -62,30 +62,29 @@ export const useToken = (id: string) => {
 };
 
 export const usePoolTokens = (pools: Pool[]) => {
-  const [poolTokensList, setPoolTokensList] = useState<TokenMetadata[][]>([]);
-
-  const poolTokens = useMemo(() => {
-    return poolTokensList.reduce((pre, cur, i) => {
+  const [poolTokens, setPoolTokens] = useState({});
+  useEffect(() => {
+    if (!pools.length) return;
+    getPoolTokens(pools);
+  }, [pools]);
+  async function getPoolTokens(pools) {
+    const copyPools = JSON.parse(JSON.stringify(pools || []));
+    const allRequest = copyPools.map(async (p) => {
+      return await Promise.all(
+        p.tokenIds.map((id) => {
+          return ftGetTokenMetadata(id);
+        })
+      );
+    });
+    const result = await Promise.all(allRequest);
+    const last = result.reduce((pre, cur, i) => {
       return {
         ...pre,
-        [pools[i].id]: cur,
+        [copyPools[i].id]: cur,
       };
     }, {});
-  }, [poolTokensList.length]);
-
-  useEffect(() => {
-    if (poolTokensList.length) return;
-    Promise.all(
-      pools.map(async (p) => {
-        return await Promise.all(
-          p.tokenIds.map((id) => {
-            return ftGetTokenMetadata(id);
-          })
-        );
-      })
-    ).then(setPoolTokensList);
-  }, [pools]);
-
+    setPoolTokens(last);
+  }
   return poolTokens;
 };
 
