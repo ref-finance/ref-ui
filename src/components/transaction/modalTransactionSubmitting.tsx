@@ -46,7 +46,8 @@ export const ModalTransactionSubmitting = () => {
   }
 
   const isShowingHereModal =
-    wallet?.id === 'here-wallet' && actionData?.status === 'pending';
+    (wallet?.id === 'here-wallet' || wallet?.id === 'near-mobile-wallet') &&
+    actionData?.status === 'pending';
   const disableTransactionModal = isShowingHereModal;
 
   useEffect(() => {
@@ -167,7 +168,9 @@ export const ModalTransactionContent = ({
     true || (actionData?.status === 'success' && transactionResponse);
 
   const isSkipModal = callbackUrl?.includes('orderbook');
-  const isHereSubmitting = wallet?.id === 'here-wallet' && !transactionResponse;
+  const isHereSubmitting =
+    (wallet?.id === 'here-wallet' || wallet?.id === 'near-mobile-wallet') &&
+    !transactionResponse;
 
   useEffect(() => {
     // console.info(
