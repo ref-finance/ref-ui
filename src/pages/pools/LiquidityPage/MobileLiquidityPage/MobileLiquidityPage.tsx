@@ -341,8 +341,6 @@ function MobileLiquidityPage({
               </div>
 
               <PoolDaoBannerMobile />
-
-              {/* {supportFarmStar && <FarmButton farmCount={farmCountStar} />} */}
             </Card>
           </div>
         ) : null}
@@ -725,7 +723,6 @@ function MobileWatchListCard({
             }  text-base`}
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
-            {/* {watchPools.length > 0 ? ` (${watchPools.length})` : ''} */}
             &nbsp;
             {totalWatchList_length > 0 ? <>({totalWatchList_length})</> : ''}
           </div>
@@ -966,8 +963,7 @@ function MobilePoolRowV2({
           <div className="flex flex-col items-end">
             {showSortedValue({
               sortBy,
-              value:
-                sortBy == 'apr' && mark ? pool['top_bin_apr'] : pool[sortBy],
+              value: sortBy == 'apr' && mark ? pool.top_bin_apr : pool[sortBy],
             })}
 
             {relatedSeed &&

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, {
   useState,
   useEffect,
@@ -1681,7 +1682,7 @@ export default function LiquidityPage() {
     watchV2PoolsFinal: watchV2Pools,
     watchList,
   } = useWatchPools();
-  const [hideLowTVL, setHideLowTVL] = useState<boolean>(false);
+  const [hideLowTVL, setHideLowTVL] = useState<boolean | any>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
@@ -1799,7 +1800,7 @@ export default function LiquidityPage() {
         if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
         ) {
-          let receipt = res?.receipts_outcome?.find(
+          const receipt = res?.receipts_outcome?.find(
             (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
           );
 
@@ -1958,7 +1959,7 @@ const calculateTokenValueAndShare = (
   coinsAmounts: { [id: string]: BigNumber },
   tokensMap: { [id: string]: TokenMetadata }
 ): Record<string, any> => {
-  let result: Record<string, any> = {};
+  const result: Record<string, any> = {};
   const totalShares = _.sumBy(Object.values(coinsAmounts), (o) => Number(o));
 
   let otherTokenNumber = '0';
@@ -2053,7 +2054,7 @@ function TokenChart({
     return {
       name: token.symbol,
       value: Number(coinsAmounts[token.id]),
-      token: token,
+      token,
       displayV: tokensData[token.id].display2,
     };
   });
@@ -2095,9 +2096,9 @@ function TokenChart({
     USDt: '#0E8585',
   };
 
-  let innerRadius = 30;
-  let outerRadius = 40;
-  let width = 80;
+  const innerRadius = 30;
+  const outerRadius = 40;
+  const width = 80;
 
   const renderActiveShape = (props: any) => {
     const RADIAN = Math.PI / 180;
