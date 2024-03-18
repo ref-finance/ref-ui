@@ -641,6 +641,13 @@ export function MobileNavBar(props: any) {
           />
           <div className="flex items-center">
             <div
+              onClick={(e) => {
+                if (!isSignedIn) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleWalletModalOpen();
+                }
+              }}
               className={`flex px-1 py-1 items-center justify-center rounded-lg border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 pl-3 pr-3 ${
                 isSignedIn
                   ? 'bg-white bg-opacity-20 text-white'
@@ -676,15 +683,7 @@ export function MobileNavBar(props: any) {
                     )}
                   </div>
                 ) : (
-                  <span
-                    className="text-xs"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      //modal.show();
-                      handleWalletModalOpen();
-                    }}
-                  >
+                  <span className="text-xs">
                     <FormattedMessage
                       id="connect_to_near"
                       defaultMessage="Connect to NEAR"

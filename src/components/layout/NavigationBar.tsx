@@ -300,7 +300,9 @@ function AccountEntry({
         <AccountTipDownByAccountID show={showAccountTip} />
       ) : null}
       <div
-        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative py-5`}
+        className={`cursor-pointer font-bold items-center justify-end text-center overflow-visible relative ${
+          isSignedIn ? 'py-5' : ''
+        }`}
         onMouseEnter={() => {
           setShowAccountTip(false);
           setHover(true);
@@ -310,6 +312,14 @@ function AccountEntry({
         }}
       >
         <div
+          onClick={(e) => {
+            if (!isSignedIn) {
+              e.preventDefault();
+              e.stopPropagation();
+              handleWalletModalOpen();
+              setHover(false);
+            }
+          }}
           className={`flex items-center justify-center rounded-xl ${
             isSignedIn
               ? hover
@@ -353,16 +363,7 @@ function AccountEntry({
                 />
               </span>
             ) : (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  //modal.show();
-                  handleWalletModalOpen();
-                  setHover(false);
-                }}
-                type="button"
-              >
+              <button type="button">
                 <span
                   className={`ml-1 text-xs gotham_bold ${
                     hover ? 'text-white' : 'text-greenColor'
