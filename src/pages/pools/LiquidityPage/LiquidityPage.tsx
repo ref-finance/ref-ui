@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, {
   useState,
   useEffect,
@@ -210,7 +211,7 @@ function PoolRow({
   farmApr,
 }: {
   pool: Pool;
-  index: number;
+  index?: number;
   selectCoinClass?: string;
   tokens?: TokenMetadata[];
   morePoolIds: string[];
@@ -328,26 +329,6 @@ function PoolRow({
             ? '-'
             : `${toInternationalCurrencySystem(pool.tvl.toString())}`}
         </div>
-
-        {/*<div*/}
-        {/*  className={`col-span-1 justify-self-center flex items-center justify-center py-1 hover:text-green-500 hover:cursor-pointer ${*/}
-        {/*    mark ? 'hidden' : ''*/}
-        {/*  }`}*/}
-        {/*  onMouseEnter={() => setShowLinkArrow(true)}*/}
-        {/*  onMouseLeave={() => setShowLinkArrow(false)}*/}
-        {/*  onClick={(e) => {*/}
-        {/*    e.preventDefault();*/}
-        {/*    history.push(`/more_pools/${pool.tokenIds}`, {*/}
-        {/*      morePoolIds: morePoolIds,*/}
-        {/*      tokens,*/}
-        {/*    });*/}
-        {/*  }}*/}
-        {/*>*/}
-        {/*  <span className="relative left-8">*/}
-        {/*    {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}*/}
-        {/*    {showLinkArrow && ' >'}*/}
-        {/*  </span>*/}
-        {/*</div>*/}
       </Link>
     </div>
   );
@@ -628,12 +609,11 @@ function WatchListCard({
                   return (
                     <div
                       className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
-                      key={i}
+                      key={pool?.id}
                     >
                       <PoolRow
                         pool={pool}
                         farmApr={farmAprById ? farmAprById[pool.id] : null}
-                        index={i + 1}
                         tokens={poolTokenMetas[pool.id]}
                         morePoolIds={poolsMorePoolsIds[pool.id]}
                         farmCount={farmCounts[pool.id]}
@@ -647,7 +627,7 @@ function WatchListCard({
                   return (
                     <PoolRowV2
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                      key={i}
+                      key={pool?.pool_id}
                       pool={pool}
                       index={1 + i}
                       showCol={true}
@@ -1443,30 +1423,30 @@ function PcLiquidityPage({
                     )}
                   </span>
                 </div>
-                {/*<p className="col-span-1 justify-self-end relative xs:right-8 lg:right-5">*/}
-                {/*  <FormattedMessage id="pools" defaultMessage="Pools" />*/}
-                {/*</p>*/}
               </header>
 
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
                 {pools
                   ?.filter(poolFilterFunc)
                   .sort(poolReSortingFunc)
-                  .map((pool, i) => (
-                    <PoolRow
-                      tokens={poolTokenMetas[pool.id]}
-                      key={i}
-                      farmApr={farmAprById ? farmAprById[pool.id] : null}
-                      pool={pool}
-                      index={i + 1}
-                      selectCoinClass={selectCoinClass}
-                      morePoolIds={poolsMorePoolsIds[pool.id]}
-                      supportFarm={!!farmCounts[pool.id]}
-                      farmCount={farmCounts[pool.id]}
-                      h24volume={volumes[pool.id]}
-                      watched={!!find(watchPools, { id: pool.id })}
-                    />
-                  ))}
+                  .map((pool, i) => {
+                    return (
+                      <div key={'v1-pc' + pool.id}>
+                        <PoolRow
+                          tokens={poolTokenMetas[pool.id]}
+                          farmApr={farmAprById ? farmAprById[pool.id] : null}
+                          pool={pool}
+                          index={i + 1}
+                          selectCoinClass={selectCoinClass}
+                          morePoolIds={poolsMorePoolsIds[pool.id]}
+                          supportFarm={!!farmCounts[pool.id]}
+                          farmCount={farmCounts[pool.id]}
+                          h24volume={volumes[pool.id]}
+                          watched={!!find(watchPools, { id: pool.id })}
+                        />
+                      </div>
+                    );
+                  })}
               </div>
             </section>
           </Card>
@@ -1711,7 +1691,7 @@ function LiquidityPage() {
     watchV2PoolsFinal: watchV2Pools,
     watchList,
   } = useWatchPools();
-  const [hideLowTVL, setHideLowTVL] = useState<boolean>(false);
+  const [hideLowTVL, setHideLowTVL] = useState<boolean | any>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
@@ -1829,7 +1809,7 @@ function LiquidityPage() {
         if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
         ) {
-          let receipt = res?.receipts_outcome?.find(
+          const receipt = res?.receipts_outcome?.find(
             (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
           );
 
@@ -1988,7 +1968,7 @@ const calculateTokenValueAndShare = (
   coinsAmounts: { [id: string]: BigNumber },
   tokensMap: { [id: string]: TokenMetadata }
 ): Record<string, any> => {
-  let result: Record<string, any> = {};
+  const result: Record<string, any> = {};
   const totalShares = _.sumBy(Object.values(coinsAmounts), (o) => Number(o));
 
   let otherTokenNumber = '0';
@@ -2083,7 +2063,7 @@ function TokenChart({
     return {
       name: token.symbol,
       value: Number(coinsAmounts[token.id]),
-      token: token,
+      token,
       displayV: tokensData[token.id].display2,
     };
   });
@@ -2125,9 +2105,9 @@ function TokenChart({
     USDt: '#0E8585',
   };
 
-  let innerRadius = 30;
-  let outerRadius = 40;
-  let width = 80;
+  const innerRadius = 30;
+  const outerRadius = 40;
+  const width = 80;
 
   const renderActiveShape = (props: any) => {
     const RADIAN = Math.PI / 180;

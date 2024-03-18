@@ -1,5 +1,4 @@
 import { Card } from 'src/components/card/Card';
-import { QuestionTip } from 'src/components/layout/TipWrapper';
 import { REF_MOBILE_POOL_ID_INPUT } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import {
   PoolIdNotExist,
@@ -54,7 +53,7 @@ const LiquidityV1PoolsMobile = ({
   pools,
   volumes,
   poolFilterFunc,
-}) => {
+}: any) => {
   const intl = useIntl();
 
   return (
@@ -270,7 +269,6 @@ const LiquidityV1PoolsMobile = ({
             .sort(poolSortingFunc)
             .map((pool, i) => (
               <MobilePoolRow
-                selectCoinClass={selectCoinClass}
                 tokens={poolTokenMetas[pool.id]}
                 pool={pool}
                 sortBy={sortBy}
