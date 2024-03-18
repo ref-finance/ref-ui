@@ -1,7 +1,6 @@
 import { Pool } from 'src/services/pool';
 import { TokenMetadata } from 'src/services/ft-contract';
 import { useInView } from 'react-intersection-observer';
-import { useTokens } from 'src/state/token';
 import React, { useContext } from 'react';
 import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import { useHistory } from 'react-router';
@@ -23,7 +22,6 @@ function MobilePoolRow({
   pool,
   sortBy,
   watched,
-  selectCoinClass,
   tokens,
   morePoolIds,
   supportFarm,
@@ -36,7 +34,6 @@ function MobilePoolRow({
   pool: Pool;
   sortBy: string;
   watched: Boolean;
-  selectCoinClass?: string;
   tokens?: TokenMetadata[];
   morePoolIds: string[];
   supportFarm: Boolean;
@@ -47,8 +44,7 @@ function MobilePoolRow({
   farmCount?: number;
 }) {
   const { ref } = useInView();
-
-  const curRowTokens = useTokens(pool.tokenIds, tokens);
+  const curRowTokens = tokens;
   const { indexFail } = useContext(TokenPriceListContext);
 
   const history = useHistory();
@@ -93,7 +89,7 @@ function MobilePoolRow({
         e.preventDefault();
         e.stopPropagation();
         history.push(`/more_pools/${pool.tokenIds}`, {
-          morePoolIds: morePoolIds,
+          morePoolIds,
           tokens,
         });
       }}
