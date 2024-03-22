@@ -1140,7 +1140,9 @@ const CUCUMBER_ID = 'farm.berryclub.ek.near';
 const HAPI_ID = 'd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near';
 const WOO_ID = '4691937a7508860f876c9c0a2a617e7d9e945d4b.factory.bridge.near';
 const SOL_ID = 'sol.token.a11bd.near';
+const FRAX_ID = '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near';
 const BLACKDRAGON_ID = 'blackdragon.tkn.near';
+const SOL_NATIVE_ID = '22.contract.portalbridge.near';
 
 const ftGetTokenMetadata = async (id) => {
   try {
@@ -1173,7 +1175,9 @@ const ftGetTokenMetadata = async (id) => {
       metadata.id === WOO_ID ||
       metadata.id === WRAP_NEAR_CONTRACT_ID ||
       metadata.id === SOL_ID ||
-      metadata.id === BLACKDRAGON_ID
+      metadata.id === BLACKDRAGON_ID ||
+      metadata.id === FRAX_ID ||
+      metadata.id === SOL_NATIVE_ID
     ) {
       metadata.icon = metadataDefaults[id];
       if (metadata.id === SOL_ID) {

@@ -25,6 +25,7 @@ const WOO_ID = '4691937a7508860f876c9c0a2a617e7d9e945d4b.factory.bridge.near';
 const SOL_ID = 'sol.token.a11bd.near';
 const FRAX_ID = '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near';
 const BLACKDRAGON_ID = 'blackdragon.tkn.near';
+const SOL_NATIVE_ID = '22.contract.portalbridge.near';
 
 export const REF_META_DATA = {
   decimals: 18,
@@ -196,7 +197,8 @@ export const ftGetTokenMetadata = async (
       metadata.id === WRAP_NEAR_CONTRACT_ID ||
       metadata.id === SOL_ID ||
       metadata.id === BLACKDRAGON_ID ||
-      metadata.id === FRAX_ID
+      metadata.id === FRAX_ID ||
+      metadata.id === SOL_NATIVE_ID
     ) {
       metadata.icon = metadataDefaults[id];
       if (metadata.id === SOL_ID) {
