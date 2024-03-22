@@ -128,6 +128,13 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupMeteorWallet({
           // iconUrl: walletIcons['meteor-wallet'],
         }),
+        setupNearMobileWallet({
+          dAppMetadata: {
+            name: 'ref finance',
+            logoUrl: 'https://assets.ref.finance/images/REF-black-logo.png',
+            url: 'https://app.ref.finance',
+          },
+        }),
         setupNeth({
           // iconUrl: walletIcons['neth'],
           gas: '300000000000000',
@@ -161,13 +168,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           },
           instantSignInSpecs: {
             url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
-          },
-        }),
-        setupNearMobileWallet({
-          dAppMetadata: {
-            name: 'ref finance',
-            logoUrl: 'https://assets.ref.finance/images/REF-black-logo.png',
-            url: 'https://app.ref.finance',
           },
         }),
       ],
