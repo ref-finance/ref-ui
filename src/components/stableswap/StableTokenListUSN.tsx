@@ -78,7 +78,7 @@ export default function StableTokenListUSN(props: {
             icon={tokens[0].icon}
             className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
           />
-          <div className="text-white text-base" title={tokens[0].id}>
+          <div className="text-white text-base break-all" title={tokens[0].id}>
             {toRealSymbol(tokens[0].symbol)}
           </div>
         </div>
