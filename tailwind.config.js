@@ -137,6 +137,7 @@ module.exports = {
           'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
         purpleBgColor: 'linear-gradient(180deg, #C3BDAD 0%, #AF9773 100%)',
         pendingBgColor: 'linear-gradient(180deg, #2F3A39 0%, #1D2932 100%)',
+        memeVoteBgColor: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -431,6 +432,8 @@ module.exports = {
         memePoolBoxBorderColor: '#3F5361',
         memeDarkColor: '#182833',
         memeyellowColor: '#F9A43F',
+        memeModelgreyColor: '#2F414E',
+        memeVoteBgColor: 'rgba(0, 255, 209, 0.1)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

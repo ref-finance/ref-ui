@@ -36,6 +36,7 @@ import {
 import { checkTransaction } from '../../services/swap';
 import { isMobile } from '../../utils/device';
 import getConfig from '../../services/config';
+import StakeNewModal from './StakeNewModel';
 const is_mobile = isMobile();
 export interface ITxParams {
   action: 'stake' | 'unstake';
@@ -408,7 +409,7 @@ const SeedsBox = () => {
         );
       })}
       {isStakeOpen ? (
-        <StakeModal
+        <StakeNewModal
           isOpen={isStakeOpen}
           onRequestClose={() => {
             setIsStakeOpen(false);

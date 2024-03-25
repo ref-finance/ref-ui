@@ -6238,3 +6238,22 @@ export function BoneIcon(props) {
     </svg>
   );
 }
+
+export function ArrowRightTopIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="12"
+      height="13"
+      viewBox="0 0 12 13"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 11.9834L11 1.9834M11 1.9834H4.33333M11 1.9834V8.65007"
+        stroke="#00FFD1"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}

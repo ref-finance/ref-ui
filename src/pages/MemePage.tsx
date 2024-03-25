@@ -35,6 +35,7 @@ import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
 import { MobileBanner, MobileBannerBg } from '../components/meme/ani_mobile';
+import VoteXREF from '../components/meme/VoteXREF';
 
 export default function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
@@ -248,6 +249,7 @@ export default function MemePage() {
         >
           <Overview />
           <ProgressBar />
+          <VoteXREF />
           <SeedsBox />
           <WithdrawList />
           {loading ? (
