@@ -8,13 +8,8 @@ import {
   ConnectToNearBtn,
 } from 'src/components/button/Button';
 import { MemeContext } from './context';
-import {
-  getMemeConfig,
-  claim,
-  getSeedApr,
-  isPending,
-  isEnded,
-} from '../../services/meme';
+import { claim, getSeedApr, isPending, isEnded } from '../../services/meme';
+import { getMemeDataConfig } from './memeConfig';
 import { toReadableNumber } from '../../utils/numbers';
 import {
   toInternationalCurrencySystem_usd,
@@ -61,7 +56,7 @@ const SeedsBox = () => {
   const [txParams, setTxParams] = useState<ITxParams>();
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
   const [claim_seed_id, set_claim_seed_id] = useState('');
-  const memeConfig = getMemeConfig();
+  const memeConfig = getMemeDataConfig();
   const history = useHistory();
   const getURLInfo = () => {
     const search = window.location.search;

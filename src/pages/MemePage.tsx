@@ -17,8 +17,8 @@ import {
   get_config,
   IFarmerWithdraw,
   IMemefarmConfig,
-  getMemeConfig,
 } from '../services/meme';
+import { getMemeDataConfig } from '../components/meme/memeConfig';
 import {
   getBoostTokenPrices,
   Seed,
@@ -106,7 +106,7 @@ export default function MemePage() {
     const tokenMetadataMap = tokenMetadatas.reduce(
       (acc, metadata: TokenMetadata) => {
         metadata.icon =
-          getMemeConfig().token_icon?.[metadata.id] || metadata.icon;
+          getMemeDataConfig().token_icon?.[metadata.id] || metadata.icon;
         return {
           ...acc,
           [metadata.id]: metadata,
@@ -149,7 +149,7 @@ export default function MemePage() {
       };
     }, {});
     // get lp seeds
-    const lp_seeds = Object.entries(getMemeConfig().lp_farm).reduce(
+    const lp_seeds = Object.entries(getMemeDataConfig().lp_farm).reduce(
       (acc, cur) => {
         const [tokenId, poolId] = cur;
         const lp_seeds = all_lp_seeds.filter(

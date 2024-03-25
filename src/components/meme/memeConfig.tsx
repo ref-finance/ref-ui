@@ -151,7 +151,145 @@ const SHITZU_CONFIG = {
   },
   feedIcon: BoneIcon,
 };
-export function getProgressConfig(): any {
+export function getMemeContractConfig(
+  env: string = process.env.REACT_APP_NEAR_ENV
+) {
+  switch (env) {
+    case 'production':
+    case 'mainnet':
+      return {
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'meme-farming_011.ref-labs.near',
+        XREF_MEME_FARM_CONTRACT_ID: [],
+        MEME_TOKEN_XREF_MAP: {},
+      };
+    case 'pub-testnet':
+      return {
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'memefarm-dev2.ref-dev.testnet',
+        XREF_MEME_FARM_CONTRACT_ID: [
+          'memefarm-xref-lonk.ref-dev.testnet',
+          'memefarm-xref-neko.ref-dev.testnet',
+          'memefarm-xref-bldr.ref-dev.testnet',
+          'memefarm-xref-shzu.ref-dev.testnet',
+        ],
+        MEME_TOKEN_XREF_MAP: {
+          'lonk.fakes.testnet': 'memefarm-xref-lonk.ref-dev.testnet',
+          'neko.fakes.testnet': 'memefarm-xref-neko.ref-dev.testnet',
+          'blackdragon.fakes.testnet': 'memefarm-xref-bldr.ref-dev.testnet',
+          'shitzu.fakes.testnet': 'memefarm-xref-shzu.ref-dev.testnet',
+        },
+      };
+    case 'testnet':
+      return {
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'memefarm-dev2.ref-dev.testnet',
+        XREF_MEME_FARM_CONTRACT_ID: [
+          'memefarm-xref-lonk.ref-dev.testnet',
+          'memefarm-xref-neko.ref-dev.testnet',
+          'memefarm-xref-bldr.ref-dev.testnet',
+          'memefarm-xref-shzu.ref-dev.testnet',
+        ],
+        MEME_TOKEN_XREF_MAP: {
+          'lonk.fakes.testnet': 'memefarm-xref-lonk.ref-dev.testnet',
+          'neko.fakes.testnet': 'memefarm-xref-neko.ref-dev.testnet',
+          'blackdragon.fakes.testnet': 'memefarm-xref-bldr.ref-dev.testnet',
+          'shitzu.fakes.testnet': 'memefarm-xref-shzu.ref-dev.testnet',
+        },
+      };
+    default:
+      return {
+        REF_MEME_FARM_CONTRACT_ID:
+          process.env.REF_MEME_FARM_CONTRACT_ID ||
+          'meme-farming_011.ref-labs.near',
+        XREF_MEME_FARM_CONTRACT_ID: [],
+        MEME_TOKEN_XREF_MAP: {},
+      };
+  }
+}
+export function getMemeDataConfig(): any {
+  const env: string = process.env.REACT_APP_NEAR_ENV;
+  if (env == 'pub-testnet') {
+    return {
+      description: {
+        'lonk.fakes.testnet':
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
+        'neko.fakes.testnet':
+          'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
+        'blackdragon.fakes.testnet':
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
+        'shitzu.fakes.testnet':
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
+      },
+      lp_farm: {
+        'lonk.fakes.testnet': '716',
+        'neko.fakes.testnet': '717',
+        'blackdragon.fakes.testnet': '718',
+        'shitzu.fakes.testnet': '719',
+      },
+      token_icon: {
+        'neko.fakes.testnet':
+          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
+        'blackdragon.fakes.testnet':
+          'https://assets.ref.finance/images/blackdragon-icon.png',
+      },
+    };
+  } else if (env == 'testnet') {
+    return {
+      description: {
+        'lonk.fakes.testnet':
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
+        'neko.fakes.testnet':
+          'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
+        'blackdragon.fakes.testnet':
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
+        'shitzu.fakes.testnet':
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
+      },
+      lp_farm: {
+        'lonk.fakes.testnet': '716',
+        'neko.fakes.testnet': '717',
+        'blackdragon.fakes.testnet': '718',
+        'shitzu.fakes.testnet': '719',
+      },
+      token_icon: {
+        'neko.fakes.testnet':
+          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
+        'blackdragon.fakes.testnet':
+          'https://assets.ref.finance/images/blackdragon-icon.png',
+      },
+    };
+  } else {
+    return {
+      description: {
+        'token.lonkingnearbackto2024.near':
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
+        'ftv2.nekotoken.near':
+          'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
+        'blackdragon.tkn.near':
+          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
+        'token.0xshitzu.near':
+          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
+      },
+      lp_farm: {
+        'token.lonkingnearbackto2024.near': '4314',
+        'ftv2.nekotoken.near': '3807',
+        'blackdragon.tkn.near': '4276',
+        'token.0xshitzu.near': '4369',
+      },
+      token_icon: {
+        'ftv2.nekotoken.near':
+          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
+        'blackdragon.tkn.near':
+          'https://assets.ref.finance/images/blackdragon-icon.png',
+      },
+    };
+  }
+}
+export function getMemeUiConfig(): any {
   const env: string = process.env.REACT_APP_NEAR_ENV;
   if (env == 'pub-testnet') {
     return {
