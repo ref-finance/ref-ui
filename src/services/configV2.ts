@@ -33,6 +33,7 @@ export default function getConfig(
           'token.v2.ref-finance.near|wrap.near|400',
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|wrap.near|2000',
         ],
       };
     case 'pub-testnet':
@@ -97,6 +98,7 @@ export default function getConfig(
           'token.v2.ref-finance.near|wrap.near|400',
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|wrap.near|2000',
         ],
       };
   }
