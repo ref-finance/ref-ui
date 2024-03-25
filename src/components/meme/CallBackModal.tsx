@@ -14,8 +14,8 @@ import {
 import { openUrl } from '../../services/commonV3';
 import getConfig from '../../services/config';
 import { useHistory } from 'react-router';
-import { getProgressConfig } from './ProgressConfig';
-const progressConfig = getProgressConfig();
+import { getMemeUiConfig } from './memeConfig';
+const progressConfig = getMemeUiConfig();
 function CallBackModal(props: any) {
   const { seeds, tokenPriceList } = useContext(MemeContext);
   const {

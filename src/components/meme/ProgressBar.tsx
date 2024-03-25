@@ -5,14 +5,14 @@ import { FeedMeMobile } from './ani_mobile';
 import { MemeContext } from './context';
 import { formatPercentage } from '../../utils/uiNumber';
 import { isMobile } from '../../utils/device';
-import { getProgressConfig } from './ProgressConfig';
+import { getMemeUiConfig } from './memeConfig';
 import StakeModal from './StakeModal';
 import { isPending } from '../../services/meme';
 const is_mobile = isMobile();
 const ProgressBar = () => {
   const [isStakeOpen, setIsStakeOpen] = useState(false);
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
-  const config = getProgressConfig();
+  const config = getMemeUiConfig();
   const { seeds, user_balances } = useContext(MemeContext);
   const totalTvl = useMemo(() => {
     const totalTvl = Object.entries(seeds)

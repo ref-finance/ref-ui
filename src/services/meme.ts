@@ -221,6 +221,21 @@ export const claim = async (seed: Seed): Promise<any> => {
   transactions = await withdrawReards(seed, transactions);
   return executeFarmMultipleTransactions(transactions);
 };
+export const transfer = async () => {
+  // transactions.push({
+  //   receiverId: tokenId,
+  //   functionCalls: [
+  //     {
+  //       methodName: 'ft_transfer',
+  //       args: {
+  //         receiver_id: account_b,
+  //         amount: '100000',
+  //       },
+  //       amount: ONE_YOCTO_NEAR,
+  //       gas: '180000000000000',
+  //   }]
+  // });
+};
 async function withdrawReards(seed: Seed, transactions: Transaction[]) {
   const { farmList, seed_id } = seed;
   const rewardIds = farmList.map((farm: FarmBoost) => farm.terms.reward_token);
@@ -275,86 +290,6 @@ async function withdrawReards(seed: Seed, transactions: Transaction[]) {
     });
   }
   return transactions;
-}
-// config
-export function getMemeConfig(): any {
-  const env: string = process.env.REACT_APP_NEAR_ENV;
-  if (env == 'pub-testnet') {
-    return {
-      description: {
-        'lonk.fakes.testnet':
-          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
-        'neko.fakes.testnet':
-          'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
-        'blackdragon.fakes.testnet':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
-        'shitzu.fakes.testnet':
-          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
-      },
-      lp_farm: {
-        'lonk.fakes.testnet': '716',
-        'neko.fakes.testnet': '717',
-        'blackdragon.fakes.testnet': '718',
-        'shitzu.fakes.testnet': '719',
-      },
-      token_icon: {
-        'neko.fakes.testnet':
-          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
-        'blackdragon.fakes.testnet':
-          'https://assets.ref.finance/images/blackdragon-icon.png',
-      },
-    };
-  } else if (env == 'testnet') {
-    return {
-      description: {
-        'lonk.fakes.testnet':
-          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
-        'neko.fakes.testnet':
-          'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
-        'blackdragon.fakes.testnet':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
-        'shitzu.fakes.testnet':
-          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
-      },
-      lp_farm: {
-        'lonk.fakes.testnet': '716',
-        'neko.fakes.testnet': '717',
-        'blackdragon.fakes.testnet': '718',
-        'shitzu.fakes.testnet': '719',
-      },
-      token_icon: {
-        'neko.fakes.testnet':
-          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
-        'blackdragon.fakes.testnet':
-          'https://assets.ref.finance/images/blackdragon-icon.png',
-      },
-    };
-  } else {
-    return {
-      description: {
-        'token.lonkingnearbackto2024.near':
-          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
-        'ftv2.nekotoken.near':
-          'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
-        'blackdragon.tkn.near':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
-        'token.0xshitzu.near':
-          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
-      },
-      lp_farm: {
-        'token.lonkingnearbackto2024.near': '4314',
-        'ftv2.nekotoken.near': '3807',
-        'blackdragon.tkn.near': '4276',
-        'token.0xshitzu.near': '4369',
-      },
-      token_icon: {
-        'ftv2.nekotoken.near':
-          'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
-        'blackdragon.tkn.near':
-          'https://assets.ref.finance/images/blackdragon-icon.png',
-      },
-    };
-  }
 }
 // getMemeSeedApr
 export function getSeedApr(seed: Seed) {

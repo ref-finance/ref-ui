@@ -16,9 +16,9 @@ import {
   formatPercentage,
 } from '../../utils/uiNumber';
 import { Seed, FarmBoost } from '../../services/farm';
-import { getProgressConfig } from './ProgressConfig';
+import { getMemeUiConfig } from './memeConfig';
 import { TipIcon } from './icons';
-const progressConfig = getProgressConfig();
+const progressConfig = getMemeUiConfig();
 function StakeModal(props: any) {
   const { seeds, user_balances, tokenPriceList, user_seeds, memeConfig } =
     useContext(MemeContext);
