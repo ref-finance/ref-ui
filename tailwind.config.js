@@ -138,6 +138,7 @@ module.exports = {
         purpleBgColor: 'linear-gradient(180deg, #C3BDAD 0%, #AF9773 100%)',
         pendingBgColor: 'linear-gradient(180deg, #2F3A39 0%, #1D2932 100%)',
         memeVoteBgColor: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
+        bannerBtnBgColor: 'linear-gradient(180deg, #00FFD1 0%, #00997D 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',

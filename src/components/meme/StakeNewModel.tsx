@@ -82,8 +82,6 @@ function StakeNewModal(props: any) {
     }
     return seed;
   }, [amount, seeds, tokenPriceList]);
-  console.log(seed.token_meta_data)
-  console.log(tokenPriceList)
   function stakeToken() {
     setStakeLoading(true);
     stake({
@@ -107,7 +105,7 @@ function StakeNewModal(props: any) {
     }
     return result.trim();
   }
-  const FeedIcon = progressConfig.progress[seed_id].feedIcon;
+  const FeedIcon = progressConfig?.progress[seed_id]?.feedIcon;
   const [selectedTab, setSelectedTab] = useState('first');
   return (
     <Modal

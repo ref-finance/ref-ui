@@ -243,10 +243,7 @@ export default function MemePage() {
         ) : (
           <Banner />
         )}
-        <div
-          className="m-auto lg:w-5/6"
-          style={{ maxWidth: '1100px', marginTop: is_mobile ? '0px' : '-55px' }}
-        >
+        <div className="m-auto lg:w-5/6" style={{ maxWidth: '1100px' }}>
           <Overview />
           <ProgressBar />
           <VoteXREF />
