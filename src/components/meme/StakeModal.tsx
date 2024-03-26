@@ -20,9 +20,14 @@ import { getMemeUiConfig } from './memeConfig';
 import { TipIcon } from './icons';
 const progressConfig = getMemeUiConfig();
 function StakeModal(props: any) {
-  const { seeds, user_balances, tokenPriceList, user_seeds, memeConfig } =
-    useContext(MemeContext);
-  const { delay_withdraw_sec } = memeConfig;
+  const {
+    seeds,
+    user_balances,
+    tokenPriceList,
+    user_seeds,
+    memeContractConfig,
+  } = useContext(MemeContext);
+  const { delay_withdraw_sec } = memeContractConfig;
   const { isOpen, onRequestClose, seed_id } = props;
   const [amount, setAmount] = useState('');
   const [stakeLoading, setStakeLoading] = useState(false);

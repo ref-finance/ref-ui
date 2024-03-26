@@ -6,6 +6,7 @@ import {
   REF_MEME_FARM_CONTRACT_ID,
   ONE_YOCTO_NEAR,
   refMeMeFarmViewFunction,
+  xrefMeMeFarmViewFunction,
 } from './near';
 import {
   storageDepositAction,
@@ -235,6 +236,45 @@ export const transfer = async () => {
   //       gas: '180000000000000',
   //   }]
   // });
+};
+export const xref_list_seeds_info = async (contractId) => {
+  return xrefMeMeFarmViewFunction({
+    contractId,
+    methodName: 'list_seeds_info',
+  });
+};
+export const xref_list_farmer_seeds = async (contractId) => {
+  const accountId = getCurrentWallet().wallet.getAccountId();
+  return await xrefMeMeFarmViewFunction({
+    contractId,
+    methodName: 'list_farmer_seeds',
+    args: { farmer_id: accountId },
+  });
+};
+export const get_xref_unclaimed_rewards = async (
+  contractId: string,
+  seed_id: string
+) => {
+  const accountId = getCurrentWallet().wallet.getAccountId();
+  return await xrefMeMeFarmViewFunction({
+    contractId,
+    methodName: 'get_unclaimed_rewards',
+    args: { farmer_id: accountId, seed_id },
+  });
+};
+export const xref_list_farmer_withdraws = async (contractId) => {
+  const accountId = getCurrentWallet().wallet.getAccountId();
+  return await xrefMeMeFarmViewFunction({
+    contractId,
+    methodName: 'list_farmer_withdraws',
+    args: { farmer_id: accountId },
+  });
+};
+export const get_xref_config = async (contractId) => {
+  return await xrefMeMeFarmViewFunction({
+    contractId,
+    methodName: 'get_config',
+  });
 };
 async function withdrawReards(seed: Seed, transactions: Transaction[]) {
   const { farmList, seed_id } = seed;

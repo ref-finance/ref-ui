@@ -19,9 +19,14 @@ import {
 import { Template } from './StakeModal';
 
 function UnStakeModal(props: any) {
-  const { seeds, tokenPriceList, user_seeds, memeConfig, withdraw_list } =
-    useContext(MemeContext);
-  const { delay_withdraw_sec } = memeConfig;
+  const {
+    seeds,
+    tokenPriceList,
+    user_seeds,
+    memeContractConfig,
+    withdraw_list,
+  } = useContext(MemeContext);
+  const { delay_withdraw_sec } = memeContractConfig;
   const { isOpen, onRequestClose, seed_id } = props;
   const [amount, setAmount] = useState('');
   const [unStakeLoading, setUnStakeLoading] = useState(false);

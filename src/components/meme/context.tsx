@@ -10,9 +10,22 @@ interface IMemeContext {
   user_balances: Record<string, string>;
   user_seeds: Record<string, UserSeedInfo>;
   withdraw_list: Record<string, IFarmerWithdraw>;
-  memeConfig: IMemefarmConfig;
+  memeContractConfig: IMemefarmConfig;
+  xrefContractConfig: Record<string, IMemefarmConfig>;
   lpSeeds: Record<string, Seed>;
+  xrefSeeds: Record<string, Seed>;
+  xrefFarmContractUserData: Record<string, IFarmAccount>;
+  memeFarmContractUserData: IFarmAccount;
+}
+
+// withdraw_list: user_withdraw_list[index],
+// unclaimed_rewards: user_unclaimed_rewards[cur],
+// join_seeds: user_seeds[index],
+interface IFarmAccount {
+  withdraw_list: Record<string, IFarmerWithdraw>;
+  unclaimed_rewards: Record<string, any>;
+  join_seeds: Record<string, UserSeedInfo>;
 }
 const MemeContext = createContext<IMemeContext>(null);
 
-export { MemeContext };
+export { MemeContext, IMemeContext, IFarmAccount };

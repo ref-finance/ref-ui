@@ -161,7 +161,7 @@ export function getMemeContractConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
-        XREF_MEME_FARM_CONTRACT_ID: [],
+        XREF_MEME_FARM_CONTRACT_IDS: [],
         MEME_TOKEN_XREF_MAP: {},
       };
     case 'pub-testnet':
@@ -169,7 +169,7 @@ export function getMemeContractConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
-        XREF_MEME_FARM_CONTRACT_ID: [
+        XREF_MEME_FARM_CONTRACT_IDS: [
           'memefarm-xref-lonk.ref-dev.testnet',
           'memefarm-xref-neko.ref-dev.testnet',
           'memefarm-xref-bldr.ref-dev.testnet',
@@ -187,7 +187,7 @@ export function getMemeContractConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
-        XREF_MEME_FARM_CONTRACT_ID: [
+        XREF_MEME_FARM_CONTRACT_IDS: [
           'memefarm-xref-lonk.ref-dev.testnet',
           'memefarm-xref-neko.ref-dev.testnet',
           'memefarm-xref-bldr.ref-dev.testnet',
@@ -205,7 +205,7 @@ export function getMemeContractConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
-        XREF_MEME_FARM_CONTRACT_ID: [],
+        XREF_MEME_FARM_CONTRACT_IDS: [],
         MEME_TOKEN_XREF_MAP: {},
       };
   }
@@ -236,6 +236,12 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet':
           'https://assets.ref.finance/images/blackdragon-icon.png',
       },
+      meme_winner_tokens: [
+        'lonk.fakes.testnet',
+        'neko.fakes.testnet',
+        'blackdragon.fakes.testnet',
+        'shitzu.fakes.testnet',
+      ],
     };
   } else if (env == 'testnet') {
     return {
@@ -261,6 +267,12 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet':
           'https://assets.ref.finance/images/blackdragon-icon.png',
       },
+      meme_winner_tokens: [
+        'lonk.fakes.testnet',
+        'neko.fakes.testnet',
+        'blackdragon.fakes.testnet',
+        'shitzu.fakes.testnet',
+      ],
     };
   } else {
     return {
@@ -286,6 +298,12 @@ export function getMemeDataConfig(): any {
         'blackdragon.tkn.near':
           'https://assets.ref.finance/images/blackdragon-icon.png',
       },
+      meme_winner_tokens: [
+        'token.lonkingnearbackto2024.near',
+        'ftv2.nekotoken.near',
+        'blackdragon.tkn.near',
+        'token.0xshitzu.near',
+      ],
     };
   }
 }

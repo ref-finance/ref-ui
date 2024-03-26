@@ -37,8 +37,8 @@ const VoteXREF = () => {
               Vote for your favorite Meme by staking xREF, so that the Meme you
               support can be listed in the next round of ‘Meme Copetetion’.
             </div>
-            <div className="flex">
-              <div className="mr-14 w-9/12">
+            <div className="flex gap-12">
+              <div className="flex-grow">
                 <div className="flex">
                   <div>
                     <p>Current Round:</p>
@@ -57,9 +57,9 @@ const VoteXREF = () => {
                   <MyPieChart />
                 </div>
               </div>
-              <div className="w-4/12">
+              <div className="w-1/3">
                 <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-6">
-                  <div className="flex justify-between py-8 px-5 text-white text-base items-center gotham_bold">
+                  <div className="flex justify-between pt-5 pb-4 px-5 text-white text-base items-center gotham_bold">
                     <div>Total xREF</div>
                     <div className="text-3xl flex items-center">
                       <img
@@ -75,23 +75,30 @@ const VoteXREF = () => {
                     </div>
                   </div>
                   <div className="overflow-x-auto">
-                    <div className="px-5 flex justify-between items-center border-b border-memeVoteBgColor pb-2.5">
+                    <div className="px-5 flex justify-between items-center border-b border-memeVoteBgColor pb-2">
                       <div>Meme Project</div>
                       <div>xREF</div>
                     </div>
-                    <div className="pt-3 pl-5 pr-4 text-white">
-                      <div className="flex justify-between mb-5">
-                        <div className="flex items-center">
-                          <p>Blackdragon</p>
-                          <div
-                            className="ml-1.5 text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
-                            style={{ transform: 'skewX(-20deg)' }}
-                          >
-                            Listed
+                    <div
+                      className="pt-3 pl-5 pr-4 text-white"
+                      style={{ maxHeight: '270px', overflow: 'auto' }}
+                    >
+                      {[1, 2, 3, 4].map((v) => {
+                        return (
+                          <div key={v} className="flex justify-between mb-5">
+                            <div className="flex items-center">
+                              <p>Blackdragon</p>
+                              <div
+                                className="ml-1.5 text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
+                                style={{ transform: 'skewX(-20deg)' }}
+                              >
+                                Listed
+                              </div>
+                            </div>
+                            <div className="gotham_bold">5020.35</div>
                           </div>
-                        </div>
-                        <div className="gotham_bold">5020.35</div>
-                      </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -103,8 +110,14 @@ const VoteXREF = () => {
                 >
                   Vote Meme by xREF
                 </div>
-                <div className="w-full text-center text-greenLight text-base mr-1.5 flex items-center justify-center cursor-pointer">
-                  Acquire $xREF <ArrowRightTopIcon />
+                <div className="flex items-center justify-center text-greenLight text-base">
+                  <a
+                    className="inline-flex items-center cursor-pointer"
+                    href="/xref"
+                    target="_blank"
+                  >
+                    Acquire $xREF <ArrowRightTopIcon />
+                  </a>
                 </div>
               </div>
             </div>

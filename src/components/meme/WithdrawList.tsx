@@ -12,9 +12,9 @@ import { isMobile } from '../../utils/device';
 
 const WithdrawList = () => {
   const [actionSeedId, setActionSeedId] = useState('');
-  const { withdraw_list, seeds, memeConfig } = useContext(MemeContext);
-  if (!memeConfig) return null;
-  const { delay_withdraw_sec } = memeConfig;
+  const { withdraw_list, seeds, memeContractConfig } = useContext(MemeContext);
+  if (!memeContractConfig) return null;
+  const { delay_withdraw_sec } = memeContractConfig;
   function formatSeconds(seconds) {
     const days = Math.floor(seconds / (60 * 60 * 24));
     const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
