@@ -2,20 +2,11 @@ import React, { useState } from 'react';
 import { Pie, PieChart } from 'recharts';
 import { ArrowRightTopIcon } from './icons';
 import VoteModel from './VoteModel';
+import MyPieChart from './VoteChart';
 
 const VoteXREF = () => {
   const [activeTab, setActiveTab] = useState('vote');
   const [isVoteOpen, setIsVoteOpen] = useState(false);
-  const data = [
-    {
-      name: 'Group A',
-      value: 2400,
-    },
-    {
-      name: 'Group B',
-      value: 4567,
-    },
-  ];
   return (
     <div className="mt-12 rounded-2xl border border-memeBorderColor">
       <div className="border-b border-memeBorderColor pt-8 bg-memeVoteBgColor rounded-t-2xl pl-14 text-primaryText flex item-center text-2xl gotham_bold">
@@ -63,19 +54,7 @@ const VoteXREF = () => {
                   </div>
                 </div>
                 <div className="flex justify-center">
-                  <PieChart width={345} height={345}>
-                    <Pie
-                      data={data}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      fill="#82ca9d"
-                    />
-                    <>11</>
-                  </PieChart>
+                  <MyPieChart />
                 </div>
               </div>
               <div className="w-4/12">
