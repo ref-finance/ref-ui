@@ -13,7 +13,10 @@ import {
   STORAGE_TO_REGISTER_WITH_MFT,
 } from '../services/creators/storage';
 import { getCurrentWallet } from '../utils/wallets-integration';
-import { currentStorageBalanceOfMeme_farm } from './account';
+import {
+  currentStorageBalanceOfMeme_farm,
+  currentStorageBalanceOfXref_farm,
+} from './account';
 import { Seed, FarmBoost } from '~src/services/farm';
 import { ftGetStorageBalance } from '../services/ft-contract';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
@@ -21,6 +24,7 @@ interface StakeOptions {
   seed: Seed;
   amount: string;
   msg?: string;
+  contractId?: string;
 }
 interface UnStakeOptions {
   seed: Seed;
@@ -44,6 +48,19 @@ export const checkTokenNeedsStorageDeposit_meme = async () => {
   let storageNeeded;
   const balance = await currentStorageBalanceOfMeme_farm(
     getCurrentWallet().wallet.getAccountId()
+  );
+
+  if (!balance) {
+    // TDOO
+    storageNeeded = '0.1';
+  }
+  return storageNeeded;
+};
+export const checkTokenNeedsStorageDeposit_xref = async (contractId) => {
+  let storageNeeded;
+  const balance = await currentStorageBalanceOfXref_farm(
+    getCurrentWallet().wallet.getAccountId(),
+    contractId
   );
 
   if (!balance) {
@@ -123,7 +140,7 @@ export const stake = async ({ seed, amount = '' }: StakeOptions) => {
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-  transactions = await withdrawReards(seed, transactions);
+  transactions = await withdrawRewards(seed, transactions);
   return executeFarmMultipleTransactions(transactions);
 };
 export const unStake = async ({
@@ -170,7 +187,7 @@ export const unStake = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-  transactions = await withdrawReards(seed, transactions);
+  transactions = await withdrawRewards(seed, transactions);
 
   return executeFarmMultipleTransactions(transactions);
 };
@@ -219,7 +236,7 @@ export const claim = async (seed: Seed): Promise<any> => {
       },
     ],
   });
-  transactions = await withdrawReards(seed, transactions);
+  transactions = await withdrawRewards(seed, transactions);
   return executeFarmMultipleTransactions(transactions);
 };
 export const transfer = async () => {
@@ -276,7 +293,39 @@ export const get_xref_config = async (contractId) => {
     methodName: 'get_config',
   });
 };
-async function withdrawReards(seed: Seed, transactions: Transaction[]) {
+export const xrefStake = async ({
+  seed,
+  amount = '',
+  contractId,
+}: StakeOptions) => {
+  const { seed_id } = seed;
+  let transactions: Transaction[] = [];
+  const functionCalls = [];
+  functionCalls.push({
+    methodName: 'ft_transfer_call',
+    args: {
+      receiver_id: contractId,
+      amount,
+      msg: JSON.stringify('Free'),
+    },
+    amount: ONE_YOCTO_NEAR,
+    gas: '180000000000000',
+  });
+  transactions.push({
+    receiverId: seed_id,
+    functionCalls,
+  });
+  const neededStorage = await checkTokenNeedsStorageDeposit_xref(contractId);
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: contractId,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  transactions = await withdrawRewardsXref(seed, transactions, contractId);
+  return executeFarmMultipleTransactions(transactions);
+};
+async function withdrawRewards(seed: Seed, transactions: Transaction[]) {
   const { farmList, seed_id } = seed;
   const rewardIds = farmList.map((farm: FarmBoost) => farm.terms.reward_token);
   const functionCalls: any[] = [];
@@ -331,6 +380,65 @@ async function withdrawReards(seed: Seed, transactions: Transaction[]) {
   }
   return transactions;
 }
+async function withdrawRewardsXref(
+  seed: Seed,
+  transactions: Transaction[],
+  contractId: string
+) {
+  const { farmList, seed_id } = seed;
+  const rewardIds = farmList.map((farm: FarmBoost) => farm.terms.reward_token);
+  const functionCalls: any[] = [];
+  const ftBalancePromiseList: any[] = [];
+  rewardIds.forEach((token_id) => {
+    const ftBalance = ftGetStorageBalance(token_id);
+    ftBalancePromiseList.push(ftBalance);
+    functionCalls.push({
+      methodName: 'withdraw_reward',
+      args: {
+        token_id,
+      },
+      gas: '50000000000000',
+    });
+  });
+  const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
+  resolvedBalanceList.forEach((ftBalance, index) => {
+    if (!ftBalance) {
+      transactions.unshift({
+        receiverId: rewardIds[index],
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_MFT,
+          }),
+        ],
+      });
+    }
+  });
+  transactions.push({
+    receiverId: contractId,
+    functionCalls,
+  });
+  let unclaimed_rewards = {};
+  try {
+    unclaimed_rewards = await get_xref_unclaimed_rewards(contractId, seed_id);
+  } catch (error) {}
+  const wnear_rewards_amount = unclaimed_rewards[WRAP_NEAR_CONTRACT_ID];
+  if (Big(wnear_rewards_amount || 0).gt(0)) {
+    transactions.push({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_withdraw',
+          args: {
+            amount: wnear_rewards_amount,
+          },
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    });
+  }
+  return transactions;
+}
 // getMemeSeedApr
 export function getSeedApr(seed: Seed) {
   if (!seed || isEnded(seed)) return '0';
@@ -366,4 +474,36 @@ export function isEnded(seed: Seed) {
     }
   }
   return isEnded;
+}
+export function formatSeconds(seconds) {
+  const days = Math.floor(seconds / (60 * 60 * 24));
+  const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
+  const minutes = Math.floor((seconds % (60 * 60)) / 60);
+  let result = '';
+  if (days > 0) {
+    result += days + ' ' + 'days' + ' ';
+  }
+  if (hours > 0) {
+    result += hours + ' ' + 'hour' + ' ';
+  }
+  if (minutes > 0) {
+    result += minutes + ' ' + 'min';
+  }
+  return result.trim();
+}
+export function formatSecondsAbb(seconds) {
+  const days = Math.floor(seconds / (60 * 60 * 24));
+  const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
+  const minutes = Math.floor((seconds % (60 * 60)) / 60);
+  let result = '';
+  if (days > 0) {
+    result += days + 'd' + ' ';
+  }
+  if (hours > 0) {
+    result += hours + 'h' + ' ';
+  }
+  if (minutes > 0) {
+    result += minutes + 'm';
+  }
+  return result.trim();
 }

@@ -10,7 +10,7 @@ import { InputAmount } from './InputBox';
 import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
-import { stake, getSeedApr, isEnded } from '../../services/meme';
+import { stake, getSeedApr, isEnded, formatSeconds } from '../../services/meme';
 import {
   toInternationalCurrencySystem_number,
   formatPercentage,
@@ -93,22 +93,6 @@ function StakeModal(props: any) {
       seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
     });
-  }
-  function formatSeconds(seconds) {
-    const days = Math.floor(seconds / (60 * 60 * 24));
-    const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
-    const minutes = Math.floor((seconds % (60 * 60)) / 60);
-    let result = '';
-    if (days > 0) {
-      result += days + ' ' + 'days' + ' ';
-    }
-    if (hours > 0) {
-      result += hours + ' ' + 'hour' + ' ';
-    }
-    if (minutes > 0) {
-      result += minutes + ' ' + 'min';
-    }
-    return result.trim();
   }
   const FeedIcon = progressConfig.progress[seed_id].feedIcon;
   return (

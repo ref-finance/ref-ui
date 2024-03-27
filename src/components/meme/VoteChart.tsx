@@ -131,7 +131,7 @@ const MyPieChart = () => {
     return renderActiveShape(props);
   };
 
-  const sectorStrokeWidth = 3; 
+  const sectorStrokeWidth = 3;
   const sectorStrokeColor = '#213441';
 
   return (

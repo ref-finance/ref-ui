@@ -81,27 +81,32 @@ export default function MemePage() {
   const [withdraw_list, set_withdraw_list] = useState<
     Record<string, IFarmerWithdraw>
   >({});
-  const [xrefFarmContractUserData, setXrefFarmContractUserData] = useState<
-    Record<string, IFarmAccount>
-  >({});
+  const [xrefFarmContractUserData, setXrefFarmContractUserData] =
+    useState<Record<string, IFarmAccount>>();
   const [memeFarmContractUserData, setMemeFarmContractUserData] =
     useState<IFarmAccount>();
+  const [xrefTokenId, setXrefTokenId] = useState<string>();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     init();
   }, []);
   useEffect(() => {
-    if (isSignedIn && Object.keys(seeds).length) {
+    if (isSignedIn && Object.keys(seeds).length && Object.keys(xrefSeeds)) {
       init_user();
     }
-  }, [isSignedIn, seeds]);
+  }, [isSignedIn, seeds, xrefSeeds]);
   useEffect(() => {
     setAllTokenMetadatas({ ...memeTokenMetadatas, ...xrefTokenMetadatas });
   }, [memeTokenMetadatas, xrefTokenMetadatas]);
   useEffect(() => {
     set_user_balances({ ...user_xref_balances, ...user_meme_balances });
   }, [user_xref_balances, user_meme_balances]);
+  useEffect(() => {
+    if (Object.values(xrefSeeds || {})?.[0]?.seed_id) {
+      setXrefTokenId(Object.values(xrefSeeds || {})?.[0]?.seed_id);
+    }
+  }, [xrefSeeds]);
   async function init() {
     const tokenPriceList = await getBoostTokenPrices();
     const memeContractConfig = await get_config();
@@ -376,6 +381,7 @@ export default function MemePage() {
         xref_list_farmer_seeds(contractId)
       )
     );
+    // parted farm contract
     const user_seeds_ids = [];
     user_seeds.forEach((s, index) => {
       const seed_id = Object.keys(s)[0];
@@ -387,18 +393,16 @@ export default function MemePage() {
     });
     const user_unclaimed_rewards = (
       await Promise.all(
-        user_seeds_ids.map((s: string, index) =>
-          get_xref_unclaimed_rewards(
-            XREF_MEME_FARM_CONTRACT_IDS[index],
-            Object.values(s)[0]
-          )
-        )
+        user_seeds_ids.map((s: string) => {
+          const [[xref_contractId, seed_id]] = Object.entries(s);
+          return get_xref_unclaimed_rewards(xref_contractId, seed_id);
+        })
       )
     ).reduce((acc, c, index) => {
       return { ...acc, ...{ [Object.keys(user_seeds_ids[index])[0]]: c } };
     }, {});
 
-    const xref_token_id = Object.values(xrefSeeds)?.[0].seed_id;
+    const xref_token_id = Object.values(xrefSeeds)?.[0]?.seed_id;
     const xref_balance = await ftGetBalance(xref_token_id);
     const user_withdraw_list = await Promise.all(
       XREF_MEME_FARM_CONTRACT_IDS.map((contractId) =>
@@ -422,22 +426,6 @@ export default function MemePage() {
     set_user_xref_balances({ [xref_token_id]: xref_balance });
   }
   const is_mobile = isMobile();
-  // console.log('999999999999-tokenPriceList', tokenPriceList);
-  // console.log('999999999999-allTokenMetadatas', allTokenMetadatas);
-  // console.log('999999999999-user_balances', user_balances);
-  // console.log('999999999999-memeContractConfig', memeContractConfig);
-  // console.log('999999999999-xrefContractConfig', xrefContractConfig);
-  // console.log('999999999999-seeds', seeds);
-  // console.log('999999999999-lpSeeds', lpSeeds);
-  // console.log('999999999999-xrefSeeds', xrefSeeds);
-  // console.log(
-  //   '999999999999-xrefFarmContractUserData',
-  //   xrefFarmContractUserData
-  // );
-  // console.log(
-  //   '999999999999-memeFarmContractUserData',
-  //   memeFarmContractUserData
-  // );
   return (
     <MemeContext.Provider
       value={{
@@ -451,6 +439,7 @@ export default function MemePage() {
         xrefSeeds,
         xrefFarmContractUserData,
         memeFarmContractUserData,
+        xrefTokenId,
         unclaimed_rewards, // todo 待删除
         user_seeds, // todo 待删除
         withdraw_list, // todo 待删除

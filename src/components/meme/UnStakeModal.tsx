@@ -10,7 +10,7 @@ import { InputAmount } from './InputBox';
 import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
-import { unStake } from '../../services/meme';
+import { unStake, formatSeconds } from '../../services/meme';
 import {
   toInternationalCurrencySystem_number,
   formatPercentage,
@@ -83,22 +83,6 @@ function UnStakeModal(props: any) {
           }
         : {}),
     });
-  }
-  function formatSeconds(seconds) {
-    const days = Math.floor(seconds / (60 * 60 * 24));
-    const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
-    const minutes = Math.floor((seconds % (60 * 60)) / 60);
-    let result = '';
-    if (days > 0) {
-      result += days + ' ' + 'days' + ' ';
-    }
-    if (hours > 0) {
-      result += hours + ' ' + 'hour' + ' ';
-    }
-    if (minutes > 0) {
-      result += minutes + ' ' + 'min';
-    }
-    return result.trim();
   }
   return (
     <Modal

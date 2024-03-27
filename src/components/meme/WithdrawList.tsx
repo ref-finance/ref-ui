@@ -7,7 +7,7 @@ import {
 import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
 import { toReadableNumber } from '../../utils/numbers';
 import { MemeContext } from './context';
-import { withdraw } from '../../services/meme';
+import { withdraw, formatSecondsAbb } from '../../services/meme';
 import { isMobile } from '../../utils/device';
 
 const WithdrawList = () => {
@@ -15,22 +15,6 @@ const WithdrawList = () => {
   const { withdraw_list, seeds, memeContractConfig } = useContext(MemeContext);
   if (!memeContractConfig) return null;
   const { delay_withdraw_sec } = memeContractConfig;
-  function formatSeconds(seconds) {
-    const days = Math.floor(seconds / (60 * 60 * 24));
-    const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
-    const minutes = Math.floor((seconds % (60 * 60)) / 60);
-    let result = '';
-    if (days > 0) {
-      result += days + 'd' + ' ';
-    }
-    if (hours > 0) {
-      result += hours + 'h' + ' ';
-    }
-    if (minutes > 0) {
-      result += minutes + 'm';
-    }
-    return result.trim();
-  }
   function seedWithdraw(seed_id) {
     setActionSeedId(seed_id);
     withdraw({
@@ -61,7 +45,9 @@ const WithdrawList = () => {
           const remainingTime_sec = Big(unLockDate)
             .minus(currentDate)
             .toFixed(0);
-          remainingTimeStr = `in ${formatSeconds(remainingTime_sec) || '1m'}.`;
+          remainingTimeStr = `in ${
+            formatSecondsAbb(remainingTime_sec) || '1m'
+          }.`;
         } else {
           withdraw_status = 'free';
           remainingTimeStr = 'now!';
