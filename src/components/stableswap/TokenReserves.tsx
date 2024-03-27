@@ -83,8 +83,11 @@ function TokenChart({
     NearX: '#00676D',
     'USDT.e': '#19936D',
     'USDC.e': '#2B6EB7',
-    USDC: '#2FA7DB',
+    USDC: '#2FA6DB',
     USDt: '#45D0C0',
+    FRAX: '#OE1519',
+    SOL: '#5245B0',
+    'SOL.Allbridge': '#8688CA',
   };
 
   const noBorderTokens = ['LINEAR', 'USDt'];

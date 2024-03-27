@@ -2051,6 +2051,7 @@ function TokenChart({
   );
 
   const data = tokens.map((token, i) => {
+    console.log(token)
     return {
       name: token.symbol,
       value: Number(coinsAmounts[token.id]),
@@ -2073,20 +2074,23 @@ function TokenChart({
     NearX: '#00676D',
     'USDT.e': '#19936D',
     'USDC.e': '#2B6EB7',
-    USDC: '#2FA7DB',
+    USDC: '#2FA6DB',
     USDt: '#45D0C0',
+    FRAX: '#OE1519',
+    SOL: '#5245B0',
+    'SOL.Allbridge': '#8688CA',
   };
 
   const colorLight = {
     DAI: 'rgba(255, 199, 0, 1)',
     'USDT.e': '#167356',
     USDT: '#167356',
-    USDC: 'rgba(0, 163, 255, 1)',
+    USDC: '#2FA6DB',
     'USDC.e': 'rgba(0, 163, 255, 1)',
     USN: 'rgba(255, 255, 255, 1)',
     cUSD: 'rgba(69, 205, 133, 1)',
     HBTC: '#4D85F8',
-    WBTC: '#ED9234',
+    WBTC: '#ED9234', 
     STNEAR: '#A0A0FF',
     NEAR: '#A0B1AE',
     LINEAR: '#4081FF',
@@ -2094,6 +2098,9 @@ function TokenChart({
     NearXC: '#4d5971',
     NearX: '#00676D',
     USDt: '#0E8585',
+    FRAX: '#OE1519',
+    SOL: '#5245B0',
+    'SOL.Allbridge': '#8688CA',
   };
 
   const innerRadius = 30;
@@ -2162,6 +2169,7 @@ function TokenChart({
           activeIndex={data.findIndex((o) => o.token.id === activeToken)}
         >
           {data.map((entry, index) => {
+            console.log(color[tokens[index].symbol]);
             return (
               <Cell
                 key={`cell-${index}`}
