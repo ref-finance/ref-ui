@@ -176,5 +176,4 @@ const WithdrawList = () => {
   );
 };
 
-
 export default WithdrawList;

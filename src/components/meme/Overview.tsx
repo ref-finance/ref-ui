@@ -7,13 +7,12 @@ import { formatPercentage } from '../../utils/uiNumber';
 import { Seed } from '~src/services/farm';
 import { TokenMetadata } from '~src/services/ft-contract';
 import { isMobile } from '../../utils/device';
+import { getTotalStaked } from './tool';
 const Overview = () => {
-  const { seeds, lpSeeds } = useContext(MemeContext);
+  const { seeds, lpSeeds, xrefSeeds } = useContext(MemeContext);
   const [totalStaked, maxAprSeed, totalStaker] = useMemo(() => {
     if (!Object.values(seeds).length) return ['-', [], '-'];
-    const t_staked = Object.values(seeds).reduce((acc, cur) => {
-      return acc.plus(cur.seedTvl || 0);
-    }, Big(0));
+    const t_staked = getTotalStaked(seeds, xrefSeeds);
     const [maxSeed, maxApr] = Object.values(seeds).reduce(
       (acc, seed) => {
         const apr = getSeedApr(seed);
@@ -25,17 +24,19 @@ const Overview = () => {
       },
       [seeds[0], Big(0)]
     );
-    const totalStaker = Object.values(seeds)
-      .reduce((acc, seed) => {
-        return acc.plus(seed.farmer_count);
-      }, Big(0))
-      .toFixed();
+    const totalStakerMeme = Object.values(seeds).reduce((acc, seed) => {
+      return acc.plus(seed.farmer_count);
+    }, Big(0));
+    const totalStakerXref = Object.values(xrefSeeds).reduce((acc, seed) => {
+      return acc.plus(seed.farmer_count);
+    }, Big(0));
+    const totalStaker = totalStakerMeme.plus(totalStakerXref).toFixed();
     return [
       toInternationalCurrencySystem_usd(t_staked),
       [maxSeed, maxApr.toFixed()],
       totalStaker,
     ];
-  }, [seeds]) as any;
+  }, [seeds, xrefSeeds]) as any;
   const topApyFarm = useMemo(() => {
     const list = Object.entries(lpSeeds);
     if (!list.length) return [];

@@ -106,25 +106,35 @@ export function weight({
   memeSeed: Seed;
   xrefSeed: Seed;
 }) {
-  const memeTotalTvl = Object.entries(memeSeeds).reduce((acc, [, seed]) => {
-    return acc.plus(seed.seedTvl || 0);
-  }, Big(0));
-  const xrefTotalTvl = Object.entries(xrefSeeds || {}).reduce(
-    (acc, [, seed]) => {
-      return acc.plus(seed.seedTvl || 0);
-    },
-    Big(0)
-  );
+  const totalTvl = getTotalStaked(memeSeeds, xrefSeeds);
   const memeSeedTvl = memeSeed?.seedTvl || 0;
   const xrefSeedTvl = xrefSeed?.seedTvl || 0;
   const seedTvl = Big(memeSeedTvl).plus(xrefSeedTvl);
-  const totalTvl = memeTotalTvl.plus(xrefTotalTvl);
   const apy = totalTvl.gt(0) ? Big(seedTvl).div(totalTvl).mul(100) : Big(0);
   return {
     seedTvl,
     totalTvl,
     apy: apy.toFixed(),
   };
+}
+export function getTotalStaked(
+  xrefSeeds: Record<string, Seed>,
+  memeSeeds: Record<string, Seed>
+) {
+  const memeTotalTvl = Object.entries(memeSeeds || {}).reduce(
+    (acc, [, seed]) => {
+      return acc.plus(seed.seedTvl || 0);
+    },
+    Big(0)
+  );
+  const xrefTotalTvl = Object.entries(xrefSeeds || {}).reduce(
+    (acc, [, seed]) => {
+      return acc.plus(seed.seedTvl || 0);
+    },
+    Big(0)
+  );
+  const totalTvl = memeTotalTvl.plus(xrefTotalTvl);
+  return totalTvl;
 }
 export function emptyObject(o) {
   if (Object.keys(o).length) return false;
