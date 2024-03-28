@@ -374,6 +374,42 @@ export const xrefUnStake = async ({
   transactions = await withdrawRewardsXref(seed, transactions, contractId);
   return executeFarmMultipleTransactions(transactions);
 };
+export const xrefWithdraw = async ({
+  contractId,
+  seed_id,
+  amount,
+}: {
+  contractId: string;
+  seed_id: string;
+  amount: string;
+}) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: contractId,
+      functionCalls: [
+        {
+          methodName: 'withdraw_seed',
+          args: {
+            seed_id,
+            amount,
+          },
+          gas: '200000000000000',
+        },
+      ],
+    },
+  ];
+
+  const neededStorage_boost = await checkTokenNeedsStorageDeposit_xref(
+    contractId
+  );
+  if (neededStorage_boost) {
+    transactions.push({
+      receiverId: contractId,
+      functionCalls: [storageDepositAction({ amount: neededStorage_boost })],
+    });
+  }
+  return executeFarmMultipleTransactions(transactions);
+};
 async function withdrawRewards(seed: Seed, transactions: Transaction[]) {
   const { farmList, seed_id } = seed;
   const rewardIds = farmList.map((farm: FarmBoost) => farm.terms.reward_token);

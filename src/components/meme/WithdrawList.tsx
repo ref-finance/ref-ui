@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
 import {
   OprationButton,
@@ -7,29 +7,85 @@ import {
 import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
 import { toReadableNumber } from '../../utils/numbers';
 import { MemeContext } from './context';
-import { withdraw } from '../../services/meme';
+import { withdraw, xrefWithdraw } from '../../services/meme';
 import { isMobile } from '../../utils/device';
-import { formatSecondsAbb } from './tool';
-
+import { formatSecondsAbb, emptyObject } from './tool';
+interface IWithdraw {
+  [id: string]: {
+    amount: string;
+    apply_timestamp: string;
+    delay_withdraw_sec: number;
+    type: 'meme' | 'xref';
+  };
+}
 const WithdrawList = () => {
   const [actionSeedId, setActionSeedId] = useState('');
   const {
-    withdraw_list,
-    seeds,
     memeContractConfig,
+    xrefContractConfig,
     memeFarmContractUserData,
     xrefFarmContractUserData,
+    allTokenMetadatas,
+    xrefTokenId,
   } = useContext(MemeContext);
-  if (!memeContractConfig) return null;
-  const { delay_withdraw_sec } = memeContractConfig;
-  function seedWithdraw(seed_id) {
-    setActionSeedId(seed_id);
-    withdraw({
-      seed_id,
-      amount: withdraw_list[seed_id].amount,
-    });
+  const all_withdraw_list: IWithdraw = useMemo(() => {
+    if (!memeFarmContractUserData || !xrefFarmContractUserData) return {};
+    const meme_withdraw_list = memeFarmContractUserData.withdraw_list;
+    const common_meme_withdraw_list = Object.entries(meme_withdraw_list).reduce(
+      (acc, [seed_id, withdraw]) => ({
+        ...acc,
+        ...{
+          [seed_id]: {
+            ...withdraw,
+            delay_withdraw_sec: memeContractConfig?.delay_withdraw_sec,
+            type: 'meme',
+          },
+        },
+      }),
+      {}
+    );
+    const common_xref_withdraw_list = Object.entries(
+      xrefFarmContractUserData
+    ).reduce((acc, [contractId, userData]) => {
+      const withdraw_list = userData.withdraw_list;
+      if (emptyObject(withdraw_list)) return acc;
+      const withdraw = Object.values(withdraw_list)[0];
+      return {
+        ...acc,
+        ...{
+          [contractId]: {
+            ...withdraw,
+            delay_withdraw_sec:
+              xrefContractConfig?.[contractId]?.delay_withdraw_sec,
+            type: 'xref',
+          },
+        },
+      };
+    }, {});
+    return { ...common_meme_withdraw_list, ...common_xref_withdraw_list };
+  }, [
+    memeFarmContractUserData,
+    xrefFarmContractUserData,
+    memeContractConfig,
+    xrefContractConfig,
+  ]);
+  if (!memeContractConfig || !xrefContractConfig) return null;
+  function seedWithdraw(id, type) {
+    setActionSeedId(id);
+    if (type == 'meme') {
+      withdraw({
+        seed_id: id,
+        amount: all_withdraw_list[id].amount,
+      });
+    } else {
+      xrefWithdraw({
+        contractId: id,
+        seed_id: xrefTokenId,
+        amount: all_withdraw_list[id].amount,
+      });
+    }
   }
-  if (Object.keys(withdraw_list).length == 0) return null;
+  if (emptyObject(all_withdraw_list)) return null;
   const is_mobile = isMobile();
   return (
     <div className="lg:bg-swapCardGradient lg:border lg:border-swapCardBorder lg:px-5 rounded-2xl mt-8">
@@ -38,9 +94,8 @@ const WithdrawList = () => {
           Withdraw
         </div>
       ) : null}
-
-      {Object.entries(withdraw_list).map(([seed_id, withdraw], index) => {
-        const { amount, apply_timestamp } = withdraw;
+      {Object.entries(all_withdraw_list).map(([id, withdraw], index) => {
+        const { amount, apply_timestamp, delay_withdraw_sec, type } = withdraw;
         const unLockDate = Big(apply_timestamp)
           .div(1000000000)
           .plus(delay_withdraw_sec);
@@ -59,15 +114,17 @@ const WithdrawList = () => {
           withdraw_status = 'free';
           remainingTimeStr = 'now!';
         }
-        const seed = seeds[seed_id];
-        const { seed_decimal, token_meta_data } = seed;
+        const token_meta_data =
+          type === 'meme'
+            ? allTokenMetadatas?.[id]
+            : allTokenMetadatas?.[xrefTokenId];
         const withdrawButtonDisabled = withdraw_status == 'locked';
         return (
           <div
-            key={seed_id}
+            key={id}
             style={{ height: is_mobile ? 'auto' : '68px' }}
             className={`flex items-center justify-between py-3 xsm:px-4 ${
-              index == Object.keys(withdraw_list).length - 1
+              index == Object.keys(all_withdraw_list).length - 1
                 ? ''
                 : 'border-b border-memePoolBoxBorderColor'
             }`}
@@ -81,36 +138,34 @@ const WithdrawList = () => {
               <div className="flex items-center gap-2.5 text-white text-base xsm:hidden">
                 <span className="gotham_bold">
                   {toInternationalCurrencySystem_number(
-                    toReadableNumber(seed_decimal, amount)
+                    toReadableNumber(token_meta_data?.decimals || 0, amount)
                   )}{' '}
-                  {seed?.token_meta_data?.symbol}
+                  {token_meta_data?.symbol}
                 </span>{' '}
                 is available to be withdraw {remainingTimeStr}
               </div>
               <div className=" text-white text-base lg:hidden">
                 <span className="gotham_bold">
                   {toInternationalCurrencySystem_number(
-                    toReadableNumber(seed_decimal, amount)
+                    toReadableNumber(token_meta_data?.decimals || 0, amount)
                   )}{' '}
-                  {seed?.token_meta_data?.symbol}
+                  {token_meta_data?.symbol}
                 </span>{' '}
                 is available to be withdraw {remainingTimeStr}
               </div>
             </div>
             <OprationButton
               minWidth={`${is_mobile ? '6rem' : '7rem'}`}
-              disabled={withdrawButtonDisabled || actionSeedId == seed_id}
+              disabled={withdrawButtonDisabled || actionSeedId == id}
               onClick={() => {
-                seedWithdraw(seed_id);
+                seedWithdraw(id, type);
               }}
               className={`flex items-center justify-center bg-memeDarkColor border border-greenLight rounded-xl h-8 text-greenLight text-sm focus:outline-none xsm:ml-2 ${
-                withdrawButtonDisabled || actionSeedId == seed_id
-                  ? 'opacity-40'
-                  : ''
+                withdrawButtonDisabled || actionSeedId == id ? 'opacity-40' : ''
               }`}
             >
               <ButtonTextWrapper
-                loading={actionSeedId == seed_id}
+                loading={actionSeedId == id}
                 Text={() => <>Withdraw</>}
               />
             </OprationButton>
@@ -120,5 +175,6 @@ const WithdrawList = () => {
     </div>
   );
 };
+
 
 export default WithdrawList;
