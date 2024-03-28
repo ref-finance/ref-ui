@@ -7,12 +7,19 @@ import {
 import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
 import { toReadableNumber } from '../../utils/numbers';
 import { MemeContext } from './context';
-import { withdraw, formatSecondsAbb } from '../../services/meme';
+import { withdraw } from '../../services/meme';
 import { isMobile } from '../../utils/device';
+import { formatSecondsAbb } from './tool';
 
 const WithdrawList = () => {
   const [actionSeedId, setActionSeedId] = useState('');
-  const { withdraw_list, seeds, memeContractConfig } = useContext(MemeContext);
+  const {
+    withdraw_list,
+    seeds,
+    memeContractConfig,
+    memeFarmContractUserData,
+    xrefFarmContractUserData,
+  } = useContext(MemeContext);
   if (!memeContractConfig) return null;
   const { delay_withdraw_sec } = memeContractConfig;
   function seedWithdraw(seed_id) {

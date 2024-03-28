@@ -4,9 +4,15 @@ import { getMemeContractConfig } from './memeConfig';
 import { MemeContext } from './context';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { FarmBoost } from '~src/services/farm';
-import { formatPercentage, formatPercentageUi } from '../../utils/uiNumber';
-import { getSeedApr, isPending, isEnded } from '../../services/meme';
-import { emptyObject, copy } from './tool';
+import { formatPercentage } from '../../utils/uiNumber';
+import {
+  getSeedApr,
+  isPending,
+  isEnded,
+  emptyObject,
+  copy,
+  getStakingAprUI,
+} from './tool';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function APY({ seed_id }: { seed_id: string }) {
   const { seeds, xrefSeeds } = useContext(MemeContext);
@@ -37,15 +43,7 @@ function APY({ seed_id }: { seed_id: string }) {
   }, [seeds, xrefSeeds]);
   const totalApr = useMemo(() => {
     if (!emptyObject(apyData)) {
-      if (apyData.noShow) return '-';
-      let totalApr = Big(0);
-      if (!apyData.noShowMeme) {
-        totalApr = totalApr.plus(apyData.memeApr);
-      }
-      if (!apyData.noShowXref) {
-        totalApr = totalApr.plus(apyData.xrefApr);
-      }
-      return formatPercentageUi(totalApr.toFixed());
+      return getStakingAprUI(apyData.memeSeed, apyData.xrefSeed);
     }
   }, [apyData]);
   function getApyTip() {
@@ -62,7 +60,9 @@ function APY({ seed_id }: { seed_id: string }) {
         ].reduce((sum, farm) => {
           const copyFarm = copy(farm);
           copyFarm.apr = Big(sum[farm.terms.reward_token]?.apr || 0)
-            .plus(farm.apr)
+            .mul(100)
+            .plus(Big(farm.apr).mul(100))
+            .div(200)
             .toFixed();
           return {
             ...sum,

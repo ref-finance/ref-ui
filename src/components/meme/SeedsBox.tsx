@@ -8,18 +8,11 @@ import {
   ConnectToNearBtn,
 } from 'src/components/button/Button';
 import { MemeContext } from './context';
-import { claim, getSeedApr, isPending, isEnded } from '../../services/meme';
+import { claim } from '../../services/meme';
 import { getMemeDataConfig, getMemeContractConfig } from './memeConfig';
-import { toReadableNumber } from '../../utils/numbers';
-import {
-  toInternationalCurrencySystem_usd,
-  toInternationalCurrencySystem_number,
-  formatPercentage,
-  formatPercentageUi,
-} from '../../utils/uiNumber';
+import { formatPercentage } from '../../utils/uiNumber';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import { UserSeedInfo, Seed, FarmBoost } from '~src/services/farm';
-import { TokenMetadata } from '~src/services/ft-contract';
+import { Seed } from '~src/services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import StakeModal from './StakeModal';
 import UnStakeModal from './UnStakeModal';
@@ -30,14 +23,13 @@ import {
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
 import { isMobile } from '../../utils/device';
-import getConfig from '../../services/config';
-import StakeNewModal from './StakeNewModel';
 import TotalFeed from './TotalFeed';
 import YourFeed from './YourFeed';
 import WalletBalance from './WalletBalance';
 import YourRewards from './YourRewards';
 import Feeders from './Feeders';
 import APY from './APY';
+import { emptyObject, getSeedApr, isPending, isEnded } from './tool';
 
 const is_mobile = isMobile();
 export interface ITxParams {
@@ -49,12 +41,11 @@ export interface ITxParams {
 const SeedsBox = () => {
   const {
     seeds,
-    xrefSeeds,
-    tokenPriceList,
     user_seeds,
     user_balances,
     unclaimed_rewards,
     lpSeeds,
+    xrefSeeds,
   } = useContext(MemeContext);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -166,176 +157,175 @@ const SeedsBox = () => {
   }
   return (
     <div className="grid gap-4 mt-14 xsm:grid-cols-1 xsm:grid-rows-1 lg:grid-cols-2 lg:grid-rows-2 xsm:mx-3">
-      {Object.entries(displaySeeds).map(([seed_id, seed]) => {
-        const is_pending = isPending(seed);
-        const is_ended = isEnded(seed);
-        const meme_contract_id = getConfig()?.REF_MEME_FARM_CONTRACT_ID;
-        const stakeButtonDisabled =
-          !user_balances[seed_id] ||
-          +user_balances[seed_id] == 0 ||
-          is_pending ||
-          meme_contract_id == 'meme-farming.ref-labs.near';
+      {!emptyObject(xrefSeeds) &&
+        Object.entries(displaySeeds).map(([seed_id, seed]) => {
+          const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[seed_id]];
+          const is_pending = isPending(seed) && isPending(xrefSeed);
+          const stakeButtonDisabled =
+            !user_balances[seed_id] ||
+            +user_balances[seed_id] == 0 ||
+            is_pending;
 
-        const unStakeButtonDisabled =
-          +(user_seeds[seed_id]?.free_amount || 0) == 0;
-        const claimButtonDisabled =
-          Object.keys(unclaimed_rewards[seed_id] || {}).length == 0;
-        const hasLpSeed =
-          lpSeeds[seed_id]?.farmList[0]?.status &&
-          lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
-        return (
-          <div
-            key={seed_id}
-            className="flex flex-col justify-between border border-memeBorderColor bg-swapCardGradient rounded-2xl px-4 py-6"
-          >
-            <div className="flex items-stretch gap-4">
-              <img
-                src={seed.token_meta_data.icon}
-                style={{
-                  width: is_mobile ? '62px' : '86px',
-                  height: is_mobile ? '62px' : '86px',
-                }}
-                className=" rounded-full"
-              />
-              <div className="flex flex-col justify-between gap-1.5 xsm:gap-0">
-                <div className="flex items-center justify-between gap-1 xsm:flex-col xsm:items-start xsm:flex-grow">
-                  <span className="text-xl gotham_bold text-white">
-                    {seed.token_meta_data.symbol}
-                  </span>
-                  <div
-                    data-class="reactTip"
-                    data-tooltip-id={`lp_farm_${seed_id}`}
-                    data-place="top"
-                    data-tooltip-html={
-                      hasLpSeed ? getFarmAPYTip(seed_id) : comeSoonTip()
-                    }
-                  >
-                    <div
-                      onClick={() => {
-                        if (hasLpSeed) {
-                          goFarmDetail(seed_id);
-                        }
-                      }}
-                      className={`flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 ${
-                        hasLpSeed
-                          ? 'cursor-pointer'
-                          : 'opacity-30 cursor-not-allowed'
-                      }`}
-                    >
-                      <span className="text-xs text-white">
-                        {seed.token_meta_data.symbol}/NEAR
-                      </span>
-                      <ArrowRightIcon />
-                    </div>
-                    <CustomTooltip id={`lp_farm_${seed_id}`} />
-                  </div>
-                </div>
-                <p className="text-sm text-primaryText xsm:hidden">
-                  {memeDataConfig.description[seed_id]}
-                </p>
-              </div>
-            </div>
-            <p className="text-sm text-primaryText lg:hidden mt-2">
-              {memeDataConfig.description[seed_id]}
-            </p>
-            {/* base data */}
-            <div className="grid lg:grid-cols-3 lg:grid-rows-2 xsm:grid-cols-2 gap-y-6 mt-5">
-              <TotalFeed seed_id={seed_id} />
-              <APY seed_id={seed_id} />
-              <Feeders seed_id={seed_id} />
-              <YourFeed seed_id={seed_id} />
-              <YourRewards seed_id={seed_id} />
-              <WalletBalance seed_id={seed_id} />
-            </div>
-            {/* operation */}
-            <div className={`mt-6 ${isSignedIn ? 'hidden' : ''}`}>
-              <ConnectToNearBtn></ConnectToNearBtn>
-            </div>
+          const unStakeButtonDisabled =
+            +(user_seeds[seed_id]?.free_amount || 0) == 0;
+          const claimButtonDisabled =
+            Object.keys(unclaimed_rewards[seed_id] || {}).length == 0;
+          const hasLpSeed =
+            lpSeeds[seed_id]?.farmList[0]?.status &&
+            lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
+          return (
             <div
-              className={`flex items-center justify-between mt-6 gap-3 xsm:flex-col-reverse ${
-                isSignedIn ? '' : 'hidden'
-              }`}
+              key={seed_id}
+              className="flex flex-col justify-between border border-memeBorderColor bg-swapCardGradient rounded-2xl px-4 py-6"
             >
-              <div className="flex items-center flex-grow gap-3 xsm:w-full">
-                <OprationButton
-                  disabled={claimButtonDisabled || claim_seed_id == seed_id}
-                  onClick={() => {
-                    seedClaim(seed);
+              <div className="flex items-stretch gap-4">
+                <img
+                  src={seed.token_meta_data.icon}
+                  style={{
+                    width: is_mobile ? '62px' : '86px',
+                    height: is_mobile ? '62px' : '86px',
                   }}
-                  className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
-                    claimButtonDisabled || claim_seed_id == seed_id
-                      ? 'opacity-40'
-                      : ''
-                  }`}
-                >
-                  <ButtonTextWrapper
-                    loading={claim_seed_id == seed_id}
-                    Text={() => <>Claim</>}
-                  />
-                </OprationButton>
-                <OprationButton
-                  disabled={unStakeButtonDisabled}
-                  onClick={() => {
-                    set_modal_action_seed_id(seed.seed_id);
-                    setIsUnStakeOpen(true);
-                  }}
-                  className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
-                    unStakeButtonDisabled ? 'opacity-30' : ''
-                  }`}
-                >
-                  <ButtonTextWrapper
-                    loading={false}
-                    Text={() => <>Unstake</>}
-                  />
-                </OprationButton>
-              </div>
-              {stakeButtonDisabled && is_pending ? (
-                <div className="flex-grow">
-                  <div
-                    data-class="reactTip"
-                    data-tooltip-id={`lp_farm_button_${seed_id}`}
-                    data-place="top"
-                    data-tooltip-html={comeSoonTip()}
-                  >
-                    <OprationButton
-                      disabled={stakeButtonDisabled}
-                      onClick={() => {
-                        set_modal_action_seed_id(seed.seed_id);
-                        setIsStakeOpen(true);
-                      }}
-                      className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
-                        stakeButtonDisabled
-                          ? 'bg-memePoolBoxBorderColor'
-                          : 'bg-greenLight'
-                      }`}
+                  className=" rounded-full"
+                />
+                <div className="flex flex-col justify-between gap-1.5 xsm:gap-0">
+                  <div className="flex items-center justify-between gap-1 xsm:flex-col xsm:items-start xsm:flex-grow">
+                    <span className="text-xl gotham_bold text-white">
+                      {seed.token_meta_data.symbol}
+                    </span>
+                    <div
+                      data-class="reactTip"
+                      data-tooltip-id={`lp_farm_${seed_id}`}
+                      data-place="top"
+                      data-tooltip-html={
+                        hasLpSeed ? getFarmAPYTip(seed_id) : comeSoonTip()
+                      }
                     >
-                      Feed {seed.token_meta_data.symbol}
-                    </OprationButton>
-                    <CustomTooltip id={`lp_farm_button_${seed_id}`} />
+                      <div
+                        onClick={() => {
+                          if (hasLpSeed) {
+                            goFarmDetail(seed_id);
+                          }
+                        }}
+                        className={`flex items-center border border-memePoolBoxBorderColor gap-2 rounded-lg h-8 px-2 ${
+                          hasLpSeed
+                            ? 'cursor-pointer'
+                            : 'opacity-30 cursor-not-allowed'
+                        }`}
+                      >
+                        <span className="text-xs text-white">
+                          {seed.token_meta_data.symbol}/NEAR
+                        </span>
+                        <ArrowRightIcon />
+                      </div>
+                      <CustomTooltip id={`lp_farm_${seed_id}`} />
+                    </div>
                   </div>
+                  <p className="text-sm text-primaryText xsm:hidden">
+                    {memeDataConfig.description[seed_id]}
+                  </p>
                 </div>
-              ) : (
-                <OprationButton
-                  disabled={stakeButtonDisabled}
-                  onClick={() => {
-                    set_modal_action_seed_id(seed.seed_id);
-                    setIsStakeOpen(true);
-                  }}
-                  className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
-                    stakeButtonDisabled
-                      ? 'bg-memePoolBoxBorderColor'
-                      : 'bg-greenLight'
-                  }`}
-                >
-                  Feed {seed.token_meta_data.symbol}
-                </OprationButton>
-              )}
+              </div>
+              <p className="text-sm text-primaryText lg:hidden mt-2">
+                {memeDataConfig.description[seed_id]}
+              </p>
+              {/* base data */}
+              <div className="grid lg:grid-cols-3 lg:grid-rows-2 xsm:grid-cols-2 gap-y-6 mt-5">
+                <TotalFeed seed_id={seed_id} />
+                <APY seed_id={seed_id} />
+                <Feeders seed_id={seed_id} />
+                <YourFeed seed_id={seed_id} />
+                <YourRewards seed_id={seed_id} />
+                <WalletBalance seed_id={seed_id} />
+              </div>
+              {/* operation */}
+              <div className={`mt-6 ${isSignedIn ? 'hidden' : ''}`}>
+                <ConnectToNearBtn></ConnectToNearBtn>
+              </div>
+              <div
+                className={`flex items-center justify-between mt-6 gap-3 xsm:flex-col-reverse ${
+                  isSignedIn ? '' : 'hidden'
+                }`}
+              >
+                <div className="flex items-center flex-grow gap-3 xsm:w-full">
+                  <OprationButton
+                    disabled={claimButtonDisabled || claim_seed_id == seed_id}
+                    onClick={() => {
+                      seedClaim(seed);
+                    }}
+                    className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
+                      claimButtonDisabled || claim_seed_id == seed_id
+                        ? 'opacity-40'
+                        : ''
+                    }`}
+                  >
+                    <ButtonTextWrapper
+                      loading={claim_seed_id == seed_id}
+                      Text={() => <>Claim</>}
+                    />
+                  </OprationButton>
+                  <OprationButton
+                    disabled={unStakeButtonDisabled}
+                    onClick={() => {
+                      set_modal_action_seed_id(seed.seed_id);
+                      setIsUnStakeOpen(true);
+                    }}
+                    className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
+                      unStakeButtonDisabled ? 'opacity-30' : ''
+                    }`}
+                  >
+                    <ButtonTextWrapper
+                      loading={false}
+                      Text={() => <>Unstake</>}
+                    />
+                  </OprationButton>
+                </div>
+                {stakeButtonDisabled && is_pending ? (
+                  <div className="flex-grow">
+                    <div
+                      data-class="reactTip"
+                      data-tooltip-id={`lp_farm_button_${seed_id}`}
+                      data-place="top"
+                      data-tooltip-html={comeSoonTip()}
+                    >
+                      <OprationButton
+                        disabled={stakeButtonDisabled}
+                        onClick={() => {
+                          set_modal_action_seed_id(seed.seed_id);
+                          setIsStakeOpen(true);
+                        }}
+                        className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
+                          stakeButtonDisabled
+                            ? 'bg-memePoolBoxBorderColor'
+                            : 'bg-greenLight'
+                        }`}
+                      >
+                        Feed {seed.token_meta_data.symbol}
+                      </OprationButton>
+                      <CustomTooltip id={`lp_farm_button_${seed_id}`} />
+                    </div>
+                  </div>
+                ) : (
+                  <OprationButton
+                    disabled={stakeButtonDisabled}
+                    onClick={() => {
+                      set_modal_action_seed_id(seed.seed_id);
+                      setIsStakeOpen(true);
+                    }}
+                    className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
+                      stakeButtonDisabled
+                        ? 'bg-memePoolBoxBorderColor'
+                        : 'bg-greenLight'
+                    }`}
+                  >
+                    Feed {seed.token_meta_data.symbol}
+                  </OprationButton>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
       {isStakeOpen ? (
-        <StakeNewModal
+        <StakeModal
           isOpen={isStakeOpen}
           onRequestClose={() => {
             setIsStakeOpen(false);

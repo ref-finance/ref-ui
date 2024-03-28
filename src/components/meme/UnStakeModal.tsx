@@ -10,80 +10,156 @@ import { InputAmount } from './InputBox';
 import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { toNonDivisibleNumber, toReadableNumber } from '../../utils/numbers';
-import { unStake, formatSeconds } from '../../services/meme';
+import { unStake, xrefUnStake } from '../../services/meme';
 import {
   toInternationalCurrencySystem_number,
   formatPercentage,
 } from '../../utils/uiNumber';
 
 import { Template } from './StakeModal';
-
+import { getMemeContractConfig } from './memeConfig';
+import { formatSeconds, weight } from './tool';
+const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function UnStakeModal(props: any) {
   const {
     seeds,
+    xrefSeeds,
     tokenPriceList,
-    user_seeds,
     memeContractConfig,
-    withdraw_list,
+    xrefTokenId,
+    allTokenMetadatas,
+    xrefFarmContractUserData,
+    memeFarmContractUserData,
+    xrefContractConfig,
   } = useContext(MemeContext);
-  const { delay_withdraw_sec } = memeContractConfig;
   const { isOpen, onRequestClose, seed_id } = props;
+  const { delay_withdraw_sec } = memeContractConfig;
+  const { delay_withdraw_sec: delay_withdraw_sec_xref } =
+    xrefContractConfig[MEME_TOKEN_XREF_MAP[seed_id]];
+  const xrefContractId = MEME_TOKEN_XREF_MAP[seed_id];
   const [amount, setAmount] = useState('');
+  const [xrefAmount, setXrefAmount] = useState('');
   const [unStakeLoading, setUnStakeLoading] = useState(false);
-  const seed = seeds[seed_id];
-  const stakedBalance = toReadableNumber(
-    seed.seed_decimal || 0,
-    user_seeds[seed_id]?.free_amount || '0'
-  );
-  const cardWidth = isMobile() ? '90vw' : '28vw';
-  const cardHeight = isMobile() ? '90vh' : '80vh';
-  const disabled =
-    Big(amount || 0).lte(0) || Big(amount || 0).gt(stakedBalance);
-  const feedTo = useMemo(() => {
-    const to = Big(stakedBalance || 0).minus(amount || 0);
-    return to;
-  }, [amount, seed, user_seeds]);
-  const [weightFrom, weightTo] = useMemo(() => {
-    const totalTvl = Object.entries(seeds).reduce((acc, [, seed]) => {
-      return acc.plus(seed.seedTvl || 0);
-    }, Big(0));
-    const seedTvl = seed.seedTvl;
-    const deleteTvl = Big(amount || 0).mul(
-      tokenPriceList[seed.seed_id]?.price || 0
+  const [selectedTab, setSelectedTab] = useState<'meme' | 'xref'>('meme');
+  const { join_seeds: user_seeds, withdraw_list } = memeFarmContractUserData;
+  const { join_seeds: xref_user_seeds, withdraw_list: xref_withdraw_list } =
+    xrefFarmContractUserData[xrefContractId];
+  const { seed, xrefSeed } = useMemo(() => {
+    return {
+      seed: seeds[seed_id],
+      xrefSeed: xrefSeeds[xrefContractId],
+    };
+  }, [seeds, xrefSeeds]);
+  const { stakedBalance, xrefStakedBalance } = useMemo(() => {
+    const memeStakedBalance = toReadableNumber(
+      seed.seed_decimal || 0,
+      user_seeds?.[seed_id]?.free_amount || '0'
     );
+    const xrefStakedBalance = toReadableNumber(
+      xrefSeed.seed_decimal || 0,
+      xref_user_seeds?.[xrefTokenId]?.free_amount || '0'
+    );
+    return {
+      stakedBalance: memeStakedBalance,
+      xrefStakedBalance,
+    };
+  }, [seed, user_seeds, xrefSeed, xref_user_seeds]);
+  const [memeFeedTo, xrefFeedTo] = useMemo(() => {
+    const memeTo = Big(stakedBalance || 0).minus(amount || 0);
+    const xrefTo = Big(xrefStakedBalance || 0).minus(xrefAmount || 0);
+
+    return [memeTo, xrefTo];
+  }, [amount, stakedBalance, xrefAmount, xrefStakedBalance]);
+  const [weightFrom, weightTo] = useMemo(() => {
+    const { seedTvl, totalTvl } = weight({
+      memeSeeds: seeds,
+      xrefSeeds,
+      memeSeed: seed,
+      xrefSeed,
+    });
+    const deleteTvl =
+      selectedTab === 'meme'
+        ? Big(amount || 0).mul(tokenPriceList[seed.seed_id]?.price || 0)
+        : Big(xrefAmount || 0).mul(
+            tokenPriceList[xrefSeed.seed_id]?.price || 0
+          );
     const from = totalTvl.gt(0) ? Big(seedTvl).div(totalTvl).mul(100) : Big(0);
     const to = totalTvl.minus(deleteTvl).gt(0)
       ? Big(seedTvl).minus(deleteTvl).div(totalTvl.minus(deleteTvl)).mul(100)
       : Big(0);
     return [from.toFixed(), to.toFixed()];
-  }, [amount, seeds]);
-  const withdraw_part_status = useMemo(() => {
-    if (withdraw_list[seed_id] && delay_withdraw_sec && seed_id) {
+  }, [amount, seeds, seed, xrefAmount, xrefSeeds, xrefSeed, selectedTab]);
+  const { withdraw_part_status, xref_withdraw_part_status } = useMemo(() => {
+    let meme_withdraw_status;
+    let xref_withdraw_status;
+    debugger;
+    if (withdraw_list[seed_id] && delay_withdraw_sec) {
       const { apply_timestamp } = withdraw_list[seed_id];
       const unLockDate = Big(apply_timestamp)
         .div(1000000000)
         .plus(delay_withdraw_sec);
       const currentDate = Big(new Date().getTime()).div(1000);
       if (Big(unLockDate).gt(currentDate)) {
-        return 'locked';
+        meme_withdraw_status = 'locked';
       } else {
-        return 'free';
+        meme_withdraw_status = 'free';
       }
     }
-    return null;
-  }, [withdraw_list, seed_id, delay_withdraw_sec]);
+    if (xref_withdraw_list[xrefTokenId] && delay_withdraw_sec_xref) {
+      const { apply_timestamp } = xref_withdraw_list[xrefTokenId];
+      const unLockDate = Big(apply_timestamp)
+        .div(1000000000)
+        .plus(delay_withdraw_sec_xref);
+      const currentDate = Big(new Date().getTime()).div(1000);
+      if (Big(unLockDate).gt(currentDate)) {
+        xref_withdraw_status = 'locked';
+      } else {
+        xref_withdraw_status = 'free';
+      }
+    }
+    return {
+      withdraw_part_status: meme_withdraw_status,
+      xref_withdraw_part_status: xref_withdraw_status,
+    };
+  }, [
+    withdraw_list,
+    xref_withdraw_list,
+    delay_withdraw_sec_xref,
+    delay_withdraw_sec,
+  ]);
   function unStakeToken() {
     setUnStakeLoading(true);
-    unStake({
-      seed,
-      amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
-      ...(withdraw_part_status == 'free'
-        ? {
-            withdrawAmount: withdraw_list[seed_id].amount,
-          }
-        : {}),
-    });
+    if (selectedTab == 'xref') {
+      xrefUnStake({
+        contractId: xrefContractId,
+        seed: xrefSeed,
+        amount: Big(
+          toNonDivisibleNumber(xrefSeed.seed_decimal, xrefAmount)
+        ).toFixed(0),
+        ...(xref_withdraw_part_status == 'free'
+          ? {
+              withdrawAmount: xref_withdraw_list[xrefTokenId].amount,
+            }
+          : {}),
+      });
+    } else {
+      unStake({
+        seed,
+        amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
+        ...(withdraw_part_status == 'free'
+          ? {
+              withdrawAmount: withdraw_list[seed_id].amount,
+            }
+          : {}),
+      });
+    }
   }
+  const cardWidth = isMobile() ? '90vw' : '28vw';
+  const cardHeight = isMobile() ? '90vh' : '80vh';
+  const disabled =
+    selectedTab === 'meme'
+      ? Big(amount || 0).lte(0) || Big(amount || 0).gt(stakedBalance)
+      : Big(xrefAmount || 0).lte(0) || Big(xrefAmount || 0).gt(stakedBalance);
   return (
     <Modal
       isOpen={isOpen}
@@ -126,6 +202,50 @@ function UnStakeModal(props: any) {
                 Unstake {seed?.token_meta_data.symbol}
               </span>
             </div>
+            {/* Tab */}
+            <div className="mt-5 flex justify-between">
+              <div
+                className={`flex-1 ${
+                  selectedTab === 'meme'
+                    ? 'bg-senderHot text-cardBg'
+                    : 'bg-memeModelgreyColor text-white'
+                } mr-4 rounded-3xl border border-memeBorderColor py-2 px-3 flex items-center justify-between cursor-pointer`}
+                onClick={() => setSelectedTab('meme')}
+              >
+                <img
+                  src={seed?.token_meta_data.icon}
+                  style={{ width: '26px', height: '26px' }}
+                  className="rounded-full"
+                />
+                <span className="text-base gotham_bold ml-2">
+                  {seed?.token_meta_data.symbol}
+                </span>
+                <span className="ml-auto">
+                  {toInternationalCurrencySystem_number(stakedBalance)}
+                </span>
+              </div>
+              <div
+                className={`flex-1 ${
+                  selectedTab === 'xref'
+                    ? 'bg-senderHot text-cardBg'
+                    : 'bg-memeModelgreyColor text-white'
+                } rounded-3xl border border-memeBorderColor py-2 px-3 flex items-center justify-between cursor-pointer`}
+                onClick={() => setSelectedTab('xref')}
+              >
+                <img
+                  src={allTokenMetadatas?.[xrefTokenId]?.icon}
+                  style={{ width: '26px', height: '26px' }}
+                  className="rounded-full"
+                />
+                <span className="text-base gotham_bold ml-2">
+                  {allTokenMetadatas?.[xrefTokenId]?.symbol}
+                </span>
+                <span className="ml-auto">
+                  {toInternationalCurrencySystem_number(xrefStakedBalance)}
+                </span>
+              </div>
+            </div>
+            {/* Input */}
             <InputAmount
               token={seed.token_meta_data}
               tokenPriceList={tokenPriceList}
@@ -133,12 +253,30 @@ function UnStakeModal(props: any) {
               changeAmount={setAmount}
               amount={amount}
               title="Staked"
+              hidden={selectedTab === 'xref'}
             />
+            <InputAmount
+              token={xrefSeed.token_meta_data}
+              tokenPriceList={tokenPriceList}
+              balance={xrefStakedBalance}
+              changeAmount={setXrefAmount}
+              amount={xrefAmount}
+              title="Staked"
+              hidden={selectedTab === 'meme'}
+            />
+            {/* Trial calculation */}
             <div className="mt-4 px-2">
               <Template
                 title="You feed"
                 from={toInternationalCurrencySystem_number(stakedBalance)}
-                to={toInternationalCurrencySystem_number(feedTo)}
+                to={toInternationalCurrencySystem_number(memeFeedTo)}
+                hidden={selectedTab === 'xref'}
+              />
+              <Template
+                title="You feed"
+                from={toInternationalCurrencySystem_number(xrefStakedBalance)}
+                to={toInternationalCurrencySystem_number(xrefFeedTo)}
+                hidden={selectedTab === 'meme'}
               />
               <Template
                 title="Gauge Weight"
@@ -147,13 +285,17 @@ function UnStakeModal(props: any) {
               />
             </div>
             {/* deep delay tip */}
-            {withdraw_part_status == 'locked' ? (
+            {(selectedTab === 'meme' && withdraw_part_status == 'locked') ||
+            (selectedTab === 'xref' &&
+              xref_withdraw_part_status == 'locked') ? (
               <div className="bg-memeyellowColor rounded-lg px-3 py-1.5 my-4 text-sm text-memeyellowColor bg-opacity-10">
                 You have a record in the process of unstaking. If you unstake
                 again, the two records will be merged and the pending time will
                 be reset.
               </div>
-            ) : withdraw_part_status == 'free' ? (
+            ) : (selectedTab === 'meme' && withdraw_part_status == 'free') ||
+              (selectedTab === 'xref' &&
+                xref_withdraw_part_status == 'free') ? (
               <div className="bg-greenLight rounded-lg px-3 py-1.5 my-4 text-sm text-greenLight bg-opacity-10">
                 You have withdrawable MemeTokens,  unstake will help you
                 withdraw them simultaneously.
@@ -178,7 +320,10 @@ function UnStakeModal(props: any) {
               <TipIcon className="flex-shrink-0 transform translate-y-1" />
               <p className="text-sm text-greenLight">
                 Your vote for this period is valid and the unstaked assets will
-                available to be withdrawn in {formatSeconds(delay_withdraw_sec)}
+                available to be withdrawn in{' '}
+                {selectedTab === 'meme'
+                  ? formatSeconds(delay_withdraw_sec)
+                  : formatSeconds(delay_withdraw_sec_xref)}
                 .
               </p>
             </div>

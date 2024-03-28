@@ -30,6 +30,7 @@ interface UnStakeOptions {
   seed: Seed;
   amount: string;
   withdrawAmount?: string;
+  contractId?: string;
 }
 export interface IMemefarmConfig {
   delay_withdraw_sec: number;
@@ -325,6 +326,54 @@ export const xrefStake = async ({
   transactions = await withdrawRewardsXref(seed, transactions, contractId);
   return executeFarmMultipleTransactions(transactions);
 };
+export const xrefUnStake = async ({
+  seed,
+  amount,
+  withdrawAmount,
+  contractId,
+}: UnStakeOptions) => {
+  const { seed_id } = seed;
+  let transactions: Transaction[] = [];
+  if (withdrawAmount) {
+    transactions.push({
+      receiverId: contractId,
+      functionCalls: [
+        {
+          methodName: 'withdraw_seed',
+          args: {
+            seed_id,
+            amount: withdrawAmount,
+          },
+          gas: '200000000000000',
+        },
+      ],
+    });
+  }
+  transactions.push({
+    receiverId: contractId,
+    functionCalls: [
+      {
+        methodName: 'unlock_and_unstake_seed',
+        args: {
+          seed_id,
+          unlock_amount: '0',
+          unstake_amount: amount,
+        },
+        amount: ONE_YOCTO_NEAR,
+        gas: '200000000000000',
+      },
+    ],
+  });
+  const neededStorage = await checkTokenNeedsStorageDeposit_xref(contractId);
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: contractId,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  transactions = await withdrawRewardsXref(seed, transactions, contractId);
+  return executeFarmMultipleTransactions(transactions);
+};
 async function withdrawRewards(seed: Seed, transactions: Transaction[]) {
   const { farmList, seed_id } = seed;
   const rewardIds = farmList.map((farm: FarmBoost) => farm.terms.reward_token);
@@ -355,10 +404,12 @@ async function withdrawRewards(seed: Seed, transactions: Transaction[]) {
       });
     }
   });
-  transactions.push({
-    receiverId: REF_MEME_FARM_CONTRACT_ID,
-    functionCalls,
-  });
+  if (functionCalls.length) {
+    transactions.push({
+      receiverId: REF_MEME_FARM_CONTRACT_ID,
+      functionCalls,
+    });
+  }
   let unclaimed_rewards = {};
   try {
     unclaimed_rewards = await get_unclaimed_rewards(seed_id);
@@ -414,10 +465,12 @@ async function withdrawRewardsXref(
       });
     }
   });
-  transactions.push({
-    receiverId: contractId,
-    functionCalls,
-  });
+  if (functionCalls.length) {
+    transactions.push({
+      receiverId: contractId,
+      functionCalls,
+    });
+  }
   let unclaimed_rewards = {};
   try {
     unclaimed_rewards = await get_xref_unclaimed_rewards(contractId, seed_id);
@@ -438,72 +491,4 @@ async function withdrawRewardsXref(
     });
   }
   return transactions;
-}
-// getMemeSeedApr
-export function getSeedApr(seed: Seed) {
-  if (!seed || isEnded(seed)) return '0';
-  const farms = seed.farmList;
-  let apr = new Big(0);
-  const allPendingFarms = isPending(seed);
-  farms.forEach(function (item: FarmBoost) {
-    const pendingFarm = item.status == 'Created' || item.status == 'Pending';
-    if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-      apr = apr.plus(item.apr);
-    }
-  });
-  return apr.mul(100).toFixed();
-}
-export function isPending(seed: Seed) {
-  let pending: boolean = true;
-  const farms = seed.farmList;
-  for (let i = 0; i < farms.length; i++) {
-    if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
-      pending = false;
-      break;
-    }
-  }
-  return pending;
-}
-export function isEnded(seed: Seed) {
-  let isEnded: boolean = true;
-  const farms = seed.farmList;
-  for (let i = 0; i < farms.length; i++) {
-    if (farms[i].status != 'Ended') {
-      isEnded = false;
-      break;
-    }
-  }
-  return isEnded;
-}
-export function formatSeconds(seconds) {
-  const days = Math.floor(seconds / (60 * 60 * 24));
-  const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
-  const minutes = Math.floor((seconds % (60 * 60)) / 60);
-  let result = '';
-  if (days > 0) {
-    result += days + ' ' + 'days' + ' ';
-  }
-  if (hours > 0) {
-    result += hours + ' ' + 'hour' + ' ';
-  }
-  if (minutes > 0) {
-    result += minutes + ' ' + 'min';
-  }
-  return result.trim();
-}
-export function formatSecondsAbb(seconds) {
-  const days = Math.floor(seconds / (60 * 60 * 24));
-  const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
-  const minutes = Math.floor((seconds % (60 * 60)) / 60);
-  let result = '';
-  if (days > 0) {
-    result += days + 'd' + ' ';
-  }
-  if (hours > 0) {
-    result += hours + 'h' + ' ';
-  }
-  if (minutes > 0) {
-    result += minutes + 'm';
-  }
-  return result.trim();
 }

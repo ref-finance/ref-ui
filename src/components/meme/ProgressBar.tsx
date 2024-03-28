@@ -7,7 +7,7 @@ import { formatPercentage } from '../../utils/uiNumber';
 import { isMobile } from '../../utils/device';
 import { getMemeUiConfig } from './memeConfig';
 import StakeModal from './StakeModal';
-import { isPending } from '../../services/meme';
+import { isPending } from './tool';
 const is_mobile = isMobile();
 const ProgressBar = () => {
   const [isStakeOpen, setIsStakeOpen] = useState(false);

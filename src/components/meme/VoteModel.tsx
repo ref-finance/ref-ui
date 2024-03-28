@@ -8,7 +8,8 @@ import { MemeContext } from './context';
 import { getMemeContractConfig } from './memeConfig';
 import { InputAmount } from './InputBox';
 import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
-import { xrefStake, formatSeconds } from '../../services/meme';
+import { xrefStake } from '../../services/meme';
+import { formatSeconds } from './tool';
 import {
   OprationButton,
   ButtonTextWrapper,
