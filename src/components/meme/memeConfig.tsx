@@ -31,6 +31,11 @@ import {
 } from './ani_mobile';
 import { isMobile } from '../../utils/device';
 const is_mobile = isMobile();
+export const DONATE_RECEIVER_ID = ['pub-testnet', 'testnet'].includes(
+  process.env.REACT_APP_NEAR_ENV
+)
+  ? 'juaner.testnet'
+  : 'juaner.near';
 const LONK_CONFIG = {
   head: is_mobile ? (
     <LonkHeadMobile className="relative" style={{ top: '-14px' }} />
@@ -175,12 +180,7 @@ export function getMemeContractConfig(
           'memefarm-xref-bldr.ref-dev.testnet',
           'memefarm-xref-shzu.ref-dev.testnet',
         ],
-        MEME_TOKEN_XREF_MAP: {
-          'lonk.fakes.testnet': 'memefarm-xref-lonk.ref-dev.testnet',
-          'neko.fakes.testnet': 'memefarm-xref-neko.ref-dev.testnet',
-          'blackdragon.fakes.testnet': 'memefarm-xref-bldr.ref-dev.testnet',
-          'shitzu.fakes.testnet': 'memefarm-xref-shzu.ref-dev.testnet',
-        },
+        MEME_TOKEN_XREF_MAP: {},
       };
     case 'testnet':
       return {
@@ -195,8 +195,8 @@ export function getMemeContractConfig(
         ],
         MEME_TOKEN_XREF_MAP: {
           'lonk.fakes.testnet': 'memefarm-xref-lonk.ref-dev.testnet',
-          'neko.fakes.testnet': 'memefarm-xref-neko.ref-dev.testnet',
           'blackdragon.fakes.testnet': 'memefarm-xref-bldr.ref-dev.testnet',
+          'neko.fakes.testnet': 'memefarm-xref-neko.ref-dev.testnet',
           'shitzu.fakes.testnet': 'memefarm-xref-shzu.ref-dev.testnet',
         },
       };
@@ -242,6 +242,12 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet',
         'shitzu.fakes.testnet',
       ],
+      pie_color: {
+        'lonk.fakes.testnet': '#38D999',
+        'neko.fakes.testnet': '#EBB200',
+        'blackdragon.fakes.testnet': '#FEF9D7',
+        'shitzu.fakes.testnet': '#41A14C',
+      },
     };
   } else if (env == 'testnet') {
     return {
@@ -273,6 +279,12 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet',
         'shitzu.fakes.testnet',
       ],
+      pie_color: {
+        'lonk.fakes.testnet': '#38D999',
+        'neko.fakes.testnet': '#EBB200',
+        'blackdragon.fakes.testnet': '#FEF9D7',
+        'shitzu.fakes.testnet': '#41A14C',
+      },
     };
   } else {
     return {
@@ -304,6 +316,12 @@ export function getMemeDataConfig(): any {
         'blackdragon.tkn.near',
         'token.0xshitzu.near',
       ],
+      pie_color: {
+        'token.lonkingnearbackto2024.near': '#38D999',
+        'ftv2.nekotoken.near': '#EBB200',
+        'blackdragon.tkn.near': '#FEF9D7',
+        'token.0xshitzu.near': '#41A14C',
+      },
     };
   }
 }

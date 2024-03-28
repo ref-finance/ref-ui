@@ -20,6 +20,7 @@ import {
 import { Seed, FarmBoost } from '~src/services/farm';
 import { ftGetStorageBalance } from '../services/ft-contract';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { DONATE_RECEIVER_ID } from '../components/meme/memeConfig';
 interface StakeOptions {
   seed: Seed;
   amount: string;
@@ -408,6 +409,43 @@ export const xrefWithdraw = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage_boost })],
     });
   }
+  return executeFarmMultipleTransactions(transactions);
+};
+export const donate = async ({
+  tokenId,
+  amount,
+}: {
+  tokenId: string;
+  amount: string;
+}) => {
+  const transactions: Transaction[] = [];
+  const ftBalance = await ftGetStorageBalance(tokenId, DONATE_RECEIVER_ID);
+  if (!ftBalance) {
+    transactions.push({
+      receiverId: tokenId,
+      functionCalls: [
+        storageDepositAction({
+          accountId: DONATE_RECEIVER_ID,
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  transactions.push({
+    receiverId: tokenId,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer',
+        args: {
+          receiver_id: DONATE_RECEIVER_ID,
+          amount,
+        },
+        amount: ONE_YOCTO_NEAR,
+        gas: '180000000000000',
+      },
+    ],
+  });
   return executeFarmMultipleTransactions(transactions);
 };
 async function withdrawRewards(seed: Seed, transactions: Transaction[]) {

@@ -231,6 +231,14 @@ const routes: Route[] = [
   {
     path: '/meme',
     element: lazy(() => {
+      // return import(/* webpackChunkName: "swap" */ 'src/pages/MemePage');
+      return import(/* webpackChunkName: "swap" */ 'src/pages/MemeHotPage');
+    }),
+    wrapper: 'AutoHeight',
+  },
+  {
+    path: '/meme2',
+    element: lazy(() => {
       return import(/* webpackChunkName: "swap" */ 'src/pages/MemePage');
     }),
     wrapper: 'AutoHeight',

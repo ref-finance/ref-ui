@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Big from 'big.js';
-import Overview from '../components/meme/Overview';
-import ProgressBar from '../components/meme/ProgressBar';
-import SeedsBox from '../components/meme/SeedsBox';
-import WithdrawList from '../components/meme/WithdrawList';
 import Banner from '../components/meme/Banner';
 import { MemeContext, IFarmAccount } from '../components/meme/context';
 import { ChartLoading } from 'src/components/icon/Loading';
@@ -42,7 +38,8 @@ import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
 import { MobileBanner, MobileBannerBg } from '../components/meme/ani_mobile';
-import VoteXREF from '../components/meme/VoteXREF';
+import VoteXrefBox from '../components/meme/VoteXrefBox';
+import VoteXrefBoxTop from '../components/meme/VoteXrefBoxTop';
 
 export default function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
@@ -459,12 +456,9 @@ export default function MemePage() {
         ) : (
           <Banner />
         )}
-        <div className="m-auto lg:w-5/6" style={{ maxWidth: '1100px' }}>
-          <Overview />
-          <ProgressBar />
-          <VoteXREF />
-          <SeedsBox />
-          <WithdrawList />
+        <div className="m-auto lg:w-5/6 mt-20" style={{ maxWidth: '1100px' }}>
+          <VoteXrefBoxTop />
+          <VoteXrefBox />
           {loading ? (
             <div className="flex justify-center">
               <ChartLoading />

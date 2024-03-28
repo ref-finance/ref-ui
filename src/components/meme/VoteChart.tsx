@@ -1,43 +1,15 @@
-import React from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { PieChart, Pie, Sector, Cell } from 'recharts';
-
-const data = [
-  {
-    name: 'Blackdragon',
-    number: '37.8%',
-    price: '5,020.35 xREF',
-    value: 400,
-    color: '#FEF9D7',
-  },
-  {
-    name: 'Lonk',
-    number: '12.3%',
-    price: '5,020.35 xREF',
-    value: 300,
-    color: '#41A14C',
-  },
-  {
-    name: 'Neko',
-    number: '10.6%',
-    price: '5,020.35 xREF',
-    value: 300,
-    color: '#C1C1C1',
-  },
-  {
-    name: 'Shitzu',
-    number: '12.8%',
-    price: '5,020.35 xREF',
-    value: 200,
-    color: '#AF38D9',
-  },
-  {
-    name: 'UWON',
-    number: '8.8%',
-    price: '5,020.35 xREF',
-    value: 200,
-    color: '#EBB200',
-  },
-];
+import Big from 'big.js';
+import { MemeContext } from './context';
+import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
+import { emptyObject } from './tool';
+import { Seed } from '../../services/farm';
+import { toReadableNumber } from '../../utils/numbers';
+import {
+  formatPercentage,
+  formatWithCommas_number,
+} from '../../utils/uiNumber';
 
 const renderActiveShape = (props) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
@@ -60,8 +32,38 @@ const renderActiveShape = (props) => {
 };
 
 const MyPieChart = () => {
-  const [activeIndex, setActiveIndex] = React.useState(0);
-
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const { xrefSeeds, allTokenMetadatas } = useContext(MemeContext);
+  const chartData = useMemo(() => {
+    if (!emptyObject(xrefSeeds) && !emptyObject(allTokenMetadatas)) {
+      const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+      const { pie_color } = getMemeDataConfig();
+      const chartData = [];
+      const totalStakedAmount = Object.entries(MEME_TOKEN_XREF_MAP)
+        .map(([memeTokenId, xrefContractId]) => {
+          const xrefSeed: Seed = xrefSeeds[xrefContractId];
+          const stakedAmount = toReadableNumber(
+            xrefSeed.seed_decimal,
+            xrefSeed.total_seed_amount
+          );
+          chartData.push({
+            value: Big(stakedAmount).toNumber(),
+            symbol: allTokenMetadatas?.[memeTokenId]?.symbol,
+            icon: allTokenMetadatas?.[memeTokenId]?.icon,
+            color: pie_color[memeTokenId],
+          });
+          return stakedAmount;
+        })
+        .reduce((sum, cur) => sum.plus(cur), Big(0));
+      chartData.forEach((data) => {
+        const percent = totalStakedAmount.gt(0)
+          ? Big(data.value).div(totalStakedAmount).mul(100).toFixed()
+          : 0;
+        data.percent = formatPercentage(percent);
+      });
+      return chartData;
+    }
+  }, [xrefSeeds, allTokenMetadatas]);
   const onPieEnter = (_, index) => {
     setActiveIndex(index);
   };
@@ -80,9 +82,10 @@ const MyPieChart = () => {
 
     return (
       <>
+        <image x="45%" y="25%" width={40} height={40} href={activeEntry.icon} />
         <text
           x="50%"
-          y="40%"
+          y="42%"
           textAnchor="middle"
           dominantBaseline="central"
           style={{
@@ -91,11 +94,11 @@ const MyPieChart = () => {
             fontWeight: '700',
           }}
         >
-          {activeEntry.name}
+          {activeEntry.symbol}
         </text>
         <text
           x="50%"
-          y="50%"
+          y="55%"
           textAnchor="middle"
           dominantBaseline="central"
           style={{
@@ -104,16 +107,16 @@ const MyPieChart = () => {
             fontWeight: '700',
           }}
         >
-          {activeEntry.number}
+          {activeEntry.percent}
         </text>
         <text
           x="50%"
-          y="60%"
+          y="68%"
           textAnchor="middle"
           dominantBaseline="central"
           style={{ fill: 'white', fontSize: '20px' }}
         >
-          {activeEntry.price}
+          {formatWithCommas_number(activeEntry.value)} xREF
         </text>
       </>
     );
@@ -132,15 +135,15 @@ const MyPieChart = () => {
   };
 
   const sectorStrokeWidth = 3;
-  const sectorStrokeColor = '#213441';
-
+  const sectorStrokeColor = '#21232F';
+  if (!chartData) return null;
   return (
     <div className="flex justify-center">
-      <PieChart width={500} height={440}>
+      <PieChart width={345} height={345}>
         <Pie
           activeIndex={activeIndex}
           activeShape={customActiveShape}
-          data={data}
+          data={chartData}
           dataKey="value"
           nameKey="name"
           cx="50%"
@@ -152,7 +155,7 @@ const MyPieChart = () => {
           stroke={sectorStrokeColor}
           strokeWidth={sectorStrokeWidth}
         >
-          {data.map((entry, index) => (
+          {chartData.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
               fill={entry.color}
@@ -161,7 +164,7 @@ const MyPieChart = () => {
             />
           ))}
         </Pie>
-        {activeIndex !== -1 && renderCenteredText(data, activeIndex)}
+        {activeIndex !== -1 && renderCenteredText(chartData, activeIndex)}
       </PieChart>
     </div>
   );
