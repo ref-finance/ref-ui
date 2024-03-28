@@ -542,3 +542,10 @@ export const round = (decimals: number, minAmountOut: string) => {
           Math.pow(10, decimals)
       ).toString();
 };
+
+export const get_auto_whitelisted_postfix = async (): Promise<string[]> => {
+  const metadata = await refFiViewFunction({
+    methodName: 'metadata',
+  });
+  return metadata.auto_whitelisted_postfix;
+};
