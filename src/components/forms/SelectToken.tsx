@@ -8,10 +8,14 @@ import React, {
 } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
-import { ArrowDownGreen, ArrowDownWhite } from '../icon';
+import { ArrowDownGreen, ArrowDownWhite, TokenRisk } from '../icon';
 import { isMobile, getExplorer } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { TokenBalancesView, getGlobalWhitelist } from '../../services/token';
+import {
+  TokenBalancesView,
+  getGlobalWhitelist,
+  get_auto_whitelisted_postfix,
+} from '../../services/token';
 import { IoCloseOutline } from '../reactIcons';
 import CommonBasses from '../../components/tokens/CommonBasses';
 import Table from '../../components/table/Table';
@@ -96,6 +100,23 @@ export function SingleToken({
   price: string;
 }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
+  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  useEffect(() => {
+    const fetchAutoWhitelistedPostfix = async () => {
+      try {
+        const postfixes = await get_auto_whitelisted_postfix();
+        setAutoWhitelistedPostfix(postfixes);
+      } catch (error) {
+        console.error('Failed to fetch auto whitelisted postfix:', error);
+      }
+    };
+
+    fetchAutoWhitelistedPostfix();
+  }, []);
+  const containsAutoWhitelistedPostfix = autoWhitelistedPostfix.some(
+    (postfix) => token.id.includes(postfix)
+  );
   return (
     <>
       {token.icon ? (
@@ -113,6 +134,22 @@ export function SingleToken({
           <span className="text-sm text-white">
             {toRealSymbol(token.symbol)}
           </span>
+          {containsAutoWhitelistedPostfix && (
+            <div
+              className="ml-2 relative"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <span>
+                <TokenRisk />
+              </span>
+              {showTooltip && (
+                <div className="absolute -top-3 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                  This token is subjected to high volatility
+                </div>
+              )}
+            </div>
+          )}
           {is_native_token ? (
             <span className="text-gradientFromHover bg-gradientFromHover bg-opacity-30 text-sm px-1 rounded-md ml-2 border border-gradientFromHover">
               Native
@@ -985,7 +1022,6 @@ export const SelectTokenForList = ({
   selected: string | React.ReactElement;
 }) => {
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
     if (visible)
       document.addEventListener('click', () => {
