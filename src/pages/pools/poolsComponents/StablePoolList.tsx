@@ -1,5 +1,5 @@
 import { Pool } from 'src/services/pool';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PoolData, useAllStablePoolData } from 'src/state/sauce';
 import {
   BTC_CLASS_STABLE_POOL_IDS,
@@ -16,6 +16,7 @@ import {
   DownArrowLight,
   FarmStampNew,
   NEAR_TEXT,
+  TokenRisk,
   UpArrowLight,
   USD_TEXT,
 } from 'src/components/icon';
@@ -47,6 +48,10 @@ import { Cell, Pie, PieChart, Sector } from 'recharts';
 import getConfig from 'src/services/config';
 import Big from 'big.js';
 import { BLACK_TOKEN_IDS_IN_POOL } from '../LiquidityPage/LiquidityPage';
+import {
+  getGlobalWhitelist,
+  get_auto_whitelisted_postfix,
+} from '../../../services/token';
 
 function StablePoolList({
   searchBy,
@@ -318,6 +323,34 @@ function StablePoolCard({
   const standPool = poolData.pool;
   standPool.tvl = poolData.poolTVL;
 
+  const curRowTokens = poolData.tokens;
+  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
+  const [globalWhitelist, setGlobalWhitelist] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  useEffect(() => {
+    const fetchAutoWhitelistedPostfix = async () => {
+      try {
+        const postfixes = await get_auto_whitelisted_postfix();
+        const whitelist = await getGlobalWhitelist();
+        setAutoWhitelistedPostfix(postfixes);
+        setGlobalWhitelist(whitelist);
+      } catch (error) {
+        console.error('Failed to fetch auto whitelisted postfix:', error);
+      }
+    };
+    fetchAutoWhitelistedPostfix();
+  }, []);
+  function getAtRiskTokenIdsForPool(poolTokens) {
+    return poolTokens
+      .filter(
+        (token) =>
+          autoWhitelistedPostfix.some((postfix) =>
+            token.id.includes(postfix)
+          ) && !globalWhitelist.includes(token.id)
+      )
+      .map((token) => token.id);
+  }
+
   const [hover, setHover] = useState<boolean>(false);
 
   const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
@@ -376,7 +409,28 @@ function StablePoolCard({
             layout="vertical"
             layoutSize="16"
           />
-
+          {curRowTokens.map((token) => {
+            const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
+              token.id
+            );
+            return isAtRisk ? (
+              <div
+                key={token.id}
+                className="ml-2 relative"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <span>
+                  <TokenRisk />
+                </span>
+                {showTooltip && (
+                  <div className="absolute -top-3 left-5 px-2 w- py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    {token.symbol} is subjected to high volatility
+                  </div>
+                )}
+              </div>
+            ) : null;
+          })}
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
               <Symbols

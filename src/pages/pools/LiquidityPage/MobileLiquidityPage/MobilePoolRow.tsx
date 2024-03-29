@@ -1,7 +1,7 @@
 import { Pool } from 'src/services/pool';
 import { TokenMetadata } from 'src/services/ft-contract';
 import { useInView } from 'react-intersection-observer';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import { useHistory } from 'react-router';
 import { openUrl, sort_tokens_by_base } from 'src/services/commonV3';
@@ -16,7 +16,11 @@ import { RiArrowRightSLine } from 'src/components/reactIcons';
 import { Link } from 'react-router-dom';
 import { WatchListStartFull } from 'src/components/icon/WatchListStar';
 import { ALL_STABLE_POOL_IDS } from 'src/services/near';
-import { FarmStampNew } from 'src/components/icon';
+import { FarmStampNew, TokenRisk } from 'src/components/icon';
+import {
+  getGlobalWhitelist,
+  get_auto_whitelisted_postfix,
+} from '../../../../services/token';
 
 function MobilePoolRow({
   pool,
@@ -45,6 +49,32 @@ function MobilePoolRow({
 }) {
   const { ref } = useInView();
   const curRowTokens = tokens;
+  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
+  const [globalWhitelist, setGlobalWhitelist] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  useEffect(() => {
+    const fetchAutoWhitelistedPostfix = async () => {
+      try {
+        const postfixes = await get_auto_whitelisted_postfix();
+        const whitelist = await getGlobalWhitelist();
+        setAutoWhitelistedPostfix(postfixes);
+        setGlobalWhitelist(whitelist);
+      } catch (error) {
+        console.error('Failed to fetch auto whitelisted postfix:', error);
+      }
+    };
+    fetchAutoWhitelistedPostfix();
+  }, []);
+  function getAtRiskTokenIdsForPool(poolTokens) {
+    return poolTokens
+      .filter(
+        (token) =>
+          autoWhitelistedPostfix.some((postfix) =>
+            token.id.includes(postfix)
+          ) && !globalWhitelist.includes(token.id)
+      )
+      .map((token) => token.id);
+  }
   const { indexFail } = useContext(TokenPriceListContext);
 
   const history = useHistory();
@@ -204,6 +234,28 @@ function MobilePoolRow({
                     <WatchListStartFull />
                   </div>
                 )}
+                {curRowTokens.map((token) => {
+                  const isAtRisk = getAtRiskTokenIdsForPool(
+                    curRowTokens
+                  ).includes(token.id);
+                  return isAtRisk ? (
+                    <div
+                      key={token.id}
+                      className="ml-2 relative"
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
+                    >
+                      <span>
+                        <TokenRisk />
+                      </span>
+                      {showTooltip && (
+                        <div className="absolute -top-3 left-5 px-2 w-52 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                          {token.symbol} is subjected to high volatility
+                        </div>
+                      )}
+                    </div>
+                  ) : null;
+                })}
               </div>
 
               <div className="flex items-center relative top-0.5">

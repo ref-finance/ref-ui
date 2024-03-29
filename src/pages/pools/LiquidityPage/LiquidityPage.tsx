@@ -494,6 +494,12 @@ function PoolRowV2({
         >
           <div className="flex items-center">
             <Images tokens={tokens} size="8" />
+            <div className="text-sm ml-3">
+              {tokens[0].symbol +
+                '-' +
+                tokens[1].symbol +
+                `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+            </div>
             {curRowTokens.map((token) => {
               const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
                 token.id
@@ -516,12 +522,6 @@ function PoolRowV2({
                 </div>
               ) : null;
             })}
-            <div className="text-sm ml-3">
-              {tokens[0].symbol +
-                '-' +
-                tokens[1].symbol +
-                `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
-            </div>
           </div>
           {mark ? (
             <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
@@ -2453,28 +2453,6 @@ function StablePoolCard({
             layout="vertical"
             layoutSize="16"
           />
-          {curRowTokens.map((token) => {
-            const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
-              token.id
-            );
-            return isAtRisk ? (
-              <div
-                key={token.id}
-                className="ml-2 relative"
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-              >
-                <span>
-                  <TokenRisk />
-                </span>
-                {showTooltip && (
-                  <div className="absolute -top-3 left-5 px-2 w- py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                    {token.symbol} is subjected to high volatility
-                  </div>
-                )}
-              </div>
-            ) : null;
-          })}
 
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
@@ -2490,6 +2468,28 @@ function StablePoolCard({
                 </div>
               )}
             </div>
+            {curRowTokens.map((token) => {
+              const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
+                token.id
+              );
+              return isAtRisk ? (
+                <div
+                  key={token.id}
+                  className="ml-2 relative"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+                  <span>
+                    <TokenRisk />
+                  </span>
+                  {showTooltip && (
+                    <div className="absolute -top-3 left-5 px-2 w- py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                      {token.symbol} is subjected to high volatility
+                    </div>
+                  )}
+                </div>
+              ) : null;
+            })}
 
             <span
               className="xs:relative md:relative xs:top-1 md:top-1 cursor-pointer"
