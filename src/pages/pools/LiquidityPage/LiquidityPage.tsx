@@ -13,7 +13,7 @@ import {
   classificationOfCoins,
   Seed,
 } from '../../../services/farm';
-import { ArrowDownLarge } from '../../../components/icon';
+import { ArrowDownLarge, TokenRisk } from '../../../components/icon';
 import { useHistory } from 'react-router';
 import { Card } from '../../../components/card/Card';
 import { find } from 'lodash';
@@ -152,6 +152,10 @@ import {
   REF_POOL_ID_SEARCHING_KEY,
   TokenPriceListContext,
 } from './constLiquidityPage';
+import {
+  getGlobalWhitelist,
+  get_auto_whitelisted_postfix,
+} from '../../../../src/services/token';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -222,6 +226,32 @@ function PoolRow({
   farmApr?: number;
 }) {
   const curRowTokens = useTokens(pool.tokenIds, tokens);
+  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
+  const [globalWhitelist, setGlobalWhitelist] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  useEffect(() => {
+    const fetchAutoWhitelistedPostfix = async () => {
+      try {
+        const postfixes = await get_auto_whitelisted_postfix();
+        const whitelist = await getGlobalWhitelist();
+        setAutoWhitelistedPostfix(postfixes);
+        setGlobalWhitelist(whitelist);
+      } catch (error) {
+        console.error('Failed to fetch auto whitelisted postfix:', error);
+      }
+    };
+    fetchAutoWhitelistedPostfix();
+  }, []);
+  function getAtRiskTokenIdsForPool(poolTokens) {
+    return poolTokens
+      .filter(
+        (token) =>
+          autoWhitelistedPostfix.some((postfix) =>
+            token.id.includes(postfix)
+          ) && !globalWhitelist.includes(token.id)
+      )
+      .map((token) => token.id);
+  }
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
@@ -256,6 +286,28 @@ function PoolRow({
                 {tokens[2] ? <label>-{tokens[2]?.symbol}</label> : null}
                 {tokens[3] ? <label>-{tokens[3]?.symbol}</label> : null}
               </div>
+              {curRowTokens.map((token) => {
+                const isAtRisk = getAtRiskTokenIdsForPool(
+                  curRowTokens
+                ).includes(token.id);
+                return isAtRisk ? (
+                  <div
+                    key={token.id}
+                    className="ml-2 relative"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  >
+                    <span>
+                      <TokenRisk />
+                    </span>
+                    {showTooltip && (
+                      <div className="absolute -top-3 left-5 px-2 w- py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                        {token.symbol} is subjected to high volatility
+                      </div>
+                    )}
+                  </div>
+                ) : null;
+              })}
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
                   {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1
@@ -353,6 +405,32 @@ function PoolRowV2({
   relatedSeed?: Seed;
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
+  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
+  const [globalWhitelist, setGlobalWhitelist] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  useEffect(() => {
+    const fetchAutoWhitelistedPostfix = async () => {
+      try {
+        const postfixes = await get_auto_whitelisted_postfix();
+        const whitelist = await getGlobalWhitelist();
+        setAutoWhitelistedPostfix(postfixes);
+        setGlobalWhitelist(whitelist);
+      } catch (error) {
+        console.error('Failed to fetch auto whitelisted postfix:', error);
+      }
+    };
+    fetchAutoWhitelistedPostfix();
+  }, []);
+  function getAtRiskTokenIdsForPool(poolTokens) {
+    return poolTokens
+      .filter(
+        (token) =>
+          autoWhitelistedPostfix.some((postfix) =>
+            token.id.includes(postfix)
+          ) && !globalWhitelist.includes(token.id)
+      )
+      .map((token) => token.id);
+  }
   const history = useHistory();
   const topBinApr = useDCLTopBinFee({
     pool,
@@ -416,6 +494,28 @@ function PoolRowV2({
         >
           <div className="flex items-center">
             <Images tokens={tokens} size="8" />
+            {curRowTokens.map((token) => {
+              const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
+                token.id
+              );
+              return isAtRisk ? (
+                <div
+                  key={token.id}
+                  className="ml-2 relative"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+                  <span>
+                    <TokenRisk />
+                  </span>
+                  {showTooltip && (
+                    <div className="absolute -top-3 left-5 px-2 w-52 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                      {token.symbol} is subjected to high volatility
+                    </div>
+                  )}
+                </div>
+              ) : null;
+            })}
             <div className="text-sm ml-3">
               {tokens[0].symbol +
                 '-' +
@@ -2268,7 +2368,33 @@ function StablePoolCard({
   const formattedPool = formatePoolData(poolData);
   const standPool = poolData.pool;
   standPool.tvl = poolData.poolTVL;
-
+  const curRowTokens = poolData.tokens;
+  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
+  const [globalWhitelist, setGlobalWhitelist] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  useEffect(() => {
+    const fetchAutoWhitelistedPostfix = async () => {
+      try {
+        const postfixes = await get_auto_whitelisted_postfix();
+        const whitelist = await getGlobalWhitelist();
+        setAutoWhitelistedPostfix(postfixes);
+        setGlobalWhitelist(whitelist);
+      } catch (error) {
+        console.error('Failed to fetch auto whitelisted postfix:', error);
+      }
+    };
+    fetchAutoWhitelistedPostfix();
+  }, []);
+  function getAtRiskTokenIdsForPool(poolTokens) {
+    return poolTokens
+      .filter(
+        (token) =>
+          autoWhitelistedPostfix.some((postfix) =>
+            token.id.includes(postfix)
+          ) && !globalWhitelist.includes(token.id)
+      )
+      .map((token) => token.id);
+  }
   const [hover, setHover] = useState<boolean>(false);
 
   const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
@@ -2327,6 +2453,28 @@ function StablePoolCard({
             layout="vertical"
             layoutSize="16"
           />
+          {curRowTokens.map((token) => {
+            const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
+              token.id
+            );
+            return isAtRisk ? (
+              <div
+                key={token.id}
+                className="ml-2 relative"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <span>
+                  <TokenRisk />
+                </span>
+                {showTooltip && (
+                  <div className="absolute -top-3 left-5 px-2 w- py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    {token.symbol} is subjected to high volatility
+                  </div>
+                )}
+              </div>
+            ) : null;
+          })}
 
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">

@@ -101,22 +101,24 @@ export function SingleToken({
 }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
+  const [globalWhitelist, setGlobalWhitelist] = useState([]);
   const [showTooltip, setShowTooltip] = useState(false);
   useEffect(() => {
     const fetchAutoWhitelistedPostfix = async () => {
       try {
         const postfixes = await get_auto_whitelisted_postfix();
+        const whitelist = await getGlobalWhitelist();
         setAutoWhitelistedPostfix(postfixes);
+        setGlobalWhitelist(whitelist);
       } catch (error) {
         console.error('Failed to fetch auto whitelisted postfix:', error);
       }
     };
-
     fetchAutoWhitelistedPostfix();
   }, []);
-  const containsAutoWhitelistedPostfix = autoWhitelistedPostfix.some(
-    (postfix) => token.id.includes(postfix)
-  );
+  const isTokenAtRisk =
+    autoWhitelistedPostfix.some((postfix) => token.id.includes(postfix)) &&
+    !globalWhitelist.includes(token.id);
   return (
     <>
       {token.icon ? (
@@ -134,7 +136,7 @@ export function SingleToken({
           <span className="text-sm text-white">
             {toRealSymbol(token.symbol)}
           </span>
-          {containsAutoWhitelistedPostfix && (
+          {isTokenAtRisk && (
             <div
               className="ml-2 relative"
               onMouseEnter={() => setShowTooltip(true)}
