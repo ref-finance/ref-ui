@@ -402,35 +402,37 @@ function StablePoolCard({
               : ''
           }  flex items-center   xs:justify-between md:justify-between`}
         >
-          <Images
-            tokens={poolData.tokens}
-            size="8"
-            className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
-            layout="vertical"
-            layoutSize="16"
-          />
-          {curRowTokens.map((token) => {
-            const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
-              token.id
-            );
-            return isAtRisk ? (
-              <div
-                key={token.id}
-                className="ml-2 relative"
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-              >
-                <span>
-                  <TokenRisk />
-                </span>
-                {showTooltip && (
-                  <div className="absolute -top-3 left-5 px-2 w- py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                    {token.symbol} is subjected to high volatility
-                  </div>
-                )}
-              </div>
-            ) : null;
-          })}
+          <div className="flex items-center">
+            <Images
+              tokens={poolData.tokens}
+              size="8"
+              className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
+              layout="vertical"
+              layoutSize="16"
+            />
+            {curRowTokens.map((token) => {
+              const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
+                token.id
+              );
+              return isAtRisk ? (
+                <div
+                  key={token.id}
+                  className="ml-2 relative"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+                  <span>
+                    <TokenRisk />
+                  </span>
+                  {showTooltip && (
+                    <div className="absolute -top-3 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                      {token.symbol} is subjected to high volatility
+                    </div>
+                  )}
+                </div>
+              ) : null;
+            })}
+          </div>
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
               <Symbols

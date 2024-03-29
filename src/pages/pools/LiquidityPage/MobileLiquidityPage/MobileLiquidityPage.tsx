@@ -1005,7 +1005,7 @@ function MobilePoolRowV2({
                     <TokenRisk />
                   </span>
                   {showTooltip && (
-                    <div className="absolute -top-3 left-5 px-2 w- py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    <div className="absolute -top-3 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
                       {token.symbol} is subjected to high volatility
                     </div>
                   )}
