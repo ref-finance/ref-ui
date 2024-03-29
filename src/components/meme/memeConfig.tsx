@@ -179,8 +179,17 @@ export function getMemeContractConfig(
           'memefarm-xref-neko.ref-dev.testnet',
           'memefarm-xref-bldr.ref-dev.testnet',
           'memefarm-xref-shzu.ref-dev.testnet',
+          'memefarm-xref-uwon.ref-dev.testnet',
+          'memefarm-xref-sgpt.ref-dev.testnet',
         ],
-        MEME_TOKEN_XREF_MAP: {},
+        MEME_TOKEN_XREF_MAP: {
+          'lonk.fakes.testnet': 'memefarm-xref-lonk.ref-dev.testnet',
+          'blackdragon.fakes.testnet': 'memefarm-xref-bldr.ref-dev.testnet',
+          'neko.fakes.testnet': 'memefarm-xref-neko.ref-dev.testnet',
+          'shitzu.fakes.testnet': 'memefarm-xref-shzu.ref-dev.testnet',
+          'uwon.fakes.testnet': 'memefarm-xref-uwon.ref-dev.testnet',
+          'sgpt.fakes.testnet': 'memefarm-xref-sgpt.ref-dev.testnet',
+        },
       };
     case 'testnet':
       return {
