@@ -295,6 +295,17 @@ export const get_xref_config = async (contractId) => {
     methodName: 'get_config',
   });
 };
+export const xref_list_seed_farms = async (contractId, seed_id: string) => {
+  try {
+    return await xrefMeMeFarmViewFunction({
+      contractId,
+      methodName: 'list_seed_farms',
+      args: { seed_id },
+    });
+  } catch {
+    return null;
+  }
+};
 export const xrefStake = async ({
   seed,
   amount = '',

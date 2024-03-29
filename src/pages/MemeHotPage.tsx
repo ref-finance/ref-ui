@@ -14,6 +14,7 @@ import {
   IMemefarmConfig,
   xref_list_seeds_info,
   xref_list_farmer_seeds,
+  xref_list_seed_farms,
   get_xref_unclaimed_rewards,
   xref_list_farmer_withdraws,
   get_xref_config,
@@ -252,7 +253,12 @@ export default function MemePage() {
     );
     // get farms
     const xrefFarmList = await Promise.all(
-      xrefSeeds.map(([seed]: [seed: Seed]) => list_seed_farms(seed.seed_id))
+      xrefSeeds.map(([seed]: [seed: Seed], index) => {
+        return xref_list_seed_farms(
+          XREF_MEME_FARM_CONTRACT_IDS[index],
+          seed.seed_id
+        );
+      })
     );
     // get all token metadata
     const tokenIds = new Set();
@@ -304,11 +310,11 @@ export default function MemePage() {
         const reward_token_price = Number(
           tokenPriceList[reward_token]?.price || 0
         );
-        if (+seeds[index].seedTvl > 0) {
+        if (+xrefSeeds?.[index]?.[0].seedTvl > 0) {
           farm.apr = new Big(daily_reward_amount)
             .mul(reward_token_price)
             .mul(365)
-            .div(seeds[index].seedTvl)
+            .div(+xrefSeeds?.[index]?.[0].seedTvl)
             .toFixed();
         } else {
           farm.apr = '0';

@@ -33,7 +33,7 @@ function VoteSheet() {
     <div className="text-primaryText">
       <div className="text-base mb-7">
         Vote for your favorite Meme by staking xREF, so that the Meme you
-        support can be listed in the next round of ‘Meme Copetetion’.
+        support can be listed in the next round of ‘Meme Competition.
       </div>
       <div className="flex gap-12">
         <div className="flex-grow">

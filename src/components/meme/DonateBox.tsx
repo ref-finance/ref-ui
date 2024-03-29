@@ -50,68 +50,61 @@ function DonateBox(props: any) {
     !selectedTab ||
     !Object.keys(xrefSeeds).length;
   return (
-    <div className="flex flex-col">
-      <div
-        className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto"
-        style={{
-          width: cardWidth,
-          maxHeight: cardHeight,
-          border: '1px solid rgba(151, 151, 151, 0.2)',
-        }}
-      >
-        <div className="title flex items-center justify-between">
-          <div className="text-white text-2xl gotham_bold">Donate Meme</div>
+    <div
+    // className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto"
+    // style={{
+    //   width: cardWidth,
+    //   maxHeight: cardHeight,
+    //   border: '1px solid rgba(151, 151, 151, 0.2)',
+    // }}
+    >
+      <div className="mt-6 mb-5">
+        <div className="text-primaryText text-sm">
+          Select donation of Meme token
         </div>
-        <div className="mt-6 mb-5">
-          <div className="text-primaryText text-sm">
-            Select donation of Meme token
-          </div>
-          <div className="mt-5 flex flex-wrap mb-2">
-            {Object.keys(MEME_TOKEN_XREF_MAP).map((memeTokenId) => {
-              return (
-                <Tab
-                  key={memeTokenId}
-                  isSelected={selectedTab === memeTokenId}
-                  metadata={allTokenMetadatas?.[memeTokenId]}
-                  onSelect={() => setSelectedTab(memeTokenId)}
-                />
-              );
-            })}
-          </div>
-          <div className="flex justify-between text-sm">
-            <div className="text-primaryText">Amount</div>
-          </div>
-          <div className="mb-8">
-            {allTokenMetadatas?.[selectedTab] && (
-              <InputAmount
-                token={allTokenMetadatas[selectedTab]}
-                tokenPriceList={tokenPriceList}
-                balance={balance}
-                changeAmount={setAmount}
-                amount={amount}
+        <div className="mt-5 flex flex-wrap mb-2">
+          {Object.keys(MEME_TOKEN_XREF_MAP).map((memeTokenId) => {
+            return (
+              <Tab
+                key={memeTokenId}
+                isSelected={selectedTab === memeTokenId}
+                metadata={allTokenMetadatas?.[memeTokenId]}
+                onSelect={() => setSelectedTab(memeTokenId)}
               />
-            )}
-          </div>
-          {isSignedIn ? (
-            <OprationButton
-              minWidth="7rem"
-              disabled={disabled}
-              onClick={stakeToken}
-              className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                disabled || stakeLoading ? 'opacity-40' : ''
-              }`}
-            >
-              <ButtonTextWrapper
-                loading={stakeLoading}
-                Text={() => (
-                  <div className="flex items-center gap-2">Donate</div>
-                )}
-              />
-            </OprationButton>
-          ) : (
-            <ConnectToNearBtn />
+            );
+          })}
+        </div>
+        <div className="flex justify-between text-sm">
+          <div className="text-primaryText">Amount</div>
+        </div>
+        <div className="mb-8">
+          {allTokenMetadatas?.[selectedTab] && (
+            <InputAmount
+              token={allTokenMetadatas[selectedTab]}
+              tokenPriceList={tokenPriceList}
+              balance={balance}
+              changeAmount={setAmount}
+              amount={amount}
+            />
           )}
         </div>
+        {isSignedIn ? (
+          <OprationButton
+            minWidth="7rem"
+            disabled={disabled}
+            onClick={stakeToken}
+            className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+              disabled || stakeLoading ? 'opacity-40' : ''
+            }`}
+          >
+            <ButtonTextWrapper
+              loading={stakeLoading}
+              Text={() => <div className="flex items-center gap-2">Donate</div>}
+            />
+          </OprationButton>
+        ) : (
+          <ConnectToNearBtn />
+        )}
       </div>
     </div>
   );

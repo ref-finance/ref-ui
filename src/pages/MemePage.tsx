@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Big from 'big.js';
-import Overview from '../components/meme/Overview';
-import ProgressBar from '../components/meme/ProgressBar';
-import SeedsBox from '../components/meme/SeedsBox';
-import WithdrawList from '../components/meme/WithdrawList';
 import Banner from '../components/meme/Banner';
 import { MemeContext, IFarmAccount } from '../components/meme/context';
 import { ChartLoading } from 'src/components/icon/Loading';
@@ -18,6 +14,7 @@ import {
   IMemefarmConfig,
   xref_list_seeds_info,
   xref_list_farmer_seeds,
+  xref_list_seed_farms,
   get_xref_unclaimed_rewards,
   xref_list_farmer_withdraws,
   get_xref_config,
@@ -42,7 +39,8 @@ import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
 import { MobileBanner, MobileBannerBg } from '../components/meme/ani_mobile';
-import VoteXREF from '../components/meme/VoteXREF';
+import VoteXrefBox from '../components/meme/VoteXrefBox';
+import VoteXrefBoxTop from '../components/meme/VoteXrefBoxTop';
 
 export default function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
@@ -255,7 +253,12 @@ export default function MemePage() {
     );
     // get farms
     const xrefFarmList = await Promise.all(
-      xrefSeeds.map(([seed]: [seed: Seed]) => list_seed_farms(seed.seed_id))
+      xrefSeeds.map(([seed]: [seed: Seed], index) => {
+        return xref_list_seed_farms(
+          XREF_MEME_FARM_CONTRACT_IDS[index],
+          seed.seed_id
+        );
+      })
     );
     // get all token metadata
     const tokenIds = new Set();
@@ -307,11 +310,11 @@ export default function MemePage() {
         const reward_token_price = Number(
           tokenPriceList[reward_token]?.price || 0
         );
-        if (+seeds[index].seedTvl > 0) {
+        if (+xrefSeeds?.[index]?.[0].seedTvl > 0) {
           farm.apr = new Big(daily_reward_amount)
             .mul(reward_token_price)
             .mul(365)
-            .div(seeds[index].seedTvl)
+            .div(+xrefSeeds?.[index]?.[0].seedTvl)
             .toFixed();
         } else {
           farm.apr = '0';

@@ -32,7 +32,7 @@ const renderActiveShape = (props) => {
 };
 
 const MyPieChart = () => {
-  const [activeIndex, setActiveIndex] = useState(-1);
+  const [activeIndex, setActiveIndex] = useState(0);
   const { xrefSeeds, allTokenMetadatas } = useContext(MemeContext);
   const chartData = useMemo(() => {
     if (!emptyObject(xrefSeeds) && !emptyObject(allTokenMetadatas)) {
@@ -61,6 +61,7 @@ const MyPieChart = () => {
           : 0;
         data.percent = formatPercentage(percent);
       });
+      chartData.sort((b, a) => a.value - b.value);
       return chartData;
     }
   }, [xrefSeeds, allTokenMetadatas]);
@@ -69,7 +70,7 @@ const MyPieChart = () => {
   };
 
   const onPieLeave = () => {
-    setActiveIndex(-1);
+    setActiveIndex(0);
   };
 
   const STROKE_WIDTH = 10;

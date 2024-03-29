@@ -69,101 +69,91 @@ function VoteBox(props: any) {
     !selectedTab ||
     !Object.keys(xrefSeeds).length;
   return (
-    <div className="flex flex-col">
-      <div
-        className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto"
-        style={{
-          width: cardWidth,
-          maxHeight: cardHeight,
-          border: '1px solid rgba(151, 151, 151, 0.2)',
-        }}
-      >
-        <div className="title flex items-center justify-between">
-          <div className="text-white text-2xl gotham_bold">Vote for Meme</div>
+    <div
+    // className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto"
+    // style={{
+    //   width: cardWidth,
+    //   maxHeight: cardHeight,
+    //   border: '1px solid rgba(151, 151, 151, 0.2)',
+    // }}
+    >
+      <div className="mt-6 mb-5">
+        <div className="text-primaryText text-sm">Select Meme you support</div>
+        <div className="mt-5 flex flex-wrap mb-2">
+          {Object.keys(MEME_TOKEN_XREF_MAP).map((memeTokenId) => {
+            return (
+              <Tab
+                key={memeTokenId}
+                isSelected={selectedTab === memeTokenId}
+                metadata={allTokenMetadatas?.[memeTokenId]}
+                xrefMetadata={allTokenMetadatas?.[xrefTokenId]}
+                onSelect={() => setSelectedTab(memeTokenId)}
+                xrefSeed={xrefSeeds?.[MEME_TOKEN_XREF_MAP[memeTokenId]]}
+                userSeed={
+                  xrefFarmContractUserData?.[MEME_TOKEN_XREF_MAP[memeTokenId]]
+                    ?.join_seeds
+                }
+              />
+            );
+          })}
         </div>
-        <div className="mt-6 mb-5">
-          <div className="text-primaryText text-sm">
-            Select Meme you support
-          </div>
-          <div className="mt-5 flex flex-wrap mb-2">
-            {Object.keys(MEME_TOKEN_XREF_MAP).map((memeTokenId) => {
-              return (
-                <Tab
-                  key={memeTokenId}
-                  isSelected={selectedTab === memeTokenId}
-                  metadata={allTokenMetadatas?.[memeTokenId]}
-                  xrefMetadata={allTokenMetadatas?.[xrefTokenId]}
-                  onSelect={() => setSelectedTab(memeTokenId)}
-                  xrefSeed={xrefSeeds?.[MEME_TOKEN_XREF_MAP[memeTokenId]]}
-                  userSeed={
-                    xrefFarmContractUserData?.[MEME_TOKEN_XREF_MAP[memeTokenId]]
-                      ?.join_seeds
-                  }
-                />
-              );
-            })}
-          </div>
-          <div className="flex justify-between text-sm">
-            <div className="text-primaryText">Stake xREF</div>
-            <div className="text-senderHot flex justify-end items-center">
-              <a
-                className="inline-flex items-center cursor-pointer"
-                href="/xref"
-                target="_blank"
-              >
-                Acquire $xREF <ArrowRightTopIcon />
-              </a>
-            </div>
-          </div>
-          <div className="mb-8">
-            {allTokenMetadatas?.[xrefTokenId] && (
-              <InputAmount
-                token={allTokenMetadatas[xrefTokenId]}
-                tokenPriceList={tokenPriceList}
-                balance={xrefBalance}
-                changeAmount={setAmount}
-                amount={amount}
-              />
-            )}
-          </div>
-          {isSignedIn ? (
-            <OprationButton
-              minWidth="7rem"
-              disabled={disabled}
-              onClick={stakeToken}
-              className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                disabled || stakeLoading ? 'opacity-40' : ''
-              }`}
+        <div className="flex justify-between text-sm">
+          <div className="text-primaryText">Stake xREF</div>
+          <div className="text-senderHot flex justify-end items-center">
+            <a
+              className="inline-flex items-center cursor-pointer"
+              href="/xref"
+              target="_blank"
             >
-              <ButtonTextWrapper
-                loading={stakeLoading}
-                Text={() => (
-                  <div className="flex items-center gap-2">Stake</div>
-                )}
-              />
-            </OprationButton>
-          ) : (
-            <ConnectToNearBtn />
+              Acquire $xREF <ArrowRightTopIcon />
+            </a>
+          </div>
+        </div>
+        <div className="mb-8">
+          {allTokenMetadatas?.[xrefTokenId] && (
+            <InputAmount
+              token={allTokenMetadatas[xrefTokenId]}
+              tokenPriceList={tokenPriceList}
+              balance={xrefBalance}
+              changeAmount={setAmount}
+              amount={amount}
+            />
           )}
-
-          <div
-            className={`flex items-start gap-2 mt-4 ${
-              xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
-                ?.delay_withdraw_sec
-                ? ''
-                : 'hidden'
+        </div>
+        {isSignedIn ? (
+          <OprationButton
+            minWidth="7rem"
+            disabled={disabled}
+            onClick={stakeToken}
+            className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+              disabled || stakeLoading ? 'opacity-40' : ''
             }`}
           >
-            <TipIcon className="flex-shrink-0 transform translate-y-1" />
-            <p className="text-sm text-greenLight">
-              The unstaked $xREF will available to be withdrawn in{' '}
-              {formatSeconds(
-                xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
-                  ?.delay_withdraw_sec
-              )}{' '}
-              days.
-            </p>
-          </div>
+            <ButtonTextWrapper
+              loading={stakeLoading}
+              Text={() => <div className="flex items-center gap-2">Stake</div>}
+            />
+          </OprationButton>
+        ) : (
+          <ConnectToNearBtn />
+        )}
+
+        <div
+          className={`flex items-start gap-2 mt-4 ${
+            xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
+              ?.delay_withdraw_sec
+              ? ''
+              : 'hidden'
+          }`}
+        >
+          <TipIcon className="flex-shrink-0 transform translate-y-1" />
+          <p className="text-sm text-greenLight">
+            The unstaked $xREF will available to be withdrawn in{' '}
+            {formatSeconds(
+              xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
+                ?.delay_withdraw_sec
+            )}{' '}
+          </p>
         </div>
       </div>
     </div>
