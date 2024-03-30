@@ -18,6 +18,7 @@ import {
   get_xref_unclaimed_rewards,
   xref_list_farmer_withdraws,
   get_xref_config,
+  get_donate_list,
 } from '../services/meme';
 import {
   getMemeDataConfig,
@@ -38,7 +39,7 @@ import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
-import { MobileBanner, MobileBannerBg } from '../components/meme/ani_mobile';
+import MobileBanner from '../components/meme/MobileBanner';
 import VoteXrefBox from '../components/meme/VoteXrefBox';
 import VoteXrefBoxTop from '../components/meme/VoteXrefBoxTop';
 
@@ -79,6 +80,9 @@ export default function MemePage() {
   const [withdraw_list, set_withdraw_list] = useState<
     Record<string, IFarmerWithdraw>
   >({});
+  const [donateBalances, setDonateBalances] = useState<Record<string, string>>(
+    {}
+  );
   const [xrefFarmContractUserData, setXrefFarmContractUserData] =
     useState<Record<string, IFarmAccount>>();
   const [memeFarmContractUserData, setMemeFarmContractUserData] =
@@ -337,6 +341,7 @@ export default function MemePage() {
   async function init_user() {
     init_user_meme();
     init_user_xref();
+    get_donate_balance();
   }
   async function init_user_meme() {
     const user_seeds = await list_farmer_seeds();
@@ -428,6 +433,10 @@ export default function MemePage() {
     setXrefFarmContractUserData(userData);
     set_user_xref_balances({ [xref_token_id]: xref_balance });
   }
+  async function get_donate_balance() {
+    const balances = await get_donate_list();
+    setDonateBalances(balances);
+  }
   const is_mobile = isMobile();
   return (
     <MemeContext.Provider
@@ -443,25 +452,14 @@ export default function MemePage() {
         xrefFarmContractUserData,
         memeFarmContractUserData,
         xrefTokenId,
+        donateBalances,
         unclaimed_rewards, // todo delete
         user_seeds, // todo delete
         withdraw_list, // todo delete
       }}
     >
       <div className="-mt-12 xsm:mt-0">
-        {is_mobile ? (
-          <div
-            className="relative flex items-center justify-center w-full bg-greenLight"
-            style={{ height: '432px' }}
-          >
-            <div className="w-full h-full absolute opacity-10">
-              <MobileBannerBg style={{ height: '432px', width: '100%' }} />
-            </div>
-            <MobileBanner className="w-full transform" />
-          </div>
-        ) : (
-          <Banner />
-        )}
+        {is_mobile ? <MobileBanner /> : <Banner />}
         <div className="m-auto lg:w-5/6 mt-20" style={{ maxWidth: '1100px' }}>
           <VoteXrefBoxTop />
           <VoteXrefBox />

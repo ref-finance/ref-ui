@@ -15,6 +15,13 @@ export function getSeedApr(seed: Seed) {
   });
   return apr.mul(100).toFixed();
 }
+export function getTotalRewardBalance(seed: Seed, extraBalance) {
+  if (!seed || isEnded(seed)) return Big(extraBalance || 0).toFixed();
+  const balance_fromFarm = Big(seed.farmList[0]?.total_reward || 0)
+    .plus(extraBalance)
+    .toFixed();
+  return balance_fromFarm;
+}
 export function isPending(seed: Seed) {
   let pending: boolean = true;
   const farms = seed.farmList;

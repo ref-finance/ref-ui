@@ -27,7 +27,6 @@ function VoteModel(props: any) {
     xrefSeeds,
     xrefContractConfig,
   } = useContext(MemeContext);
-  console.log('9999999999-xrefContractConfig', xrefContractConfig);
   const xrefBalance = useMemo(() => {
     if (xrefTokenId && allTokenMetadatas?.[xrefTokenId]) {
       return toReadableNumber(

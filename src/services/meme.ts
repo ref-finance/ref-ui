@@ -18,9 +18,12 @@ import {
   currentStorageBalanceOfXref_farm,
 } from './account';
 import { Seed, FarmBoost } from '~src/services/farm';
-import { ftGetStorageBalance } from '../services/ft-contract';
+import { ftGetBalance, ftGetStorageBalance } from '../services/ft-contract';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
-import { DONATE_RECEIVER_ID } from '../components/meme/memeConfig';
+import {
+  DONATE_RECEIVER_ID,
+  getMemeContractConfig,
+} from '../components/meme/memeConfig';
 interface StakeOptions {
   seed: Seed;
   amount: string;
@@ -306,6 +309,22 @@ export const xref_list_seed_farms = async (contractId, seed_id: string) => {
     return null;
   }
 };
+export const get_donate_list = async () => {
+  const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+  const balances = await Promise.all(
+    Object.keys(MEME_TOKEN_XREF_MAP).map((tokenId) =>
+      ftGetBalance(tokenId, DONATE_RECEIVER_ID)
+    )
+  );
+  return balances.reduce(
+    (acc, balance, index) => ({
+      ...acc,
+      [Object.keys(MEME_TOKEN_XREF_MAP)[index]]: balance,
+    }),
+    {}
+  );
+};
+
 export const xrefStake = async ({
   seed,
   amount = '',

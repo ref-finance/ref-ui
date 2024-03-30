@@ -4,44 +4,58 @@ import DonateBox from './DonateBox';
 import { isMobile } from '../../utils/device';
 function VoteXrefBoxTop() {
   const [voteTab, setVoteTab] = useState<'vote' | 'donate'>('vote');
-  const cardWidth = isMobile() ? '90vw' : '25vw';
-  const cardHeight = isMobile() ? '90vh' : '80vh';
+  const cardWidth = isMobile() ? '95vw' : '25vw';
   return (
-    <div className="flex items-start justify-between gap-14">
+    <div className="flex lg:items-start lg:justify-between gap-14 xsm:flex-col xsm:items-center">
       {/* Date */}
-      <div>
+      <div className="xsm:px-5">
         <div>
-          <p className="gotham_bold text-4xl text-white">
+          <p className="gotham_bold text-4xl text-white xsm:text-center">
             Vote for Meme by xREF
           </p>
-          <p className="text-base text-primaryText">
-            Vote for your favorite Meme by staking xREF, so that the Meme you
-            support can be listed in the next round of ‘Meme Copetetion’.
+          <p className="text-base text-primaryText xsm:text-center">
+            Vote for your favorite Meme by staking xREF. The Top 5 Memes will
+            advance to the next round of the ‘Meme Copetetion’.
           </p>
         </div>
         <div className="my-8">
-          <p className="text-base text-primaryText">Vote time:</p>
-          <p className="gotham_bold text-xl text-white">
+          <p className="gotham_bold text-4xl text-white xsm:text-center">
+            Donate Instructions
+          </p>
+          <p className="text-base text-primaryText xsm:text-center">
+            All donated tokens will be added by Ref to the corresponding xRef
+            Farming Pool for MeMeToken within 1-2 days. The farming release
+            period is set for 2 weeks. Users staking xRef in the corresponding
+            MeMeToken will receive these donations.
+          </p>
+        </div>
+        <div className="my-8">
+          <p className="text-base text-primaryText xsm:text-center">
+            Vote time:
+          </p>
+          <p className="gotham_bold text-xl text-white xsm:text-center">
             2024/04/01-2024/04/03
           </p>
         </div>
         <div>
-          <p className="text-base text-primaryText">Meme Competition:</p>
-          <p className="gotham_bold text-xl text-white">
+          <p className="text-base text-primaryText xsm:text-center">
+            Meme Competition:
+          </p>
+          <p className="gotham_bold text-xl text-white xsm:text-center">
             2024/04/04-2024/04/14
           </p>
         </div>
       </div>
       {/* operation box */}
       <div
-        className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto flex-shrink-0"
+        className="px-5 py-6 rounded-2xl bg-swapCardGradient overflow-auto flex-shrink-0 xsm:px-2.5"
         style={{
           border: '1px solid rgba(151, 151, 151, 0.2)',
-          width: '25vw',
+          width: cardWidth,
         }}
       >
         <div
-          className="flex items-center justify-center text-xl gap-16 mb-4"
+          className="flex items-center justify-center text-xl xsm:text-base gap-16 mb-4"
           style={{ borderBottom: '1px solid #55646E' }}
         >
           <span

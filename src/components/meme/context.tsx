@@ -17,6 +17,7 @@ interface IMemeContext {
   xrefFarmContractUserData: Record<string, IFarmAccount>;
   memeFarmContractUserData: IFarmAccount;
   xrefTokenId: string;
+  donateBalances: Record<string, string>;
 }
 
 // withdraw_list: user_withdraw_list[index],

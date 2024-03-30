@@ -9,6 +9,7 @@ import { toReadableNumber } from '../../utils/numbers';
 import {
   formatPercentage,
   formatWithCommas_number,
+  toInternationalCurrencySystem_number,
 } from '../../utils/uiNumber';
 
 const renderActiveShape = (props) => {
@@ -117,7 +118,7 @@ const MyPieChart = () => {
           dominantBaseline="central"
           style={{ fill: 'white', fontSize: '20px' }}
         >
-          {formatWithCommas_number(activeEntry.value)} xREF
+          {toInternationalCurrencySystem_number(activeEntry.value)} xREF
         </text>
       </>
     );

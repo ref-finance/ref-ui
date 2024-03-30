@@ -38,7 +38,7 @@ import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
-import { MobileBanner, MobileBannerBg } from '../components/meme/ani_mobile';
+import { MobileBanner } from '../components/meme/ani_mobile';
 import VoteXrefBox from '../components/meme/VoteXrefBox';
 import VoteXrefBoxTop from '../components/meme/VoteXrefBoxTop';
 
@@ -454,9 +454,6 @@ export default function MemePage() {
             className="relative flex items-center justify-center w-full bg-greenLight"
             style={{ height: '432px' }}
           >
-            <div className="w-full h-full absolute opacity-10">
-              <MobileBannerBg style={{ height: '432px', width: '100%' }} />
-            </div>
             <MobileBanner className="w-full transform" />
           </div>
         ) : (

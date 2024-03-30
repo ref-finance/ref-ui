@@ -12,7 +12,12 @@ import {
   toInternationalCurrencySystem_number,
 } from '../../utils/uiNumber';
 import { xrefStake } from '../../services/meme';
-import { emptyObject, formatSeconds, getSeedApr } from './tool';
+import {
+  emptyObject,
+  formatSeconds,
+  getSeedApr,
+  getTotalRewardBalance,
+} from './tool';
 import {
   OprationButton,
   ConnectToNearBtn,
@@ -37,6 +42,7 @@ function VoteBox(props: any) {
     xrefSeeds,
     xrefContractConfig,
     xrefFarmContractUserData,
+    donateBalances,
   } = useContext(MemeContext);
   const xrefBalance = useMemo(() => {
     if (xrefTokenId && allTokenMetadatas?.[xrefTokenId]) {
@@ -93,6 +99,7 @@ function VoteBox(props: any) {
                   xrefFarmContractUserData?.[MEME_TOKEN_XREF_MAP[memeTokenId]]
                     ?.join_seeds
                 }
+                donateBalance={donateBalances[memeTokenId] || '0'}
               />
             );
           })}
@@ -167,6 +174,7 @@ const Tab = ({
   xrefMetadata,
   xrefSeed,
   userSeed,
+  donateBalance,
 }: {
   isSelected: boolean;
   onSelect;
@@ -174,13 +182,18 @@ const Tab = ({
   xrefMetadata: TokenMetadata;
   xrefSeed: Seed;
   userSeed: Record<string, UserSeedInfo>;
+  donateBalance: string;
 }) => {
   const baseStyle =
     'rounded-3xl border border-memeBorderColor pt-2 pl-2 pr-3 pb-2 flex items-center justify-between cursor-pointer outline-none';
   const selectedStyle = 'bg-senderHot text-cardBg';
   const unselectedStyle = 'bg-memeModelgreyColor text-white';
   function getButtonTip() {
-    const apr = getSeedApr(xrefSeed); // formatPercentage
+    const apr = getSeedApr(xrefSeed);
+    const totalMemeReward = toReadableNumber(
+      metadata?.decimals || 0,
+      getTotalRewardBalance(xrefSeed, donateBalance)
+    );
     const userAmount =
       !emptyObject(userSeed || {}) && xrefMetadata
         ? toInternationalCurrencySystem_number(
@@ -192,10 +205,16 @@ const Tab = ({
         : '-';
     const result = `<div class="px-2">
           <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
-            <span>Staking APR</span>
+            <span>Reward ${metadata?.symbol}</span>
+            <span class="text-white text-sm">${toInternationalCurrencySystem_number(
+              totalMemeReward
+            )}</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-farmText gap-3.5 my-1">
+            <span>Staking xREF APR</span>
             <span class="text-white text-sm">${formatPercentage(apr)}</span>
           </div>
-          <div class="flex items-center justify-between text-xs text-farmText gap-3.5 mt-1">
+          <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
             <span>Your Feed</span>
             <span class="text-white text-sm">${userAmount}</span>
           </div>

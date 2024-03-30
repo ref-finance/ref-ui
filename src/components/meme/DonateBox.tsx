@@ -8,17 +8,14 @@ import { getMemeContractConfig } from './memeConfig';
 import { InputAmount } from './InputBox';
 import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
 import { donate } from '../../services/meme';
-import {
-  OprationButton,
-  ButtonTextWrapper,
-  ConnectToNearBtn,
-} from 'src/components/button/Button';
+import DonateTipModal from './DonateTipModal';
+import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function DonateBox(props: any) {
   const [selectedTab, setSelectedTab] = useState(
     Object.keys(MEME_TOKEN_XREF_MAP)[0]
   );
-  const [stakeLoading, setStakeLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { allTokenMetadatas, tokenPriceList, user_balances, xrefSeeds } =
     useContext(MemeContext);
   const { globalState } = useContext(WalletContext);
@@ -36,13 +33,18 @@ function DonateBox(props: any) {
   const cardWidth = isMobile() ? '90vw' : '25vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   function stakeToken() {
-    setStakeLoading(true);
     donate({
       tokenId: selectedTab,
       amount: Big(
         toNonDivisibleNumber(allTokenMetadatas[selectedTab].decimals, amount)
       ).toFixed(0),
     });
+  }
+  function showTipModal() {
+    setIsOpen(true);
+  }
+  function closeTipModal() {
+    setIsOpen(false);
   }
   const disabled =
     Big(amount || 0).lte(0) ||
@@ -92,20 +94,23 @@ function DonateBox(props: any) {
           <OprationButton
             minWidth="7rem"
             disabled={disabled}
-            onClick={stakeToken}
+            onClick={showTipModal}
             className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-              disabled || stakeLoading ? 'opacity-40' : ''
+              disabled ? 'opacity-40' : ''
             }`}
           >
-            <ButtonTextWrapper
-              loading={stakeLoading}
-              Text={() => <div className="flex items-center gap-2">Donate</div>}
-            />
+            <div className="flex items-center gap-2">Donate</div>
           </OprationButton>
         ) : (
           <ConnectToNearBtn />
         )}
       </div>
+      <DonateTipModal
+        isOpen={isOpen}
+        onRequestClose={closeTipModal}
+        memeSymbol={allTokenMetadatas?.[selectedTab]?.symbol}
+        onDonate={stakeToken}
+      />
     </div>
   );
 }
