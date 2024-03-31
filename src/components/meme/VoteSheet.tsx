@@ -63,7 +63,6 @@ function VoteSheet() {
                     height: '29px',
                     marginRight: '10px',
                   }}
-                  className="rounded-full"
                 />
                 {toInternationalCurrencySystem_number(
                   totalXrefStaked.toFixed()
