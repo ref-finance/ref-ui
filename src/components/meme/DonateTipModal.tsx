@@ -5,6 +5,7 @@ import {
   OprationButton,
   ButtonTextWrapper,
 } from 'src/components/button/Button';
+import { ModalCloseIcon } from './icons';
 function DonateTipModal(props: any) {
   const { isOpen, onRequestClose, memeSymbol, onDonate } = props;
   const [donateLoading, setDonateLoading] = useState(false);
@@ -33,7 +34,17 @@ function DonateTipModal(props: any) {
           width: cardWidth,
         }}
       >
-        <p>
+        <div className="title flex items-center justify-between">
+          <div className="text-black text-2xl gotham_bold">
+            Donate Instructions
+          </div>
+          <ModalCloseIcon
+            className="cursor-pointer text-black"
+            color="black"
+            onClick={onRequestClose}
+          />
+        </div>
+        <p className="mt-4">
           Your donated Tokens will be added by Ref to the Farming Pool within
           1-2 days, rewarding holders of xRef who support {memeSymbol}.
         </p>

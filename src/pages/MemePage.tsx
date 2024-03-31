@@ -18,6 +18,7 @@ import {
   get_xref_unclaimed_rewards,
   xref_list_farmer_withdraws,
   get_xref_config,
+  get_donate_list,
 } from '../services/meme';
 import {
   getMemeDataConfig,
@@ -39,8 +40,11 @@ import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
 import { MobileBanner } from '../components/meme/ani_mobile';
-import VoteXrefBox from '../components/meme/VoteXrefBox';
-import VoteXrefBoxTop from '../components/meme/VoteXrefBoxTop';
+import Overview from '../components/meme/Overview';
+import ProgressBar from '../components/meme/ProgressBar';
+import VoteXREF from '../components/meme/VoteXREF';
+import SeedsBox from '../components/meme/SeedsBox';
+import WithdrawList from '../components/meme/WithdrawList';
 
 export default function MemePage() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
@@ -79,6 +83,9 @@ export default function MemePage() {
   const [withdraw_list, set_withdraw_list] = useState<
     Record<string, IFarmerWithdraw>
   >({});
+  const [donateBalances, setDonateBalances] = useState<Record<string, string>>(
+    {}
+  );
   const [xrefFarmContractUserData, setXrefFarmContractUserData] =
     useState<Record<string, IFarmAccount>>();
   const [memeFarmContractUserData, setMemeFarmContractUserData] =
@@ -337,6 +344,7 @@ export default function MemePage() {
   async function init_user() {
     init_user_meme();
     init_user_xref();
+    get_donate_balance();
   }
   async function init_user_meme() {
     const user_seeds = await list_farmer_seeds();
@@ -428,6 +436,10 @@ export default function MemePage() {
     setXrefFarmContractUserData(userData);
     set_user_xref_balances({ [xref_token_id]: xref_balance });
   }
+  async function get_donate_balance() {
+    const balances = await get_donate_list();
+    setDonateBalances(balances);
+  }
   const is_mobile = isMobile();
   return (
     <MemeContext.Provider
@@ -443,6 +455,7 @@ export default function MemePage() {
         xrefFarmContractUserData,
         memeFarmContractUserData,
         xrefTokenId,
+        donateBalances,
         unclaimed_rewards, // todo delete
         user_seeds, // todo delete
         withdraw_list, // todo delete

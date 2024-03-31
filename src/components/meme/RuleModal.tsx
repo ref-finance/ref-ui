@@ -33,8 +33,8 @@ function RuleModal(props: any) {
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
         </div>
         <p className="mt-4">
-          This is rule: Your donated Tokens will be added by Ref to the Farming
-          Pool within 1-2 days, rewarding holders of xRef who support LONK.
+          Vote for your favorite Meme by staking xREF. The Top 5 Memes will
+          advance to the next round of the ‘Meme Competition’.
         </p>
       </div>
     </Modal>

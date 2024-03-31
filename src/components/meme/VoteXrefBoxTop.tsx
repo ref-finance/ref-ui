@@ -15,7 +15,7 @@ function VoteXrefBoxTop() {
           </p>
           <p className="text-base text-primaryText xsm:text-center">
             Vote for your favorite Meme by staking xREF. The Top 5 Memes will
-            advance to the next round of the ‘Meme Copetetion’.
+            advance to the next round of the ‘Meme Competition’.
           </p>
         </div>
         <div className="my-8">
