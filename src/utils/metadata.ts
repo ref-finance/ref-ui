@@ -1,5 +1,3 @@
-import { getExtraStablePoolConfig } from '../services/config';
-
 const icons: { [tokenId: string]: string } = {
   '4691937a7508860f876c9c0a2a617e7d9e945d4b.factory.bridge.near':
     'https://ref-finance-images.s3.amazonaws.com/images/woo-wtrue.png',
@@ -66,5 +64,9 @@ const icons: { [tokenId: string]: string } = {
   '22.contract.portalbridge.near':
     'https://assets.ref.finance/images/SOLWormhole.svg',
 };
+const iconsTest: { [tokenId: string]: string } = {
+  '853d95.fakes.testnet': 'https://assets.ref.finance/images/sFRAX_coin.svg',
+  'a663b0.fakes.testnet': 'https://assets.ref.finance/images/FRAX_coin.svg',
+};
 
-export default icons;
+export default { ...icons, ...iconsTest };
