@@ -58,7 +58,7 @@ export const getPoolsByTokensIndexer = async ({
 export const getPoolMonthVolume = async (
   pool_id: string
 ): Promise<volumeType[]> => {
-  return await fetch(config.sodakiApiUrl + `/pool/${pool_id}/volume`, {
+  return await fetch(config.sodakiNewApiUrl + `/pool/${pool_id}/volume`, {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -68,7 +68,7 @@ export const getPoolMonthVolume = async (
 };
 
 export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
-  return await fetch(config.sodakiApiUrl + `/pool/${pool_id}/tvl`, {
+  return await fetch(config.sodakiNewApiUrl + `/pool/${pool_id}/tvl`, {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -159,7 +159,7 @@ export const getHistoryOrderSwapInfo = async (
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
-    config.sodakiApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
+    config.sodakiNewApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
     {
       method: 'GET',
     }
@@ -183,7 +183,7 @@ export const get24hVolumes = async (
   for (let i = 0; i < numBatches; i++) {
     const batchIds = pool_ids.slice(i * batchSize, (i + 1) * batchSize);
     const promise = fetch(
-      config.sodakiApiUrl +
+      config.sodakiNewApiUrl +
         `/poollist/${batchIds.join('|')}/rolling24hvolume/sum`,
       {
         method: 'GET',
@@ -760,7 +760,7 @@ export const getAllV3Pool24Volume = async (): Promise<any[]> => {
 };
 
 export const getAllTvl = async () => {
-  return await fetch(config.sodakiApiUrl + '/historical-tvl?period=1', {
+  return await fetch(config.sodakiNewApiUrl + '/historical-tvl?period=1', {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -770,7 +770,7 @@ export const getAllTvl = async () => {
 };
 
 export const getAllVolume24h = async () => {
-  return await fetch(config.sodakiApiUrl + '/24h-volume-variation', {
+  return await fetch(config.sodakiNewApiUrl + '/24h-volume-variation', {
     method: 'GET',
   })
     .then((res) => res.json())
