@@ -172,11 +172,11 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return USDT_POOL_INDEX;
     case USDTT_USDCC_USDT_USDC_POOL_ID.toString():
       return USDTT_USDCC_USDT_USDC_POOL_INDEX;
-    case USDT_USDC_POOL_ID.toString():
+    case USDT_USDC_POOL_ID?.toString():
       return USDT_USDC_POOL_INDEX;
-    case FRAX_USDC_POOL_ID.toString():
+    case FRAX_USDC_POOL_ID?.toString():
       return FRAX_USDC_POOL_INDEX;
-    case FRAX_SFRAX_POOL_ID.toString():
+    case FRAX_SFRAX_POOL_ID?.toString():
       return FRAX_SFRAX_POOL_INDEX;
   }
 };

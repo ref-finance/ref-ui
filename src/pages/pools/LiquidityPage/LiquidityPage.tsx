@@ -2075,6 +2075,8 @@ function TokenChart({
     'USDC.e': '#2B6EB7',
     USDC: '#2FA7DB',
     USDt: '#45D0C0',
+    FRAX: '#0E1519',
+    sFRAX: '#4A6D7C',
   };
 
   const colorLight = {
@@ -2094,6 +2096,8 @@ function TokenChart({
     NearXC: '#4d5971',
     NearX: '#00676D',
     USDt: '#0E8585',
+    FRAX: '#0E1519',
+    sFRAX: '#4A6D7C',
   };
 
   const innerRadius = 30;
