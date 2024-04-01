@@ -760,7 +760,7 @@ export const getAllV3Pool24Volume = async (): Promise<any[]> => {
 };
 
 export const getAllTvl = async () => {
-  return await fetch(config.dataServiceUrl + '/historical-tvl?period=1', {
+  return await fetch(config.dataServiceUrl + '/historical_tvl?period=1', {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -770,7 +770,7 @@ export const getAllTvl = async () => {
 };
 
 export const getAllVolume24h = async () => {
-  return await fetch(config.dataServiceUrl + '/24h-volume-variation', {
+  return await fetch(config.dataServiceUrl + '/24h_volume_variation', {
     method: 'GET',
   })
     .then((res) => res.json())
