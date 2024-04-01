@@ -72,7 +72,11 @@ function VoteXrefBox() {
                       key={memeTokenId}
                       className="flex justify-between mb-5"
                     >
-                      <div className="flex items-center">
+                      <div className="flex items-center gap-1.5">
+                        <img
+                          className="w-5 h-5 rounded-full"
+                          src={allTokenMetadatas?.[memeTokenId]?.icon}
+                        />
                         <p>{allTokenMetadatas?.[memeTokenId]?.symbol}</p>
                       </div>
                       <div className="gotham_bold">
