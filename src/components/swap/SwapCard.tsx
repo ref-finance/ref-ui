@@ -1114,6 +1114,7 @@ export default function SwapCard(props: {
     if (Number(v) > 0) {
       setShowSwapLoading(true);
     }
+    console.log('perf')
     setTokenInAmountInput(v);
   };
 
@@ -1240,6 +1241,7 @@ export default function SwapCard(props: {
             )
           }
         />
+        {/*  */}
         <SwapExchange
           onChange={() => {
             setTokenIn(tokenOut);
@@ -1252,7 +1254,7 @@ export default function SwapCard(props: {
             toggleTokenExchanging();
           }}
         />
-
+        {/*  */}
         <TokenAmountV3
           forSwap
           isOut
