@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BannerCoreBg, BannerCoreBtnIconBg, BannerCoreTitleBg } from './icons';
+import { BannerCoreBtnIconBg } from './icons';
 import RuleModal from './RuleModal';
 
 const Banner = () => {
@@ -15,10 +15,9 @@ const Banner = () => {
       className="relative flex items-center justify-center w-full"
       style={{ height: '800px' }}
     >
-      <BannerCoreBg className="absolute top-0 w-full z-10" />
-      <BannerCoreTitleBg
-        className="absolute bottom-28 z-20"
-        style={{ transform: 'scale(1.3)' }}
+      <img
+        className="absolute top-0 w-full z-10"
+        src="https://assets.ref.finance/images/memeBannerPc.png"
       />
       <div
         className="absolute right-60 bottom-60 z-10 bg-bannerBtnBgColor py-3.5 px-5 flex items-center cursor-pointer"

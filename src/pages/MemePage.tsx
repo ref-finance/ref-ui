@@ -39,7 +39,7 @@ import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../utils/wallets-integration';
 import { get_all_seeds } from '../services/commonV3';
 import { isMobile } from '../utils/device';
-import { MobileBanner } from '../components/meme/ani_mobile';
+import MobileBanner from '../components/meme/MobileBanner';
 import Overview from '../components/meme/Overview';
 import ProgressBar from '../components/meme/ProgressBar';
 import VoteXREF from '../components/meme/VoteXREF';

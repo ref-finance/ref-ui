@@ -2,7 +2,7 @@ import React from 'react';
 import Banner from '../components/meme/Banner';
 import { isMobile } from '../utils/device';
 import { MemeContextProvider } from '../components/meme/context';
-import { MobileBanner } from '../components/meme/ani_mobile';
+import MobileBanner from '../components/meme/MobileBanner';
 import Overview from '../components/meme/Overview';
 import ProgressBar from '../components/meme/ProgressBar';
 import VoteXREF from '../components/meme/VoteXREF';
