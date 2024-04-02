@@ -50,6 +50,8 @@ import {
   getCurrentWallet,
   WALLET_TYPE,
 } from '../utils/wallets-integration';
+import db from '../store/RefDatabase';
+import { get_auto_whitelisted_postfix } from '../services/token';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -166,11 +168,25 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
   useEffect(() => {
     getWhitelistedTokens()
-      .then((tokenIds) => {
+      .then(async (tokenIds) => {
         const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
-        return Promise.all(
+        const allTokens = (await db.queryAllTokens()) || [];
+        const postfix = await get_auto_whitelisted_postfix();
+        const whiteList = await Promise.all(
           allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
         );
+        const riskTokens: TokenMetadata[] = allTokens
+          .filter((token: TokenMetadata) => {
+            return (
+              postfix.some((p) => token.id.includes(p)) &&
+              !whiteList.find((w) => w.id === token.id)
+            );
+          })
+          .map((token) => {
+            token.isRisk = true;
+            return token;
+          });
+        return [...whiteList, ...riskTokens];
       })
       .then(setTokens);
   }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
