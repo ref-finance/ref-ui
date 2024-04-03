@@ -156,6 +156,7 @@ import {
   getGlobalWhitelist,
   get_auto_whitelisted_postfix,
 } from '../../../../src/services/token';
+import { useRiskTokens } from '../../../state/token';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -200,6 +201,7 @@ export const getPoolListV2FarmAprTip = () => {
 `;
 };
 
+// todo need delete
 function PoolRow({
   pool,
   index,
@@ -225,6 +227,7 @@ function PoolRow({
   mark?: boolean;
   farmApr?: number;
 }) {
+  const { riskTokens } = useContext(TokenPriceListContext);
   const curRowTokens = useTokens(pool.tokenIds, tokens);
   const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
   const [globalWhitelist, setGlobalWhitelist] = useState([]);
@@ -1783,13 +1786,13 @@ export default function LiquidityPage() {
     watchList,
   } = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<boolean | any>(false);
+  const riskTokens = useRiskTokens();
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
     sortBy,
     order,
   });
-
   const tokenPriceList = useTokenPriceList();
 
   const [farmOnly, setFarmOnly] = useState<boolean>(
@@ -1973,6 +1976,7 @@ export default function LiquidityPage() {
     <TokenPriceListContext.Provider
       value={{
         indexFail: Object.keys(tokenPriceList).length == 0,
+        riskTokens,
       }}
     >
       {!clientMobileDevice && (

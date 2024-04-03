@@ -193,6 +193,13 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
+export const useRiskTokens = () => {
+  const tokens = useWhitelistTokens();
+  const allRiskTokens = useMemo(() => {
+    return tokens?.filter((token) => token.isRisk);
+  }, [tokens]);
+  return allRiskTokens || [];
+};
 export const useGlobalWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
   useEffect(() => {
