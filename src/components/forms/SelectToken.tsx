@@ -100,25 +100,8 @@ export function SingleToken({
   price: string;
 }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
-  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
-  const [globalWhitelist, setGlobalWhitelist] = useState([]);
   const [showTooltip, setShowTooltip] = useState(false);
-  useEffect(() => {
-    const fetchAutoWhitelistedPostfix = async () => {
-      try {
-        const postfixes = await get_auto_whitelisted_postfix();
-        const whitelist = await getGlobalWhitelist();
-        setAutoWhitelistedPostfix(postfixes);
-        setGlobalWhitelist(whitelist);
-      } catch (error) {
-        console.error('Failed to fetch auto whitelisted postfix:', error);
-      }
-    };
-    fetchAutoWhitelistedPostfix();
-  }, []);
-  const isTokenAtRisk =
-    autoWhitelistedPostfix.some((postfix) => token.id.includes(postfix)) &&
-    !globalWhitelist.includes(token.id);
+  const isTokenAtRisk = !!token.isRisk;
   return (
     <>
       {token.icon ? (

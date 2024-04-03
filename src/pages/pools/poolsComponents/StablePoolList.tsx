@@ -1,5 +1,5 @@
 import { Pool } from 'src/services/pool';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { PoolData, useAllStablePoolData } from 'src/state/sauce';
 import {
   BTC_CLASS_STABLE_POOL_IDS,
@@ -52,6 +52,7 @@ import {
   getGlobalWhitelist,
   get_auto_whitelisted_postfix,
 } from '../../../services/token';
+import { TokenPriceListContext } from '../LiquidityPage/constLiquidityPage';
 
 function StablePoolList({
   searchBy,
@@ -322,34 +323,12 @@ function StablePoolCard({
   const formattedPool = formatePoolData(poolData);
   const standPool = poolData.pool;
   standPool.tvl = poolData.poolTVL;
-
+  const { riskTokens } = useContext(TokenPriceListContext);
   const curRowTokens = poolData.tokens;
-  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
-  const [globalWhitelist, setGlobalWhitelist] = useState([]);
   const [showTooltip, setShowTooltip] = useState(false);
-  useEffect(() => {
-    const fetchAutoWhitelistedPostfix = async () => {
-      try {
-        const postfixes = await get_auto_whitelisted_postfix();
-        const whitelist = await getGlobalWhitelist();
-        setAutoWhitelistedPostfix(postfixes);
-        setGlobalWhitelist(whitelist);
-      } catch (error) {
-        console.error('Failed to fetch auto whitelisted postfix:', error);
-      }
-    };
-    fetchAutoWhitelistedPostfix();
-  }, []);
-  function getAtRiskTokenIdsForPool(poolTokens) {
-    return poolTokens
-      .filter(
-        (token) =>
-          autoWhitelistedPostfix.some((postfix) =>
-            token.id.includes(postfix)
-          ) && !globalWhitelist.includes(token.id)
-      )
-      .map((token) => token.id);
-  }
+  const isTokenAtRisk = (token) => {
+    return riskTokens.some((riskToken) => riskToken.id === token.id);
+  };
 
   const [hover, setHover] = useState<boolean>(false);
 
@@ -411,10 +390,8 @@ function StablePoolCard({
               layoutSize="16"
             />
             {curRowTokens.map((token) => {
-              const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
-                token.id
-              );
-              return isAtRisk ? (
+              const atRisk = isTokenAtRisk(token);
+              return atRisk ? (
                 <div
                   key={token.id}
                   className="ml-2 relative"

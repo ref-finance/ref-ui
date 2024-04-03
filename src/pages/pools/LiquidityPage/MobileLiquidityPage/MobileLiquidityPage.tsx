@@ -58,6 +58,7 @@ import {
 import {
   REF_MOBILE_POOL_ID_INPUT,
   REF_POOL_ID_SEARCHING_KEY,
+  TokenPriceListContext,
 } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import MobilePoolRow from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/MobilePoolRow';
 import StablePoolList from 'src/pages/pools/poolsComponents/StablePoolList';
@@ -837,34 +838,12 @@ function MobilePoolRowV2({
   relatedSeed?: Seed;
 }) {
   const { ref } = useInView();
-
+  const { riskTokens } = useContext(TokenPriceListContext);
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
-  const [autoWhitelistedPostfix, setAutoWhitelistedPostfix] = useState([]);
-  const [globalWhitelist, setGlobalWhitelist] = useState([]);
   const [showTooltip, setShowTooltip] = useState(false);
-  useEffect(() => {
-    const fetchAutoWhitelistedPostfix = async () => {
-      try {
-        const postfixes = await get_auto_whitelisted_postfix();
-        const whitelist = await getGlobalWhitelist();
-        setAutoWhitelistedPostfix(postfixes);
-        setGlobalWhitelist(whitelist);
-      } catch (error) {
-        console.error('Failed to fetch auto whitelisted postfix:', error);
-      }
-    };
-    fetchAutoWhitelistedPostfix();
-  }, []);
-  function getAtRiskTokenIdsForPool(poolTokens) {
-    return poolTokens
-      .filter(
-        (token) =>
-          autoWhitelistedPostfix.some((postfix) =>
-            token.id.includes(postfix)
-          ) && !globalWhitelist.includes(token.id)
-      )
-      .map((token) => token.id);
-  }
+  const isTokenAtRisk = (token) => {
+    return riskTokens.some((riskToken) => riskToken.id === token.id);
+  };
   const displayOfTopBinApr = useDCLTopBinFee({
     pool,
     way: 'value',
@@ -991,10 +970,8 @@ function MobilePoolRowV2({
               </div>
             </div>
             {curRowTokens.map((token) => {
-              const isAtRisk = getAtRiskTokenIdsForPool(curRowTokens).includes(
-                token.id
-              );
-              return isAtRisk ? (
+              const atRisk = isTokenAtRisk(token);
+              return atRisk ? (
                 <div
                   key={token.id}
                   className="ml-2 relative"
@@ -1005,7 +982,7 @@ function MobilePoolRowV2({
                     <TokenRisk />
                   </span>
                   {showTooltip && (
-                    <div className="absolute -top-3 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    <div className="absolute -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
                       {token.symbol} is subjected to high volatility
                     </div>
                   )}
