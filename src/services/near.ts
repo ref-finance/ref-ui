@@ -276,6 +276,7 @@ export const refFiViewFunction = ({
   methodName,
   args,
 }: RefFiViewFunctionOptions) => {
+  localStorage.setItem('isSwapFirstLoading', 'false');
   return wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
 };
 

@@ -81,7 +81,7 @@ export default function SwapFormWrap({
 
   const { activeOrder } = useMyOrders();
   const [viewPoolHover, setViewPoolHover] = useState(false);
-
+  const [isFirstSwapLoading, setIsFirstSwapLoading] = useState('true');
   const history = useHistory();
 
   const { selectMarket } = useContext(SwapProContext);
@@ -121,6 +121,10 @@ export default function SwapFormWrap({
     loadingTrigger && setShowSwapLoading && setShowSwapLoading(true);
     !loadingTrigger && setShowSwapLoading && setShowSwapLoading(false);
   }, [loadingTrigger]);
+
+  useEffect(() => {
+    setIsFirstSwapLoading(localStorage.getItem('isSwapFirstLoading'));
+  }, [localStorage.getItem('isSwapFirstLoading')]);
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -203,10 +207,12 @@ export default function SwapFormWrap({
               ) : (
                 <SubmitButton
                   disabled={
-                    !canSubmit ||
-                    (swapMode === SWAP_MODE.LIMIT
-                      ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                      : showSwapLoading)
+                    isFirstSwapLoading == 'true' &&
+                    (!canSubmit ||
+                      (swapMode === SWAP_MODE.LIMIT
+                        ? !quoteDoneLimit ||
+                          (showSwapLoading && !loadingTrigger)
+                        : showSwapLoading))
                   }
                   label={buttonText || title}
                   info={info}
@@ -214,6 +220,7 @@ export default function SwapFormWrap({
                     swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''
                   }`}
                   loading={
+                    isFirstSwapLoading == 'false' &&
                     swapMode !== SWAP_MODE.LIMIT
                       ? showSwapLoading
                       : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)

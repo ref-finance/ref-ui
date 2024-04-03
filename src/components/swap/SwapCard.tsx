@@ -1114,7 +1114,7 @@ export default function SwapCard(props: {
     if (Number(v) > 0) {
       setShowSwapLoading(true);
     }
-    console.log('perf')
+    console.log('perf');
     setTokenInAmountInput(v);
   };
 
@@ -1127,6 +1127,11 @@ export default function SwapCard(props: {
     setTokenExchanging(true);
     setTimeout(() => setTokenExchanging(false), 500);
   };
+
+  // const [isFirstSwapLoading, setIsFirstSwapLoading] = useState('true');
+  // useEffect(() => {
+  //   setIsFirstSwapLoading(localStorage.getItem('isSwapFirstLoading'));
+  // }, [localStorage.getItem('isSwapFirstLoading')]);
 
   const isShowNearErrorTip = useMemo(() => {
     return (
@@ -1414,7 +1419,6 @@ export default function SwapCard(props: {
         onSwap={() => selectTrade && selectTrade.makeSwap()}
         priceImpactValue={selectTrade?.priceImpact || '0'}
       />
-
       <SkyWardModal
         onRequestClose={() => {
           setShowSkywardTip(false);
