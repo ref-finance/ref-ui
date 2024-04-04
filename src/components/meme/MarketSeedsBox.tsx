@@ -1,27 +1,13 @@
 import React, { useState, useContext, useEffect, useMemo } from 'react';
-import Big from 'big.js';
 import { ArrowRightIcon } from './icons';
-import { useHistory } from 'react-router';
-import {
-  OprationButton,
-  ButtonTextWrapper,
-  ConnectToNearBtn,
-} from 'src/components/button/Button';
+import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
 import { MemeContext } from './context';
-import { claim } from '../../services/meme';
 import { getMemeDataConfig, getMemeContractConfig } from './memeConfig';
 import { formatPercentage } from '../../utils/uiNumber';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { Seed } from '~src/services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import StakeModal from './StakeModal';
-import UnStakeModal from './UnStakeModal';
-import CallBackModal from './CallBackModal';
-import {
-  TRANSACTION_WALLET_TYPE,
-  parsedArgs,
-} from '../../components/layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
 import { isMobile } from '../../utils/device';
 import TotalFeed from './TotalFeed';
 import YourFeed from './YourFeed';
@@ -29,32 +15,17 @@ import WalletBalance from './WalletBalance';
 import YourRewards from './YourRewards';
 import Feeders from './Feeders';
 import APY from './APY';
-import { emptyObject, getSeedApr, isPending, isEnded } from './tool';
+import { emptyObject, getSeedApr, isPending, emptyNumber } from './tool';
 
 const is_mobile = isMobile();
-export interface ITxParams {
-  action: 'stake' | 'unstake';
-  params: any;
-  txHash: string;
-  receiver_id: string;
-}
+
 const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
-  const {
-    seeds,
-    user_seeds,
-    user_balances,
-    unclaimed_rewards,
-    lpSeeds,
-    xrefSeeds,
-  } = useContext(MemeContext);
+  const { seeds, user_balances, lpSeeds, xrefSeeds, xrefTokenId } =
+    useContext(MemeContext);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [isStakeOpen, setIsStakeOpen] = useState(false);
-  const [isUnStakeOpen, setIsUnStakeOpen] = useState(false);
-  const [isTxHashOpen, setIsTxHashOpen] = useState(false);
-  const [txParams, setTxParams] = useState<ITxParams>();
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
-  const [claim_seed_id, set_claim_seed_id] = useState('');
   const memeDataConfig = getMemeDataConfig();
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
   const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
@@ -68,65 +39,6 @@ const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
       {}
     ) as Record<string, Seed>;
   }, [meme_winner_tokens, seeds]);
-  const history = useHistory();
-  const getURLInfo = () => {
-    const search = window.location.search;
-    const pathname = window.location.pathname;
-    const errorType = new URLSearchParams(search).get('errorType');
-    const errorCode = new URLSearchParams(search).get('errorCode');
-    const signInErrorType = new URLSearchParams(search).get('signInErrorType');
-    const txHashes = (
-      new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.NEAR_WALLET) ||
-      new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.SENDER_WALLET) ||
-      new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.WalletSelector)
-    )?.split(',');
-    return {
-      txHash:
-        txHashes && txHashes.length > 0 ? txHashes[txHashes.length - 2] : '',
-      pathname,
-      errorType,
-      signInErrorType,
-      errorCode,
-      txHashes,
-    };
-  };
-  const { txHash } = getURLInfo();
-  useEffect(() => {
-    if (txHash && isSignedIn) {
-      checkTransaction(txHash).then((res: any) => {
-        const { transaction, receipts } = res;
-        const isNeth =
-          transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
-        const methodNameNeth =
-          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
-            ?.method_name;
-        const methodNameNormal =
-          transaction?.actions[0]?.FunctionCall?.method_name;
-        const args = parsedArgs(
-          isNeth
-            ? res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
-                ?.args
-            : res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
-        );
-        const receiver_id = transaction?.receiver_id;
-        const parsedInputArgs = JSON.parse(args || '');
-        const methodName = isNeth ? methodNameNeth : methodNameNormal;
-        if (
-          methodName == 'unlock_and_unstake_seed' ||
-          methodName == 'ft_transfer_call'
-        ) {
-          setIsTxHashOpen(true);
-          setTxParams({
-            action:
-              methodName == 'unlock_and_unstake_seed' ? 'unstake' : 'stake',
-            params: parsedInputArgs,
-            txHash,
-            receiver_id,
-          });
-        }
-      });
-    }
-  }, [txHash, isSignedIn]);
   function goFarmDetail(seed_id: string) {
     const lpSeed = lpSeeds[seed_id];
     if (lpSeed.farmList[0].status == 'Ended') {
@@ -134,10 +46,6 @@ const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
     } else {
       window.open(`/v2farms/${lpSeed.pool.id}-r`);
     }
-  }
-  function seedClaim(seed: Seed) {
-    set_claim_seed_id(seed.seed_id);
-    claim(seed);
   }
   function comeSoonTip() {
     const result = `<div class="px-2 text-xs text-farmText">
@@ -165,12 +73,9 @@ const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
         const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[seed_id]];
         const is_pending = isPending(seed) && isPending(xrefSeed);
         const stakeButtonDisabled =
-          !user_balances[seed_id] || +user_balances[seed_id] == 0 || is_pending;
-
-        const unStakeButtonDisabled =
-          +(user_seeds[seed_id]?.free_amount || 0) == 0;
-        const claimButtonDisabled =
-          Object.keys(unclaimed_rewards[seed_id] || {}).length == 0;
+          (emptyNumber(user_balances[seed_id]) &&
+            emptyNumber(user_balances[xrefTokenId])) ||
+          is_pending;
         const hasLpSeed =
           lpSeeds[seed_id]?.farmList[0]?.status &&
           lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
@@ -332,25 +237,6 @@ const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
             setIsStakeOpen(false);
           }}
           seed_id={modal_action_seed_id}
-        />
-      ) : null}
-      {isUnStakeOpen ? (
-        <UnStakeModal
-          isOpen={isUnStakeOpen}
-          onRequestClose={() => {
-            setIsUnStakeOpen(false);
-          }}
-          seed_id={modal_action_seed_id}
-        />
-      ) : null}
-      {isTxHashOpen && txParams ? (
-        <CallBackModal
-          isOpen={isTxHashOpen}
-          onRequestClose={() => {
-            setIsTxHashOpen(false);
-            history.replace('/meme');
-          }}
-          txParams={txParams}
         />
       ) : null}
     </div>

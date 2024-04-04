@@ -2,18 +2,19 @@ import React, { useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
 import { MemeContext } from './context';
 import { toInternationalCurrencySystem_usd } from '../../utils/uiNumber';
-import { getSeedApr } from './tool';
+import { emptyObject, getSeedApr } from './tool';
 import { formatPercentage } from '../../utils/uiNumber';
 import { Seed } from '~src/services/farm';
 import { TokenMetadata } from '~src/services/ft-contract';
 import { isMobile } from '../../utils/device';
-import { getTotalStaked } from './tool';
+import { getTotalStaked, getListedMemeSeeds } from './tool';
 const Overview = () => {
   const { seeds, lpSeeds, xrefSeeds } = useContext(MemeContext);
   const [totalStaked, maxAprSeed, totalStaker] = useMemo(() => {
-    if (!Object.values(seeds).length) return ['-', [], '-'];
+    if (emptyObject(seeds)) return ['-', [], '-'];
+    const listedMemeSeeds = getListedMemeSeeds(seeds);
     const t_staked = getTotalStaked(seeds, xrefSeeds);
-    const [maxSeed, maxApr] = Object.values(seeds).reduce(
+    const [maxSeed, maxApr] = Object.values(listedMemeSeeds).reduce(
       (acc, seed) => {
         const apr = getSeedApr(seed);
         if (acc[1].gt(apr)) {

@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect, useMemo } from 'react';
+import { useHistory } from 'react-router';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
   TRANSACTION_WALLET_TYPE,
@@ -8,6 +9,7 @@ import { checkTransaction } from '../../services/swap';
 import { isMobile } from '../../utils/device';
 import MarketSeedsBox from './MarketSeedsBox';
 import MySeedsBox from './MySeedsBox';
+import CallBackModal from './CallBackModal';
 
 const is_mobile = isMobile();
 export interface ITxParams {
@@ -18,8 +20,11 @@ export interface ITxParams {
 }
 const SeedsBox = () => {
   const [tab, setTab] = useState<'market' | 'your'>('market');
+  const [isTxHashOpen, setIsTxHashOpen] = useState(false);
+  const [txParams, setTxParams] = useState<ITxParams>();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const history = useHistory();
   const getURLInfo = () => {
     const search = window.location.search;
     const pathname = window.location.pathname;
@@ -82,10 +87,12 @@ const SeedsBox = () => {
     <div className="mt-14">
       <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2">
         <div
-          className={` py-2 border-b-4  px-5 cursor-pointer ${
+          className={` py-2 px-5 cursor-pointer ${
             tab === 'market'
-              ? 'text-white border-white'
-              : 'text-primaryText border-transparent'
+              ? `text-white border-b-4 ${
+                  isSignedIn ? 'border-white' : 'border-transparent'
+                }`
+              : 'border-b-4 text-primaryText border-transparent'
           }`}
           onClick={() => {
             setTab('market');
@@ -95,6 +102,8 @@ const SeedsBox = () => {
         </div>
         <div
           className={`py-2 border-b-4  px-5 cursor-pointer ${
+            isSignedIn ? '' : 'hidden'
+          } ${
             tab === 'your'
               ? 'text-white border-white'
               : 'text-primaryText border-transparent'
@@ -108,6 +117,16 @@ const SeedsBox = () => {
       </div>
       <MarketSeedsBox hidden={tab === 'market' ? false : true} />
       <MySeedsBox hidden={tab === 'your' ? false : true} />
+      {isTxHashOpen && txParams ? (
+        <CallBackModal
+          isOpen={isTxHashOpen}
+          onRequestClose={() => {
+            setIsTxHashOpen(false);
+            history.replace('/meme');
+          }}
+          txParams={txParams}
+        />
+      ) : null}
     </div>
   );
 };

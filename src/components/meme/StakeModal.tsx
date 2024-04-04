@@ -19,7 +19,12 @@ import {
 import { Seed, FarmBoost } from '../../services/farm';
 import { getMemeUiConfig } from './memeConfig';
 import { TipIcon, ArrowRightTopIcon } from './icons';
-import { getStakingAprUI, weight, formatSeconds } from './tool';
+import {
+  memeWeight,
+  formatSeconds,
+  getListedMemeSeeds,
+  getSeedApr,
+} from './tool';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 const progressConfig = getMemeUiConfig();
 function StakeModal(props: any) {
@@ -84,23 +89,23 @@ function StakeModal(props: any) {
     ];
   }, [amount, seed, user_seeds, xrefAmount, xrefSeed, xref_user_seeds]);
   const [weightFrom, weightTo] = useMemo(() => {
-    const { seedTvl, totalTvl } = weight({
-      memeSeeds: seeds,
-      xrefSeeds,
-      memeSeed: seed,
-      xrefSeed,
+    const displayMemeSeeds = getListedMemeSeeds(seeds);
+    const { seedTvl, totalTvl } = memeWeight({
+      displayMemeSeeds,
+      seed,
     });
-    const addTvl =
-      selectedTab === 'meme'
-        ? Big(amount || 0).mul(tokenPriceList[seed.seed_id]?.price || 0)
-        : Big(xrefAmount || 0).mul(tokenPriceList[xrefTokenId]?.price || 0);
-    const from = totalTvl.gt(0) ? Big(seedTvl).div(totalTvl).mul(100) : Big(0);
-    const to = totalTvl.plus(addTvl).gt(0)
-      ? Big(seedTvl).plus(addTvl).div(totalTvl.plus(addTvl)).mul(100)
+    const addTvl = Big(amount || 0).mul(
+      tokenPriceList[seed.seed_id]?.price || 0
+    );
+    const from = Big(totalTvl).gt(0)
+      ? Big(seedTvl).div(totalTvl).mul(100)
+      : Big(0);
+    const to = Big(totalTvl).plus(addTvl).gt(0)
+      ? Big(seedTvl).plus(addTvl).div(Big(totalTvl).plus(addTvl)).mul(100)
       : Big(0);
     return [from.toFixed(), to.toFixed()];
-  }, [amount, seeds, seed, xrefAmount, xrefSeeds, xrefSeed, selectedTab]);
-  const { trialMemeSeed, trialXrefSeed } = useMemo(() => {
+  }, [amount, seeds, seed, tokenPriceList]);
+  const { trialMemeSeed } = useMemo(() => {
     let newMemeSeed;
     let newXrefSeed;
     if (+amount > 0 && seed) {
@@ -329,7 +334,7 @@ function StakeModal(props: any) {
               />
               <Template
                 title="Staking APR"
-                value={getStakingAprUI(trialMemeSeed, trialXrefSeed)}
+                value={formatPercentage(getSeedApr(trialMemeSeed))}
               />
             </div>
             {/* operation */}

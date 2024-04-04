@@ -14,10 +14,11 @@ import {
 import { openUrl } from '../../services/commonV3';
 import getConfig from '../../services/config';
 import { useHistory } from 'react-router';
-import { getMemeUiConfig } from './memeConfig';
+import { getMemeUiConfig, getMemeContractConfig } from './memeConfig';
 const progressConfig = getMemeUiConfig();
 function CallBackModal(props: any) {
-  const { seeds, tokenPriceList } = useContext(MemeContext);
+  const { seeds, xrefTokenId, tokenPriceList, allTokenMetadatas } =
+    useContext(MemeContext);
   const {
     isOpen,
     onRequestClose,
@@ -26,25 +27,40 @@ function CallBackModal(props: any) {
   const history = useHistory();
   const cardWidth = isMobile() ? '90vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
-  const [seed, amount] = useMemo(() => {
+  const [seed, amount, metadata, isXrefAction] = useMemo(() => {
     const { action, receiver_id, params } = txParams;
+    const { XREF_MEME_FARM_CONTRACT_IDS } = getMemeContractConfig();
+    const isXrefAction =
+      action == 'stake'
+        ? receiver_id === xrefTokenId
+        : XREF_MEME_FARM_CONTRACT_IDS.includes(receiver_id);
+    const metadata =
+      action == 'stake'
+        ? allTokenMetadatas[receiver_id]
+        : isXrefAction
+        ? allTokenMetadatas[xrefTokenId]
+        : seeds?.[params.seed_id]?.token_meta_data;
     if (action == 'stake') {
       const seed = seeds[receiver_id];
       return [
         seed,
-        toReadableNumber(seed?.seed_decimal || 0, txParams.params.amount),
+        toReadableNumber(metadata?.decimals || 0, txParams.params.amount),
+        metadata,
+        isXrefAction,
       ];
     } else {
       const seed = seeds[params.seed_id];
       return [
         seed,
         toReadableNumber(
-          seed?.seed_decimal || 0,
+          metadata?.decimals || 0,
           txParams.params.unstake_amount
         ),
+        metadata,
+        isXrefAction,
       ];
     }
-  }, [seeds, txParams]);
+  }, [seeds, txParams, allTokenMetadatas]);
   const [weightFrom, weightTo] = useMemo(() => {
     const { action } = txParams;
     const totalTvl = Object.entries(seeds).reduce((acc, [, seed]) => {
@@ -68,7 +84,7 @@ function CallBackModal(props: any) {
     return [from.toFixed(), to.toFixed()];
   }, [amount, seeds, txParams, seed]);
 
-  if (!seed) return null;
+  if (!seed && !isXrefAction) return null;
   function goNearblocks() {
     history.replace('/meme');
     onRequestClose();
@@ -108,36 +124,41 @@ function CallBackModal(props: any) {
           <div className="mt-5">
             <div className="flex flex-col items-center gap-5">
               <img
-                src={seed?.token_meta_data.icon}
+                src={metadata?.icon}
                 style={{ width: '86px', height: '86px' }}
                 className="rounded-full"
               />
               <div className="flex flex-col items-center">
                 {txParams?.action == 'stake' ? (
                   <span className="text-2xl text-white gotham_bold">
-                    {progressConfig.progress[seed?.seed_id]?.stakeTip}
+                    {isXrefAction
+                      ? metadata?.symbol + ' Staked'
+                      : progressConfig.progress[seed?.seed_id]?.stakeTip}
                   </span>
                 ) : (
                   <span className="text-2xl text-white gotham_bold">
-                    {seed?.token_meta_data.symbol} Unstaked
+                    {metadata?.symbol} Unstaked
                   </span>
                 )}
               </div>
             </div>
             <div className="flex justify-center text-sm text-white mt-6">
               You have just {txParams.action == 'stake' ? 'feed' : 'unstake'}{' '}
-              {formatWithCommas_number(amount)} {seed?.token_meta_data.symbol}{' '}
+              {formatWithCommas_number(amount)} {metadata?.symbol}{' '}
             </div>
-            <div className="flex justify-center text-sm text-white mt-3">
-              Gauge Weight
-              <div className="flex items-center text-sm text-white gap-2 ml-3">
-                <span className="line-through">
-                  {formatPercentage(weightFrom)}
-                </span>
-                <ArrowRightIcon />
-                <span>{formatPercentage(weightTo)}</span>
+            {isXrefAction ? null : (
+              <div className="flex justify-center text-sm text-white mt-3">
+                Gauge Weight
+                <div className="flex items-center text-sm text-white gap-2 ml-3">
+                  <span className="line-through">
+                    {formatPercentage(weightFrom)}
+                  </span>
+                  <ArrowRightIcon />
+                  <span>{formatPercentage(weightTo)}</span>
+                </div>
               </div>
-            </div>
+            )}
+
             <OprationButton
               minWidth="7rem"
               onClick={goNearblocks}

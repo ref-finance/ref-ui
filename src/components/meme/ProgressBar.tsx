@@ -7,34 +7,29 @@ import { formatPercentage } from '../../utils/uiNumber';
 import { isMobile } from '../../utils/device';
 import { getMemeUiConfig, getMemeDataConfig } from './memeConfig';
 import StakeModal from './StakeModal';
-import { isPending } from './tool';
+import {
+  isPending,
+  getListedMemeSeeds,
+  emptyObject,
+  getSeedsTotalStaked,
+} from './tool';
 import { Seed } from '../../services/farm';
 const is_mobile = isMobile();
 const ProgressBar = () => {
   const [isStakeOpen, setIsStakeOpen] = useState(false);
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
-  const config = getMemeUiConfig();
+  const memeUiConfig = getMemeUiConfig();
   const { seeds, user_balances } = useContext(MemeContext);
   const displaySeeds: Record<string, Seed> = useMemo(() => {
-    const { meme_winner_tokens } = getMemeDataConfig();
-    const displaySeeds = Object.entries(seeds).reduce(
-      (acc, [seed_id, seed]) => {
-        if (meme_winner_tokens.includes(seed_id))
-          return { ...acc, ...{ [seed_id]: seed } };
-        return acc;
-      },
-      {}
-    );
-    return displaySeeds;
+    if (!emptyObject(seeds)) {
+      return getListedMemeSeeds(seeds);
+    }
+    return {};
   }, [seeds]);
   const totalTvl = useMemo(() => {
-    const totalTvl = Object.entries(seeds)
-      .reduce((acc, [seed_id, seed]) => {
-        return acc.plus(seed.seedTvl || 0);
-      }, Big(0))
-      .toFixed();
-    return totalTvl;
-  }, [seeds]);
+    if (!emptyObject(displaySeeds)) return getSeedsTotalStaked(displaySeeds);
+    return 0;
+  }, [displaySeeds]);
   return (
     <div className="text-white px-2.5" style={{ marginTop: '80px' }}>
       <div className="flex items-center justify-center">
@@ -53,7 +48,7 @@ const ProgressBar = () => {
           addW = p.mul(length).toFixed();
           percent = formatPercentage(p.mul(100).toFixed());
         }
-        const FeedIcon = config.progress[seed_id].feedIcon;
+        const FeedIcon = memeUiConfig.progress[seed_id].feedIcon;
         const is_pending = isPending(seed);
         const stakeButtonDisabled =
           !user_balances[seed_id] || +user_balances[seed_id] == 0 || is_pending;
@@ -62,7 +57,7 @@ const ProgressBar = () => {
             <div
               className="flex"
               style={{
-                transform: `translateY(${config.progress[seed_id].translateY})`,
+                transform: `translateY(${memeUiConfig.progress[seed_id].translateY})`,
               }}
             >
               <div
@@ -74,16 +69,16 @@ const ProgressBar = () => {
                   }
                 }}
               >
-                <div>{config.progress[seed_id].tail}</div>
+                <div>{memeUiConfig.progress[seed_id].tail}</div>
                 <div className="relative z-10" style={{ marginLeft: '-1px' }}>
-                  {config.progress[seed_id].body(
-                    config.progress[seed_id].initW,
+                  {memeUiConfig.progress[seed_id].body(
+                    memeUiConfig.progress[seed_id].initW,
                     addW,
                     percent
                   )}
                 </div>
                 <div style={{ marginLeft: '-1px' }}>
-                  {config.progress[seed_id].head}
+                  {memeUiConfig.progress[seed_id].head}
                 </div>
               </div>
               {is_mobile ? (

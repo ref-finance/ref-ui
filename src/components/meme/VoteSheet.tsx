@@ -9,11 +9,14 @@ import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { Seed } from '../../services/farm';
 import { toReadableNumber } from '../../utils/numbers';
 import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
+import { WalletContext } from '../../utils/wallets-integration';
 import { emptyObject } from './tool';
 const memeDataConfig = getMemeDataConfig();
 const memeContractConfig = getMemeContractConfig();
 function VoteSheet({ hidden }: { hidden: boolean }) {
   const [isVoteOpen, setIsVoteOpen] = useState(false);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const {
     xrefSeeds,
     xrefTokenId,
@@ -71,14 +74,20 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
               </div>
             </div>
             <div className="overflow-x-auto">
-              <div className="px-5 grid grid-cols-4 border-b border-memeVoteBgColor pb-2">
+              <div
+                className={`px-5 grid grid-cols-${
+                  isSignedIn ? 4 : 3
+                } border-b border-memeVoteBgColor pb-2`}
+              >
                 <div className="col-span-2">Meme Project</div>
                 <div className="justify-self-end">xREF</div>
-                <div className="justify-self-end">You Voted</div>
+                {isSignedIn ? (
+                  <div className="justify-self-end">You Voted</div>
+                ) : null}
               </div>
               <div
                 className="pt-3 pl-5 pr-4 text-white"
-                style={{ maxHeight: '270px', overflow: 'auto' }}
+                style={{ maxHeight: '300px', overflow: 'auto' }}
               >
                 {!emptyObject(xrefSeeds) &&
                   Object.entries(MEME_TOKEN_XREF_MAP).map(
@@ -96,7 +105,9 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                       return (
                         <div
                           key={memeTokenId}
-                          className="grid grid-cols-4 mb-5"
+                          className={`grid grid-cols-${
+                            isSignedIn ? 4 : 3
+                          } mb-5`}
                         >
                           <div className="flex items-center col-span-2">
                             <p>{allTokenMetadatas?.[memeTokenId]?.symbol}</p>
@@ -116,11 +127,13 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                               seedTotalStakedAmount
                             )}
                           </div>
-                          <div className="justify-self-end gotham_bold">
-                            {toInternationalCurrencySystem_number(
-                              userStakedAmount
-                            )}
-                          </div>
+                          {isSignedIn ? (
+                            <div className="justify-self-end gotham_bold">
+                              {toInternationalCurrencySystem_number(
+                                userStakedAmount
+                              )}
+                            </div>
+                          ) : null}
                         </div>
                       );
                     }

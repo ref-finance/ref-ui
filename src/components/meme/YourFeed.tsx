@@ -1,4 +1,5 @@
 import React, { useMemo, useContext } from 'react';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import Big from 'big.js';
 import { toReadableNumber } from '../../utils/numbers';
 import {
@@ -59,37 +60,48 @@ function YourFeed({ seed_id }: { seed_id: string }) {
     seeds,
     tokenPriceList,
   ]);
+  function getYourFeedTip() {
+    return `
+        <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-5">
+          <img
+            class="w-4 h-4 rounded-full"
+            src=${seeds?.[seed_id]?.token_meta_data?.icon}
+          />
+          <span className="text-sm text-white">
+            ${toInternationalCurrencySystem_number(
+              youFeedData.memeAmount.toFixed()
+            )}
+          </span>
+        </div>
+        <div class="flex items-center gap-5">
+          <img
+            class="w-4 h-4 rounded-full"
+            src=${xrefSeeds?.[xrefContractId]?.token_meta_data?.icon}
+          />
+          <span class="text-sm text-white">
+          ${youFeedData.xrefAmount.toFixed()}
+          </span>
+        </div>
+      </div>
+    `;
+  }
   return (
     <div className="flex flex-col justify-between gap-0.5 ">
       {/* title */}
       <span className="text-sm text-white">Your Feed</span>
       {/* content */}
-      <div className="flex flex-col">
-        <span className="text-xl gotham_bold text-white">
+      <div
+        style={{ width: '90px' }}
+        data-class="reactTip"
+        data-tooltip-id={`yourFeed_${seed_id}`}
+        data-place="top"
+        data-tooltip-html={getYourFeedTip()}
+      >
+        <span className="text-xl gotham_bold text-white border-b border-dashed border-white">
           {toInternationalCurrencySystem_usd(youFeedData.totalTvl.toFixed())}
         </span>
-        <div className="flex items-center gap-3.5">
-          <div className="flex items-center gap-1">
-            <img
-              className="w-4 h-4 rounded-full"
-              src={seeds?.[seed_id]?.token_meta_data?.icon}
-            />
-            <span className="text-sm text-white">
-              {toInternationalCurrencySystem_number(
-                youFeedData.memeAmount.toFixed()
-              )}
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <img
-              className="w-4 h-4 rounded-full"
-              src={xrefSeeds?.[xrefContractId]?.token_meta_data?.icon}
-            />
-            <span className="text-sm text-white">
-              {youFeedData.xrefAmount.toFixed()}
-            </span>
-          </div>
-        </div>
+        <CustomTooltip id={`yourFeed_${seed_id}`} />
       </div>
     </div>
   );

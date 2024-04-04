@@ -61,7 +61,7 @@ function YourRewards({ seed_id }: { seed_id: string }) {
     Object.entries(yourRewardsData.unclaimedRewards || {}).forEach(
       ([tokenId, amount]) => {
         const metadata: TokenMetadata = allTokenMetadatas[tokenId];
-        result += `<div class="flex items-center justify-between text-xs text-farmText mt-1 gap-5">
+        result += `<div class="flex items-center justify-between text-xs text-farmText gap-5">
           <img src="${metadata?.icon}" class="w-5 h-5 rounded-full" />
           <span class="text-xs">${toInternationalCurrencySystem_number(
             amount
@@ -69,11 +69,17 @@ function YourRewards({ seed_id }: { seed_id: string }) {
       </div>`;
       }
     );
-    return result;
+    return `<div class="flex flex-col gap-1">
+      ${result}
+    </div>`;
   }
   return (
     <div className="flex flex-col justify-between gap-0.5 ">
       {/* title */}
+      <span className={`text-sm text-white relative -top-0.5`}>
+        Your Reward
+      </span>
+      {/* content */}
       <div
         style={{ width: '90px' }}
         data-class="reactTip"
@@ -81,21 +87,13 @@ function YourRewards({ seed_id }: { seed_id: string }) {
         data-place="top"
         data-tooltip-html={getRewardsTip()}
       >
-        <span
-          className={`text-sm text-white relative -top-0.5 ${
-            Object.keys(yourRewardsData.unclaimedRewards || {}).length
-              ? 'border-b border-dashed border-white'
-              : ''
-          }`}
-        >
-          Your Reward
+        <span className="text-xl text-white gotham_bold border-b border-dashed border-white">
+          {toInternationalCurrencySystem_usd(
+            yourRewardsData.unclaimedTotalValue
+          )}
         </span>
         <CustomTooltip id={`rewards_${seed_id}`} />
       </div>
-      {/* content */}
-      <span className="text-xl text-white gotham_bold">
-        {toInternationalCurrencySystem_usd(yourRewardsData.unclaimedTotalValue)}
-      </span>
     </div>
   );
 }

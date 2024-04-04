@@ -2,7 +2,7 @@ import Big from 'big.js';
 import { Seed, FarmBoost } from '~src/services/farm';
 import { formatPercentageUi } from '../../utils/uiNumber';
 import { toReadableNumber } from '../../utils/numbers';
-import { getMemeContractConfig } from './memeConfig';
+import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { IFarmAccount } from './context';
 
 // getMemeSeedApr
@@ -128,6 +128,24 @@ export function weight({
     apy: apy.toFixed(),
   };
 }
+export function memeWeight({
+  displayMemeSeeds,
+  seed,
+}: {
+  displayMemeSeeds: Record<string, Seed>;
+  seed: Seed;
+}) {
+  const totalTvl = getSeedsTotalStaked(displayMemeSeeds);
+  const seedTvl = seed?.seedTvl || 0;
+  const apy = Big(totalTvl).gt(0)
+    ? Big(seedTvl).div(totalTvl).mul(100)
+    : Big(0);
+  return {
+    seedTvl,
+    totalTvl,
+    apy: apy.toFixed(),
+  };
+}
 export function getTotalStaked(
   xrefSeeds: Record<string, Seed>,
   memeSeeds: Record<string, Seed>
@@ -145,6 +163,14 @@ export function getTotalStaked(
     Big(0)
   );
   const totalTvl = memeTotalTvl.plus(xrefTotalTvl);
+  return totalTvl;
+}
+export function getSeedsTotalStaked(seeds: Record<string, Seed>) {
+  const totalTvl = Object.entries(seeds)
+    .reduce((acc, [, seed]) => {
+      return acc.plus(seed.seedTvl || 0);
+    }, Big(0))
+    .toFixed();
   return totalTvl;
 }
 export function getAccountFarmData({
@@ -265,10 +291,25 @@ export function getAccountButtonStatus({
     xrefClaimButtonDisabled,
   };
 }
+export function getListedMemeSeeds(
+  memeSeeds: Record<string, Seed>
+): Record<string, Seed> {
+  const { meme_winner_tokens } = getMemeDataConfig();
+  const memeListedSeeds = {};
+  meme_winner_tokens.forEach((memeSeedId) => {
+    memeListedSeeds[memeSeedId] = memeSeeds[memeSeedId];
+  });
+  return memeListedSeeds;
+}
 export function emptyObject(o) {
   if (o && Object.keys(o).length) return false;
   return true;
 }
+export function emptyNumber(n) {
+  if (n && Number(n) > 0) return false;
+  return true;
+}
+
 export function copy(o) {
   return JSON.parse(JSON.stringify(o));
 }

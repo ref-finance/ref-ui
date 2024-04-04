@@ -43,10 +43,7 @@ interface IMemeContext {
   tokenPriceList: Record<string, any>;
   seeds: Record<string, Seed>;
   allTokenMetadatas: Record<string, TokenMetadata>;
-  unclaimed_rewards: Record<string, any>;
   user_balances: Record<string, string>;
-  user_seeds: Record<string, UserSeedInfo>;
-  withdraw_list: Record<string, IFarmerWithdraw>;
   memeContractConfig: IMemefarmConfig;
   xrefContractConfig: Record<string, IMemefarmConfig>;
   lpSeeds: Record<string, Seed>;
@@ -81,12 +78,6 @@ function MemeContextProvider({ children }: any) {
   const [xrefTokenMetadatas, setXrefTokenMetadatas] = useState<
     Record<string, TokenMetadata>
   >({});
-  const [user_seeds, set_user_seeds] = useState<Record<string, UserSeedInfo>>(
-    {}
-  );
-  const [unclaimed_rewards, set_unclaimed_rewards] = useState<
-    Record<string, any>
-  >({});
   const [user_meme_balances, set_user_meme_balances] = useState<
     Record<string, string>
   >({});
@@ -96,9 +87,6 @@ function MemeContextProvider({ children }: any) {
   const [user_balances, set_user_balances] = useState<Record<string, string>>(
     {}
   );
-  const [withdraw_list, set_withdraw_list] = useState<
-    Record<string, IFarmerWithdraw>
-  >({});
   const [donateBalances, setDonateBalances] = useState<Record<string, string>>(
     {}
   );
@@ -391,9 +379,6 @@ function MemeContextProvider({ children }: any) {
       {}
     );
     const user_withdraw_list = await list_farmer_withdraws();
-    set_user_seeds(user_seeds);
-    set_unclaimed_rewards(user_unclaimed_rewards_map);
-    set_withdraw_list(user_withdraw_list);
     setMemeFarmContractUserData({
       withdraw_list: user_withdraw_list,
       unclaimed_rewards: user_unclaimed_rewards_map,
@@ -472,9 +457,6 @@ function MemeContextProvider({ children }: any) {
         xrefTokenId,
         donateBalances,
         loading,
-        unclaimed_rewards, // todo delete
-        user_seeds, // todo delete
-        withdraw_list, // todo delete
       }}
     >
       {children}

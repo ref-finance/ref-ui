@@ -17,9 +17,10 @@ import {
 } from '../../utils/uiNumber';
 
 import { Template } from './StakeModal';
-import { getMemeContractConfig } from './memeConfig';
-import { formatSeconds, weight } from './tool';
+import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
+import { formatSeconds, memeWeight, getListedMemeSeeds } from './tool';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+const { meme_winner_tokens } = getMemeDataConfig();
 function UnStakeModal(props: any) {
   const {
     seeds,
@@ -71,24 +72,25 @@ function UnStakeModal(props: any) {
     return [memeTo, xrefTo];
   }, [amount, stakedBalance, xrefAmount, xrefStakedBalance]);
   const [weightFrom, weightTo] = useMemo(() => {
-    const { seedTvl, totalTvl } = weight({
-      memeSeeds: seeds,
-      xrefSeeds,
-      memeSeed: seed,
-      xrefSeed,
+    const displayMemeSeeds = getListedMemeSeeds(seeds);
+    const { seedTvl, totalTvl } = memeWeight({
+      displayMemeSeeds,
+      seed,
     });
-    const deleteTvl =
-      selectedTab === 'meme'
-        ? Big(amount || 0).mul(tokenPriceList[seed.seed_id]?.price || 0)
-        : Big(xrefAmount || 0).mul(
-            tokenPriceList[xrefSeed.seed_id]?.price || 0
-          );
-    const from = totalTvl.gt(0) ? Big(seedTvl).div(totalTvl).mul(100) : Big(0);
-    const to = totalTvl.minus(deleteTvl).gt(0)
-      ? Big(seedTvl).minus(deleteTvl).div(totalTvl.minus(deleteTvl)).mul(100)
+    const deleteTvl = Big(amount || 0).mul(
+      tokenPriceList[seed.seed_id]?.price || 0
+    );
+    const from = Big(totalTvl).gt(0)
+      ? Big(seedTvl).div(totalTvl).mul(100)
+      : Big(0);
+    const to = Big(totalTvl).minus(deleteTvl).gt(0)
+      ? Big(seedTvl)
+          .minus(deleteTvl)
+          .div(Big(totalTvl).minus(deleteTvl))
+          .mul(100)
       : Big(0);
     return [from.toFixed(), to.toFixed()];
-  }, [amount, seeds, seed, xrefAmount, xrefSeeds, xrefSeed, selectedTab]);
+  }, [amount, seeds, seed, tokenPriceList]);
   const { withdraw_part_status, xref_withdraw_part_status } = useMemo(() => {
     let meme_withdraw_status;
     let xref_withdraw_status;
@@ -158,7 +160,8 @@ function UnStakeModal(props: any) {
   const disabled =
     selectedTab === 'meme'
       ? Big(amount || 0).lte(0) || Big(amount || 0).gt(stakedBalance)
-      : Big(xrefAmount || 0).lte(0) || Big(xrefAmount || 0).gt(stakedBalance);
+      : Big(xrefAmount || 0).lte(0) ||
+        Big(xrefAmount || 0).gt(xrefStakedBalance);
   return (
     <Modal
       isOpen={isOpen}
@@ -284,6 +287,7 @@ function UnStakeModal(props: any) {
                 title="Gauge Weight"
                 from={formatPercentage(weightFrom)}
                 to={formatPercentage(weightTo)}
+                hidden={!meme_winner_tokens.includes(seed_id)}
               />
             </div>
             {/* deep delay tip */}
