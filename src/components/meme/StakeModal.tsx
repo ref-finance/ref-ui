@@ -246,7 +246,10 @@ function StakeModal(props: any) {
                   style={{ width: '26px', height: '26px' }}
                   className="rounded-full"
                 />
-                <span className="text-base gotham_bold ml-2">
+                <span
+                  className="text-base gotham_bold ml-2 w-20 overflow-hidden whitespace-nowrap text-ellipsis"
+                  style={{ textOverflow: 'ellipsis' }}
+                >
                   {seed?.token_meta_data.symbol}
                 </span>
                 <span className="ml-auto">

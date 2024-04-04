@@ -99,6 +99,14 @@ function RuleModal(props: any) {
             </li>
           </ul>
         </div>
+        <div className="flex items-center justify-center">
+          <span
+            onClick={onRequestClose}
+            className="flex items-center justify-center mt-6 h-8 text-sm text-white cursor-pointer px-8 border border-primaryText rounded-lg gotham_bold"
+          >
+            Got it
+          </span>
+        </div>
       </div>
     </Modal>
   );
