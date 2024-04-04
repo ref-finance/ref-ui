@@ -228,6 +228,50 @@ export const withdraw = async ({
   }
   return executeFarmMultipleTransactions(transactions);
 };
+export const claim_all = async ({
+  seed,
+  xrefSeed,
+  xrefContractId,
+}: {
+  seed?: Seed;
+  xrefSeed?: Seed;
+  xrefContractId?: string;
+}): Promise<any> => {
+  let transactions: Transaction[] = [];
+  if (seed) {
+    const { seed_id } = seed;
+    transactions.push({
+      receiverId: REF_MEME_FARM_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'claim_reward_by_seed',
+          args: { seed_id },
+          gas: '200000000000000',
+        },
+      ],
+    });
+    transactions = await withdrawRewards(seed, transactions);
+  }
+  if (xrefSeed) {
+    const { seed_id } = xrefSeed;
+    transactions.push({
+      receiverId: xrefContractId,
+      functionCalls: [
+        {
+          methodName: 'claim_reward_by_seed',
+          args: { seed_id },
+          gas: '200000000000000',
+        },
+      ],
+    });
+    transactions = await withdrawRewardsXref(
+      xrefSeed,
+      transactions,
+      xrefContractId
+    );
+  }
+  return executeFarmMultipleTransactions(transactions);
+};
 export const claim = async (seed: Seed): Promise<any> => {
   const { seed_id } = seed;
   let transactions: Transaction[] = [];
@@ -244,21 +288,23 @@ export const claim = async (seed: Seed): Promise<any> => {
   transactions = await withdrawRewards(seed, transactions);
   return executeFarmMultipleTransactions(transactions);
 };
-export const transfer = async () => {
-  // transactions.push({
-  //   receiverId: tokenId,
-  //   functionCalls: [
-  //     {
-  //       methodName: 'ft_transfer',
-  //       args: {
-  //         receiver_id: account_b,
-  //         amount: '100000',
-  //       },
-  //       amount: ONE_YOCTO_NEAR,
-  //       gas: '180000000000000',
-  //   }]
-  // });
+export const xrefClaim = async (contractId, seed): Promise<any> => {
+  let transactions: Transaction[] = [];
+  const { seed_id } = seed;
+  transactions.push({
+    receiverId: contractId,
+    functionCalls: [
+      {
+        methodName: 'claim_reward_by_seed',
+        args: { seed_id },
+        gas: '200000000000000',
+      },
+    ],
+  });
+  transactions = await withdrawRewardsXref(seed, transactions, contractId);
+  return executeFarmMultipleTransactions(transactions);
 };
+
 export const xref_list_seeds_info = async (contractId) => {
   return xrefMeMeFarmViewFunction({
     contractId,

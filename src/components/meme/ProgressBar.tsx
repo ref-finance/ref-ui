@@ -5,15 +5,28 @@ import { FeedMeMobile } from './ani_mobile';
 import { MemeContext } from './context';
 import { formatPercentage } from '../../utils/uiNumber';
 import { isMobile } from '../../utils/device';
-import { getMemeUiConfig } from './memeConfig';
+import { getMemeUiConfig, getMemeDataConfig } from './memeConfig';
 import StakeModal from './StakeModal';
 import { isPending } from './tool';
+import { Seed } from '../../services/farm';
 const is_mobile = isMobile();
 const ProgressBar = () => {
   const [isStakeOpen, setIsStakeOpen] = useState(false);
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
   const config = getMemeUiConfig();
   const { seeds, user_balances } = useContext(MemeContext);
+  const displaySeeds: Record<string, Seed> = useMemo(() => {
+    const { meme_winner_tokens } = getMemeDataConfig();
+    const displaySeeds = Object.entries(seeds).reduce(
+      (acc, [seed_id, seed]) => {
+        if (meme_winner_tokens.includes(seed_id))
+          return { ...acc, ...{ [seed_id]: seed } };
+        return acc;
+      },
+      {}
+    );
+    return displaySeeds;
+  }, [seeds]);
   const totalTvl = useMemo(() => {
     const totalTvl = Object.entries(seeds)
       .reduce((acc, [seed_id, seed]) => {
@@ -30,7 +43,7 @@ const ProgressBar = () => {
         </span>
       </div>
       {/* Race */}
-      {Object.entries(seeds).map(([seed_id, seed]) => {
+      {Object.entries(displaySeeds).map(([seed_id, seed]) => {
         let addW = '0';
         let percent = '';
         const seedTvl = seed.seedTvl;

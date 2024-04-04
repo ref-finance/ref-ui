@@ -92,7 +92,6 @@ function UnStakeModal(props: any) {
   const { withdraw_part_status, xref_withdraw_part_status } = useMemo(() => {
     let meme_withdraw_status;
     let xref_withdraw_status;
-    debugger;
     if (withdraw_list[seed_id] && delay_withdraw_sec) {
       const { apply_timestamp } = withdraw_list[seed_id];
       const unLockDate = Big(apply_timestamp)

@@ -28,7 +28,8 @@ const VoteXREF = () => {
         className="py-7 px-8 bg-memeVoteBgColor rounded-b-2xl "
         style={{ height: '600px' }}
       >
-        {activeTab === 'vote' ? <VoteSheet /> : <VotersSheet />}
+        <VoteSheet hidden={activeTab === 'vote' ? false : true} />
+        <VotersSheet hidden={activeTab !== 'vote' ? false : true} />
       </div>
     </div>
   );

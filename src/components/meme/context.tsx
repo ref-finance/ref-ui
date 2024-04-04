@@ -57,7 +57,7 @@ interface IMemeContext {
   donateBalances: Record<string, string>;
   loading: boolean;
 }
-interface IFarmAccount {
+export interface IFarmAccount {
   withdraw_list: Record<string, IFarmerWithdraw>;
   unclaimed_rewards: Record<string, any>;
   join_seeds: Record<string, UserSeedInfo>;
@@ -487,4 +487,4 @@ function MemeContextProvider({ children }: any) {
   );
 }
 
-export { MemeContextProvider, MemeContext, IMemeContext, IFarmAccount };
+export { MemeContextProvider, MemeContext, IMemeContext };

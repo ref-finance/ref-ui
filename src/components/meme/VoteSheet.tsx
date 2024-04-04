@@ -3,22 +3,23 @@ import Big from 'big.js';
 import { isMobile } from '../../utils/device';
 import { ArrowRightTopIcon } from './icons';
 import MyPieChart from './VoteChart';
-import VoteModel from './VoteModel';
+import VoteModal from './VoteModal';
 import { MemeContext } from './context';
 import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { Seed } from '../../services/farm';
 import { toReadableNumber } from '../../utils/numbers';
-import {
-  toInternationalCurrencySystem_usd,
-  toInternationalCurrencySystem_number,
-  formatPercentage,
-  formatPercentageUi,
-} from '../../utils/uiNumber';
+import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
+import { emptyObject } from './tool';
 const memeDataConfig = getMemeDataConfig();
 const memeContractConfig = getMemeContractConfig();
-function VoteSheet() {
+function VoteSheet({ hidden }: { hidden: boolean }) {
   const [isVoteOpen, setIsVoteOpen] = useState(false);
-  const { xrefSeeds, xrefTokenId, allTokenMetadatas } = useContext(MemeContext);
+  const {
+    xrefSeeds,
+    xrefTokenId,
+    allTokenMetadatas,
+    xrefFarmContractUserData,
+  } = useContext(MemeContext);
   const { MEME_TOKEN_XREF_MAP } = memeContractConfig;
   const totalXrefStaked = useMemo(() => {
     return Object.values(xrefSeeds || {}).reduce((sum, seed: Seed) => {
@@ -30,7 +31,7 @@ function VoteSheet() {
     }, new Big(0));
   }, [xrefSeeds]);
   return (
-    <div className="text-primaryText">
+    <div className={`text-primaryText ${hidden ? 'hidden' : ''}`}>
       <div className="text-base mb-7">
         Vote for your favorite Meme by staking xREF, so that the Meme you
         support can be listed in the next round of ‘Meme Competition.
@@ -51,7 +52,7 @@ function VoteSheet() {
             <MyPieChart />
           </div>
         </div>
-        <div className="w-1/3">
+        <div className="w-2/5">
           <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-6">
             <div className="flex justify-between pt-5 pb-4 px-5 text-white text-base items-center gotham_bold">
               <div>Total xREF</div>
@@ -70,18 +71,24 @@ function VoteSheet() {
               </div>
             </div>
             <div className="overflow-x-auto">
-              <div className="px-5 flex justify-between items-center border-b border-memeVoteBgColor pb-2">
-                <div>Meme Project</div>
-                <div>xREF</div>
+              <div className="px-5 grid grid-cols-4 border-b border-memeVoteBgColor pb-2">
+                <div className="col-span-2">Meme Project</div>
+                <div className="justify-self-end">xREF</div>
+                <div className="justify-self-end">You Voted</div>
               </div>
               <div
                 className="pt-3 pl-5 pr-4 text-white"
                 style={{ maxHeight: '270px', overflow: 'auto' }}
               >
-                {Object.keys(xrefSeeds).length &&
+                {!emptyObject(xrefSeeds) &&
                   Object.entries(MEME_TOKEN_XREF_MAP).map(
                     ([memeTokenId, xrefContractId]) => {
                       const xrefSeed: Seed = xrefSeeds[xrefContractId];
+                      const userStakedAmount = toReadableNumber(
+                        xrefSeed.seed_decimal,
+                        xrefFarmContractUserData?.[xrefContractId]
+                          ?.join_seeds?.[xrefTokenId]?.free_amount || '0'
+                      );
                       const seedTotalStakedAmount = toReadableNumber(
                         xrefSeed.seed_decimal,
                         xrefSeed.total_seed_amount
@@ -89,9 +96,9 @@ function VoteSheet() {
                       return (
                         <div
                           key={memeTokenId}
-                          className="flex justify-between mb-5"
+                          className="grid grid-cols-4 mb-5"
                         >
-                          <div className="flex items-center">
+                          <div className="flex items-center col-span-2">
                             <p>{allTokenMetadatas?.[memeTokenId]?.symbol}</p>
                             {memeDataConfig.meme_winner_tokens.includes(
                               memeTokenId
@@ -104,9 +111,14 @@ function VoteSheet() {
                               </div>
                             ) : null}
                           </div>
-                          <div className="gotham_bold">
+                          <div className="justify-self-end gotham_bold">
                             {toInternationalCurrencySystem_number(
                               seedTotalStakedAmount
+                            )}
+                          </div>
+                          <div className="justify-self-end gotham_bold">
+                            {toInternationalCurrencySystem_number(
+                              userStakedAmount
                             )}
                           </div>
                         </div>
@@ -136,7 +148,7 @@ function VoteSheet() {
         </div>
       </div>
       {isVoteOpen ? (
-        <VoteModel
+        <VoteModal
           isOpen={isVoteOpen}
           onRequestClose={() => {
             setIsVoteOpen(false);
