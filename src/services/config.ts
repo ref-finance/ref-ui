@@ -121,6 +121,7 @@ export default function getConfig(
   const RPC_LIST_custom = getCustomConfig();
   const RPC_LIST = Object.assign(RPC_LIST_system, RPC_LIST_custom) as any;
   let endPoint = 'defaultRpc';
+  console.log('99999999999-env', process.env.REACT_APP_NEAR_ENV);
   try {
     endPoint = window.localStorage.getItem('endPoint') || endPoint;
     if (!RPC_LIST[endPoint]) {
