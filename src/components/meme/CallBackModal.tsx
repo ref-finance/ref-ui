@@ -25,7 +25,7 @@ function CallBackModal(props: any) {
     txParams,
   }: { isOpen: boolean; onRequestClose: any; txParams: ITxParams } = props;
   const history = useHistory();
-  const cardWidth = isMobile() ? '90vw' : '28vw';
+  const cardWidth = isMobile() ? '95vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   const [seed, amount, metadata, isXrefAction] = useMemo(() => {
     const { action, receiver_id, params } = txParams;

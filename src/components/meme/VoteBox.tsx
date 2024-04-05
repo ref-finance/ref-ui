@@ -27,7 +27,7 @@ import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { Seed, UserSeedInfo } from '../../services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
-function VoteBox(props: any) {
+function VoteBox() {
   const [selectedTab, setSelectedTab] = useState(
     Object.keys(MEME_TOKEN_XREF_MAP)[0]
   );
@@ -54,8 +54,6 @@ function VoteBox(props: any) {
     return '0';
   }, [xrefTokenId, user_balances]);
   const [amount, setAmount] = useState('');
-  const cardWidth = isMobile() ? '90vw' : '25vw';
-  const cardHeight = isMobile() ? '90vh' : '80vh';
   function stakeToken() {
     setStakeLoading(true);
     xrefStake({
@@ -75,14 +73,7 @@ function VoteBox(props: any) {
     !selectedTab ||
     !Object.keys(xrefSeeds).length;
   return (
-    <div
-    // className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto"
-    // style={{
-    //   width: cardWidth,
-    //   maxHeight: cardHeight,
-    //   border: '1px solid rgba(151, 151, 151, 0.2)',
-    // }}
-    >
+    <div>
       <div className="mt-6 mb-5">
         <div className="text-primaryText text-sm">Select Meme you support</div>
         <div className="mt-5 flex flex-wrap mb-2">

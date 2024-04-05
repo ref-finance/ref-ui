@@ -36,7 +36,7 @@ function DonateModal(props: any) {
     return '0';
   }, [selectedTab, user_balances]);
   const [amount, setAmount] = useState('');
-  const cardWidth = isMobile() ? '90vw' : '25vw';
+  const cardWidth = isMobile() ? '95vw' : '25vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   function doateToken() {
     setDonateLoading(true);

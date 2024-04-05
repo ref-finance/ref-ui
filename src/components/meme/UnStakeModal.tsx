@@ -155,7 +155,7 @@ function UnStakeModal(props: any) {
       });
     }
   }
-  const cardWidth = isMobile() ? '90vw' : '28vw';
+  const cardWidth = isMobile() ? '95vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   const disabled =
     selectedTab === 'meme'
@@ -220,7 +220,7 @@ function UnStakeModal(props: any) {
                   className="rounded-full"
                 />
                 <span
-                  className="text-base gotham_bold ml-2 overflow-hidden whitespace-nowrap text-ellipsis"
+                  className="text-base gotham_bold ml-2 overflow-hidden whitespace-nowrap text-ellipsis xsm:hidden"
                   style={{ textOverflow: 'ellipsis' }}
                 >
                   {seed?.token_meta_data.symbol}
@@ -242,7 +242,7 @@ function UnStakeModal(props: any) {
                   style={{ width: '26px', height: '26px' }}
                   className="rounded-full"
                 />
-                <span className="text-base gotham_bold ml-2">
+                <span className="text-base gotham_bold ml-2 xsm:hidden">
                   {allTokenMetadatas?.[xrefTokenId]?.symbol}
                 </span>
                 <span className="ml-auto">

@@ -11,6 +11,7 @@ import { toReadableNumber } from '../../utils/numbers';
 import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
 import { WalletContext } from '../../utils/wallets-integration';
 import { emptyObject } from './tool';
+const is_mobile = isMobile();
 const memeDataConfig = getMemeDataConfig();
 const memeContractConfig = getMemeContractConfig();
 function VoteSheet({ hidden }: { hidden: boolean }) {
@@ -35,28 +36,32 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
   }, [xrefSeeds]);
   return (
     <div className={`text-primaryText ${hidden ? 'hidden' : ''}`}>
-      <div className="text-base mb-7">
+      <div className="text-base mb-7 xsm:text-center xsm:px-6">
         Vote for your favorite Meme by staking xREF, so that the Meme you
         support can be listed in the next round of ‘Meme Competition.
       </div>
-      <div className="flex gap-12">
-        <div className="flex-grow">
-          <div className="flex">
+      <div className="flex gap-12 xsm:flex-col xsm:gap-9">
+        <div className="flex-grow xsm:px-6">
+          <div className="flex justify-between xsm:flex-col xsm:items-center xsm:gap-5">
             <div>
-              <p>Current Round:</p>
-              <span className="text-white text-lg">2024/03/18-2024/03/31</span>
+              <p className="text-base text-center">Current Round:</p>
+              <span className="text-white text-lg text-center">
+                2024/03/18-2024/03/31
+              </span>
             </div>
-            <div className="ml-auto">
-              <p>Next Round:</p>
-              <span className="text-white text-lg">2024/04/01-2024/04/14</span>
+            <div>
+              <p className="text-base text-center">Next Round:</p>
+              <span className="text-white text-lg text-center">
+                2024/04/01-2024/04/14
+              </span>
             </div>
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-14 xsm:mt-10">
             <MyPieChart />
           </div>
         </div>
-        <div className="w-2/5">
-          <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-6">
+        <div className="w-2/5 xsm:w-full">
+          <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-6 xsm:bg-transparent xsm:border-transparent">
             <div className="flex justify-between pt-5 pb-4 px-5 text-white text-base items-center gotham_bold">
               <div>Total xREF</div>
               <div className="text-3xl flex items-center">
@@ -77,7 +82,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
               <div
                 className={`px-5 grid grid-cols-${
                   isSignedIn ? 4 : 3
-                } border-b border-memeVoteBgColor pb-2`}
+                } border-b border-memeVoteBgColor pb-2 text-sm`}
               >
                 <div className="col-span-2">Meme Project</div>
                 <div className="justify-self-end">xREF</div>
@@ -86,7 +91,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                 ) : null}
               </div>
               <div
-                className="pt-3 pl-5 pr-4 text-white"
+                className="pt-3 pl-5 pr-4 text-white text-base relative"
                 style={{ maxHeight: '300px', overflow: 'auto' }}
               >
                 {!emptyObject(xrefSeeds) &&
@@ -116,7 +121,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                                 src={allTokenMetadatas?.[memeTokenId]?.icon}
                               />
                               <p
-                                className="overflow-hidden w-24 whitespace-nowrap"
+                                className="overflow-hidden w-24 whitespace-nowrap xsm:w-20"
                                 style={{ textOverflow: 'ellipsis' }}
                               >
                                 {allTokenMetadatas?.[memeTokenId]?.symbol}
@@ -126,7 +131,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                               memeTokenId
                             ) ? (
                               <div
-                                className="ml-1.5 text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
+                                className="ml-1 text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform xsm:ml-0"
                                 style={{ transform: 'skewX(-20deg)' }}
                               >
                                 Listed
@@ -149,11 +154,18 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                       );
                     }
                   )}
+                {is_mobile ? (
+                  <div
+                    className={`absolute left-0 top-0 bottom-0 right-0 bg-senderHot bg-opacity-5 w-${
+                      isSignedIn ? '2/4' : '2/3'
+                    }`}
+                  ></div>
+                ) : null}
               </div>
             </div>
           </div>
           <div
-            className="bg-greenLight rounded-xl w-full text-black text-center gotham_bold text-base py-3.5 mb-4 cursor-pointer"
+            className="bg-greenLight rounded-xl w-full text-black text-center gotham_bold text-base py-3.5 mb-4 cursor-pointer xsm:mx-3 xsm:w-auto"
             onClick={() => {
               setIsVoteOpen(true);
             }}

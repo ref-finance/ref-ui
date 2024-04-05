@@ -58,6 +58,7 @@ function YourRewards({ seed_id }: { seed_id: string }) {
   }, [memeFarmContractUserData, xrefFarmContractUserData, tokenPriceList]);
   function getRewardsTip() {
     let result = '';
+    if (emptyObject(yourRewardsData.unclaimedRewards || {})) return '';
     Object.entries(yourRewardsData.unclaimedRewards || {}).forEach(
       ([tokenId, amount]) => {
         const metadata: TokenMetadata = allTokenMetadatas[tokenId];
@@ -87,7 +88,13 @@ function YourRewards({ seed_id }: { seed_id: string }) {
         data-place="top"
         data-tooltip-html={getRewardsTip()}
       >
-        <span className="text-xl text-white gotham_bold border-b border-dashed border-white">
+        <span
+          className={`text-xl text-white gotham_bold ${
+            emptyObject(yourRewardsData.unclaimedRewards || {})
+              ? ''
+              : 'border-b border-dashed border-white '
+          }`}
+        >
           {toInternationalCurrencySystem_usd(
             yourRewardsData.unclaimedTotalValue
           )}

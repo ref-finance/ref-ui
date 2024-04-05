@@ -17,7 +17,9 @@ import {
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function VoteModel(props: any) {
   const { isOpen, onRequestClose } = props;
-  const [selectedTab, setSelectedTab] = useState('');
+  const [selectedTab, setSelectedTab] = useState(
+    Object.keys(MEME_TOKEN_XREF_MAP)[0]
+  );
   const [stakeLoading, setStakeLoading] = useState(false);
   const {
     allTokenMetadatas,
@@ -37,7 +39,7 @@ function VoteModel(props: any) {
     return '0';
   }, [xrefTokenId, user_balances]);
   const [amount, setAmount] = useState('');
-  const cardWidth = isMobile() ? '90vw' : '28vw';
+  const cardWidth = isMobile() ? '95vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   function stakeToken() {
     setStakeLoading(true);

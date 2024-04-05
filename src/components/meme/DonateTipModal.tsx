@@ -9,7 +9,7 @@ import { ModalCloseIcon } from './icons';
 function DonateTipModal(props: any) {
   const { isOpen, onRequestClose, memeSymbol, onDonate } = props;
   const [donateLoading, setDonateLoading] = useState(false);
-  const cardWidth = isMobile() ? '90vw' : '327px';
+  const cardWidth = isMobile() ? '95vw' : '327px';
   function doDonate() {
     setDonateLoading(true);
     onDonate();

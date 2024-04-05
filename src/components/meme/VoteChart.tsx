@@ -6,11 +6,12 @@ import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { emptyObject } from './tool';
 import { Seed } from '../../services/farm';
 import { toReadableNumber } from '../../utils/numbers';
+import { isMobile } from 'src/utils/device';
 import {
   formatPercentage,
-  formatWithCommas_number,
   toInternationalCurrencySystem_number,
 } from '../../utils/uiNumber';
+const is_mobile = isMobile();
 
 const renderActiveShape = (props) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
@@ -141,7 +142,7 @@ const MyPieChart = () => {
   if (!chartData) return null;
   return (
     <div className="flex justify-center">
-      <PieChart width={345} height={345}>
+      <PieChart width={is_mobile ? 300 : 345} height={is_mobile ? 300 : 345}>
         <Pie
           activeIndex={activeIndex}
           activeShape={customActiveShape}
@@ -150,8 +151,8 @@ const MyPieChart = () => {
           nameKey="name"
           cx="50%"
           cy="50%"
-          innerRadius={130}
-          outerRadius={172.5}
+          innerRadius={is_mobile ? 115 : 130}
+          outerRadius={is_mobile ? 150 : 172.5}
           onMouseEnter={onPieEnter}
           onMouseLeave={onPieLeave}
           stroke={sectorStrokeColor}

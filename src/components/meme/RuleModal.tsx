@@ -4,8 +4,8 @@ import { isMobile } from '../../utils/device';
 import { ModalCloseIcon } from './icons';
 function RuleModal(props: any) {
   const { isOpen, onRequestClose } = props;
-  const cardWidth = isMobile() ? '90vw' : '35vw';
-  const cardHeight = isMobile() ? '90vh' : '55vh';
+  const cardWidth = isMobile() ? '95vw' : '35vw';
+  const cardHeight = isMobile() ? '60vh' : '55vh';
   return (
     <Modal
       isOpen={isOpen}

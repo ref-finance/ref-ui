@@ -1171,3 +1171,22 @@ export function ArrowRightTopIcon(props: any) {
     </svg>
   );
 }
+
+export function ArrowTopIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="13"
+      height="8"
+      viewBox="0 0 13 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 6.40039L6.5 2.00039L1 6.40039"
+        stroke="white"
+        strokeWidth="1.58"
+      />
+    </svg>
+  );
+}

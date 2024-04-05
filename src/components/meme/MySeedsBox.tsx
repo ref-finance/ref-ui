@@ -285,23 +285,21 @@ const MySeedsBox = ({ hidden }: { hidden: boolean }) => {
                   <div
                     className={`flex items-center justify-between mt-6 gap-3 xsm:flex-col-reverse`}
                   >
-                    <div className="flex items-center flex-grow gap-3 xsm:w-full">
-                      <OprationButton
-                        disabled={unStakeButtonDisabled}
-                        onClick={() => {
-                          set_modal_action_seed_id(seed.seed_id);
-                          setIsUnStakeOpen(true);
-                        }}
-                        className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
-                          unStakeButtonDisabled ? 'opacity-30' : ''
-                        }`}
-                      >
-                        <ButtonTextWrapper
-                          loading={false}
-                          Text={() => <>Unstake</>}
-                        />
-                      </OprationButton>
-                    </div>
+                    <OprationButton
+                      disabled={unStakeButtonDisabled}
+                      onClick={() => {
+                        set_modal_action_seed_id(seed.seed_id);
+                        setIsUnStakeOpen(true);
+                      }}
+                      className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none w-1/2 xsm:w-full ${
+                        unStakeButtonDisabled ? 'opacity-30' : ''
+                      }`}
+                    >
+                      <ButtonTextWrapper
+                        loading={false}
+                        Text={() => <>Unstake</>}
+                      />
+                    </OprationButton>
                     <OprationButton
                       disabled={claimButtonDisabled || claim_id == seed_id}
                       onClick={() => {
@@ -316,7 +314,7 @@ const MySeedsBox = ({ hidden }: { hidden: boolean }) => {
                             : MEME_TOKEN_XREF_MAP[seed_id],
                         });
                       }}
-                      className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
+                      className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none w-1/2 xsm:w-full ${
                         claimButtonDisabled
                           ? 'bg-memePoolBoxBorderColor'
                           : 'bg-greenLight'
