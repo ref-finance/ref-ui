@@ -110,7 +110,18 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                           } mb-5`}
                         >
                           <div className="flex items-center col-span-2">
-                            <p>{allTokenMetadatas?.[memeTokenId]?.symbol}</p>
+                            <div className="flex items-center gap-1.5">
+                              <img
+                                className="w-5 h-5 rounded-full"
+                                src={allTokenMetadatas?.[memeTokenId]?.icon}
+                              />
+                              <p
+                                className="overflow-hidden w-24 whitespace-nowrap"
+                                style={{ textOverflow: 'ellipsis' }}
+                              >
+                                {allTokenMetadatas?.[memeTokenId]?.symbol}
+                              </p>
+                            </div>
                             {memeDataConfig.meme_winner_tokens.includes(
                               memeTokenId
                             ) ? (
