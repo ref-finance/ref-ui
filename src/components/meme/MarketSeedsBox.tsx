@@ -152,39 +152,6 @@ const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
                 isSignedIn ? '' : 'hidden'
               }`}
             >
-              {/* <div className="flex items-center flex-grow gap-3 xsm:w-full">
-                <OprationButton
-                  disabled={claimButtonDisabled || claim_seed_id == seed_id}
-                  onClick={() => {
-                    seedClaim(seed);
-                  }}
-                  className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
-                    claimButtonDisabled || claim_seed_id == seed_id
-                      ? 'opacity-40'
-                      : ''
-                  }`}
-                >
-                  <ButtonTextWrapper
-                    loading={claim_seed_id == seed_id}
-                    Text={() => <>Claim</>}
-                  />
-                </OprationButton>
-                <OprationButton
-                  disabled={unStakeButtonDisabled}
-                  onClick={() => {
-                    set_modal_action_seed_id(seed.seed_id);
-                    setIsUnStakeOpen(true);
-                  }}
-                  className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none ${
-                    unStakeButtonDisabled ? 'opacity-30' : ''
-                  }`}
-                >
-                  <ButtonTextWrapper
-                    loading={false}
-                    Text={() => <>Unstake</>}
-                  />
-                </OprationButton>
-              </div> */}
               {stakeButtonDisabled && is_pending ? (
                 <div className="flex-grow">
                   <div

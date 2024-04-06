@@ -30,8 +30,6 @@ function DonateBox(props: any) {
     return '0';
   }, [selectedTab, user_balances]);
   const [amount, setAmount] = useState('');
-  const cardWidth = isMobile() ? '90vw' : '25vw';
-  const cardHeight = isMobile() ? '90vh' : '80vh';
   function stakeToken() {
     donate({
       tokenId: selectedTab,
@@ -52,14 +50,7 @@ function DonateBox(props: any) {
     !selectedTab ||
     !Object.keys(xrefSeeds).length;
   return (
-    <div
-    // className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto"
-    // style={{
-    //   width: cardWidth,
-    //   maxHeight: cardHeight,
-    //   border: '1px solid rgba(151, 151, 151, 0.2)',
-    // }}
-    >
+    <div>
       <div className="mt-6 mb-5">
         <div className="text-primaryText text-sm">
           Select donation of Meme token

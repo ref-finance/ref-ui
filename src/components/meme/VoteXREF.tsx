@@ -26,10 +26,7 @@ const VoteXREF = () => {
           {is_mobile ? 'Donate Meme' : 'Show love for voters'}
         </div>
       </div>
-      <div
-        className="py-7 px-8 bg-memeVoteBgColor rounded-b-2xl xsm:px-0"
-        // style={{ minHeight: '600px' }}
-      >
+      <div className="py-7 px-8 bg-memeVoteBgColor rounded-b-2xl xsm:px-0">
         <VoteSheet hidden={activeTab === 'vote' ? false : true} />
         <VotersSheet hidden={activeTab !== 'vote' ? false : true} />
       </div>

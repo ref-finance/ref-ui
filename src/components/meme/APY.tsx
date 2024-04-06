@@ -1,50 +1,16 @@
 import React, { useContext, useMemo } from 'react';
 import Big from 'big.js';
-import { getMemeContractConfig } from './memeConfig';
 import { MemeContext } from './context';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { FarmBoost } from '~src/services/farm';
 import { formatPercentage } from '../../utils/uiNumber';
-import {
-  getSeedApr,
-  isPending,
-  isEnded,
-  emptyObject,
-  copy,
-  getStakingAprUI,
-} from './tool';
-const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+import { getSeedApr, isPending, isEnded, emptyObject } from './tool';
 function APY({ seed_id }: { seed_id: string }) {
   const { seeds } = useContext(MemeContext);
   const seed = seeds?.[seed_id];
   const meme_is_pending = isPending(seed);
   const meme_is_ended = isEnded(seed);
   const noShowMeme = meme_is_pending || meme_is_ended;
-  // const apyData = useMemo(() => {
-  //   if (!emptyObject(seeds) && !emptyObject(xrefSeeds)) {
-  //     const memeSeed = seeds[seed_id];
-  //     const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[seed_id]];
-  //     const memeApr = getSeedApr(memeSeed);
-  //     const xrefApr = getSeedApr(xrefSeed);
-  //     const meme_is_pending = isPending(memeSeed);
-  //     const meme_is_ended = isEnded(memeSeed);
-  //     const xref_is_pending = isPending(xrefSeed);
-  //     const xref_is_ended = isEnded(xrefSeed);
-  //     const noShowMeme = meme_is_pending || meme_is_ended;
-  //     const noShowXref = xref_is_pending || xref_is_ended;
-  //     const noShow = noShowMeme && noShowXref;
-  //     return {
-  //       memeSeed,
-  //       xrefSeed,
-  //       memeApr,
-  //       xrefApr,
-  //       noShowMeme,
-  //       noShowXref,
-  //       noShow,
-  //     };
-  //   }
-  //   return {};
-  // }, [seeds, xrefSeeds]);
   const totalApr = useMemo(() => {
     if (!emptyObject(seed)) {
       return noShowMeme ? '-' : formatPercentage(getSeedApr(seed));

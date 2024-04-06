@@ -144,10 +144,11 @@ function MemeContextProvider({ children }: any) {
   }
   async function meme_init(tokenPriceList) {
     const all_lp_seeds = await get_all_seeds();
-    // TODO need delete
     // get seeds
-    const seeds: Seed[] = (await list_seeds_info()).filter(
-      (seed: Seed) => seed.seed_id !== 'xref.ref-dev.testnet'
+    const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+    const memeTokenIds = Object.keys(MEME_TOKEN_XREF_MAP);
+    const seeds: Seed[] = (await list_seeds_info()).filter((seed: Seed) =>
+      memeTokenIds.includes(seed.seed_id)
     );
     // get farms
     const farmList = await Promise.all(

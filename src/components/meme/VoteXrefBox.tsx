@@ -3,7 +3,7 @@ import Big from 'big.js';
 import { isMobile } from '../../utils/device';
 import MyPieChart from './VoteChart';
 import { MemeContext } from './context';
-import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
+import { getMemeContractConfig } from './memeConfig';
 import { Seed } from '../../services/farm';
 import { toReadableNumber } from '../../utils/numbers';
 import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';

@@ -5,7 +5,7 @@ import { FeedMeMobile } from './ani_mobile';
 import { MemeContext } from './context';
 import { formatPercentage } from '../../utils/uiNumber';
 import { isMobile } from '../../utils/device';
-import { getMemeUiConfig, getMemeDataConfig } from './memeConfig';
+import { getMemeUiConfig } from './memeConfig';
 import StakeModal from './StakeModal';
 import {
   isPending,

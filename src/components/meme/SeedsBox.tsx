@@ -6,12 +6,9 @@ import {
   parsedArgs,
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
-import { isMobile } from '../../utils/device';
 import MarketSeedsBox from './MarketSeedsBox';
 import MySeedsBox from './MySeedsBox';
 import CallBackModal from './CallBackModal';
-
-const is_mobile = isMobile();
 export interface ITxParams {
   action: 'stake' | 'unstake';
   params: any;

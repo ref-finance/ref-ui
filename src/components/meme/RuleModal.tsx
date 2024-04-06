@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Modal from 'react-modal';
 import { isMobile } from '../../utils/device';
 import { ModalCloseIcon } from './icons';
