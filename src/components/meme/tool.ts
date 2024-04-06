@@ -301,6 +301,14 @@ export function getListedMemeSeeds(
   });
   return memeListedSeeds;
 }
+export function formatLineUi(v) {
+  if (!v || v == '0' || v == '$0' || v == '$-') return '-';
+  return v;
+}
+export function isLineUi(v) {
+  if (formatLineUi(v) == '-') return true;
+  return false;
+}
 export function emptyObject(o) {
   if (o && Object.keys(o).length) return false;
   return true;

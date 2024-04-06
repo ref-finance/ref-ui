@@ -7,6 +7,7 @@ import {
   toInternationalCurrencySystem_number,
 } from '../../utils/uiNumber';
 import { getMemeContractConfig } from './memeConfig';
+import { formatLineUi } from './tool';
 import { MemeContext } from './context';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function WalletBalance({ seed_id }: { seed_id: string }) {
@@ -26,8 +27,10 @@ function WalletBalance({ seed_id }: { seed_id: string }) {
       xrefBalance = xrefBalance.plus(
         toReadableNumber(xrefSeed.seed_decimal, user_balances[xrefTokenId])
       );
-      const memeValue = memeBalance.plus(tokenPriceList[seed_id]?.price || 0);
-      const xrefValue = xrefBalance.plus(tokenPriceList[seed_id]?.price || 0);
+      const memeValue = memeBalance.mul(tokenPriceList[seed_id]?.price || 0);
+      const xrefValue = xrefBalance.mul(
+        tokenPriceList[xrefTokenId]?.price || 0
+      );
       totalValue = totalValue.plus(memeValue).plus(xrefValue);
     }
     return {
@@ -35,7 +38,7 @@ function WalletBalance({ seed_id }: { seed_id: string }) {
       xrefBalance,
       totalValue,
     };
-  }, [user_balances, tokenPriceList]);
+  }, [seeds, xrefSeeds, user_balances, tokenPriceList]);
   function getWalletBalanceTip() {
     return `
     <div class="flex flex-col gap-1">
@@ -45,8 +48,10 @@ function WalletBalance({ seed_id }: { seed_id: string }) {
           src=${seeds?.[seed_id]?.token_meta_data?.icon}
         />
         <span class="text-sm text-white">
-          ${toInternationalCurrencySystem_number(
-            walletBalanceData.memeBalance.toFixed()
+          ${formatLineUi(
+            toInternationalCurrencySystem_number(
+              walletBalanceData.memeBalance.toFixed()
+            )
           )}
         </span>
       </div>
@@ -56,8 +61,10 @@ function WalletBalance({ seed_id }: { seed_id: string }) {
           src=${xrefSeeds?.[xrefContractId]?.token_meta_data?.icon}
         />
         <span class="text-sm text-white">
-          ${toInternationalCurrencySystem_number(
-            walletBalanceData.xrefBalance.toFixed()
+          ${formatLineUi(
+            toInternationalCurrencySystem_number(
+              walletBalanceData.xrefBalance.toFixed()
+            )
           )}
         </span>
       </div>
@@ -77,8 +84,10 @@ function WalletBalance({ seed_id }: { seed_id: string }) {
         data-tooltip-html={getWalletBalanceTip()}
       >
         <span className="text-xl gotham_bold text-white border-b border-dashed border-white">
-          {toInternationalCurrencySystem_usd(
-            walletBalanceData.totalValue.toFixed()
+          {formatLineUi(
+            toInternationalCurrencySystem_usd(
+              walletBalanceData.totalValue.toFixed()
+            )
           )}
         </span>
         <CustomTooltip id={`walletBalance_${seed_id}`} />

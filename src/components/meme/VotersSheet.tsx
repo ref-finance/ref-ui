@@ -28,14 +28,19 @@ function VotersSheet({ hidden }: { hidden: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [donateList, setDonateList] = useState([]);
   const { globalState } = useContext(WalletContext);
-  const { allTokenMetadatas, tokenPriceList, xrefSeeds, xrefTokenId } =
-    useContext(MemeContext);
+  const {
+    allTokenMetadatas,
+    tokenPriceList,
+    xrefSeeds,
+    xrefTokenId,
+    donateBalances,
+  } = useContext(MemeContext);
   const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     if (!emptyObject(xrefSeeds) && !emptyObject(allTokenMetadatas)) {
       getDonateList();
     }
-  }, [isSignedIn, xrefSeeds, allTokenMetadatas, tokenPriceList]);
+  }, [xrefSeeds, allTokenMetadatas, tokenPriceList]);
   function showModal() {
     setIsOpen(true);
   }
@@ -43,7 +48,6 @@ function VotersSheet({ hidden }: { hidden: boolean }) {
     setIsOpen(false);
   }
   async function getDonateList() {
-    const donate = await get_donate_list();
     const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
     const { meme_winner_tokens } = getMemeDataConfig();
     const list: IDonate[] = Object.entries(MEME_TOKEN_XREF_MAP).reduce(
@@ -51,7 +55,7 @@ function VotersSheet({ hidden }: { hidden: boolean }) {
         const xrefSeed = xrefSeeds[xrefContractId];
         const totalMemeReward = toReadableNumber(
           allTokenMetadatas?.[memeTokenId]?.decimals || 0,
-          getTotalRewardBalance(xrefSeed, donate[memeTokenId])
+          getTotalRewardBalance(xrefSeed, donateBalances[memeTokenId])
         );
 
         acc.push({

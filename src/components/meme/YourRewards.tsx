@@ -8,7 +8,7 @@ import {
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { getMemeContractConfig } from './memeConfig';
 import { MemeContext } from './context';
-import { emptyObject } from './tool';
+import { emptyObject, formatLineUi } from './tool';
 import { TokenMetadata } from '~src/services/ft-contract';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function YourRewards({ seed_id }: { seed_id: string }) {
@@ -95,8 +95,10 @@ function YourRewards({ seed_id }: { seed_id: string }) {
               : 'border-b border-dashed border-white '
           }`}
         >
-          {toInternationalCurrencySystem_usd(
-            yourRewardsData.unclaimedTotalValue
+          {formatLineUi(
+            toInternationalCurrencySystem_usd(
+              yourRewardsData.unclaimedTotalValue
+            )
           )}
         </span>
         <CustomTooltip id={`rewards_${seed_id}`} />

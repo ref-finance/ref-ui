@@ -120,6 +120,7 @@ function MemeContextProvider({ children }: any) {
     const tokenPriceList = await getBoostTokenPrices();
     const memeContractConfig = await get_config();
     const xrefContractConfig = await get_config_xref();
+    get_donate_balance();
     meme_init(tokenPriceList);
     xref_init(tokenPriceList);
     setTokenPriceList(tokenPriceList);
@@ -349,7 +350,6 @@ function MemeContextProvider({ children }: any) {
   async function init_user() {
     init_user_meme();
     init_user_xref();
-    get_donate_balance();
   }
   async function init_user_meme() {
     const user_seeds = await list_farmer_seeds();

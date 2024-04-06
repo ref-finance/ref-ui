@@ -1,6 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
-import { isMobile } from '../../utils/device';
 import { ArrowRightTopIcon, TipIcon } from './icons';
 import { TokenMetadata } from '../../services/ft-contract';
 import { MemeContext } from './context';

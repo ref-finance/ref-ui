@@ -8,7 +8,7 @@ import {
 } from '../../utils/uiNumber';
 import { getMemeContractConfig } from './memeConfig';
 import { MemeContext } from './context';
-import { emptyObject } from './tool';
+import { emptyObject, formatLineUi } from './tool';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function YourFeed({ seed_id }: { seed_id: string }) {
   const xrefContractId = MEME_TOKEN_XREF_MAP[seed_id];
@@ -69,8 +69,10 @@ function YourFeed({ seed_id }: { seed_id: string }) {
             src=${seeds?.[seed_id]?.token_meta_data?.icon}
           />
           <span className="text-sm text-white">
-            ${toInternationalCurrencySystem_number(
-              youFeedData.memeAmount.toFixed()
+            ${formatLineUi(
+              toInternationalCurrencySystem_number(
+                youFeedData.memeAmount.toFixed()
+              )
             )}
           </span>
         </div>
@@ -80,7 +82,7 @@ function YourFeed({ seed_id }: { seed_id: string }) {
             src=${xrefSeeds?.[xrefContractId]?.token_meta_data?.icon}
           />
           <span class="text-sm text-white">
-          ${youFeedData.xrefAmount.toFixed()}
+          ${formatLineUi(youFeedData.xrefAmount.toFixed())}
           </span>
         </div>
       </div>
@@ -99,7 +101,9 @@ function YourFeed({ seed_id }: { seed_id: string }) {
         data-tooltip-html={getYourFeedTip()}
       >
         <span className="text-xl gotham_bold text-white border-b border-dashed border-white">
-          {toInternationalCurrencySystem_usd(youFeedData.totalTvl.toFixed())}
+          {formatLineUi(
+            toInternationalCurrencySystem_usd(youFeedData.totalTvl.toFixed())
+          )}
         </span>
         <CustomTooltip id={`yourFeed_${seed_id}`} />
       </div>
