@@ -95,8 +95,15 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                 style={{ maxHeight: '300px', overflow: 'auto' }}
               >
                 {!emptyObject(xrefSeeds) &&
-                  Object.entries(MEME_TOKEN_XREF_MAP).map(
-                    ([memeTokenId, xrefContractId]) => {
+                  Object.entries(MEME_TOKEN_XREF_MAP)
+                    .sort((b, a) => {
+                      const xrefSeed_b: Seed = xrefSeeds[b[1]];
+                      const xrefSeed_a: Seed = xrefSeeds[a[1]];
+                      return Big(xrefSeed_a.total_seed_amount)
+                        .minus(xrefSeed_b.total_seed_amount)
+                        .toNumber();
+                    })
+                    .map(([memeTokenId, xrefContractId]) => {
                       const xrefSeed: Seed = xrefSeeds[xrefContractId];
                       const userStakedAmount = toReadableNumber(
                         xrefSeed.seed_decimal,
@@ -152,8 +159,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                           ) : null}
                         </div>
                       );
-                    }
-                  )}
+                    })}
                 {is_mobile ? (
                   <div
                     className={`absolute left-0 top-0 bottom-0 right-0 bg-senderHot bg-opacity-5 w-${

@@ -130,54 +130,62 @@ function DonateListPc({
             <div>Donation</div>
             <div>USD Value</div>
           </div>
-          {donateList.map((donateData: IDonate) => {
-            return (
-              <div
-                key={donateData.memeTokenId}
-                className="grid grid-cols-6 p-4 items-center text-base text-white"
-              >
-                <div className="flex items-center col-span-2">
-                  <div className="flex items-center gap-1.5">
+          {donateList
+            .sort((b, a) => {
+              return Big(a.xrefStakedAmount)
+                .minus(b.xrefStakedAmount)
+                .toNumber();
+            })
+            .map((donateData: IDonate) => {
+              return (
+                <div
+                  key={donateData.memeTokenId}
+                  className="grid grid-cols-6 p-4 items-center text-base text-white"
+                >
+                  <div className="flex items-center col-span-2">
+                    <div className="flex items-center gap-1.5">
+                      <img
+                        className="w-5 h-5 rounded-full"
+                        src={donateData.metadata?.icon}
+                      />
+                      <span>{donateData.metadata?.symbol}</span>
+                      {donateData.win ? (
+                        <div
+                          className="text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
+                          style={{ transform: 'skewX(-20deg)' }}
+                        >
+                          Listed
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="gotham_bold">
+                    {toInternationalCurrencySystem_number(
+                      donateData.xrefStakedAmount
+                    )}
+                  </div>
+                  <div className="gotham_bold">{donateData.xrefVoters}</div>
+                  <div className="flex items-center gap-1.5 gotham_bold">
                     <img
                       className="w-5 h-5 rounded-full"
                       src={donateData.metadata?.icon}
                     />
-                    <span>{donateData.metadata?.symbol}</span>
-                    {donateData.win ? (
-                      <div
-                        className="text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
-                        style={{ transform: 'skewX(-20deg)' }}
-                      >
-                        Listed
-                      </div>
-                    ) : null}
+                    <span>
+                      {toInternationalCurrencySystem_number(
+                        donateData.donateBalance
+                      )}
+                    </span>
+                  </div>
+                  <div className="gotham_bold">
+                    <span>
+                      {toInternationalCurrencySystem_usd(
+                        donateData.donateValue
+                      )}
+                    </span>
                   </div>
                 </div>
-                <div className="gotham_bold">
-                  {toInternationalCurrencySystem_number(
-                    donateData.xrefStakedAmount
-                  )}
-                </div>
-                <div className="gotham_bold">{donateData.xrefVoters}</div>
-                <div className="flex items-center gap-1.5 gotham_bold">
-                  <img
-                    className="w-5 h-5 rounded-full"
-                    src={donateData.metadata?.icon}
-                  />
-                  <span>
-                    {toInternationalCurrencySystem_number(
-                      donateData.donateBalance
-                    )}
-                  </span>
-                </div>
-                <div className="gotham_bold">
-                  <span>
-                    {toInternationalCurrencySystem_usd(donateData.donateValue)}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
       <div
