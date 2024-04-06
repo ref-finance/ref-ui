@@ -8,9 +8,13 @@ import { MemeContext } from './context';
 import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { Seed } from '../../services/farm';
 import { toReadableNumber } from '../../utils/numbers';
-import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
+import {
+  toInternationalCurrencySystem_number,
+  formatPercentage,
+} from '../../utils/uiNumber';
 import { WalletContext } from '../../utils/wallets-integration';
-import { emptyObject } from './tool';
+import { emptyObject, getSeedApr, getTotalRewardBalance } from './tool';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const is_mobile = isMobile();
 const memeDataConfig = getMemeDataConfig();
 const memeContractConfig = getMemeContractConfig();
@@ -23,6 +27,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
     xrefTokenId,
     allTokenMetadatas,
     xrefFarmContractUserData,
+    donateBalances,
   } = useContext(MemeContext);
   const { MEME_TOKEN_XREF_MAP } = memeContractConfig;
   const totalXrefStaked = useMemo(() => {
@@ -114,6 +119,32 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                         xrefSeed.seed_decimal,
                         xrefSeed.total_seed_amount
                       );
+                      function getXrefTip() {
+                        const apr = getSeedApr(xrefSeed);
+                        const totalMemeReward = toReadableNumber(
+                          allTokenMetadatas?.[memeTokenId]?.decimals || 0,
+                          getTotalRewardBalance(
+                            xrefSeed,
+                            donateBalances?.[memeTokenId] || 0
+                          )
+                        );
+                        return `<div class="px-2">
+                                  <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
+                                    <span>Reward ${
+                                      allTokenMetadatas?.[memeTokenId]?.symbol
+                                    }</span>
+                                    <span class="text-white text-sm">${toInternationalCurrencySystem_number(
+                                      totalMemeReward
+                                    )}</span>
+                                  </div>
+                                  <div class="flex items-center justify-between text-xs text-farmText gap-3.5 my-1">
+                                    <span>Staking xREF APR</span>
+                                    <span class="text-white text-sm">${formatPercentage(
+                                      apr
+                                    )}</span>
+                                  </div>
+                                </div>`;
+                      }
                       return (
                         <div
                           key={memeTokenId}
@@ -145,10 +176,18 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                               </div>
                             ) : null}
                           </div>
-                          <div className="justify-self-end gotham_bold">
-                            {toInternationalCurrencySystem_number(
-                              seedTotalStakedAmount
-                            )}
+                          <div
+                            data-class="reactTip"
+                            data-tooltip-id={`xrefTip_${memeTokenId}`}
+                            data-place="top"
+                            data-tooltip-html={getXrefTip()}
+                          >
+                            <div className="gotham_bold text-right">
+                              {toInternationalCurrencySystem_number(
+                                seedTotalStakedAmount
+                              )}
+                            </div>
+                            <CustomTooltip id={`xrefTip_${memeTokenId}`} />
                           </div>
                           {isSignedIn ? (
                             <div className="justify-self-end gotham_bold">

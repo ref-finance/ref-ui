@@ -11,7 +11,7 @@ import {
   toInternationalCurrencySystem_number,
   toInternationalCurrencySystem_usd,
 } from '../../utils/uiNumber';
-import { emptyObject } from './tool';
+import { emptyObject, getTotalRewardBalance } from './tool';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowTopIcon } from './icons';
 const is_mobile = isMobile();
@@ -48,15 +48,16 @@ function VotersSheet({ hidden }: { hidden: boolean }) {
     const { meme_winner_tokens } = getMemeDataConfig();
     const list: IDonate[] = Object.entries(MEME_TOKEN_XREF_MAP).reduce(
       (acc, [memeTokenId, xrefContractId]) => {
-        const donateBalance = toReadableNumber(
-          allTokenMetadatas[memeTokenId]?.decimals || 0,
-          donate[memeTokenId]
-        );
         const xrefSeed = xrefSeeds[xrefContractId];
+        const totalMemeReward = toReadableNumber(
+          allTokenMetadatas?.[memeTokenId]?.decimals || 0,
+          getTotalRewardBalance(xrefSeed, donate[memeTokenId])
+        );
+
         acc.push({
           memeTokenId,
-          donateBalance,
-          donateValue: Big(donateBalance)
+          donateBalance: totalMemeReward,
+          donateValue: Big(totalMemeReward)
             .mul(tokenPriceList[memeTokenId]?.price || '0')
             .toFixed(),
           metadata: allTokenMetadatas[memeTokenId],
