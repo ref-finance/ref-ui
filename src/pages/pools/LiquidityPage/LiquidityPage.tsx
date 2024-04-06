@@ -152,10 +152,6 @@ import {
   REF_POOL_ID_SEARCHING_KEY,
   TokenPriceListContext,
 } from './constLiquidityPage';
-import {
-  getGlobalWhitelist,
-  get_auto_whitelisted_postfix,
-} from '../../../../src/services/token';
 import { useRiskTokens } from '../../../state/token';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';

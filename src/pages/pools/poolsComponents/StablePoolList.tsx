@@ -48,10 +48,6 @@ import { Cell, Pie, PieChart, Sector } from 'recharts';
 import getConfig from 'src/services/config';
 import Big from 'big.js';
 import { BLACK_TOKEN_IDS_IN_POOL } from '../LiquidityPage/LiquidityPage';
-import {
-  getGlobalWhitelist,
-  get_auto_whitelisted_postfix,
-} from '../../../services/token';
 import { TokenPriceListContext } from '../LiquidityPage/constLiquidityPage';
 
 function StablePoolList({

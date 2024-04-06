@@ -74,10 +74,6 @@ import BigNumber from 'bignumber.js';
 import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/LiquidityV1PoolsMobile';
 import { PoolsTip } from '../../poolsComponents/poolsTip';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
-import {
-  get_auto_whitelisted_postfix,
-  getGlobalWhitelist,
-} from '../../../../services/token';
 
 function MobileLiquidityPage({
   pools,

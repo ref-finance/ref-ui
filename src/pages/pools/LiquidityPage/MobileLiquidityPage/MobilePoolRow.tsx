@@ -17,10 +17,6 @@ import { Link } from 'react-router-dom';
 import { WatchListStartFull } from 'src/components/icon/WatchListStar';
 import { ALL_STABLE_POOL_IDS } from 'src/services/near';
 import { FarmStampNew, TokenRisk } from 'src/components/icon';
-import {
-  getGlobalWhitelist,
-  get_auto_whitelisted_postfix,
-} from '../../../../services/token';
 
 function MobilePoolRow({
   pool,
