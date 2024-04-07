@@ -8,8 +8,12 @@ import { MemeContext } from './context';
 import { getMemeContractConfig } from './memeConfig';
 import { InputAmount } from './InputBox';
 import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
+import {
+  toInternationalCurrencySystem_number,
+  formatPercentage,
+} from '../../utils/uiNumber';
 import { xrefStake } from '../../services/meme';
-import { formatSeconds } from './tool';
+import { formatSeconds, getSeedApr, getTotalRewardBalance } from './tool';
 import {
   OprationButton,
   ButtonTextWrapper,
@@ -28,6 +32,7 @@ function VoteModel(props: any) {
     xrefTokenId,
     xrefSeeds,
     xrefContractConfig,
+    donateBalances,
   } = useContext(MemeContext);
   const xrefBalance = useMemo(() => {
     if (xrefTokenId && allTokenMetadatas?.[xrefTokenId]) {
@@ -38,6 +43,15 @@ function VoteModel(props: any) {
     }
     return '0';
   }, [xrefTokenId, user_balances]);
+  const [xrefApr, totalMemeReward] = useMemo(() => {
+    const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[selectedTab]];
+    const apr = getSeedApr(xrefSeed);
+    const totalMemeReward = toReadableNumber(
+      allTokenMetadatas?.[selectedTab]?.decimals || 0,
+      getTotalRewardBalance(xrefSeed, donateBalances[selectedTab])
+    );
+    return [apr, totalMemeReward];
+  }, [selectedTab, xrefSeeds, donateBalances, allTokenMetadatas]);
   const [amount, setAmount] = useState('');
   const cardWidth = isMobile() ? '95vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
@@ -107,7 +121,19 @@ function VoteModel(props: any) {
                 );
               })}
             </div>
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm mt-2">
+              <div className="text-primaryText">
+                Reward {allTokenMetadatas?.[selectedTab].symbol}
+              </div>
+              <span className="text-white">
+                {toInternationalCurrencySystem_number(totalMemeReward)}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm mt-5">
+              <div className="text-primaryText">Staking xREF APR</div>
+              <span className="text-white">{formatPercentage(xrefApr)}</span>
+            </div>
+            <div className="flex justify-between text-sm mt-5">
               <div className="text-primaryText">Stake xREF</div>
               <div className="text-senderHot flex justify-end items-center">
                 <a

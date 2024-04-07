@@ -128,12 +128,11 @@ function DonateListPc({
     <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-4">
       <div className="overflow-x-auto">
         <div className="min-w-full divide-y divide-memeVoteBgColor">
-          <div className="grid grid-cols-6 pt-6 px-5 pb-2.5 text-sm">
+          <div className="grid grid-cols-5 pt-6 px-5 pb-2.5 text-sm">
             <div className="col-span-2">Meme Project</div>
             <div>xREF</div>
             <div>Voters</div>
-            <div>Donation</div>
-            <div>USD Value</div>
+            <div className="pl-1">Donation</div>
           </div>
           {donateList
             .sort((b, a) => {
@@ -145,7 +144,7 @@ function DonateListPc({
               return (
                 <div
                   key={donateData.memeTokenId}
-                  className="grid grid-cols-6 p-4 items-center text-base text-white"
+                  className="grid grid-cols-5 p-4 items-center text-base text-white"
                 >
                   <div className="flex items-center col-span-2">
                     <div className="flex items-center gap-1.5">
@@ -170,23 +169,23 @@ function DonateListPc({
                     )}
                   </div>
                   <div className="gotham_bold">{donateData.xrefVoters}</div>
-                  <div className="flex items-center gap-1.5 gotham_bold">
+                  <div className="flex items-center gap-1.5">
                     <img
                       className="w-5 h-5 rounded-full"
                       src={donateData.metadata?.icon}
                     />
-                    <span>
-                      {toInternationalCurrencySystem_number(
-                        donateData.donateBalance
-                      )}
-                    </span>
-                  </div>
-                  <div className="gotham_bold">
-                    <span>
-                      {toInternationalCurrencySystem_usd(
-                        donateData.donateValue
-                      )}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="gotham_bold">
+                        {toInternationalCurrencySystem_number(
+                          donateData.donateBalance
+                        )}
+                      </span>
+                      <span className="text-xs">
+                        {toInternationalCurrencySystem_usd(
+                          donateData.donateValue
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -269,21 +268,20 @@ function DonateListMobile({
                   {donateData.xrefVoters}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <span className="text-sm text-primaryText">Donation</span>
-                <span className="text-sm text-white">
-                  {' '}
-                  {toInternationalCurrencySystem_number(
-                    donateData.donateBalance
-                  )}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-primaryText">USD Value</span>
-                <span className="text-sm text-white">
-                  {' '}
-                  {toInternationalCurrencySystem_usd(donateData.donateValue)}
-                </span>
+                <div className="flex flex-col items-end">
+                  <span className="text-sm text-white">
+                    {' '}
+                    {toInternationalCurrencySystem_number(
+                      donateData.donateBalance
+                    )}
+                  </span>
+                  <span className="text-xs text-primaryText">
+                    {' '}
+                    {toInternationalCurrencySystem_usd(donateData.donateValue)}
+                  </span>
+                </div>
               </div>
             </div>
           );

@@ -92,7 +92,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                 <div className="col-span-2">Meme Project</div>
                 <div className="justify-self-end">xREF</div>
                 {isSignedIn ? (
-                  <div className="justify-self-end">You Voted</div>
+                  <div className="justify-self-end">Yours</div>
                 ) : null}
               </div>
               <div

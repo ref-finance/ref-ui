@@ -11,12 +11,9 @@ const Banner = () => {
     setIsOpen(false);
   }
   return (
-    <div
-      className="relative flex items-center justify-center w-full"
-      style={{ height: '800px' }}
-    >
+    <div className="relative flex items-center justify-center w-full mb-16">
       <img
-        className="absolute top-0 w-full z-10"
+        className="relative w-full z-10"
         src="https://assets.ref.finance/images/memeBannerPc.png"
       />
       <div
