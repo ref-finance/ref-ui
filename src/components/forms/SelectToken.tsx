@@ -5,6 +5,7 @@ import React, {
   createContext,
   useContext,
   useMemo,
+  useCallback,
 } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -447,13 +448,6 @@ export default function SelectToken({
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  if (!onSelect) {
-    return (
-      <button className="focus:outline-none p-1" type="button">
-        {selected}
-      </button>
-    );
-  }
   const dialogWidth = isMobile() ? '95%' : forCross ? '25%' : '420px';
   const dialogMinwidth = isMobile() ? 340 : 380;
   const dialogHeight = isMobile() ? '95%' : '57%';
@@ -470,20 +464,22 @@ export default function SelectToken({
     visible
   );
   useEffect(() => {
-    if (!loadingTokensData) {
-      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-      sortedData.sort(sortBySymbol);
-      setListData(sortedData);
+    if (tokensData?.length) {
+      setListData(tokensData);
     }
-  }, [loadingTokensData, tokensData]);
-
+  }, [tokensData?.length]);
+  const sortByCondition = useCallback(
+    _.debounce((tokensData, currentSort) => {
+      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+      setListData(sortedData);
+    }, 500),
+    [sortBy]
+  );
   useEffect(() => {
-    if (!!tokensData) {
-      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-      sortedData.sort(sortBySymbol);
-      setListData(sortedData);
+    if (tokensData?.length) {
+      sortByCondition(tokensData, currentSort);
     }
-  }, [currentSort, sortBy]);
+  }, [loadingTokensData, currentSort, sortBy, tokensData?.length]);
   useEffect(() => {
     getLatestCommonBassesTokens();
   }, [tokensData]);
@@ -606,6 +602,13 @@ export default function SelectToken({
     setSearchValue('');
     searchRef.current.value = '';
     onSearch('');
+  }
+  if (!onSelect) {
+    return (
+      <button className="focus:outline-none p-1" type="button">
+        {selected}
+      </button>
+    );
   }
   return (
     <MicroModal

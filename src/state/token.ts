@@ -442,7 +442,7 @@ export const useTokensData = (
   }, [tokens?.map((t) => t.id).join('-'), visible]);
   return {
     trigger,
-    loading: !tokens?.length,
+    loading: count < tokens?.length,
     tokensData: result,
   };
 };
