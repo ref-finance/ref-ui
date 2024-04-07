@@ -381,6 +381,7 @@ export default function getConfig(
         explorerUrl: 'https://testnet.nearblocks.io',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
+        newPoosIndexerUrl: 'https://dev.data-service.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],

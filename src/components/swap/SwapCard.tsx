@@ -1156,7 +1156,6 @@ export default function SwapCard(props: {
     tokenInAmount,
     tokenInAmountInput,
   ]);
-
   return (
     <>
       <SwapFormWrap
