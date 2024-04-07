@@ -60,6 +60,7 @@ import {
   getDCLTopBinFee,
   getTokenPriceList,
   getIndexerStatus,
+  getCommonPoolsReq,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -296,7 +297,8 @@ export const usePools = (props: {
     order,
   }: LoadPoolsOpts) {
     // src/services/indexer
-    getTopPools()
+    // getTopPools()
+    getCommonPoolsReq()
       .then(async (rawPools) => {
         console.log(rawPools, 'rawPools>>>');
 
@@ -400,7 +402,13 @@ export const usePoolsMorePoolIds = () => {
   );
 
   const getAllPoolsTokens = async () => {
-    return (await getAllPoolsIndexer()).filter(
+    // return (await getAllPoolsIndexer()).filter(
+    //   (p: Pool) => p.pool_kind && p.pool_kind === 'SIMPLE_POOL'
+    // );
+    const res = await getCommonPoolsReq();
+    const resPools = res.map((pool) => parsePool(pool));
+    // console.log(res, 'getAllPoolsIndexer>>>');
+    return resPools.filter(
       (p: Pool) => p.pool_kind && p.pool_kind === 'SIMPLE_POOL'
     );
   };
@@ -599,6 +607,7 @@ export const usePoolTVL = (poolId: string | number) => {
 
   useEffect(() => {
     const id = String(poolId);
+    console.log(id, 'id>>>>>');
     getPool(id).then((res) => {
       setTVL(res.tvl);
     });

@@ -106,22 +106,49 @@ export const getPoolByToken = async (tokenId: string) => {
   return await db.queryPoolsBytoken(tokenId);
 };
 
-export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
-  id: Number(id >= 0 ? id : pool.id),
-  tokenIds: pool.token_account_ids,
-  supplies: pool.amounts.reduce(
-    (acc: { [tokenId: string]: string }, amount: string, i: number) => {
-      acc[pool.token_account_ids[i]] = amount;
-      return acc;
-    },
-    {}
-  ),
-  fee: pool.total_fee,
-  shareSupply: pool.shares_total_supply,
-  tvl: pool.tvl,
-  token0_ref_price: pool.token0_ref_price,
-  pool_kind: pool?.pool_kind,
-});
+export const parsePool = (pool: any, id?: number): any => {
+  if (!Reflect.has(pool, 'amounts')) {
+    Object.assign(pool, {
+      amounts: [],
+    });
+    // console.log(
+    //   pool,
+    //   pool.token_account_ids.findIndex(
+    //     (element) => element == pool.fiat_info_id
+    //   ),
+    //   pool.token_account_ids.findIndex(
+    //     (element) => element == pool.asset_info_id
+    //   ),
+    //   'pool.token_account_ids'
+    // );
+    pool.amounts[
+      pool.token_account_ids.findIndex(
+        (element) => element == pool.fiat_info_id
+      )
+    ] = pool.fiat_amount;
+    pool.amounts[
+      pool.token_account_ids.findIndex(
+        (element) => element == pool.asset_info_id
+      )
+    ] = pool.asset_amount;
+  }
+  return {
+    id: Number(id >= 0 ? id : pool.id),
+    tokenIds: pool.token_account_ids,
+    supplies: pool.amounts.reduce(
+      (acc: { [tokenId: string]: string }, amount: string, i: number) => {
+        acc[pool.token_account_ids[i]] = amount;
+        return acc;
+      },
+      {}
+    ),
+    fee: pool.total_fee,
+    shareSupply: pool.shares_total_supply,
+    tvl: pool.tvl,
+    token0_ref_price: pool.token0_ref_price,
+    pool_kind: pool?.pool_kind,
+  };
+};
 
 export const getPools = async ({
   page = 1,
@@ -238,13 +265,13 @@ export const getCachedPoolsByTokenId = async ({
   token1Id: string;
   token2Id: string;
 }) => {
-  let normalItems = await db
+  const normalItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token1Id)
     .and((item) => item.token2Id === token2Id)
     .primaryKeys();
-  let reverseItems = await db
+  const reverseItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token2Id)
@@ -487,7 +514,7 @@ export const getPoolsByTokensAurora = async ({
   ) {
     setLoadingData && setLoadingData(true);
 
-    let triPools = await getAllTriPools(
+    const triPools = await getAllTriPools(
       tokenIn && tokenOut
         ? [
             tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
@@ -804,7 +831,7 @@ export const predictLiquidityShares = async (
 ): Promise<string> => {
   return refFiViewFunction({
     methodName: 'predict_add_stable_liquidity',
-    args: { pool_id: pool_id, amounts },
+    args: { pool_id, amounts },
   });
 };
 

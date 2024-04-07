@@ -128,7 +128,7 @@ export default function getConfig(
       localStorage.removeItem('endPoint');
     }
   } catch (error) {}
-  console.log('666666666666666-env', env);
+  // console.log('666666666666666-env', env);
   switch (env) {
     case 'production':
     case 'mainnet':
@@ -141,6 +141,7 @@ export default function getConfig(
         explorerUrl: 'https://nearblocks.io',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://indexer.ref.finance',
+        newPoosIndexerUrl: 'https://api.data-service.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         dataServiceUrl: 'https://dev.data-service.ref-finance.com/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
@@ -301,6 +302,7 @@ export default function getConfig(
         explorerUrl: 'https://testnet.nearblocks.io',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
+        newPoosIndexerUrl: 'https://api.data-service.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         dataServiceUrl: 'https://dev.data-service.ref-finance.com/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
@@ -394,7 +396,7 @@ export default function getConfig(
         explorerUrl: 'https://testnet.nearblocks.io',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
-        newPoosIndexerUrl: 'https://dev.data-service.ref-finance.com',
+        newPoosIndexerUrl: 'https://api.data-service.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         dataServiceUrl: 'https://dev.data-service.ref-finance.com/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
@@ -488,6 +490,7 @@ export default function getConfig(
         explorerUrl: 'https://nearblocks.io',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://indexer.ref.finance',
+        newPoosIndexerUrl: 'https://api.data-service.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         dataServiceUrl: 'https://dev.data-service.ref-finance.com/api',
         txIdApiUrl: 'https://api3.nearblocks.io',

@@ -291,7 +291,7 @@ export const useWalletTokenBalances = (tokenIds: string[] = []) => {
     if (tokenIds.some((id) => !id)) return;
 
     Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
-      let balances = {};
+      const balances = {};
       res.map((item, index) => {
         const tokenId: string = tokenIds[index];
         balances[tokenId] = item;
@@ -347,7 +347,7 @@ export const useTokenPriceList = (dep?: any) => {
   }, [tokenListTrigger]);
 
   if (Object.keys(tokenPriceList).length > 0) {
-    tokenPriceList['NEAR'] = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
+    tokenPriceList.NEAR = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
   }
 
   return tokenPriceList;

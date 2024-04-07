@@ -58,7 +58,7 @@ export const getPoolsByTokensIndexer = async ({
 export const getPoolMonthVolume = async (
   pool_id: string
 ): Promise<volumeType[]> => {
-  return await fetch(config.dataServiceUrl + `/pool/${pool_id}/volume`, {
+  return await fetch(config.sodakiApiUrl + `/pool/${pool_id}/volume`, {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -68,7 +68,7 @@ export const getPoolMonthVolume = async (
 };
 
 export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
-  return await fetch(config.dataServiceUrl + `/pool/${pool_id}/tvl`, {
+  return await fetch(config.sodakiApiUrl + `/pool/${pool_id}/tvl`, {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -159,7 +159,7 @@ export const getHistoryOrderSwapInfo = async (
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
-    config.dataServiceUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
+    config.sodakiApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
     {
       method: 'GET',
     }
@@ -183,7 +183,7 @@ export const get24hVolumes = async (
   for (let i = 0; i < numBatches; i++) {
     const batchIds = pool_ids.slice(i * batchSize, (i + 1) * batchSize);
     const promise = fetch(
-      config.dataServiceUrl +
+      config.sodakiApiUrl +
         `/poollist/${batchIds.join('|')}/rolling24hvolume/sum`,
       {
         method: 'GET',
@@ -204,7 +204,7 @@ const parseActionView = async (action: any) => {
   return {
     datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/txns/' + action[1],
-    data: data,
+    data,
     // status: action[5] === 'SUCCESS_VALUE',
     status: action[6] && action[6].indexOf('SUCCESS') > -1,
   };
@@ -266,6 +266,21 @@ export const getTopPoolsIndexerRaw = async () => {
       throw error;
     }
   }
+};
+
+// public request for pools
+export const getCommonPoolsReq = async (): Promise<any[]> => {
+  const mockKey = 'http://localhost:9309/pools';
+  const realKey = config.newPoosIndexerUrl + 'api/pools';
+  return await fetch(mockKey, {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((poolList) => {
+      // console.log(poolList, 'poollist>>>');
+      return poolList;
+    });
 };
 
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
@@ -637,7 +652,7 @@ export const _search = (args: any, pools: PoolRPCView[]) => {
 
 export const _order = (args: any, pools: PoolRPCView[]) => {
   let column = args.column || 'tvl';
-  let order = args.order || 'desc';
+  const order = args.order || 'desc';
   column = args.column === 'fee' ? 'total_fee' : column;
   return _.orderBy(pools, [column], [order]);
 };
@@ -760,7 +775,7 @@ export const getAllV3Pool24Volume = async (): Promise<any[]> => {
 };
 
 export const getAllTvl = async () => {
-  return await fetch(config.dataServiceUrl + '/historical_tvl?period=1', {
+  return await fetch(config.sodakiApiUrl + '/historical-tvl?period=1', {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -770,7 +785,7 @@ export const getAllTvl = async () => {
 };
 
 export const getAllVolume24h = async () => {
-  return await fetch(config.dataServiceUrl + '/24h_volume_variation', {
+  return await fetch(config.sodakiApiUrl + '/24h-volume-variation', {
     method: 'GET',
   })
     .then((res) => res.json())
