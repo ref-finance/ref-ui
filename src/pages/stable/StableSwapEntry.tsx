@@ -48,10 +48,7 @@ import {
 import { useClientMobile } from 'src/utils/device';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { REF_FI_POOL_ACTIVE_TAB } from '../pools/utils';
-import {
-  ForbiddenIcon,
-  ForbiddenIconLarge,
-} from '../../components/icon/FarmBoost';
+import { ForbiddenIconLarge } from '../../components/icon/FarmBoost';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export const getStablePoolDecimal = (id: string | number) => {

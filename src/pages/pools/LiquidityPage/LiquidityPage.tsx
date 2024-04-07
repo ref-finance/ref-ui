@@ -779,13 +779,14 @@ function PcLiquidityPage({
       openUrl(`/pool/${id}`);
     }
   };
-
+  //
   useEffect(() => {
     canFarm(getVEPoolId()).then(({ count }) => {
       setSupportFarmStar(!!count);
       setFarmCountStar(count);
     });
   }, []);
+  //
   const tokensStar = [REF_META_DATA, unwrapedNear];
   const poolReSortingFunc = (p1: Pool, p2: Pool) => {
     const v1 = volumes[p1.id] ? parseFloat(volumes[p1.id]) : 0;
@@ -876,6 +877,7 @@ function PcLiquidityPage({
 
   if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
+  //
   return (
     <>
       <PoolTabV3></PoolTabV3>
@@ -936,7 +938,7 @@ function PcLiquidityPage({
             </Card>
           </div>
         ) : null}
-
+        {/*  */}
         <div className={`flex items-center justify-between mb-4 ${'mt-5'} `}>
           <div className=" flex text-base items-center rounded-xl p-1">
             <div className="bg-cardBg p-1 h-10 flex items-center rounded-xl">
@@ -1188,7 +1190,9 @@ function PcLiquidityPage({
             ) : null}
           </div>
         </div>
+        {/*  */}
         <PoolsTip activeTab={activeTab} />
+        {/*  */}
         {activeTab === 'watchlist' && (
           <WatchListCard
             poolTokenMetas={poolTokenMetas}
@@ -1203,8 +1207,10 @@ function PcLiquidityPage({
             farmAprById={farmAprById}
           />
         )}
+        {/*  */}
         {activeTab === 'v1' && (
           <Card width="w-full" className="bg-cardBg" padding="pb-7 px-0">
+            {/*  */}
             <div
               className="flex px-6 py-5 justify-between rounded-t-xl mb-2"
               style={{
@@ -1258,8 +1264,9 @@ function PcLiquidityPage({
                 </div>
               </div>
             </div>
-
+            {/*  */}
             <section className="">
+              {/*  */}
               <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-3 md:col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
@@ -1424,6 +1431,7 @@ function PcLiquidityPage({
                 </div>
               </header>
 
+              {/* render pools */}
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
                 {pools
                   ?.filter(poolFilterFunc)
@@ -1875,6 +1883,7 @@ export default function LiquidityPage() {
         indexFail: Object.keys(tokenPriceList).length == 0,
       }}
     >
+      {/* send displayPools at there */}
       {!clientMobileDevice && (
         <PcLiquidityPage
           farmAprById={farmAprById}

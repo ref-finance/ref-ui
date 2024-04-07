@@ -38,11 +38,7 @@ import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
-import {
-  LightningIcon,
-  ForbiddenIcon,
-  BoostOptIcon,
-} from '../../components/icon/FarmBoost';
+import { LightningIcon, BoostOptIcon } from '../../components/icon/FarmBoost';
 import { getLoveAmount } from '../../services/referendum';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
