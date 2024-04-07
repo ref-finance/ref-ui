@@ -142,7 +142,7 @@ export const useBatchTotalShares = (
   const [sharesDone, setSharesDone] = useState<boolean>(false);
 
   const getFarmStake = (pool_id: number) => {
-    let farmStake = '0';
+    const farmStake = '0';
 
     const seedIdList: string[] = Object.keys(finalStakeList);
     let tempFarmStake: string | number = '0';
@@ -295,16 +295,19 @@ export const usePools = (props: {
     sortBy,
     order,
   }: LoadPoolsOpts) {
+    // src/services/indexer
     getTopPools()
       .then(async (rawPools) => {
+        console.log(rawPools, 'rawPools>>>');
+
         const pools =
           rawPools.length > 0
             ? rawPools.map((rawPool) => parsePool(rawPool))
             : await getPoolsFromCache({
                 page,
-                tokenName: tokenName,
+                tokenName,
                 column: sortBy,
-                order: order,
+                order,
               });
 
         setRawPools(rawPools);

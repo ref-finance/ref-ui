@@ -134,6 +134,8 @@
     "borsh": "^0.3.1",
     "bs58": "^5.0.0",
     "comlink": "^4.4.1",
+    "compression-webpack-plugin": "1.1.12",
+    "customize-cra": "^1.0.0",
     "d3": "^7.7.0",
     "dexie": "^3.0.3",
     "echarts": "^5.4.1",
@@ -180,6 +182,7 @@
     "rxjs": "7.8.1",
     "socket.io-client": "^4.5.4",
     "swiper": "^6.8.4",
+    "terser-webpack-plugin": "^5.3.10",
     "web3-eth-abi": "1.8.2",
     "zustand": "^4.3.7"
   },

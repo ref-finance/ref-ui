@@ -85,6 +85,9 @@ export interface UserOrderInfo {
   unclaimed_amount: string; // claim will push it to inner account
   bought_amount: string; // accumalated amount into inner account
 }
+
+
+//components inputAmount value change fetch & comment by lujiawei;
 export const quote = async ({
   pool_ids,
   input_amount,
