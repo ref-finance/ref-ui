@@ -74,6 +74,34 @@ export interface TopPool {
   update_time: number;
 }
 
+export interface DatabaseServicePool {
+  id: string;
+  amounts?: string[];
+  pool_id: number;
+  pool_kind: string;
+  token_account_ids: string[];
+  total_fee: number;
+  shares_total_supply: string;
+  price: string;
+  asset_acc_volume?: string;
+  fiat_acc_volume?: string;
+  fiat_amount?: string;
+  asset_amount?: string;
+  fiat_info_id?: string;
+  asset_info_id?: string;
+  fiatInfo?: any;
+  assetInfo?: any;
+  token_symbols: string[];
+  fiat?: any;
+  asset?: any;
+  volume24hinUSD: string;
+  volume7DinUSD: string;
+  tvl: number;
+  apr: number;
+  acc_volume?: string[];
+  update_time: number;
+}
+
 export interface TokenPrice {
   id?: string;
   decimal: number;
@@ -99,6 +127,7 @@ class RefDatabase extends Dexie {
   public boostFarms: Dexie.Table<FarmDexie>;
   public tokenPrices: Dexie.Table<TokenPrice>;
   public boostSeeds: Dexie.Table<BoostSeeds>;
+  public baseServicePools: Dexie.Table<DatabaseServicePool>;
 
   public constructor() {
     super('RefDatabase');
@@ -113,6 +142,7 @@ class RefDatabase extends Dexie {
       boostFarms: 'id, pool_id, status',
       tokenPrices: 'id, symbol, update_time',
       boostSeeds: 'id, update_time',
+      baseServicePools: 'id, pool_kind, pool_id, update_time',
     });
 
     this.tokens = this.table('tokens');
@@ -123,6 +153,7 @@ class RefDatabase extends Dexie {
     this.boostFarms = this.table('boostFarms');
     this.tokenPrices = this.table('tokenPrices');
     this.boostSeeds = this.table('boostSeeds');
+    this.baseServicePools = this.table('baseServicePools');
   }
 
   public allWatchList() {
@@ -149,6 +180,10 @@ class RefDatabase extends Dexie {
   }
   public allBoostSeeds() {
     return this.boostSeeds;
+  }
+
+  public allBaseServicePools() {
+    return this.baseServicePools;
   }
 
   public searchPools(args: any, pools: Pool[]): Pool[] {
@@ -515,6 +550,57 @@ class RefDatabase extends Dexie {
     });
   }
 
+  public async cacheBaseServicePools(pools: any) {
+    await this.baseServicePools.clear();
+    await this.baseServicePools.bulkPut(
+      pools.map((baseServicePools: DatabaseServicePool) => ({
+        ...baseServicePools,
+        id: baseServicePools.id.toString(),
+        update_time: moment().unix(),
+        token1Id: baseServicePools.token_account_ids[0],
+        token2Id: baseServicePools.token_account_ids[1],
+        token3Id:
+          baseServicePools.token_account_ids.length > 2
+            ? baseServicePools.token_account_ids[2]
+            : '',
+        token4Id:
+          baseServicePools.token_account_ids.length > 3
+            ? baseServicePools.token_account_ids[3]
+            : '',
+      }))
+    );
+  }
+
+  public async checkBaseServicePools() {
+    const pools = await this.baseServicePools.limit(10).toArray();
+    console.log(
+      pools.length > 0 &&
+        pools.every(
+          (pool) =>
+            Number(pool.update_time) >=
+            Number(moment().unix()) -
+              Number(getConfig().TOP_POOLS_TOKEN_REFRESH_INTERVAL)
+        )
+    );
+    return (
+      pools.length > 0 &&
+      pools.every(
+        (pool) =>
+          Number(pool.update_time) >=
+          Number(moment().unix()) -
+            Number(getConfig().TOP_POOLS_TOKEN_REFRESH_INTERVAL)
+      )
+    );
+  }
+
+  public async queryBaseServicePools() {
+    const pools = await this.baseServicePools.toArray();
+    console.log(pools, 'pools >>>>>>>');
+    return pools.map((pool) => {
+      const { update_time, ...poolInfo } = pool;
+      return poolInfo;
+    });
+  }
   // public async queryTopPoolsByIds({ poolIds }: { poolIds: string[] }) {
   //   const pools = (await this.topPools.toArray()).filter((pool) =>
   //     poolIds.includes(pool.id)

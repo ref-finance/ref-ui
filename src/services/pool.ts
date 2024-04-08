@@ -111,26 +111,21 @@ export const parsePool = (pool: any, id?: number): any => {
     Object.assign(pool, {
       amounts: [],
     });
-    // console.log(
-    //   pool,
-    //   pool.token_account_ids.findIndex(
-    //     (element) => element == pool.fiat_info_id
-    //   ),
-    //   pool.token_account_ids.findIndex(
-    //     (element) => element == pool.asset_info_id
-    //   ),
-    //   'pool.token_account_ids'
-    // );
-    pool.amounts[
-      pool.token_account_ids.findIndex(
-        (element) => element == pool.fiat_info_id
-      )
-    ] = pool.fiat_amount;
-    pool.amounts[
-      pool.token_account_ids.findIndex(
-        (element) => element == pool.asset_info_id
-      )
-    ] = pool.asset_amount;
+
+    const newAmounts = Array(pool.token_account_ids.length).fill('');
+
+    const fiatIndex = pool.token_account_ids.findIndex(
+      (element) => element == pool.fiat_info_id
+    );
+    const assetIndex = pool.token_account_ids.findIndex(
+      (element) => element == pool.asset_info_id
+    );
+    if (fiatIndex >= 0) {
+      newAmounts[fiatIndex] = pool.fiat_amount;
+    }
+    if (assetIndex >= 0) {
+      newAmounts[assetIndex] = pool.asset_amount;
+    }
   }
   return {
     id: Number(id >= 0 ? id : pool.id),

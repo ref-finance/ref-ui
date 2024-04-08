@@ -302,38 +302,55 @@ export const usePools = (props: {
       .then(async (rawPools) => {
         console.log(rawPools, 'rawPools>>>');
 
-        const pools =
-          rawPools.length > 0
-            ? rawPools.map((rawPool) => parsePool(rawPool))
-            : await getPoolsFromCache({
-                page,
-                tokenName,
-                column: sortBy,
-                order,
-              });
+        const pools = rawPools.map((rawPool) => parsePool(rawPool));
+        // rawPools.length > 0
+        //   ? rawPools.map((rawPool) => parsePool(rawPool))
+        //   : await getPoolsFromCache({
+        //       page,
+        //       tokenName,
+        //       column: sortBy,
+        //       order,
+        //     });
 
         setRawPools(rawPools);
 
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
+
+        //use hashmap perf setPools
+        const existingPools = new Set<string>();
         setPools((currentPools) =>
           pools.reduce<Pool[]>(
             (acc: Pool[], pool) => {
-              if (
-                acc.some(
-                  (p) =>
-                    p.fee === pool.fee &&
-                    p.tokenIds.includes(pool.tokenIds[0]) &&
-                    p.tokenIds.includes(pool.tokenIds[1]) &&
-                    p.shareSupply === pool.shareSupply
-                )
-              )
+              const poolKey = `${pool.fee}_${pool.tokenIds[0]}_${pool.tokenIds[1]}_${pool.shareSupply}`;
+              if (existingPools.has(poolKey)) {
                 return acc;
+              }
+              existingPools.add(poolKey);
               acc.push(pool);
               return acc;
             },
             accumulate ? currentPools.slice() : []
           )
         );
+        // setPools((currentPools) =>
+        //   pools.reduce<Pool[]>(
+        //     (acc: Pool[], pool) => {
+        //       if (
+        //         acc.some(
+        //           (p) =>
+        //             p.fee === pool.fee &&
+        //             p.tokenIds.includes(pool.tokenIds[0]) &&
+        //             p.tokenIds.includes(pool.tokenIds[1]) &&
+        //             p.shareSupply === pool.shareSupply
+        //         )
+        //       )
+        //         return acc;
+        //       acc.push(pool);
+        //       return acc;
+        //     },
+        //     accumulate ? currentPools.slice() : []
+        //   )
+        // );
       })
       .finally(() => setLoading(false));
   }

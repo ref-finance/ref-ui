@@ -272,15 +272,21 @@ export const getTopPoolsIndexerRaw = async () => {
 export const getCommonPoolsReq = async (): Promise<any[]> => {
   const mockKey = 'http://localhost:9309/pools';
   const realKey = config.newPoosIndexerUrl + 'api/pools';
-  return await fetch(mockKey, {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((poolList) => {
-      // console.log(poolList, 'poollist>>>');
-      return poolList;
-    });
+  let poolList: any;
+  if (
+    (await db.queryBaseServicePools()).length > 0 &&
+    (await db.checkBaseServicePools())
+  ) {
+    poolList = await db.queryBaseServicePools();
+  } else {
+    poolList = await fetch(mockKey, {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }).then((res) => res.json());
+    console.log(poolList, 'poolList>>>>');
+    await db.cacheBaseServicePools(poolList);
+  }
+  return poolList;
 };
 
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
