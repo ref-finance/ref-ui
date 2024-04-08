@@ -1,6 +1,8 @@
 /* eslint-env node */
 const path = require('path');
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction =
+  process.env.REACT_APP_NEAR_ENV === 'mainnet' ||
+  process.env.REACT_APP_NEAR_ENV === 'pub-testnet';
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
