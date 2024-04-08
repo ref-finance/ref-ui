@@ -126,6 +126,10 @@ function MemeContextProvider({ children }: any) {
     setTokenPriceList(tokenPriceList);
     setMemeContractConfig(memeContractConfig);
     setXrefContractConfig(xrefContractConfig);
+    console.log(
+      '9999999-tokenPriceList',
+      tokenPriceList['xref.ref-dev.testnet']
+    );
   }
   async function get_config_xref() {
     const { XREF_MEME_FARM_CONTRACT_IDS } = getMemeContractConfig();

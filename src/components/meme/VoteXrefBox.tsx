@@ -7,7 +7,7 @@ import { getMemeContractConfig } from './memeConfig';
 import { Seed } from '../../services/farm';
 import { toReadableNumber } from '../../utils/numbers';
 import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
-import { emptyObject } from './tool';
+import { emptyObject, sortByXrefStaked } from './tool';
 
 const memeContractConfig = getMemeContractConfig();
 function VoteXrefBox() {
@@ -53,15 +53,10 @@ function VoteXrefBox() {
             style={{ maxHeight: '300px', overflow: 'auto' }}
           >
             {!emptyObject(xrefSeeds) &&
-              Object.entries(MEME_TOKEN_XREF_MAP)
-                .sort((b, a) => {
-                  const xrefSeed_b: Seed = xrefSeeds[b[1]];
-                  const xrefSeed_a: Seed = xrefSeeds[a[1]];
-                  return Big(xrefSeed_a.total_seed_amount)
-                    .minus(xrefSeed_b.total_seed_amount)
-                    .toNumber();
-                })
-                .map(([memeTokenId, xrefContractId]) => {
+              Object.keys(MEME_TOKEN_XREF_MAP)
+                .sort(sortByXrefStaked(xrefSeeds))
+                .map((memeTokenId) => {
+                  const xrefContractId = MEME_TOKEN_XREF_MAP[memeTokenId];
                   const xrefSeed: Seed = xrefSeeds[xrefContractId];
                   const seedTotalStakedAmount = toReadableNumber(
                     xrefSeed.seed_decimal,

@@ -1157,17 +1157,13 @@ export function ArrowRightTopIcon(props: any) {
   return (
     <svg
       {...props}
-      width="12"
-      height="13"
-      viewBox="0 0 12 13"
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path
-        d="M1 11.9834L11 1.9834M11 1.9834H4.33333M11 1.9834V8.65007"
-        stroke="#00FFD1"
-        strokeWidth="2"
-      />
+      <path d="M1 9L9 1M9 1H3.66667M9 1V6.33333" stroke="#00FFD1" />
     </svg>
   );
 }

@@ -50,6 +50,8 @@ function APY({ seed_id }: { seed_id: string }) {
   return (
     <div className="flex flex-col justify-between gap-0.5 ">
       {/* title */}
+      <span className="text-sm text-white  relative -top-0.5">APY</span>
+      {/* content */}
       <div
         style={{ width: '40px' }}
         data-class="reactTip"
@@ -57,13 +59,11 @@ function APY({ seed_id }: { seed_id: string }) {
         data-place="top"
         data-tooltip-html={getApyTip()}
       >
-        <span className="text-sm text-white border-b border-dashed border-white relative -top-0.5">
-          APY
+        <span className="text-xl text-white gotham_bold border-b border-dashed border-white">
+          {totalApr}
         </span>
         <CustomTooltip id={`apyId_${seed_id}`} />
       </div>
-      {/* content */}
-      <span className="text-xl text-white gotham_bold">{totalApr}</span>
     </div>
   );
 }

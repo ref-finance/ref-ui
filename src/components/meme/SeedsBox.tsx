@@ -82,9 +82,9 @@ const SeedsBox = () => {
   }, [txHash, isSignedIn]);
   return (
     <div className="mt-14">
-      <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2">
+      <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
         <div
-          className={` py-2 px-5 cursor-pointer ${
+          className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
             tab === 'market'
               ? `text-white border-b-4 ${
                   isSignedIn ? 'border-white' : 'border-transparent'
@@ -98,7 +98,7 @@ const SeedsBox = () => {
           Feed Meme
         </div>
         <div
-          className={`py-2 border-b-4  px-5 cursor-pointer ${
+          className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
             isSignedIn ? '' : 'hidden'
           } ${
             tab === 'your'

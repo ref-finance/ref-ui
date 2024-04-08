@@ -1,6 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
-import { isMobile } from '../../utils/device';
 import { WalletContext } from '../../utils/wallets-integration';
 import { TokenMetadata } from '../../services/ft-contract';
 import { MemeContext } from './context';
@@ -10,6 +9,7 @@ import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
 import { donate } from '../../services/meme';
 import DonateTipModal from './DonateTipModal';
 import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
+import { sortByXrefStaked } from './tool';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function DonateBox(props: any) {
   const [selectedTab, setSelectedTab] = useState(
@@ -56,16 +56,18 @@ function DonateBox(props: any) {
           Select donation of Meme token
         </div>
         <div className="mt-5 flex flex-wrap mb-2">
-          {Object.keys(MEME_TOKEN_XREF_MAP).map((memeTokenId) => {
-            return (
-              <Tab
-                key={memeTokenId}
-                isSelected={selectedTab === memeTokenId}
-                metadata={allTokenMetadatas?.[memeTokenId]}
-                onSelect={() => setSelectedTab(memeTokenId)}
-              />
-            );
-          })}
+          {Object.keys(MEME_TOKEN_XREF_MAP)
+            .sort(sortByXrefStaked(xrefSeeds))
+            .map((memeTokenId) => {
+              return (
+                <Tab
+                  key={memeTokenId}
+                  isSelected={selectedTab === memeTokenId}
+                  metadata={allTokenMetadatas?.[memeTokenId]}
+                  onSelect={() => setSelectedTab(memeTokenId)}
+                />
+              );
+            })}
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-primaryText">Amount</div>

@@ -16,6 +16,7 @@ import {
   formatSeconds,
   getSeedApr,
   getTotalRewardBalance,
+  sortByXrefStaked,
 } from './tool';
 import {
   OprationButton,
@@ -76,23 +77,27 @@ function VoteBox() {
       <div className="mt-6 mb-5">
         <div className="text-primaryText text-sm">Select Meme you support</div>
         <div className="mt-5 flex flex-wrap mb-2">
-          {Object.keys(MEME_TOKEN_XREF_MAP).map((memeTokenId) => {
-            return (
-              <Tab
-                key={memeTokenId}
-                isSelected={selectedTab === memeTokenId}
-                metadata={allTokenMetadatas?.[memeTokenId]}
-                xrefMetadata={allTokenMetadatas?.[xrefTokenId]}
-                onSelect={() => setSelectedTab(memeTokenId)}
-                xrefSeed={xrefSeeds?.[MEME_TOKEN_XREF_MAP[memeTokenId]]}
-                userSeed={
-                  xrefFarmContractUserData?.[MEME_TOKEN_XREF_MAP[memeTokenId]]
-                    ?.join_seeds
-                }
-                donateBalance={donateBalances[memeTokenId] || '0'}
-              />
-            );
-          })}
+          {!emptyObject(xrefSeeds) &&
+            Object.keys(MEME_TOKEN_XREF_MAP)
+              .sort(sortByXrefStaked(xrefSeeds))
+              .map((memeTokenId) => {
+                return (
+                  <Tab
+                    key={memeTokenId}
+                    isSelected={selectedTab === memeTokenId}
+                    metadata={allTokenMetadatas?.[memeTokenId]}
+                    xrefMetadata={allTokenMetadatas?.[xrefTokenId]}
+                    onSelect={() => setSelectedTab(memeTokenId)}
+                    xrefSeed={xrefSeeds?.[MEME_TOKEN_XREF_MAP[memeTokenId]]}
+                    userSeed={
+                      xrefFarmContractUserData?.[
+                        MEME_TOKEN_XREF_MAP[memeTokenId]
+                      ]?.join_seeds
+                    }
+                    donateBalance={donateBalances[memeTokenId] || '0'}
+                  />
+                );
+              })}
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-primaryText">Stake xREF</div>
@@ -211,10 +216,11 @@ const Tab = ({
         </div>`;
     return result;
   }
+  const randomInteger = Math.random();
   return (
     <div
       data-class="reactTip"
-      data-tooltip-id={`buttonId_${metadata?.id}`}
+      data-tooltip-id={`buttonId_${metadata?.id || randomInteger}`}
       data-place="top"
       data-tooltip-html={getButtonTip()}
     >
@@ -227,7 +233,7 @@ const Tab = ({
         <img className="w-6 h-6 rounded-full" src={metadata?.icon} />
         <div className="ml-1.5 text-base gotham_bold">{metadata?.symbol}</div>
       </button>
-      <CustomTooltip id={`buttonId_${metadata?.id}`} />
+      <CustomTooltip id={`buttonId_${metadata?.id || randomInteger}`} />
     </div>
   );
 };

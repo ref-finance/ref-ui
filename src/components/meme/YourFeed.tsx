@@ -60,7 +60,12 @@ function YourFeed({ seed_id }: { seed_id: string }) {
     seeds,
     tokenPriceList,
   ]);
+  const isEmpty =
+    formatLineUi(
+      toInternationalCurrencySystem_usd(youFeedData.totalTvl.toFixed())
+    ) == '-';
   function getYourFeedTip() {
+    if (isEmpty) return '';
     return `
         <div class="flex flex-col gap-1">
         <div class="flex items-center gap-5">
@@ -100,7 +105,11 @@ function YourFeed({ seed_id }: { seed_id: string }) {
         data-place="top"
         data-tooltip-html={getYourFeedTip()}
       >
-        <span className="text-xl gotham_bold text-white border-b border-dashed border-white">
+        <span
+          className={`text-xl gotham_bold text-white ${
+            isEmpty ? '' : 'border-b border-dashed border-white'
+          }`}
+        >
           {formatLineUi(
             toInternationalCurrencySystem_usd(youFeedData.totalTvl.toFixed())
           )}

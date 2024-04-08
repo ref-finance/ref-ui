@@ -87,6 +87,15 @@ const WithdrawList = () => {
   }
   if (emptyObject(all_withdraw_list)) return null;
   const is_mobile = isMobile();
+  function sortByUnLockTime(b, a) {
+    const unLockDate_b = Big(b[1].apply_timestamp)
+      .div(1000000000)
+      .plus(b[1].delay_withdraw_sec);
+    const unLockDate_a = Big(a[1].apply_timestamp)
+      .div(1000000000)
+      .plus(a[1].delay_withdraw_sec);
+    return unLockDate_b.minus(unLockDate_a).toNumber();
+  }
   return (
     <div className="lg:bg-swapCardGradient lg:border lg:border-swapCardBorder lg:px-5 rounded-2xl mt-8">
       {is_mobile ? (
@@ -94,84 +103,89 @@ const WithdrawList = () => {
           Withdraw
         </div>
       ) : null}
-      {Object.entries(all_withdraw_list).map(([id, withdraw], index) => {
-        const { amount, apply_timestamp, delay_withdraw_sec, type } = withdraw;
-        const unLockDate = Big(apply_timestamp)
-          .div(1000000000)
-          .plus(delay_withdraw_sec);
-        const currentDate = Big(new Date().getTime()).div(1000);
-        let withdraw_status: 'free' | 'locked';
-        let remainingTimeStr = '';
-        if (Big(unLockDate).gt(currentDate)) {
-          withdraw_status = 'locked';
-          const remainingTime_sec = Big(unLockDate)
-            .minus(currentDate)
-            .toFixed(0);
-          remainingTimeStr = `in ${
-            formatSecondsAbb(remainingTime_sec) || '1m'
-          }.`;
-        } else {
-          withdraw_status = 'free';
-          remainingTimeStr = 'now!';
-        }
-        const token_meta_data =
-          type === 'meme'
-            ? allTokenMetadatas?.[id]
-            : allTokenMetadatas?.[xrefTokenId];
-        const withdrawButtonDisabled = withdraw_status == 'locked';
-        return (
-          <div
-            key={id}
-            style={{ height: is_mobile ? 'auto' : '68px' }}
-            className={`flex items-center justify-between py-3 xsm:px-4 ${
-              index == Object.keys(all_withdraw_list).length - 1
-                ? ''
-                : 'border-b border-memePoolBoxBorderColor'
-            }`}
-          >
-            <div className="flex items-center xsm:items-start gap-2.5">
-              <img
-                style={{ width: '32px', height: '32px' }}
-                src={token_meta_data?.icon}
-                className="rounded-full xsm:mt-1"
-              />
-              <div className="flex items-center gap-2.5 text-white text-base xsm:hidden">
-                <span className="gotham_bold">
-                  {toInternationalCurrencySystem_number(
-                    toReadableNumber(token_meta_data?.decimals || 0, amount)
-                  )}{' '}
-                  {token_meta_data?.symbol}
-                </span>{' '}
-                is available to be withdraw {remainingTimeStr}
-              </div>
-              <div className=" text-white text-base lg:hidden">
-                <span className="gotham_bold">
-                  {toInternationalCurrencySystem_number(
-                    toReadableNumber(token_meta_data?.decimals || 0, amount)
-                  )}{' '}
-                  {token_meta_data?.symbol}
-                </span>{' '}
-                is available to be withdraw {remainingTimeStr}
-              </div>
-            </div>
-            <OprationButton
-              minWidth={`${is_mobile ? '6rem' : '7rem'}`}
-              disabled={withdrawButtonDisabled || actionSeedId == id}
-              onClick={() => {
-                seedWithdraw(id, type);
-              }}
-              className={`flex items-center justify-center bg-memeDarkColor border border-greenLight rounded-xl h-8 text-greenLight text-sm focus:outline-none xsm:ml-2 ${
-                withdrawButtonDisabled || actionSeedId == id ? 'opacity-40' : ''
+      {Object.entries(all_withdraw_list)
+        .sort(sortByUnLockTime)
+        .map(([id, withdraw], index) => {
+          const { amount, apply_timestamp, delay_withdraw_sec, type } =
+            withdraw;
+          const unLockDate = Big(apply_timestamp)
+            .div(1000000000)
+            .plus(delay_withdraw_sec);
+          const currentDate = Big(new Date().getTime()).div(1000);
+          let withdraw_status: 'free' | 'locked';
+          let remainingTimeStr = '';
+          if (Big(unLockDate).gt(currentDate)) {
+            withdraw_status = 'locked';
+            const remainingTime_sec = Big(unLockDate)
+              .minus(currentDate)
+              .toFixed(0);
+            remainingTimeStr = `in ${
+              formatSecondsAbb(remainingTime_sec) || '1m'
+            }.`;
+          } else {
+            withdraw_status = 'free';
+            remainingTimeStr = 'now!';
+          }
+          const token_meta_data =
+            type === 'meme'
+              ? allTokenMetadatas?.[id]
+              : allTokenMetadatas?.[xrefTokenId];
+          const withdrawButtonDisabled = withdraw_status == 'locked';
+          return (
+            <div
+              key={id}
+              style={{ height: is_mobile ? 'auto' : '68px' }}
+              className={`flex items-center justify-between py-3 xsm:px-4 ${
+                index == Object.keys(all_withdraw_list).length - 1
+                  ? ''
+                  : 'border-b border-memePoolBoxBorderColor'
               }`}
             >
-              <ButtonTextWrapper
-                loading={actionSeedId == id}
-                Text={() => <>Withdraw</>}
-              />
-            </OprationButton>
-          </div>
-        );
-      })}
+              <div className="flex items-center xsm:items-start gap-2.5">
+                <img
+                  style={{ width: '32px', height: '32px' }}
+                  src={token_meta_data?.icon}
+                  className="rounded-full xsm:mt-1"
+                />
+                <div className="flex items-center gap-2.5 text-white text-base xsm:hidden">
+                  <span className="gotham_bold">
+                    {toInternationalCurrencySystem_number(
+                      toReadableNumber(token_meta_data?.decimals || 0, amount)
+                    )}{' '}
+                    {token_meta_data?.symbol}
+                  </span>{' '}
+                  is available to be withdraw {remainingTimeStr}
+                </div>
+                <div className=" text-white text-base lg:hidden">
+                  <span className="gotham_bold">
+                    {toInternationalCurrencySystem_number(
+                      toReadableNumber(token_meta_data?.decimals || 0, amount)
+                    )}{' '}
+                    {token_meta_data?.symbol}
+                  </span>{' '}
+                  is available to be withdraw {remainingTimeStr}
+                </div>
+              </div>
+              <OprationButton
+                minWidth={`${is_mobile ? '6rem' : '7rem'}`}
+                disabled={withdrawButtonDisabled || actionSeedId == id}
+                onClick={() => {
+                  seedWithdraw(id, type);
+                }}
+                className={`flex items-center justify-center bg-memeDarkColor border border-greenLight rounded-xl h-8 text-greenLight text-sm focus:outline-none xsm:ml-2 ${
+                  withdrawButtonDisabled || actionSeedId == id
+                    ? 'opacity-40'
+                    : ''
+                }`}
+              >
+                <ButtonTextWrapper
+                  loading={actionSeedId == id}
+                  Text={() => <>Withdraw</>}
+                />
+              </OprationButton>
+            </div>
+          );
+        })}
     </div>
   );
 };

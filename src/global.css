@@ -97,6 +97,10 @@ input[type='number'] {
   background: #7e8a93;
   border-radius: 8px;
 }
+.transparentScrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 8px;
+}
 
 .gray {
   color: #bdbdbd;

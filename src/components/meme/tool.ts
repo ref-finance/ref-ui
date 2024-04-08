@@ -5,7 +5,6 @@ import { toReadableNumber } from '../../utils/numbers';
 import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { IFarmAccount } from './context';
 
-// getMemeSeedApr
 export function getSeedApr(seed: Seed) {
   if (!seed || isEnded(seed)) return '0';
   const farms = seed.farmList;
@@ -300,6 +299,17 @@ export function getListedMemeSeeds(
     memeListedSeeds[memeSeedId] = memeSeeds[memeSeedId];
   });
   return memeListedSeeds;
+}
+export function sortByXrefStaked(xrefSeeds: Record<string, Seed>) {
+  const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+  return (memeTokenIdB, memeTokenIdA) => {
+    const xrefSeedB = xrefSeeds?.[MEME_TOKEN_XREF_MAP[memeTokenIdB]];
+    const xrefSeedA = xrefSeeds?.[MEME_TOKEN_XREF_MAP[memeTokenIdA]];
+    return (
+      +(xrefSeedA?.total_seed_amount || 0) -
+      +(xrefSeedB?.total_seed_amount || 0)
+    );
+  };
 }
 export function formatLineUi(v) {
   if (!v || v == '0' || v == '$0' || v == '$-') return '-';

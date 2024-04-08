@@ -25,6 +25,7 @@ import {
   getListedMemeSeeds,
   getSeedApr,
 } from './tool';
+import LimitHeight from './LimitHeight';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 const progressConfig = getMemeUiConfig();
 function StakeModal(props: any) {
@@ -282,90 +283,97 @@ function StakeModal(props: any) {
                 </span>
               </div>
             </div>
-            {/* Acquire $xREF */}
-            <div
-              className={`text-sm mt-5 text-senderHot flex justify-end items-center ${
-                selectedTab === 'xref' ? '' : 'hidden'
-              }`}
-            >
+            {/* Acquire Token */}
+            <div className="text-sm mt-5 text-senderHot flex justify-end items-center">
               <a
                 className="inline-flex items-center cursor-pointer"
-                href="/xref"
+                href={`${
+                  selectedTab === 'meme'
+                    ? `/#near|${seed?.token_meta_data.id}`
+                    : '/xref'
+                }`}
                 target="_blank"
+                rel="noreferrer"
               >
-                Acquire $xREF <ArrowRightTopIcon />
+                Acquire{' '}
+                {selectedTab === 'meme'
+                  ? `$${seed?.token_meta_data.symbol}`
+                  : '$xREF'}{' '}
+                <ArrowRightTopIcon className="ml-1" />
               </a>
             </div>
-            {/* Input */}
-            <InputAmount
-              token={seed.token_meta_data}
-              tokenPriceList={tokenPriceList}
-              balance={balance}
-              changeAmount={setAmount}
-              amount={amount}
-              hidden={selectedTab === 'xref'}
-            />
-            <InputAmount
-              token={xrefSeed.token_meta_data}
-              tokenPriceList={tokenPriceList}
-              balance={xrefBalance}
-              changeAmount={setXrefAmount}
-              amount={xrefAmount}
-              hidden={selectedTab === 'meme'}
-            />
-            {/* Trial calculation */}
-            <div className="mt-4 px-2">
-              <Template
-                title="You feed"
-                from={toInternationalCurrencySystem_number(feedFrom)}
-                to={toInternationalCurrencySystem_number(feedTo)}
+            <LimitHeight>
+              {/* Input */}
+              <InputAmount
+                token={seed.token_meta_data}
+                tokenPriceList={tokenPriceList}
+                balance={balance}
+                changeAmount={setAmount}
+                amount={amount}
                 hidden={selectedTab === 'xref'}
               />
-              <Template
-                title="You feed"
-                from={toInternationalCurrencySystem_number(xrefFeedFrom)}
-                to={toInternationalCurrencySystem_number(xrefFeedTo)}
+              <InputAmount
+                token={xrefSeed.token_meta_data}
+                tokenPriceList={tokenPriceList}
+                balance={xrefBalance}
+                changeAmount={setXrefAmount}
+                amount={xrefAmount}
                 hidden={selectedTab === 'meme'}
               />
-              <Template
-                title="Gauge Weight"
-                from={formatPercentage(weightFrom)}
-                to={formatPercentage(weightTo)}
-              />
-              <Template
-                title="Staking APR"
-                value={formatPercentage(getSeedApr(trialMemeSeed))}
-              />
-            </div>
-            {/* operation */}
-            <OprationButton
-              minWidth="7rem"
-              disabled={disabled}
-              onClick={stakeToken}
-              className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                disabled || stakeLoading ? 'opacity-40' : ''
-              }`}
-            >
-              <ButtonTextWrapper
-                loading={stakeLoading}
-                Text={() => (
-                  <div className="flex items-center gap-2">
-                    Feed <FeedIcon className="w-5 h-5 relative -top-0.5" />
-                  </div>
-                )}
-              />
-            </OprationButton>
-            {/* delay tip */}
-            <div className="flex items-start gap-2 mt-4">
-              <TipIcon className="flex-shrink-0 transform translate-y-1" />
-              <p className="text-sm text-greenLight">
-                the unstaked assets will available to be withdrawn in{' '}
-                {selectedTab === 'meme'
-                  ? formatSeconds(delay_withdraw_sec)
-                  : formatSeconds(delay_withdraw_sec_xref)}
-                .
-              </p>
-            </div>
+              {/* Trial calculation */}
+              <div className="mt-4 px-2">
+                <Template
+                  title="You feed"
+                  from={toInternationalCurrencySystem_number(feedFrom)}
+                  to={toInternationalCurrencySystem_number(feedTo)}
+                  hidden={selectedTab === 'xref'}
+                />
+                <Template
+                  title="You feed"
+                  from={toInternationalCurrencySystem_number(xrefFeedFrom)}
+                  to={toInternationalCurrencySystem_number(xrefFeedTo)}
+                  hidden={selectedTab === 'meme'}
+                />
+                <Template
+                  title="Gauge Weight"
+                  from={formatPercentage(weightFrom)}
+                  to={formatPercentage(weightTo)}
+                />
+                <Template
+                  title="Staking APR"
+                  value={formatPercentage(getSeedApr(trialMemeSeed))}
+                />
+              </div>
+              {/* operation */}
+              <OprationButton
+                minWidth="7rem"
+                disabled={disabled}
+                onClick={stakeToken}
+                className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                  disabled || stakeLoading ? 'opacity-40' : ''
+                }`}
+              >
+                <ButtonTextWrapper
+                  loading={stakeLoading}
+                  Text={() => (
+                    <div className="flex items-center gap-2">
+                      Feed <FeedIcon className="w-5 h-5 relative -top-0.5" />
+                    </div>
+                  )}
+                />
+              </OprationButton>
+              {/* delay tip */}
+              <div className="flex items-start gap-2 mt-4">
+                <TipIcon className="flex-shrink-0 transform translate-y-1" />
+                <p className="text-sm text-greenLight">
+                  The unstaked assets will available to be withdrawn in{' '}
+                  {selectedTab === 'meme'
+                    ? formatSeconds(delay_withdraw_sec)
+                    : formatSeconds(delay_withdraw_sec_xref)}
+                  .
+                </p>
+              </div>
+            </LimitHeight>
           </div>
         </div>
       </div>

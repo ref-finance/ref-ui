@@ -15,6 +15,7 @@ import {
   ConnectToNearBtn,
   ButtonTextWrapper,
 } from 'src/components/button/Button';
+import LimitHeight from './LimitHeight';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function DonateModal(props: any) {
   const { isOpen, onRequestClose } = props;
@@ -96,39 +97,41 @@ function DonateModal(props: any) {
               );
             })}
           </div>
-          <div className="flex justify-between text-sm">
-            <div className="text-primaryText">Amount</div>
-          </div>
-          <div className="mb-8">
-            {allTokenMetadatas?.[selectedTab] && (
-              <InputAmount
-                token={allTokenMetadatas[selectedTab]}
-                tokenPriceList={tokenPriceList}
-                balance={balance}
-                changeAmount={setAmount}
-                amount={amount}
-              />
+          <LimitHeight maxHeight="30vh">
+            <div className="flex justify-between text-sm">
+              <div className="text-primaryText">Amount</div>
+            </div>
+            <div className="mb-8">
+              {allTokenMetadatas?.[selectedTab] && (
+                <InputAmount
+                  token={allTokenMetadatas[selectedTab]}
+                  tokenPriceList={tokenPriceList}
+                  balance={balance}
+                  changeAmount={setAmount}
+                  amount={amount}
+                />
+              )}
+            </div>
+            {isSignedIn ? (
+              <OprationButton
+                minWidth="7rem"
+                disabled={disabled}
+                onClick={doateToken}
+                className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                  disabled || donateLoading ? 'opacity-40' : ''
+                }`}
+              >
+                <ButtonTextWrapper
+                  loading={donateLoading}
+                  Text={() => (
+                    <div className="flex items-center gap-2">Donate</div>
+                  )}
+                />
+              </OprationButton>
+            ) : (
+              <ConnectToNearBtn />
             )}
-          </div>
-          {isSignedIn ? (
-            <OprationButton
-              minWidth="7rem"
-              disabled={disabled}
-              onClick={doateToken}
-              className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                disabled || donateLoading ? 'opacity-40' : ''
-              }`}
-            >
-              <ButtonTextWrapper
-                loading={donateLoading}
-                Text={() => (
-                  <div className="flex items-center gap-2">Donate</div>
-                )}
-              />
-            </OprationButton>
-          ) : (
-            <ConnectToNearBtn />
-          )}
+          </LimitHeight>
         </div>
         <div
           className={`flex items-start gap-2 mt-4 ${

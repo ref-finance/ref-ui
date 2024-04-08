@@ -8,16 +8,25 @@ import { MemeContext } from './context';
 import { getMemeContractConfig } from './memeConfig';
 import { InputAmount } from './InputBox';
 import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
+import { WalletContext } from '../../utils/wallets-integration';
+
 import {
   toInternationalCurrencySystem_number,
   formatPercentage,
 } from '../../utils/uiNumber';
 import { xrefStake } from '../../services/meme';
-import { formatSeconds, getSeedApr, getTotalRewardBalance } from './tool';
+import {
+  formatSeconds,
+  getSeedApr,
+  getTotalRewardBalance,
+  sortByXrefStaked,
+} from './tool';
 import {
   OprationButton,
   ButtonTextWrapper,
+  ConnectToNearBtn,
 } from 'src/components/button/Button';
+import LimitHeight from './LimitHeight';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function VoteModel(props: any) {
   const { isOpen, onRequestClose } = props;
@@ -34,6 +43,8 @@ function VoteModel(props: any) {
     xrefContractConfig,
     donateBalances,
   } = useContext(MemeContext);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const xrefBalance = useMemo(() => {
     if (xrefTokenId && allTokenMetadatas?.[xrefTokenId]) {
       return toReadableNumber(
@@ -110,85 +121,93 @@ function VoteModel(props: any) {
               Select Meme you support
             </div>
             <div className="mt-5 flex flex-wrap mb-2">
-              {Object.keys(MEME_TOKEN_XREF_MAP).map((memeTokenId) => {
-                return (
-                  <Tab
-                    key={memeTokenId}
-                    isSelected={selectedTab === memeTokenId}
-                    metadata={allTokenMetadatas?.[memeTokenId]}
-                    onSelect={() => setSelectedTab(memeTokenId)}
+              {Object.keys(MEME_TOKEN_XREF_MAP)
+                .sort(sortByXrefStaked(xrefSeeds))
+                .map((memeTokenId) => {
+                  return (
+                    <Tab
+                      key={memeTokenId}
+                      isSelected={selectedTab === memeTokenId}
+                      metadata={allTokenMetadatas?.[memeTokenId]}
+                      onSelect={() => setSelectedTab(memeTokenId)}
+                    />
+                  );
+                })}
+            </div>
+            <LimitHeight maxHeight="30vh">
+              <div className="flex justify-between text-sm mt-2">
+                <div className="text-primaryText">
+                  Reward {allTokenMetadatas?.[selectedTab].symbol}
+                </div>
+                <span className="text-white">
+                  {toInternationalCurrencySystem_number(totalMemeReward)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm mt-5">
+                <div className="text-primaryText">Staking xREF APR</div>
+                <span className="text-white">{formatPercentage(xrefApr)}</span>
+              </div>
+              <div className="flex justify-between text-sm mt-5">
+                <div className="text-primaryText">Stake xREF</div>
+                <div className="text-senderHot flex justify-end items-center">
+                  <a
+                    className="inline-flex items-center cursor-pointer"
+                    href="/xref"
+                    target="_blank"
+                  >
+                    Acquire $xREF <ArrowRightTopIcon />
+                  </a>
+                </div>
+              </div>
+              <div className="mb-8">
+                {allTokenMetadatas?.[xrefTokenId] && (
+                  <InputAmount
+                    token={allTokenMetadatas[xrefTokenId]}
+                    tokenPriceList={tokenPriceList}
+                    balance={xrefBalance}
+                    changeAmount={setAmount}
+                    amount={amount}
                   />
-                );
-              })}
-            </div>
-            <div className="flex justify-between text-sm mt-2">
-              <div className="text-primaryText">
-                Reward {allTokenMetadatas?.[selectedTab].symbol}
-              </div>
-              <span className="text-white">
-                {toInternationalCurrencySystem_number(totalMemeReward)}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm mt-5">
-              <div className="text-primaryText">Staking xREF APR</div>
-              <span className="text-white">{formatPercentage(xrefApr)}</span>
-            </div>
-            <div className="flex justify-between text-sm mt-5">
-              <div className="text-primaryText">Stake xREF</div>
-              <div className="text-senderHot flex justify-end items-center">
-                <a
-                  className="inline-flex items-center cursor-pointer"
-                  href="/xref"
-                  target="_blank"
-                >
-                  Acquire $xREF <ArrowRightTopIcon />
-                </a>
-              </div>
-            </div>
-            <div className="mb-8">
-              {allTokenMetadatas?.[xrefTokenId] && (
-                <InputAmount
-                  token={allTokenMetadatas[xrefTokenId]}
-                  tokenPriceList={tokenPriceList}
-                  balance={xrefBalance}
-                  changeAmount={setAmount}
-                  amount={amount}
-                />
-              )}
-            </div>
-            <OprationButton
-              minWidth="7rem"
-              disabled={disabled}
-              onClick={stakeToken}
-              className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                disabled || stakeLoading ? 'opacity-40' : ''
-              }`}
-            >
-              <ButtonTextWrapper
-                loading={stakeLoading}
-                Text={() => (
-                  <div className="flex items-center gap-2">Stake</div>
                 )}
-              />
-            </OprationButton>
-            <div
-              className={`flex items-start gap-2 mt-4 ${
-                xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
-                  ?.delay_withdraw_sec
-                  ? ''
-                  : 'hidden'
-              }`}
-            >
-              <TipIcon className="flex-shrink-0 transform translate-y-1" />
-              <p className="text-sm text-greenLight">
-                The unstaked $xREF will available to be withdrawn in{' '}
-                {formatSeconds(
+              </div>
+              {isSignedIn ? (
+                <OprationButton
+                  minWidth="7rem"
+                  disabled={disabled}
+                  onClick={stakeToken}
+                  className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                    disabled || stakeLoading ? 'opacity-40' : ''
+                  }`}
+                >
+                  <ButtonTextWrapper
+                    loading={stakeLoading}
+                    Text={() => (
+                      <div className="flex items-center gap-2">Stake</div>
+                    )}
+                  />
+                </OprationButton>
+              ) : (
+                <ConnectToNearBtn />
+              )}
+              <div
+                className={`flex items-start gap-2 mt-4 ${
                   xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
                     ?.delay_withdraw_sec
-                )}{' '}
-                days.
-              </p>
-            </div>
+                    ? ''
+                    : 'hidden'
+                }`}
+              >
+                <TipIcon className="flex-shrink-0 transform translate-y-1" />
+                <p className="text-sm text-greenLight">
+                  The unstaked $xREF will available to be withdrawn in{' '}
+                  {formatSeconds(
+                    xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
+                      ?.delay_withdraw_sec
+                  )}{' '}
+                  days.
+                </p>
+              </div>
+            </LimitHeight>
           </div>
         </div>
       </div>

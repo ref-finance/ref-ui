@@ -343,7 +343,7 @@ const MySeedsBox = ({ hidden }: { hidden: boolean }) => {
       {emptyObject(mySeeds) ? (
         <div className="flex flex-col w-full justify-center items-center mt-10 mb-40 xs:mt-8 md:mt-8 text-white">
           <NoDataIcon />
-          Sorry, we couldn’t find any farm
+          You have not yet fed any MeMeTokens.
         </div>
       ) : null}
     </div>

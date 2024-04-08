@@ -48,7 +48,7 @@ export function InputAmount({
   return (
     <div className={`${hidden ? 'hidden' : ''}`}>
       <div
-        className={`rounded-xl p-3 mt-7 border bg-black bg-opacity-20 border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
+        className={`rounded-xl p-3 mt-7 border bg-black bg-opacity-20 border-inputV3BorderColor hover:border-inputV3BorderHoverColor xsm:mt-4`}
       >
         <div className="flex items-center justify-between">
           <input

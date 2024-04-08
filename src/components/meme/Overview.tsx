@@ -64,7 +64,7 @@ const Overview = () => {
   return (
     <>
       {is_mobile ? (
-        <div className="relative z-50 grid grid-cols-2 pl-6 pr-2 mt-6">
+        <div className="relative z-50 grid grid-cols-2 gap-2.5 mt-6 px-3">
           <TemplateMobile title="Total Staked">
             <span className="text-xl gotham_bold text-white">
               {totalStaked}
@@ -209,8 +209,12 @@ function TemplateMobile({ title, children, ...props }: any) {
   return (
     <div
       {...props}
-      className="flex flex-grow flex-col justify-center w-full gap-1.5"
-      style={{ height: '80px' }}
+      className="flex flex-grow flex-col justify-center w-full gap-1.5 rounded-2xl pl-3.5"
+      style={{
+        height: '80px',
+        border: '1px solid rgba(151, 151, 151, 0.2)',
+        background: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
+      }}
     >
       <span className="text-sm text-white">{title}</span>
       {children}

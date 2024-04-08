@@ -10,7 +10,7 @@ const VoteXREF = () => {
     <div className="mt-12 rounded-2xl border border-memeBorderColor xsm:mx-3">
       <div className="border-b border-memeBorderColor pt-8 bg-memeVoteBgColor rounded-t-2xl pl-14 text-primaryText flex item-center text-2xl gotham_bold xsm:text-lg xsm:flex xsm:justify-center xsm:items-center xsm:px-4 xsm:gap-4 xsm:pt-6">
         <div
-          className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 ${
+          className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 whitespace-nowrap ${
             activeTab === 'vote' ? 'text-white border-b-4 border-white' : ''
           }`}
           onClick={() => setActiveTab('vote')}
@@ -18,7 +18,7 @@ const VoteXREF = () => {
           Vote by xREF
         </div>
         <div
-          className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 ${
+          className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 whitespace-nowrap ${
             activeTab === 'love' ? 'text-white border-b-4 border-white' : ''
           }`}
           onClick={() => setActiveTab('love')}

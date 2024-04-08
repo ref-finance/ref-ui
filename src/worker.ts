@@ -290,11 +290,9 @@ const runWorker = () => {
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
     });
     const tokenPriceList = await res.json();
-    const tempMap = await getXrefPrice(tokenPriceList);
-    db.cacheTokenPrices(tempMap);
+    db.cacheTokenPrices(tokenPriceList);
   };
 
-  // cachePools();
   cacheTokens();
   cacheFarmPools();
   cacheBoost_Seed_Farms_Pools();
