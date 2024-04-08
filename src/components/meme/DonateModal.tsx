@@ -16,7 +16,6 @@ import {
   ConnectToNearBtn,
   ButtonTextWrapper,
 } from 'src/components/button/Button';
-import LimitHeight from './LimitHeight';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function DonateModal(props: any) {
   const { isOpen, onRequestClose } = props;
@@ -36,9 +35,9 @@ function DonateModal(props: any) {
       );
     }
     return '0';
-  }, [selectedTab, user_balances]);
+  }, [selectedTab, user_balances, Object.keys(allTokenMetadatas || {}).length]);
   const [amount, setAmount] = useState('');
-  const cardWidth = isMobile() ? '95vw' : '25vw';
+  const cardWidth = isMobile() ? '100vw' : '25vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   function doateToken() {
     setDonateLoading(true);
@@ -54,6 +53,7 @@ function DonateModal(props: any) {
     Big(amount || 0).gt(balance) ||
     !selectedTab ||
     !Object.keys(xrefSeeds).length;
+  const is_mobile = isMobile();
   return (
     <Modal
       isOpen={isOpen}
@@ -66,12 +66,20 @@ function DonateModal(props: any) {
         },
         content: {
           outline: 'none',
-          transform: 'translate(-50%, -50%)',
+          ...(is_mobile
+            ? {
+                transform: 'translateX(-50%)',
+                top: 'auto',
+                bottom: '32px',
+              }
+            : {
+                transform: 'translate(-50%, -50%)',
+              }),
         },
       }}
     >
       <div
-        className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto"
+        className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto xsm:py-4"
         style={{
           width: cardWidth,
           maxHeight: cardHeight,
@@ -79,10 +87,15 @@ function DonateModal(props: any) {
         }}
       >
         <div className="title flex items-center justify-between">
-          <div className="text-white text-2xl gotham_bold">Donate Meme</div>
+          <div className="text-white text-2xl gotham_bold xsm:text-xl">
+            Donate Meme
+          </div>
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
         </div>
-        <div className="mt-6 mb-5">
+        <div
+          className="mt-6 mb-5 transparentScrollbar xsm:mt-4"
+          style={{ maxHeight: is_mobile ? '70vh' : 'auto', overflow: 'auto' }}
+        >
           <div className="text-primaryText text-sm">
             Select donation of Meme token
           </div>
@@ -101,41 +114,39 @@ function DonateModal(props: any) {
                   );
                 })}
           </div>
-          <LimitHeight maxHeight="30vh">
-            <div className="flex justify-between text-sm">
-              <div className="text-primaryText">Amount</div>
-            </div>
-            <div className="mb-8">
-              {allTokenMetadatas?.[selectedTab] && (
-                <InputAmount
-                  token={allTokenMetadatas[selectedTab]}
-                  tokenPriceList={tokenPriceList}
-                  balance={balance}
-                  changeAmount={setAmount}
-                  amount={amount}
-                />
-              )}
-            </div>
-            {isSignedIn ? (
-              <OprationButton
-                minWidth="7rem"
-                disabled={disabled}
-                onClick={doateToken}
-                className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                  disabled || donateLoading ? 'opacity-40' : ''
-                }`}
-              >
-                <ButtonTextWrapper
-                  loading={donateLoading}
-                  Text={() => (
-                    <div className="flex items-center gap-2">Donate</div>
-                  )}
-                />
-              </OprationButton>
-            ) : (
-              <ConnectToNearBtn />
+          <div className="flex justify-between text-sm">
+            <div className="text-primaryText">Amount</div>
+          </div>
+          <div className="mb-8">
+            {allTokenMetadatas?.[selectedTab] && (
+              <InputAmount
+                token={allTokenMetadatas[selectedTab]}
+                tokenPriceList={tokenPriceList}
+                balance={balance}
+                changeAmount={setAmount}
+                amount={amount}
+              />
             )}
-          </LimitHeight>
+          </div>
+          {isSignedIn ? (
+            <OprationButton
+              minWidth="7rem"
+              disabled={disabled}
+              onClick={doateToken}
+              className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                disabled || donateLoading ? 'opacity-40' : ''
+              }`}
+            >
+              <ButtonTextWrapper
+                loading={donateLoading}
+                Text={() => (
+                  <div className="flex items-center gap-2">Donate</div>
+                )}
+              />
+            </OprationButton>
+          ) : (
+            <ConnectToNearBtn />
+          )}
         </div>
         <div
           className={`flex items-start gap-2 mt-4 ${

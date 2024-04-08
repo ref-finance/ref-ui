@@ -6,6 +6,7 @@ import { ModalCloseIcon, ArrowRightIcon } from './icons';
 import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { ITxParams } from './SeedsBox';
+import { getListedMemeSeeds } from './tool';
 import { toReadableNumber } from '../../utils/numbers';
 import {
   formatWithCommas_number,
@@ -63,7 +64,8 @@ function CallBackModal(props: any) {
   }, [seeds, txParams, allTokenMetadatas]);
   const [weightFrom, weightTo] = useMemo(() => {
     const { action } = txParams;
-    const totalTvl = Object.entries(seeds).reduce((acc, [, seed]) => {
+    const listedSeeds = getListedMemeSeeds(seeds);
+    const totalTvl = Object.entries(listedSeeds).reduce((acc, [, seed]) => {
       return acc.plus(seed?.seedTvl || 0);
     }, Big(0));
     const seedTvl = seed?.seedTvl || 0;

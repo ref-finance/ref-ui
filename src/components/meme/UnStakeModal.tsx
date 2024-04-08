@@ -19,7 +19,6 @@ import {
 import { Template } from './StakeModal';
 import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { formatSeconds, memeWeight, getListedMemeSeeds } from './tool';
-import LimitHeight from './LimitHeight';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 const { meme_winner_tokens } = getMemeDataConfig();
 function UnStakeModal(props: any) {
@@ -156,8 +155,9 @@ function UnStakeModal(props: any) {
       });
     }
   }
-  const cardWidth = isMobile() ? '95vw' : '28vw';
+  const cardWidth = isMobile() ? '100vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
+  const is_mobile = isMobile();
   const disabled =
     selectedTab === 'meme'
       ? Big(amount || 0).lte(0) || Big(amount || 0).gt(stakedBalance)
@@ -175,13 +175,22 @@ function UnStakeModal(props: any) {
         },
         content: {
           outline: 'none',
-          transform: 'translate(-50%, -50%)',
+          ...(is_mobile
+            ? {
+                transform: 'translateX(-50%)',
+                top: 'auto',
+                bottom: '32px',
+                marginBottom: '0px',
+              }
+            : {
+                transform: 'translate(-50%, -50%)',
+              }),
         },
       }}
     >
       <div className="flex flex-col">
         <div
-          className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto"
+          className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto xsm:my-4"
           style={{
             width: cardWidth,
             maxHeight: cardHeight,
@@ -194,14 +203,20 @@ function UnStakeModal(props: any) {
               onClick={onRequestClose}
             />
           </div>
-          <div className="mt-5">
-            <div className="flex flex-col items-center gap-5">
+          <div
+            className="mt-5 transparentScrollbar xsm:mt-4"
+            style={{ maxHeight: is_mobile ? '70vh' : 'auto', overflow: 'auto' }}
+          >
+            <div className="flex flex-col items-center gap-5 xsm:gap-2">
               <img
                 src={seed?.token_meta_data.icon}
-                style={{ width: '86px', height: '86px' }}
+                style={{
+                  width: is_mobile ? '60px' : '86px',
+                  height: is_mobile ? '60px' : '86px',
+                }}
                 className="rounded-full"
               />
-              <span className="text-2xl text-white gotham_bold">
+              <span className="text-2xl text-white gotham_bold xsm:text-lg">
                 Unstake {seed?.token_meta_data.symbol}
               </span>
             </div>
@@ -251,96 +266,94 @@ function UnStakeModal(props: any) {
                 </span>
               </div>
             </div>
-            <LimitHeight>
-              {/* Input */}
-              <InputAmount
-                token={seed.token_meta_data}
-                tokenPriceList={tokenPriceList}
-                balance={stakedBalance}
-                changeAmount={setAmount}
-                amount={amount}
-                title="Staked"
+            {/* Input */}
+            <InputAmount
+              token={seed.token_meta_data}
+              tokenPriceList={tokenPriceList}
+              balance={stakedBalance}
+              changeAmount={setAmount}
+              amount={amount}
+              title="Staked"
+              hidden={selectedTab === 'xref'}
+            />
+            <InputAmount
+              token={xrefSeed.token_meta_data}
+              tokenPriceList={tokenPriceList}
+              balance={xrefStakedBalance}
+              changeAmount={setXrefAmount}
+              amount={xrefAmount}
+              title="Staked"
+              hidden={selectedTab === 'meme'}
+            />
+            {/* Trial calculation */}
+            <div className="mt-4 px-2">
+              <Template
+                title="You feed"
+                from={toInternationalCurrencySystem_number(stakedBalance)}
+                to={toInternationalCurrencySystem_number(memeFeedTo)}
                 hidden={selectedTab === 'xref'}
+                icon={seed?.token_meta_data?.icon}
               />
-              <InputAmount
-                token={xrefSeed.token_meta_data}
-                tokenPriceList={tokenPriceList}
-                balance={xrefStakedBalance}
-                changeAmount={setXrefAmount}
-                amount={xrefAmount}
-                title="Staked"
+              <Template
+                title="You feed"
+                from={toInternationalCurrencySystem_number(xrefStakedBalance)}
+                to={toInternationalCurrencySystem_number(xrefFeedTo)}
                 hidden={selectedTab === 'meme'}
+                icon={xrefSeed?.token_meta_data?.icon}
               />
-              {/* Trial calculation */}
-              <div className="mt-4 px-2">
-                <Template
-                  title="You feed"
-                  from={toInternationalCurrencySystem_number(stakedBalance)}
-                  to={toInternationalCurrencySystem_number(memeFeedTo)}
-                  hidden={selectedTab === 'xref'}
-                  icon={seed?.token_meta_data?.icon}
-                />
-                <Template
-                  title="You feed"
-                  from={toInternationalCurrencySystem_number(xrefStakedBalance)}
-                  to={toInternationalCurrencySystem_number(xrefFeedTo)}
-                  hidden={selectedTab === 'meme'}
-                  icon={xrefSeed?.token_meta_data?.icon}
-                />
-                <Template
-                  title="Gauge Weight"
-                  from={formatPercentage(weightFrom)}
-                  to={formatPercentage(weightTo)}
-                  hidden={
-                    !meme_winner_tokens.includes(seed_id) ||
-                    selectedTab === 'xref'
-                  }
-                />
+              <Template
+                title="Gauge Weight"
+                from={formatPercentage(weightFrom)}
+                to={formatPercentage(weightTo)}
+                hidden={
+                  !meme_winner_tokens.includes(seed_id) ||
+                  selectedTab === 'xref'
+                }
+              />
+            </div>
+            {/* deep delay tip */}
+            {(selectedTab === 'meme' && withdraw_part_status == 'locked') ||
+            (selectedTab === 'xref' &&
+              xref_withdraw_part_status == 'locked') ? (
+              <div className="bg-memeyellowColor rounded-lg px-3 py-1.5 my-4 text-sm text-memeyellowColor bg-opacity-10">
+                You have a record in the process of unstaking. If you unstake
+                again, the two records will be merged and the pending time will
+                be reset.
               </div>
-              {/* deep delay tip */}
-              {(selectedTab === 'meme' && withdraw_part_status == 'locked') ||
+            ) : (selectedTab === 'meme' && withdraw_part_status == 'free') ||
               (selectedTab === 'xref' &&
-                xref_withdraw_part_status == 'locked') ? (
-                <div className="bg-memeyellowColor rounded-lg px-3 py-1.5 my-4 text-sm text-memeyellowColor bg-opacity-10">
-                  You have a record in the process of unstaking. If you unstake
-                  again, the two records will be merged and the pending time
-                  will be reset.
-                </div>
-              ) : (selectedTab === 'meme' && withdraw_part_status == 'free') ||
-                (selectedTab === 'xref' &&
-                  xref_withdraw_part_status == 'free') ? (
-                <div className="bg-greenLight rounded-lg px-3 py-1.5 my-4 text-sm text-greenLight bg-opacity-10">
-                  You have withdrawable MemeTokens,  unstake will help you
-                  withdraw them simultaneously.
-                </div>
-              ) : null}
-
-              <OprationButton
-                minWidth="7rem"
-                disabled={disabled}
-                onClick={unStakeToken}
-                className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                  disabled || unStakeLoading ? 'opacity-40' : ''
-                }`}
-              >
-                <ButtonTextWrapper
-                  loading={unStakeLoading}
-                  Text={() => <>Unstake</>}
-                />
-              </OprationButton>
-              {/* delay tip */}
-              <div className="flex items-start gap-2 mt-4">
-                <TipIcon className="flex-shrink-0 transform translate-y-1" />
-                <p className="text-sm text-greenLight">
-                  Your vote for this period is valid and the unstaked assets
-                  will available to be withdrawn in{' '}
-                  {selectedTab === 'meme'
-                    ? formatSeconds(delay_withdraw_sec)
-                    : formatSeconds(delay_withdraw_sec_xref)}
-                  .
-                </p>
+                xref_withdraw_part_status == 'free') ? (
+              <div className="bg-greenLight rounded-lg px-3 py-1.5 my-4 text-sm text-greenLight bg-opacity-10">
+                You have withdrawable MemeTokens,  unstake will help you
+                withdraw them simultaneously.
               </div>
-            </LimitHeight>
+            ) : null}
+
+            <OprationButton
+              minWidth="7rem"
+              disabled={disabled}
+              onClick={unStakeToken}
+              className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+                disabled || unStakeLoading ? 'opacity-40' : ''
+              }`}
+            >
+              <ButtonTextWrapper
+                loading={unStakeLoading}
+                Text={() => <>Unstake</>}
+              />
+            </OprationButton>
+            {/* delay tip */}
+            <div className="flex items-start gap-2 mt-4">
+              <TipIcon className="flex-shrink-0 transform translate-y-1" />
+              <p className="text-sm text-greenLight">
+                Your vote for this period is valid and the unstaked assets will
+                available to be withdrawn in{' '}
+                {selectedTab === 'meme'
+                  ? formatSeconds(delay_withdraw_sec)
+                  : formatSeconds(delay_withdraw_sec_xref)}
+                .
+              </p>
+            </div>
           </div>
         </div>
       </div>
