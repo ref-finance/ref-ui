@@ -1256,6 +1256,7 @@ export default function SwapCard(props: {
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
             toggleTokenExchanging();
+            setShowSwapLoading(true);
           }}
         />
         {/*  */}
@@ -1285,6 +1286,7 @@ export default function SwapCard(props: {
             if (token.id === skywardId) {
               setShowSkywardTip(true);
             }
+            setShowSwapLoading(true);
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}

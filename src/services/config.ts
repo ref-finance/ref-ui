@@ -128,7 +128,7 @@ export default function getConfig(
       localStorage.removeItem('endPoint');
     }
   } catch (error) {}
-  console.log('666666666666666-env', env);
+  // console.log('666666666666666-env', env);
   switch (env) {
     case 'production':
     case 'mainnet':
