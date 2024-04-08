@@ -1221,6 +1221,7 @@ export default function SwapCard(props: {
             if (token.id === skywardId) {
               setShowSkywardTip(true);
             }
+            setShowSwapLoading(true);
           }}
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
