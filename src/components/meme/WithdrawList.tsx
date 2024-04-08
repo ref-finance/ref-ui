@@ -9,12 +9,18 @@ import { toReadableNumber } from '../../utils/numbers';
 import { MemeContext } from './context';
 import { withdraw, xrefWithdraw } from '../../services/meme';
 import { isMobile } from '../../utils/device';
-import { formatSecondsAbb, emptyObject } from './tool';
+import {
+  formatSecondsAbb,
+  emptyObject,
+  get_meme_token_xref_map_reverse,
+} from './tool';
+import { getMemeContractConfig } from './memeConfig';
 interface IWithdraw {
   [id: string]: {
     amount: string;
     apply_timestamp: string;
     delay_withdraw_sec: number;
+    xrefContarctId: string;
     type: 'meme' | 'xref';
   };
 }
@@ -58,6 +64,7 @@ const WithdrawList = () => {
             delay_withdraw_sec:
               xrefContractConfig?.[contractId]?.delay_withdraw_sec,
             type: 'xref',
+            xrefContarctId: contractId,
           },
         },
       };
@@ -87,6 +94,7 @@ const WithdrawList = () => {
   }
   if (emptyObject(all_withdraw_list)) return null;
   const is_mobile = isMobile();
+  const MEME_TOKEN_XREF_MAP_REVERSE = get_meme_token_xref_map_reverse();
   function sortByUnLockTime(b, a) {
     const unLockDate_b = Big(b[1].apply_timestamp)
       .div(1000000000)
@@ -106,8 +114,13 @@ const WithdrawList = () => {
       {Object.entries(all_withdraw_list)
         .sort(sortByUnLockTime)
         .map(([id, withdraw], index) => {
-          const { amount, apply_timestamp, delay_withdraw_sec, type } =
-            withdraw;
+          const {
+            amount,
+            apply_timestamp,
+            delay_withdraw_sec,
+            type,
+            xrefContarctId,
+          } = withdraw;
           const unLockDate = Big(apply_timestamp)
             .div(1000000000)
             .plus(delay_withdraw_sec);
@@ -142,11 +155,23 @@ const WithdrawList = () => {
               }`}
             >
               <div className="flex items-center xsm:items-start gap-2.5">
-                <img
-                  style={{ width: '32px', height: '32px' }}
-                  src={token_meta_data?.icon}
-                  className="rounded-full xsm:mt-1"
-                />
+                <div className="relative">
+                  <img
+                    style={{ width: '32px', height: '32px' }}
+                    src={token_meta_data?.icon}
+                    className="rounded-full xsm:mt-1"
+                  />
+                  {type == 'xref' ? (
+                    <img
+                      className="absolute right-0 bottom-0 w-4 h-4 rounded-full"
+                      src={
+                        allTokenMetadatas?.[
+                          MEME_TOKEN_XREF_MAP_REVERSE[xrefContarctId]
+                        ]?.icon
+                      }
+                    />
+                  ) : null}
+                </div>
                 <div className="flex items-center gap-2.5 text-white text-base xsm:hidden">
                   <span className="gotham_bold">
                     {toInternationalCurrencySystem_number(

@@ -311,6 +311,19 @@ export function sortByXrefStaked(xrefSeeds: Record<string, Seed>) {
     );
   };
 }
+export function get_meme_token_xref_map_reverse() {
+  const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+  const MEME_TOKEN_XREF_MAP_REVERSE = Object.entries(
+    MEME_TOKEN_XREF_MAP
+  ).reduce(
+    (acc, [memeTokenId, xrefContractId]) => ({
+      ...acc,
+      ...{ [xrefContractId]: memeTokenId },
+    }),
+    {}
+  );
+  return MEME_TOKEN_XREF_MAP_REVERSE;
+}
 export function formatLineUi(v) {
   if (!v || v == '0' || v == '$0' || v == '$-') return '-';
   return v;

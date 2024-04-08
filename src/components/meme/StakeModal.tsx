@@ -106,7 +106,7 @@ function StakeModal(props: any) {
       : Big(0);
     return [from.toFixed(), to.toFixed()];
   }, [amount, seeds, seed, tokenPriceList]);
-  const { trialMemeSeed } = useMemo(() => {
+  const { trialMemeSeed, trialXrefSeed } = useMemo(() => {
     let newMemeSeed;
     let newXrefSeed;
     if (+amount > 0 && seed) {
@@ -327,21 +327,30 @@ function StakeModal(props: any) {
                   from={toInternationalCurrencySystem_number(feedFrom)}
                   to={toInternationalCurrencySystem_number(feedTo)}
                   hidden={selectedTab === 'xref'}
+                  icon={seed?.token_meta_data?.icon}
                 />
                 <Template
                   title="You feed"
                   from={toInternationalCurrencySystem_number(xrefFeedFrom)}
                   to={toInternationalCurrencySystem_number(xrefFeedTo)}
                   hidden={selectedTab === 'meme'}
+                  icon={xrefSeed?.token_meta_data?.icon}
                 />
                 <Template
                   title="Gauge Weight"
                   from={formatPercentage(weightFrom)}
                   to={formatPercentage(weightTo)}
+                  hidden={selectedTab === 'xref'}
                 />
                 <Template
                   title="Staking APR"
                   value={formatPercentage(getSeedApr(trialMemeSeed))}
+                  hidden={selectedTab === 'xref'}
+                />
+                <Template
+                  title="Staking xREF APR"
+                  value={formatPercentage(getSeedApr(trialXrefSeed))}
+                  hidden={selectedTab === 'meme'}
                 />
               </div>
               {/* operation */}
@@ -387,12 +396,14 @@ export function Template({
   to,
   value,
   hidden,
+  icon,
 }: {
   title: string;
   from?: string;
   to?: string;
   value?: string;
   hidden?: boolean;
+  icon?: string;
 }) {
   return (
     <div
@@ -403,7 +414,10 @@ export function Template({
       <span className="text-sm text-primaryText">{title}</span>
       {from ? (
         <div className="flex items-center text-sm text-white gap-2">
-          <span className="line-through">{from}</span>
+          <span className="flex items-center gap-1.5 line-through">
+            {icon ? <img className="w-4 h-4 rounded-full" src={icon} /> : null}
+            {from}
+          </span>
           <ArrowRightIcon />
           <span>{to}</span>
         </div>

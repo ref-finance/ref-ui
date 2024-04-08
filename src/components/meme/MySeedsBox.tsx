@@ -21,6 +21,7 @@ import {
   getSeedApr,
   getAccountFarmData,
   getAccountButtonStatus,
+  get_meme_token_xref_map_reverse,
 } from './tool';
 import RewardList from './RewardList';
 import { NoDataIcon } from '../../components/icon';
@@ -52,15 +53,7 @@ const MySeedsBox = ({ hidden }: { hidden: boolean }) => {
       Object.keys(memeFarmContractUserData.join_seeds).forEach((memeSeedId) =>
         joinMemeSeedIds.add(memeSeedId)
       );
-      const MEME_TOKEN_XREF_MAP_REVERSE = Object.entries(
-        MEME_TOKEN_XREF_MAP
-      ).reduce(
-        (acc, [memeTokenId, xrefContractId]) => ({
-          ...acc,
-          ...{ [xrefContractId]: memeTokenId },
-        }),
-        {}
-      );
+      const MEME_TOKEN_XREF_MAP_REVERSE = get_meme_token_xref_map_reverse();
       Object.entries(xrefFarmContractUserData)
         .reduce((acc, [xrefContractId, accountData]) => {
           if (!emptyObject(accountData.join_seeds)) {

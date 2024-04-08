@@ -278,18 +278,23 @@ function UnStakeModal(props: any) {
                   from={toInternationalCurrencySystem_number(stakedBalance)}
                   to={toInternationalCurrencySystem_number(memeFeedTo)}
                   hidden={selectedTab === 'xref'}
+                  icon={seed?.token_meta_data?.icon}
                 />
                 <Template
                   title="You feed"
                   from={toInternationalCurrencySystem_number(xrefStakedBalance)}
                   to={toInternationalCurrencySystem_number(xrefFeedTo)}
                   hidden={selectedTab === 'meme'}
+                  icon={xrefSeed?.token_meta_data?.icon}
                 />
                 <Template
                   title="Gauge Weight"
                   from={formatPercentage(weightFrom)}
                   to={formatPercentage(weightTo)}
-                  hidden={!meme_winner_tokens.includes(seed_id)}
+                  hidden={
+                    !meme_winner_tokens.includes(seed_id) ||
+                    selectedTab === 'xref'
+                  }
                 />
               </div>
               {/* deep delay tip */}

@@ -10,6 +10,7 @@ import { InputAmount } from './InputBox';
 import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
 import { donate } from '../../services/meme';
 import { ModalCloseIcon, TipIcon } from './icons';
+import { sortByXrefStaked, emptyObject } from './tool';
 import {
   OprationButton,
   ConnectToNearBtn,
@@ -86,16 +87,19 @@ function DonateModal(props: any) {
             Select donation of Meme token
           </div>
           <div className="mt-5 flex flex-wrap mb-2">
-            {Object.keys(MEME_TOKEN_XREF_MAP).map((memeTokenId) => {
-              return (
-                <Tab
-                  key={memeTokenId}
-                  isSelected={selectedTab === memeTokenId}
-                  metadata={allTokenMetadatas?.[memeTokenId]}
-                  onSelect={() => setSelectedTab(memeTokenId)}
-                />
-              );
-            })}
+            {!emptyObject(xrefSeeds) &&
+              Object.keys(MEME_TOKEN_XREF_MAP)
+                .sort(sortByXrefStaked(xrefSeeds))
+                .map((memeTokenId) => {
+                  return (
+                    <Tab
+                      key={memeTokenId}
+                      isSelected={selectedTab === memeTokenId}
+                      metadata={allTokenMetadatas?.[memeTokenId]}
+                      onSelect={() => setSelectedTab(memeTokenId)}
+                    />
+                  );
+                })}
           </div>
           <LimitHeight maxHeight="30vh">
             <div className="flex justify-between text-sm">

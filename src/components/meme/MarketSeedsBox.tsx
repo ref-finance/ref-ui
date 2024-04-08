@@ -135,14 +135,25 @@ const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
               {memeDataConfig.description[seed_id]}
             </p>
             {/* base data */}
-            <div className="grid lg:grid-cols-3 lg:grid-rows-2 xsm:grid-cols-2 gap-y-6 mt-5">
-              <TotalFeed seed_id={seed_id} />
-              <APY seed_id={seed_id} />
-              <Feeders seed_id={seed_id} />
-              <YourFeed seed_id={seed_id} />
-              <YourRewards seed_id={seed_id} />
-              <WalletBalance seed_id={seed_id} />
-            </div>
+            {is_mobile ? (
+              <div className="grid xsm:grid-cols-2 gap-y-6 mt-5">
+                <TotalFeed seed_id={seed_id} />
+                <YourFeed seed_id={seed_id} />
+                <APY seed_id={seed_id} />
+                <YourRewards seed_id={seed_id} />
+                <Feeders seed_id={seed_id} />
+                <WalletBalance seed_id={seed_id} />
+              </div>
+            ) : (
+              <div className="grid lg:grid-cols-3 lg:grid-rows-2 gap-y-6 mt-5">
+                <TotalFeed seed_id={seed_id} />
+                <APY seed_id={seed_id} />
+                <Feeders seed_id={seed_id} />
+                <YourFeed seed_id={seed_id} />
+                <YourRewards seed_id={seed_id} />
+                <WalletBalance seed_id={seed_id} />
+              </div>
+            )}
             {/* operation */}
             <div className={`mt-6 ${isSignedIn ? 'hidden' : ''}`}>
               <ConnectToNearBtn></ConnectToNearBtn>

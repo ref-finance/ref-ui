@@ -34,8 +34,7 @@ const SeedsBox = () => {
       new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.WalletSelector)
     )?.split(',');
     return {
-      txHash:
-        txHashes && txHashes.length > 0 ? txHashes[txHashes.length - 2] : '',
+      txHash: txHashes && txHashes.length > 0 ? txHashes[0] : '',
       pathname,
       errorType,
       signInErrorType,
