@@ -125,7 +125,7 @@ const MySeedsBox = ({ hidden }: { hidden: boolean }) => {
   return (
     <div className={`${hidden ? 'hidden' : ''}`}>
       <div
-        className={`grid gap-4 xsm:grid-cols-1 xsm:grid-rows-1 lg:grid-cols-2 lg:grid-rows-2 xsm:mx-3 `}
+        className={`grid gap-4 xsm:grid-cols-1 xsm:grid-rows-1 lg:grid-cols-2 xsm:mx-3 `}
       >
         {!emptyObject(mySeeds) &&
           Object.entries(mySeeds).map(([seed_id, seed]) => {

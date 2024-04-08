@@ -9,7 +9,7 @@ import { getMemeContractConfig } from './memeConfig';
 import { InputAmount } from './InputBox';
 import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
-
+import { Seed, FarmBoost } from '../../services/farm';
 import {
   toInternationalCurrencySystem_number,
   formatPercentage,
@@ -32,6 +32,7 @@ function VoteModel(props: any) {
   const [selectedTab, setSelectedTab] = useState(
     Object.keys(MEME_TOKEN_XREF_MAP)[0]
   );
+  const [amount, setAmount] = useState('');
   const [stakeLoading, setStakeLoading] = useState(false);
   const {
     allTokenMetadatas,
@@ -61,14 +62,43 @@ function VoteModel(props: any) {
   }, [xrefTokenId, user_balances, Object.keys(allTokenMetadatas || {}).length]);
   const [xrefApr, totalMemeReward] = useMemo(() => {
     const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[selectedTab]];
-    const apr = getSeedApr(xrefSeed);
+    let apr = getSeedApr(xrefSeed);
     const totalMemeReward = toReadableNumber(
       allTokenMetadatas?.[selectedTab]?.decimals || 0,
       getTotalRewardBalance(xrefSeed, donateBalances[selectedTab])
     );
+    if (+amount > 0 && xrefSeed) {
+      const xrefSeedCopy: Seed = JSON.parse(JSON.stringify(xrefSeed));
+      const addTvl = Big(tokenPriceList[xrefTokenId]?.price || 0).mul(amount);
+      xrefSeedCopy.seedTvl = addTvl.add(xrefSeedCopy.seedTvl).toFixed();
+      // set farm apr;
+      xrefSeedCopy.farmList.forEach((farm: FarmBoost) => {
+        const { reward_token, daily_reward } = farm.terms;
+        const daily_reward_amount = toReadableNumber(
+          farm.token_meta_data.decimals,
+          daily_reward
+        );
+        const reward_token_price = Number(
+          tokenPriceList[reward_token]?.price || 0
+        );
+        farm.apr = new Big(daily_reward_amount)
+          .mul(reward_token_price)
+          .mul(365)
+          .div(xrefSeedCopy.seedTvl)
+          .toFixed();
+      });
+      const newXrefSeed = xrefSeedCopy;
+      apr = getSeedApr(newXrefSeed);
+    }
     return [apr, totalMemeReward];
-  }, [selectedTab, xrefSeeds, donateBalances, allTokenMetadatas]);
-  const [amount, setAmount] = useState('');
+  }, [
+    selectedTab,
+    xrefSeeds,
+    donateBalances,
+    allTokenMetadatas,
+    amount,
+    tokenPriceList,
+  ]);
   const cardWidth = isMobile() ? '100vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   const is_mobile = isMobile();
