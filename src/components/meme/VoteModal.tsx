@@ -2,7 +2,7 @@ import React, { useState, useContext, useMemo } from 'react';
 import Modal from 'react-modal';
 import Big from 'big.js';
 import { isMobile } from '../../utils/device';
-import { ArrowRightTopIcon, ModalCloseIcon, TipIcon } from './icons';
+import { ArrowRightTopIcon, ModalCloseIcon, SelectsDown, TipIcon } from './icons';
 import { TokenMetadata } from '../../services/ft-contract';
 import { MemeContext } from './context';
 import { getMemeContractConfig } from './memeConfig';
@@ -120,6 +120,8 @@ function VoteModel(props: any) {
     Big(amount || 0).gt(xrefBalance) ||
     !selectedTab ||
     !Object.keys(xrefSeeds).length;
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const selectedDefaultTab = allTokenMetadatas[selectedTab];
   return (
     <Modal
       isOpen={isOpen}
@@ -185,8 +187,49 @@ function VoteModel(props: any) {
             </div>
             <div className="flex justify-between items-center text-sm mt-2 lg:hidden md:hidden">
               <div className="text-primaryText">Meme</div>
-              <div className="text-white">
-                1
+              <div className="text-white relative">
+                <button
+                  className="rounded-3xl border border-memeBorderColor pt-2 pl-2 pr-3 pb-2 flex items-center justify-between cursor-pointer outline-none bg-memeModelgreyColor text-white"
+                  onClick={() => setDropdownVisible(!dropdownVisible)}
+                >
+                  <img
+                    className="w-6 h-6 rounded-full"
+                    src={selectedDefaultTab?.icon}
+                  />
+                  <div className="ml-1.5 mr-2 text-base gotham_bold">
+                    {selectedDefaultTab?.symbol}
+                  </div>
+                  <SelectsDown />
+                </button>
+                {dropdownVisible && (
+                  <div
+                    className="absolute z-50 top-12 right-0 rounded-lg border border-memeModelgreyColor pt-4 pl-3.5 pr-9 
+                   cursor-pointer outline-none bg-memeModelgreyColor text-white w-max"
+                  >
+                    {Object.keys(MEME_TOKEN_XREF_MAP)
+                      .sort(sortByXrefStaked(xrefSeeds))
+                      .map((memeTokenId, index, array) => (
+                        <div
+                          key={memeTokenId}
+                          onClick={() => {
+                            setSelectedTab(memeTokenId);
+                            setDropdownVisible(false);
+                          }}
+                          className={`flex items-center ${
+                            index !== array.length - 1 ? 'mb-7' : 'mb-4'
+                          }`}
+                        >
+                          <img
+                            className="w-6 h-6 rounded-full"
+                            src={allTokenMetadatas[memeTokenId]?.icon}
+                          />
+                          <div className="ml-2 text-base gotham_bold">
+                            {allTokenMetadatas[memeTokenId]?.symbol}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex justify-between text-sm mt-2 xsm:mt-4">

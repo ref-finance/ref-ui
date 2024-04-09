@@ -1186,3 +1186,18 @@ export function ArrowTopIcon(props: any) {
     </svg>
   );
 }
+
+export function SelectsDown(props: any) {
+  return (
+    <svg
+      {...props}
+      width="13"
+      height="7"
+      viewBox="0 0 13 7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M12 1L6.5 5.4L1 1" stroke="white" strokeWidth="1.58" />
+    </svg>
+  );
+}

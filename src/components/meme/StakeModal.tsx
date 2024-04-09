@@ -219,7 +219,7 @@ function StakeModal(props: any) {
         },
       }}
     >
-      <div className="flex flex-col">
+      <div className="flex flex-col xsm:relative">
         <div
           className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto xsm:py-4"
           style={{
@@ -245,7 +245,7 @@ function StakeModal(props: any) {
                   width: is_mobile ? '60px' : '86px',
                   height: is_mobile ? '60px' : '86px',
                 }}
-                className="rounded-full"
+                className="rounded-full xsm:absolute xsm:-top-6 xsm:z-50"
               />
               <span className="text-2xl text-white gotham_bold xsm:text-lg">
                 Feed {seed?.token_meta_data.symbol} by
