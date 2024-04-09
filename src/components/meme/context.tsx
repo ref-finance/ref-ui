@@ -101,10 +101,10 @@ function MemeContextProvider({ children }: any) {
     init();
   }, []);
   useEffect(() => {
-    if (isSignedIn && Object.keys(seeds).length && Object.keys(xrefSeeds)) {
+    if (isSignedIn && Object.keys(seeds).length && Object.keys(xrefSeeds).length) {
       init_user();
     }
-  }, [isSignedIn, seeds, xrefSeeds]);
+  }, [isSignedIn, Object.keys(seeds).length, Object.keys(xrefSeeds).length]);
   useEffect(() => {
     setAllTokenMetadatas({ ...memeTokenMetadatas, ...xrefTokenMetadatas });
   }, [memeTokenMetadatas, xrefTokenMetadatas]);
@@ -416,7 +416,9 @@ function MemeContextProvider({ children }: any) {
     }, {});
 
     const xref_token_id = Object.values(xrefSeeds)?.[0]?.seed_id;
+    console.log('000000000-before-xref_balance');
     const xref_balance = await ftGetBalance(xref_token_id);
+    console.log('000000000-after-xref_balance', xref_balance);
     const user_withdraw_list = await Promise.all(
       XREF_MEME_FARM_CONTRACT_IDS.map((contractId) =>
         xref_list_farmer_withdraws(contractId)
