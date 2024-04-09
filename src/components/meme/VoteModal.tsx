@@ -166,10 +166,10 @@ function VoteModel(props: any) {
             className="mt-6 mb-5 transparentScrollbar xsm:mt-4"
             style={{ maxHeight: is_mobile ? '70vh' : 'auto', overflow: 'auto' }}
           >
-            <div className="text-primaryText text-sm">
+            <div className="text-primaryText text-sm xsm:hidden">
               Select Meme you support
             </div>
-            <div className="mt-5 flex flex-wrap mb-2">
+            <div className="mt-5 flex flex-wrap mb-2 xsm:hidden">
               {Object.keys(MEME_TOKEN_XREF_MAP)
                 .sort(sortByXrefStaked(xrefSeeds))
                 .map((memeTokenId) => {
@@ -183,7 +183,13 @@ function VoteModel(props: any) {
                   );
                 })}
             </div>
-            <div className="flex justify-between text-sm mt-2">
+            <div className="flex justify-between items-center text-sm mt-2 lg:hidden md:hidden">
+              <div className="text-primaryText">Meme</div>
+              <div className="text-white">
+                1
+              </div>
+            </div>
+            <div className="flex justify-between text-sm mt-2 xsm:mt-4">
               <div className="text-primaryText">
                 Reward {allTokenMetadatas?.[selectedTab].symbol}
               </div>
