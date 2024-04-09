@@ -79,7 +79,7 @@ function DonateModal(props: any) {
       }}
     >
       <div
-        className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto xsm:py-4"
+        className="px-5 xs:px-3 md:px-3 py-6 lg:rounded-2xl xsm:rounded-t-2xl bg-swapCardGradient overflow-auto xsm:py-4"
         style={{
           width: cardWidth,
           maxHeight: cardHeight,

@@ -155,7 +155,7 @@ const WithdrawList = () => {
               }`}
             >
               <div className="flex items-center xsm:items-start gap-2.5">
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <img
                     style={{ width: '32px', height: '32px' }}
                     src={token_meta_data?.icon}

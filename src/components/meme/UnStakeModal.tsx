@@ -190,7 +190,7 @@ function UnStakeModal(props: any) {
     >
       <div className="flex flex-col xsm:relative">
         <div
-          className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-swapCardGradient overflow-auto xsm:my-4"
+          className="px-5 xs:px-3 md:px-3 py-6 lg:rounded-2xl xsm:rounded-t-2xl bg-swapCardGradient overflow-auto"
           style={{
             width: cardWidth,
             maxHeight: cardHeight,
