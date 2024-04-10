@@ -240,6 +240,7 @@ function SwapPage() {
   const { BLACK_TOKEN_LIST } = getConfig();
   const changeSwapType = (type: SWAP_TYPE) => {
     setSwapType(type);
+    setSelectMarket('ref');
     sessionStorage.setItem(SWAP_TYPE_KEY, type);
     setForceEstimatePro(true);
   };
