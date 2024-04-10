@@ -2007,6 +2007,12 @@ export const MarketList = ({
       </>
     );
 
+  const hasSelectMarket = sortedTradesList.find(
+    (t) => selectMarket === t.market
+  );
+  const hasNoSelectMarket = sortedTradesList.find(
+    (t) => t.tokenOutAmount === bestAmount
+  );
   const displayList = sortedTradesList.map((t) => {
     const rawRate = scientificNotationToString(
       new Big(t.tokenOutAmount || '0')
@@ -2025,13 +2031,17 @@ export const MarketList = ({
               .times(100)
               .toFixed(2),
       rate: numberWithCommas(displayNumberToAppropriateDecimals(rawRate)),
-      selected: selectMarket === t.market,
+      selected:
+        hasSelectMarket && selectMarket === t.market
+          ? true
+          : !hasSelectMarket && t.tokenOutAmount === bestAmount,
       output: numberWithCommas(
         displayNumberToAppropriateDecimals(t.tokenOutAmount)
       ),
       action: getDexAction(t.market),
     };
   });
+  setSelectMarket(hasSelectMarket?.market || hasNoSelectMarket?.market);
 
   return (
     <>

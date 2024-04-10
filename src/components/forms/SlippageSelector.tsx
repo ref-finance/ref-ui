@@ -82,11 +82,13 @@ function CustomSwitchSwap({
         if (isOpen) {
           setIsOpen(false);
           if (forLedger) {
+            localStorage.setItem('isSwapFirstLoading', 'true');
             localStorage.removeItem(storageKey || SUPPORT_LEDGER_KEY);
           }
         } else {
           setIsOpen(true);
           if (forLedger) {
+            localStorage.setItem('isSwapFirstLoading', 'true');
             localStorage.setItem(storageKey || SUPPORT_LEDGER_KEY, '1');
           }
         }
@@ -132,7 +134,8 @@ export default function SlippageSelector({
   const [warn, setWarn] = useState(false);
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
-  const { enableTri, setEnableTri, swapType } = useContext(SwapProContext);
+  const { enableTri, setEnableTri, swapType, setSelectMarket } =
+    useContext(SwapProContext);
   const { isLedger } = useWalletSelector();
 
   const [ledgerGuide, setLedgerGuide] = useState<boolean>(false);
