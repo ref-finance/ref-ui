@@ -178,7 +178,7 @@ function DonateModal(props: any) {
               )}
             </div>
           </div>
-          <div className="flex justify-between text-sm">
+          <div className="flex justify-between text-sm xsm:hidden">
             <div className="text-primaryText">Amount</div>
           </div>
           <div className="mb-8">
