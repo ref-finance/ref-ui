@@ -6,7 +6,7 @@ This is the front-end for [app.ref.finance](https://app.ref.finance)
 
 To run this project locally:
 
-1. Prerequisites: Make sure you've installed [Node.js] ≥ 12
+1. Prerequisites: Make sure you've installed [Node.js] ≥ 12.
 2. Install dependencies: `yarn`
 3. Run the local development server connected to `testnet`: `yarn start` (see `package.json` for a full list of `scripts` you can run with `yarn`)
 
