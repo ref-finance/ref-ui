@@ -17,11 +17,17 @@ import {
   USER_COMMON_TOKEN_LIST,
 } from '../../components/forms/SelectToken';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import SelectTokenList from '../forms/SelectTokenList';
+import { TokenBalancesView } from '../../../src/services/token';
+import { toReadableNumber } from '../../utils/numbers';
 interface CommonBassesProps {
   onClick: (token: TokenMetadata) => void;
   tokenPriceList: Record<string, any>;
   allowWNEAR: boolean;
+  sortBy: string;
   handleClose: any;
+  balances?: TokenBalancesView;
+  forCross?: boolean;
 }
 const COMMON_BASSES = [
   'USN',
@@ -45,14 +51,16 @@ export default function CommonBasses({
   tokenPriceList,
   allowWNEAR,
   handleClose,
+  balances,
+  sortBy,
+  forCross,
 }: CommonBassesProps) {
   const { commonBassesTokens } = useContext(localTokens);
   return (
-    <section className="px-6 xsm:px-3 pt-2">
-      <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
-        {commonBassesTokens.map((token: TokenMetadata) => {
+    <section className="pr-4">
+      <div>
+        {commonBassesTokens.map((token: TokenMetadata, index) => {
           const price = tokenPriceList[token.id]?.price;
-
           return (
             <div
               key={token.id + token.symbol}
@@ -69,7 +77,21 @@ export default function CommonBasses({
                 handleClose();
               }}
             >
-              <Token token={token} price={price} />
+              {/* <Token token={token} price={price} /> */}
+              <SelectTokenList
+                index={index}
+                key={token.id + token.symbol}
+                onClick={onClick}
+                token={token}
+                price={price}
+                sortBy={sortBy}
+                forCross={forCross}
+                totalAmount={
+                  balances
+                    ? toReadableNumber(token.decimals, balances[token.id])
+                    : ''
+                }
+              />
             </div>
           );
         })}

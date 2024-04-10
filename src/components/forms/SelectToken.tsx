@@ -68,6 +68,7 @@ import { IconLeftV3 } from '../tokens/Icon';
 import { PoolInfo } from '../../services/swapV3';
 import { sort_tokens_by_base, openUrl } from '../../services/commonV3';
 import getConfigV2 from '../../services/configV2';
+import SelectTokenTable from './SelectTokenTable';
 const configV2 = getConfigV2();
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
@@ -92,7 +93,6 @@ export function tokenPrice(price: string, error?: boolean) {
     </span>
   );
 }
-
 export function SingleToken({
   token,
   price,
@@ -130,8 +130,8 @@ export function SingleToken({
                 <TokenRisk />
               </span>
               {showTooltip && (
-                <div className="absolute -top-3 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                  This token is subjected to high volatility
+                <div className="absolute -top-3 left-5 px-2 w-max py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                  Uncertified token, higher risk.
                 </div>
               )}
             </div>
@@ -142,9 +142,7 @@ export function SingleToken({
             </span>
           ) : null}
         </div>
-        <span className="text-xs text-primaryText">
-          {price ? tokenPrice(price) : null}
-        </span>
+        <span className="text-xs text-primaryText">{token.name}</span>
       </div>
     </>
   );
@@ -454,6 +452,7 @@ export default function SelectToken({
   const dialogMinHeight = isMobile() ? '95%' : '540px';
   const intl = useIntl();
   const searchRef = useRef(null);
+  const [activeTab, setActiveTab] = useState('Default');
   const {
     tokensData,
     loading: loadingTokensData,
@@ -719,39 +718,109 @@ export default function SelectToken({
                 getLatestCommonBassesTokenIds,
               }}
             >
-              {showCommonBasses && (
-                <CommonBasses
-                  onClick={(token) => {
-                    onSelect && onSelect(token);
-                  }}
-                  tokenPriceList={tokenPriceList}
-                  allowWNEAR={allowWNEAR}
-                  handleClose={handleClose}
-                />
-              )}
-              <Table
-                sortBy={sortBy}
-                tokenPriceList={tokenPriceList}
-                currentSort={currentSort}
-                onSortChange={onSortChange}
-                tokens={listData}
-                onClick={(token) => {
-                  if (token.id != NEARXIDS[0]) {
-                    if (
-                      !(
-                        token.id == WRAP_NEAR_CONTRACT_ID &&
-                        token.symbol == 'wNEAR' &&
-                        !allowWNEAR
-                      )
-                    ) {
-                      onSelect && onSelect(token);
-                    }
-                  }
-                  handleClose();
-                }}
-                balances={balances}
-                forCross={forCross}
-              />
+              <div className="flex items-center justify-between border-b border-borderColor border-opacity-30 text-primaryText text-sm cursor-pointer">
+                <div
+                  className={`flex-1 text-center py-2.5 ${
+                    activeTab === 'Default'
+                      ? 'text-white border-b-2 border-white'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('Default')}
+                >
+                  Default
+                </div>
+                <div
+                  className={`flex-1 text-center py-2.5 ${
+                    activeTab === 'Watchlist'
+                      ? 'text-white border-b-2 border-white'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('Watchlist')}
+                >
+                  Watchlist
+                </div>
+                <div
+                  className={`flex-1 text-center py-2.5 ${
+                    activeTab === 'TKN'
+                      ? 'text-white border-b-2 border-white'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('TKN')}
+                >
+                  TKN
+                </div>
+              </div>
+              <div>
+                {activeTab === 'Default' && (
+                  <SelectTokenTable
+                    sortBy={sortBy}
+                    tokenPriceList={tokenPriceList}
+                    currentSort={currentSort}
+                    onSortChange={onSortChange}
+                    tokens={listData}
+                    onClick={(token) => {
+                      if (token.id != NEARXIDS[0]) {
+                        if (
+                          !(
+                            token.id == WRAP_NEAR_CONTRACT_ID &&
+                            token.symbol == 'wNEAR' &&
+                            !allowWNEAR
+                          )
+                        ) {
+                          onSelect && onSelect(token);
+                        }
+                      }
+                      handleClose();
+                    }}
+                    balances={balances}
+                    forCross={forCross}
+                    showRiskTokens={false}
+                  />
+                )}
+                {activeTab === 'Watchlist' && (
+                  <>
+                    {showCommonBasses && (
+                      <CommonBasses
+                        sortBy={sortBy}
+                        onClick={(token) => {
+                          onSelect && onSelect(token);
+                        }}
+                        tokenPriceList={tokenPriceList}
+                        allowWNEAR={allowWNEAR}
+                        handleClose={handleClose}
+                        balances={balances}
+                        forCross={forCross}
+                      />
+                    )}
+                  </>
+                )}
+                {activeTab === 'TKN' && (
+                  <SelectTokenTable
+                    sortBy={sortBy}
+                    tokenPriceList={tokenPriceList}
+                    currentSort={currentSort}
+                    onSortChange={onSortChange}
+                    tokens={listData}
+                    onClick={(token) => {
+                      if (token.id != NEARXIDS[0]) {
+                        if (
+                          !(
+                            token.id == WRAP_NEAR_CONTRACT_ID &&
+                            token.symbol == 'wNEAR' &&
+                            !allowWNEAR
+                          )
+                        ) {
+                          onSelect && onSelect(token);
+                        }
+                      }
+                      handleClose();
+                    }}
+                    balances={balances}
+                    forCross={forCross}
+                    showRiskTokens={true}
+                  />
+                )}
+              </div>
             </localTokens.Provider>
           </div>
           {searchNoData ? (
