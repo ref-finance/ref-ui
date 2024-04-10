@@ -5,6 +5,7 @@ import { Farm, Seed, FarmBoost } from 'src/services/farm';
 import { PoolRPCView } from 'src/services/api';
 import { BigNumber } from 'bignumber.js';
 import { PoolInfo } from './services/swapV3';
+import { getAuthenticationHeaders } from './services/signature';
 
 let config: any = {};
 onmessage = (event) => {
@@ -52,7 +53,10 @@ const runWorker = () => {
   const getTokens = async () => {
     return await fetch(config.indexerUrl + '/list-token', {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-token'),
+      },
     })
       .then((res) => res.json())
       .then((tokens) => {
@@ -164,7 +168,10 @@ const runWorker = () => {
     if (!ids) return [];
     return fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-pools-by-ids'),
+      },
     })
       .then((res) => res.json())
       .then((pools) => {
@@ -287,7 +294,10 @@ const runWorker = () => {
   const cacheTokenPrices = async (): Promise<any> => {
     const res = await fetch(config.indexerUrl + '/list-token-price', {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-token-price'),
+      },
     });
     const tokenPriceList = await res.json();
     const tempMap = await getXrefPrice(tokenPriceList);

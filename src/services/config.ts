@@ -128,7 +128,6 @@ export default function getConfig(
       localStorage.removeItem('endPoint');
     }
   } catch (error) {}
-  console.log('666666666666666-env', env);
   switch (env) {
     case 'production':
     case 'mainnet':
@@ -140,7 +139,7 @@ export default function getConfig(
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         nearExplorerUrl: 'https://explorer.near.org/',
-        indexerUrl: 'https://indexer.ref.finance',
+        indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
