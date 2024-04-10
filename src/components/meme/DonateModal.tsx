@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useRef, useEffect } from 'react';
 import Big from 'big.js';
 import Modal from 'react-modal';
 import { isMobile } from '../../utils/device';
@@ -9,7 +9,7 @@ import { getMemeContractConfig } from './memeConfig';
 import { InputAmount } from './InputBox';
 import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
 import { donate } from '../../services/meme';
-import { ModalCloseIcon, TipIcon } from './icons';
+import { ModalCloseIcon, SelectsDown, TipIcon } from './icons';
 import { sortByXrefStaked, emptyObject } from './tool';
 import {
   OprationButton,
@@ -54,6 +54,20 @@ function DonateModal(props: any) {
     !selectedTab ||
     !Object.keys(xrefSeeds).length;
   const is_mobile = isMobile();
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const selectedDefaultTab = allTokenMetadatas[selectedTab];
+  const dropdownRef = useRef(null);
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setDropdownVisible(false);
+    }
+  };
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   return (
     <Modal
       isOpen={isOpen}
@@ -93,13 +107,16 @@ function DonateModal(props: any) {
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
         </div>
         <div
-          className="mt-6 mb-5 transparentScrollbar xsm:mt-4"
-          style={{ maxHeight: is_mobile ? '70vh' : 'auto', overflow: 'auto' }}
+          className="mt-6 mb-5 transparentScrollbar xsm:mt-4 xsm:relative xsm:z-50"
+          style={{
+            maxHeight: is_mobile ? '70vh' : 'auto',
+            overflow: is_mobile ? '' : 'auto',
+          }}
         >
-          <div className="text-primaryText text-sm">
+          <div className="text-primaryText text-sm xsm:hidden">
             Select donation of Meme token
           </div>
-          <div className="mt-5 flex flex-wrap mb-2">
+          <div className="mt-5 flex flex-wrap mb-2 xsm:hidden">
             {!emptyObject(xrefSeeds) &&
               Object.keys(MEME_TOKEN_XREF_MAP)
                 .sort(sortByXrefStaked(xrefSeeds))
@@ -113,6 +130,53 @@ function DonateModal(props: any) {
                     />
                   );
                 })}
+          </div>
+          <div className="flex justify-between items-center text-sm mt-2 lg:hidden md:hidden">
+            <div className="text-primaryText">Meme</div>
+            <div className="text-white relative" ref={dropdownRef}>
+              <button
+                className="rounded-3xl border border-memeBorderColor pt-2 pl-2 pr-3 pb-2 flex items-center justify-between cursor-pointer outline-none bg-memeModelgreyColor text-white"
+                onClick={() => setDropdownVisible(!dropdownVisible)}
+              >
+                <img
+                  className="w-6 h-6 rounded-full"
+                  src={selectedDefaultTab?.icon}
+                />
+                <div className="ml-1.5 mr-2 text-base gotham_bold">
+                  {selectedDefaultTab?.symbol}
+                </div>
+                <SelectsDown />
+              </button>
+              {dropdownVisible && (
+                <div
+                  className="absolute h-64 overflow-auto z-50 top-12 right-0 rounded-lg border border-memeModelgreyColor pt-4 pl-3.5 pr-9 
+                   cursor-pointer outline-none bg-memeModelgreyColor text-white w-max"
+                >
+                  {Object.keys(MEME_TOKEN_XREF_MAP)
+                    .sort(sortByXrefStaked(xrefSeeds))
+                    .map((memeTokenId, index, array) => (
+                      <div
+                        key={memeTokenId}
+                        onClick={() => {
+                          setSelectedTab(memeTokenId);
+                          setDropdownVisible(false);
+                        }}
+                        className={`flex items-center ${
+                          index !== array.length - 1 ? 'mb-7' : 'mb-4'
+                        }`}
+                      >
+                        <img
+                          className="w-6 h-6 rounded-full"
+                          src={allTokenMetadatas[memeTokenId]?.icon}
+                        />
+                        <div className="ml-2 text-base gotham_bold">
+                          {allTokenMetadatas[memeTokenId]?.symbol}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex justify-between text-sm">
             <div className="text-primaryText">Amount</div>
@@ -149,7 +213,7 @@ function DonateModal(props: any) {
           )}
         </div>
         <div
-          className={`flex items-start gap-2 mt-4 ${
+          className={`flex items-start gap-2 mt-4 xsm:relative xsm:z-40 ${
             allTokenMetadatas?.[selectedTab]?.symbol ? '' : 'hidden'
           }`}
         >
