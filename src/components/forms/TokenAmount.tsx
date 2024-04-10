@@ -620,6 +620,10 @@ export function TokenAmountV3({
           1
         )
       : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
+
+  useEffect(() => {
+    localStorage.setItem('isSwapFirstLoading', 'false');
+  }, [amount]);
   useEffect(() => {
     if (setDiff) {
       setDiff(displayRateDiff);

@@ -54,6 +54,7 @@ interface SwapFormWrapProps {
   wrapOperation?: boolean;
   isInsufficient?: boolean;
   mostPoolDetail?: PoolInfo;
+  canSubmitNew?: boolean;
 }
 
 export default function SwapFormWrap({
@@ -76,6 +77,7 @@ export default function SwapFormWrap({
   quoteDoneLimit,
   isInsufficient,
   mostPoolDetail,
+  canSubmitNew,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
@@ -125,6 +127,7 @@ export default function SwapFormWrap({
   useEffect(() => {
     setIsFirstSwapLoading(localStorage.getItem('isSwapFirstLoading'));
   }, [localStorage.getItem('isSwapFirstLoading')]);
+  //
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -203,6 +206,16 @@ export default function SwapFormWrap({
                   info={info}
                   className={`h-12 ${'-mt-0'}`}
                   loading={showSwapLoading}
+                />
+              ) : !canSubmitNew ? (
+                <SubmitButton
+                  disabled={true}
+                  label={buttonText || title}
+                  info={info}
+                  className={`h-12 ${
+                    swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''
+                  }`}
+                  loading={false}
                 />
               ) : (
                 <SubmitButton

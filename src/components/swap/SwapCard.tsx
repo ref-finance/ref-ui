@@ -1163,6 +1163,12 @@ export default function SwapCard(props: {
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
+        canSubmitNew={
+          selectTrade?.tokenOutAmount != '' &&
+          selectTrade?.tokenOutAmount != undefined &&
+          selectTrade?.tokenOutAmount != 'undefined' &&
+          tokenIn.name != tokenOut.name
+        }
         swapTab={swapTab}
         slippageTolerance={slippageTolerance}
         onChange={onChangeSlippage}
@@ -1216,12 +1222,12 @@ export default function SwapCard(props: {
           selectedToken={tokenIn}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
+            localStorage.setItem('isSwapFirstLoading', 'true');
             setTokenIn(token);
 
             if (token.id === skywardId) {
               setShowSkywardTip(true);
             }
-            setShowSwapLoading(true);
           }}
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
@@ -1249,6 +1255,7 @@ export default function SwapCard(props: {
         {/*  */}
         <SwapExchange
           onChange={() => {
+            localStorage.setItem('isSwapFirstLoading', 'true');
             setTokenIn(tokenOut);
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             setTokenOut(tokenIn);
@@ -1257,7 +1264,6 @@ export default function SwapCard(props: {
             localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
             localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
             toggleTokenExchanging();
-            setShowSwapLoading(true);
           }}
         />
         {/*  */}
@@ -1283,11 +1289,11 @@ export default function SwapCard(props: {
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
+            localStorage.setItem('isSwapFirstLoading', 'true');
             setTokenOut(token);
             if (token.id === skywardId) {
               setShowSkywardTip(true);
             }
-            setShowSwapLoading(true);
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
