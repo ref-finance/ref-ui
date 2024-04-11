@@ -21,6 +21,7 @@ import SelectTokenList from '../forms/SelectTokenList';
 import { TokenBalancesView } from '../../../src/services/token';
 import { toReadableNumber } from '../../utils/numbers';
 interface CommonBassesProps {
+  tokens: TokenMetadata[];
   onClick: (token: TokenMetadata) => void;
   tokenPriceList: Record<string, any>;
   allowWNEAR: boolean;
@@ -47,6 +48,7 @@ const COMMON_BASSES = [
 ];
 
 export default function CommonBasses({
+  tokens,
   onClick,
   tokenPriceList,
   allowWNEAR,
@@ -56,45 +58,53 @@ export default function CommonBasses({
   forCross,
 }: CommonBassesProps) {
   const { commonBassesTokens } = useContext(localTokens);
+  const commonBassesTokenIds = new Set(
+    commonBassesTokens.map((token) => token.id)
+  );
   return (
-    <section className="pr-4">
+    <section>
       <div>
-        {commonBassesTokens.map((token: TokenMetadata, index) => {
-          const price = tokenPriceList[token.id]?.price;
-          return (
-            <div
-              key={token.id + token.symbol}
-              onClick={() => {
-                if (
-                  !(
-                    token.id == WRAP_NEAR_CONTRACT_ID &&
-                    token.symbol == 'wNEAR' &&
-                    !allowWNEAR
-                  )
-                ) {
-                  onClick && onClick(token);
-                }
-                handleClose();
-              }}
-            >
-              {/* <Token token={token} price={price} /> */}
-              <SelectTokenList
-                index={index}
+        {tokens
+          .filter(
+            (token) =>
+              commonBassesTokenIds.has(token?.id) && token.symbol !== 'wNEAR'
+          )
+          .map((token: TokenMetadata, index) => {
+            const price = tokenPriceList[token.id]?.price;
+            return (
+              <div
                 key={token.id + token.symbol}
-                onClick={onClick}
-                token={token}
-                price={price}
-                sortBy={sortBy}
-                forCross={forCross}
-                totalAmount={
-                  balances
-                    ? toReadableNumber(token.decimals, balances[token.id])
-                    : ''
-                }
-              />
-            </div>
-          );
-        })}
+                onClick={() => {
+                  if (
+                    !(
+                      token.id == WRAP_NEAR_CONTRACT_ID &&
+                      token.symbol == 'wNEAR' &&
+                      !allowWNEAR
+                    )
+                  ) {
+                    onClick && onClick(token);
+                  }
+                  handleClose();
+                }}
+              >
+                {/* <Token token={token} price={price} /> */}
+                <SelectTokenList
+                  index={index}
+                  key={token.id + token.symbol}
+                  onClick={onClick}
+                  token={token}
+                  price={price}
+                  sortBy={sortBy}
+                  forCross={forCross}
+                  totalAmount={
+                    balances
+                      ? toReadableNumber(token.decimals, balances[token.id])
+                      : ''
+                  }
+                />
+              </div>
+            );
+          })}
       </div>
     </section>
   );

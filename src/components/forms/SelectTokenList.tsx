@@ -17,6 +17,7 @@ interface TokenProps {
   price?: string;
   index?: number;
   forCross?: boolean;
+  isRisk?: boolean;
 }
 export function tokenPrice(price: string, error?: boolean) {
   return (
@@ -36,6 +37,7 @@ export default function SelectTokenList({
   price,
   index,
   forCross,
+  isRisk,
 }: TokenProps) {
   const { icon, symbol, id, near, ref, total, onRef, onTri } = token;
   const {
@@ -92,7 +94,7 @@ export default function SelectTokenList({
   return (
     <div
       key={id + symbol}
-      className="flex items-center justify-between w-full  hover:bg-black hover:bg-opacity-10 relative"
+      className="flex items-center justify-between w-full  hover:bg-white hover:bg-opacity-5 relative"
       onClick={() => onClick && onClick(token)}
       style={{
         height: '56px',
@@ -105,7 +107,7 @@ export default function SelectTokenList({
           index === 0 ? 'pt-4 pb-2' : 'py-2'
         }`}
       >
-        <SingleToken token={token} price={price} />
+        <SingleToken isRisk={isRisk} token={token} price={price} />
       </div>
       <div
         className={!forCross ? 'hidden' : 'w-12 flex justify-start  absolute '}
@@ -118,7 +120,7 @@ export default function SelectTokenList({
         {onTri ? <TriIcon lightTrigger={hover} /> : null}
       </div>
       <div
-        className={`${
+        className={`pr-4 ${
           index === 0 ? 'pt-6 pb-4' : 'py-4'
         } xs:text-xs text-sm w-3/10 text-right ${
           sortBy === 'near' ? 'text-white' : ''

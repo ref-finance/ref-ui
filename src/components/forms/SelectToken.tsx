@@ -9,7 +9,12 @@ import React, {
 } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
-import { ArrowDownGreen, ArrowDownWhite, TokenRisk } from '../icon';
+import {
+  ArrowDownGreen,
+  ArrowDownWhite,
+  QuestionMark,
+  TokenRisk,
+} from '../icon';
 import { isMobile, getExplorer } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
@@ -41,6 +46,10 @@ import {
   STABLE_TOKEN_USN_IDS,
   STNEARIDS,
   TOKEN_BLACK_LIST,
+  USDC_TOKEN_ID,
+  USDCe_TOKEN_ID,
+  USDT_TOKEN_ID,
+  USDTe_TOKEN_ID,
   USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 import {
@@ -52,6 +61,7 @@ import {
   OutLinkIcon,
   DefaultTokenImg,
   SelectTokenCloseButton,
+  TknIcon,
 } from '../../components/icon/Common';
 import _, { trimEnd } from 'lodash';
 import {
@@ -69,6 +79,7 @@ import { PoolInfo } from '../../services/swapV3';
 import { sort_tokens_by_base, openUrl } from '../../services/commonV3';
 import getConfigV2 from '../../services/configV2';
 import SelectTokenTable from './SelectTokenTable';
+import CustomTooltip from '../customTooltip/customTooltip';
 const configV2 = getConfigV2();
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
@@ -96,9 +107,11 @@ export function tokenPrice(price: string, error?: boolean) {
 export function SingleToken({
   token,
   price,
+  isRisk,
 }: {
   token: TokenMetadata;
   price: string;
+  isRisk: boolean;
 }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -106,13 +119,26 @@ export function SingleToken({
   return (
     <>
       {token.icon ? (
-        <img
-          src={token.icon}
-          alt={toRealSymbol(token.symbol)}
-          className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"
-        />
+        <>
+          <img
+            src={token.icon}
+            alt={toRealSymbol(token.symbol)}
+            className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"
+          />
+          {isRisk ? (
+            <div className="absolute bottom-2 left-9">
+              <TknIcon />
+            </div>
+          ) : null}
+        </>
       ) : (
-        <div className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"></div>
+        <div className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight relative">
+          {isRisk ? (
+            <div className="absolute bottom-0 left-1">
+              <TknIcon />
+            </div>
+          ) : null}
+        </div>
         // <DefaultTokenImg className="mr-2"></DefaultTokenImg>
       )}
       <div className="flex flex-col justify-between">
@@ -142,7 +168,9 @@ export function SingleToken({
             </span>
           ) : null}
         </div>
-        <span className="text-xs text-primaryText">{token.name}</span>
+        <span className="text-xs text-primaryText overflow-hidden whitespace-nowrap w-48 truncate">
+          {token.name}
+        </span>
       </div>
     </>
   );
@@ -521,7 +549,7 @@ export default function SelectToken({
     setAddTokenError(false);
     setAddTokenLoading(false);
     setSearchValue(value);
-    setShowCommonBasses(value.length === 0);
+    // setShowCommonBasses(value.length === 0);
     const result = tokensData.filter((token) => {
       const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
       if (!symbol) return false;
@@ -579,7 +607,14 @@ export default function SelectToken({
   function getLatestCommonBassesTokenIds() {
     const cur_status = localStorage.getItem(USER_COMMON_TOKEN_LIST);
     if (!cur_status) {
-      const init = ['near', REF_TOKEN_ID];
+      const init = [
+        'near',
+        REF_TOKEN_ID,
+        USDC_TOKEN_ID,
+        USDT_TOKEN_ID,
+        USDCe_TOKEN_ID,
+        USDTe_TOKEN_ID,
+      ];
       localStorage.setItem(USER_COMMON_TOKEN_LIST, JSON.stringify(init));
     }
     const local_user_list_str =
@@ -609,6 +644,10 @@ export default function SelectToken({
       </button>
     );
   }
+  const TknTip = `
+    <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
+    Created by any user on tkn.farm with the tkn.near suffix, poses high risks. Ref has not certified it. Exercise caution.
+    </div>`;
   return (
     <MicroModal
       open={visible}
@@ -708,7 +747,7 @@ export default function SelectToken({
             ) : null}
           </div>
           <div
-            className="overflow-auto absolute w-full"
+            className="overflow-auto overflow-x-hidden absolute w-full"
             style={{ height: 'calc(100% - 150px)' }}
           >
             <localTokens.Provider
@@ -748,6 +787,16 @@ export default function SelectToken({
                   onClick={() => setActiveTab('TKN')}
                 >
                   TKN
+                  <div
+                    className="text-white text-right ml-1 inline-block"
+                    data-class="reactTip"
+                    data-tooltip-id="tknId"
+                    data-place="left"
+                    data-tooltip-html={TknTip}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <CustomTooltip id="tknId" />
+                  </div>
                 </div>
               </div>
               <div>
@@ -790,6 +839,7 @@ export default function SelectToken({
                         handleClose={handleClose}
                         balances={balances}
                         forCross={forCross}
+                        tokens={listData}
                       />
                     )}
                   </>
@@ -824,7 +874,7 @@ export default function SelectToken({
             </localTokens.Provider>
           </div>
           {searchNoData ? (
-            <div className="flex flex-col  items-center justify-center mt-12 relative z-10">
+            <div className="flex flex-col  items-center justify-center mt-32 relative z-10">
               <div className="text-sm text-farmText">
                 <FormattedMessage id="no_token_found"></FormattedMessage>
               </div>

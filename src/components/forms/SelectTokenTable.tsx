@@ -34,7 +34,7 @@ export default function SelectTokenTable({
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
-      <div className="pr-4">
+      <div>
         {tokens
           .filter(
             (token) =>
@@ -51,6 +51,7 @@ export default function SelectTokenTable({
               price={tokenPriceList?.[token.id]?.price}
               sortBy={sortBy}
               forCross={forCross}
+              isRisk={showRiskTokens}
               totalAmount={
                 balances
                   ? toReadableNumber(token.decimals, balances[token.id])

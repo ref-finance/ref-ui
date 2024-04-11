@@ -1640,6 +1640,30 @@ export function CollectedIcon(props: any) {
   );
 }
 
+export function TknIcon(props: any) {
+  return (
+    <svg
+      width="29"
+      height="10"
+      viewBox="0 0 29 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        opacity="0.8"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M28.2929 0C26.2338 5.82596 20.6776 10 14.1465 10C7.61538 10 2.05918 5.82596 0 0H28.2929Z"
+        fill="black"
+      />
+      <path
+        d="M6.392 7L7.656 2.312H5.872L6.12 1.4H10.664L10.416 2.312H8.64L7.376 7H6.392ZM10.0973 7L11.6013 1.4H12.5933L11.8333 4.232L15.1133 1.4H16.4653L13.6173 3.792L15.0493 7H13.9613L12.8333 4.376L11.4813 5.512L11.0893 7H10.0973ZM15.8786 7L17.3826 1.4H18.2946L20.1906 5.36L21.2626 1.4H22.2306L20.7266 7H19.9026L17.9426 2.928L16.8546 7H15.8786Z"
+        fill="white"
+      />
+    </svg>
+  );
+}
+
 export {
   Learn_more,
   CloseBtn,
