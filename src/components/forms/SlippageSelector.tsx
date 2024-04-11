@@ -61,11 +61,13 @@ function CustomSwitchSwap({
   setIsOpen,
   storageKey,
   forLedger,
+  isTri,
 }: {
   isOpen: boolean;
   setIsOpen?: (e?: any) => void;
   storageKey?: string;
   forLedger?: boolean;
+  isTri?: boolean;
 }) {
   const { setSelectMarket } = useContext(SwapProContext);
   return (
@@ -80,7 +82,7 @@ function CustomSwitchSwap({
       }}
       onClick={() => {
         if (!setIsOpen) return;
-        setSelectMarket();
+        isTri && setSelectMarket();
         if (isOpen) {
           setIsOpen(false);
           if (forLedger) {
@@ -359,9 +361,10 @@ export default function SlippageSelector({
                     </span>
                   </div>
                   {trisDisbaled ? (
-                    <CustomSwitchSwap isOpen={false} />
+                    <CustomSwitchSwap isOpen={false} isTri={true} />
                   ) : (
                     <CustomSwitchSwap
+                      isTri={true}
                       isOpen={enableTri}
                       setIsOpen={setEnableTri}
                     />

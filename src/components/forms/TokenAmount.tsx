@@ -622,6 +622,7 @@ export function TokenAmountV3({
       : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
 
   useEffect(() => {
+    console.log('amounts change>>>>>>>', amount);
     localStorage.setItem('isSwapFirstLoading', 'false');
   }, [amount]);
   useEffect(() => {
