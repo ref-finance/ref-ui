@@ -67,6 +67,7 @@ function CustomSwitchSwap({
   storageKey?: string;
   forLedger?: boolean;
 }) {
+  const { setSelectMarket } = useContext(SwapProContext);
   return (
     <div
       className={`ml-3 ${!setIsOpen ? '' : 'cursor-pointer'}  ${
@@ -79,6 +80,7 @@ function CustomSwitchSwap({
       }}
       onClick={() => {
         if (!setIsOpen) return;
+        setSelectMarket();
         if (isOpen) {
           setIsOpen(false);
           if (forLedger) {
