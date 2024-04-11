@@ -95,6 +95,7 @@ interface TokenAmountProps {
   forCross?: boolean;
   nearErrorTip?: JSX.Element;
   isOut?: boolean;
+  isFootAmount?: boolean;
 }
 
 export function getTextWidth(str: string, fontSize: string) {
@@ -527,6 +528,7 @@ export function TokenAmountV3({
   allowWNEAR,
   isOut,
   nearErrorTip,
+  isFootAmount,
 }: TokenAmountProps) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -622,8 +624,16 @@ export function TokenAmountV3({
       : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
 
   useEffect(() => {
-    console.log('amounts change>>>>>>>', amount);
-    localStorage.setItem('isSwapFirstLoading', 'false');
+    console.log('amounts change>>>>>>>', amount, isFootAmount);
+
+    if (isFootAmount) {
+      console.log(isFootAmount, 'isfoot');
+      localStorage.setItem('isSwapFirstLoading', 'false');
+    }
+
+    return () => {
+      localStorage.setItem('isSwapFirstLoading', 'true');
+    };
   }, [amount]);
   useEffect(() => {
     if (setDiff) {

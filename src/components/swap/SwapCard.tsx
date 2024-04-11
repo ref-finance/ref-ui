@@ -1295,6 +1295,7 @@ export default function SwapCard(props: {
               setShowSkywardTip(true);
             }
           }}
+          isFootAmount={true}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
           allowWNEAR={true}
