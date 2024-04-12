@@ -100,7 +100,16 @@ export const TknImages = ({
             const isRisk = riskTokens.some((riskToken) => riskToken.id === id);
             if (icon)
               return (
-                <>
+                <div
+                  className={`inline-block flex-shrink-0 ${
+                    is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
+                  }  h-${size || 10} w-${size || 10} rounded-full ${
+                    tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
+                  } bg-cardBg`}
+                  style={{
+                    border: borderStyle || 'none',
+                  }}
+                >
                   <img
                     key={
                       (id || 0) +
@@ -112,27 +121,15 @@ export const TknImages = ({
                       uId +
                       Date.now()
                     }
-                    className={`inline-block flex-shrink-0 ${
-                      is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
-                    }  h-${size || 10} w-${size || 10} rounded-full border ${
-                      border ? 'border' : ''
-                    } border-gradientFromHover ${
-                      tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
-                    } bg-cardBg`}
                     src={icon}
-                    style={{
-                      border: borderStyle || 'none',
-                    }}
+                    className="rounded-full"
                   />
                   {isRisk && (
-                    <div
-                      className="relative z-40"
-                      style={{ marginLeft: '-31px', marginBottom: '-22px' }}
-                    >
+                    <div className="absolute bottom-0 left-0.5 z-40">
                       <TknIcon />
                     </div>
                   )}
-                </>
+                </div>
               );
             return (
               <div

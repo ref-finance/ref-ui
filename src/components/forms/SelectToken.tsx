@@ -119,18 +119,18 @@ export function SingleToken({
   return (
     <>
       {token.icon ? (
-        <>
+        <div className="relative flex-shrink-0">
           <img
             src={token.icon}
             alt={toRealSymbol(token.symbol)}
-            className="w-9 h-9 inline-block mr-2 border rounded-full border-black relative"
+            className="w-9 h-9 inline-block mr-2 border rounded-full border-black"
           />
           {isTokenAtRisk ? (
-            <div className="absolute bottom-2 left-9 xsm:left-6">
+            <div className="absolute bottom-0 left-1 xsm:left-1">
               <TknIcon />
             </div>
           ) : null}
-        </>
+        </div>
       ) : (
         <div className="w-9 h-9 inline-block mr-2 border rounded-full border-black relative">
           {isRisk ? (
@@ -143,7 +143,10 @@ export function SingleToken({
       )}
       <div className="flex flex-col justify-between">
         <div className={`flex items-center`}>
-          <span className="text-sm text-white">
+          <span
+            className="text-sm text-white overflow-hidden whitespace-nowrap max-w-28 truncate"
+            title={toRealSymbol(token.symbol)}
+          >
             {toRealSymbol(token.symbol)}
           </span>
           {isTokenAtRisk && (
@@ -156,7 +159,7 @@ export function SingleToken({
                 <TokenRisk />
               </span>
               {showTooltip && (
-                <div className="absolute -top-3 left-5 px-2 w-max py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                <div className="absolute z-50 -top-3 left-5 px-2 w-max py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
                   Uncertified token, higher risk.
                 </div>
               )}
@@ -168,7 +171,10 @@ export function SingleToken({
             </span>
           ) : null}
         </div>
-        <span className="text-xs text-primaryText overflow-hidden whitespace-nowrap w-48 truncate">
+        <span
+          className="text-xs text-primaryText overflow-hidden whitespace-nowrap w-36 truncate"
+          title={token.name}
+        >
           {token.name}
         </span>
       </div>

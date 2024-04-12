@@ -274,7 +274,7 @@ function PoolRow({
                       <TokenRisk />
                     </span>
                     {showTooltip && (
-                      <div className="absolute -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                      <div className="absolute -top-3 z-50  left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
                         {token.symbol} is uncertified token, higher risk.
                       </div>
                     )}
@@ -465,7 +465,7 @@ function PoolRowV2({
                     <TokenRisk />
                   </span>
                   {showTooltip && (
-                    <div className="absolute -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    <div className="absolute -top-3 z-50  left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
                       {token.symbol} is uncertified token, higher risk.
                     </div>
                   )}
@@ -2411,7 +2411,7 @@ function StablePoolCard({
                     <TokenRisk />
                   </span>
                   {showTooltip && (
-                    <div className="absolute -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    <div className="absolute z-50 -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
                       {token.symbol} is uncertified token, higher risk.
                     </div>
                   )}
