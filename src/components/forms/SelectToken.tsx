@@ -125,7 +125,7 @@ export function SingleToken({
             alt={toRealSymbol(token.symbol)}
             className="w-9 h-9 inline-block mr-2 border rounded-full border-black relative"
           />
-          {isRisk ? (
+          {isTokenAtRisk ? (
             <div className="absolute bottom-2 left-9 xsm:left-6">
               <TknIcon />
             </div>

@@ -84,7 +84,7 @@ import {
   getCurrentWallet,
 } from '../../../utils/wallets-integration';
 import { unwrapedNear, wnearMetadata } from '../../../services/wrap-near';
-import { Images, Symbols } from '../../../components/stableswap/CommonComp';
+import { Images, Symbols, TknImages } from '../../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../../ReferendumPage';
 import { StartPoolIcon } from '../../../components/icon/WatchListStar';
 import {
@@ -253,7 +253,7 @@ function PoolRow({
       >
         <div className="col-span-3 md:col-span-4 flex items-center">
           <div className="flex items-center">
-            <Images tokens={tokens} size="8" />
+            <TknImages tokens={tokens} size="8" />
             <div className="flex items-center">
               <div className="flex flex-wrap max-w-48 text-sm ml-3">
                 <label>{tokens[0].symbol}</label>-
@@ -275,7 +275,7 @@ function PoolRow({
                     </span>
                     {showTooltip && (
                       <div className="absolute -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                        {token.symbol} is subjected to high volatility
+                        {token.symbol} is uncertified token, higher risk.
                       </div>
                     )}
                   </div>
@@ -445,7 +445,7 @@ function PoolRowV2({
           }`}
         >
           <div className="flex items-center">
-            <Images tokens={tokens} size="8" />
+            <TknImages tokens={tokens} size="8" />
             <div className="text-sm ml-3">
               {tokens[0].symbol +
                 '-' +
@@ -466,7 +466,7 @@ function PoolRowV2({
                   </span>
                   {showTooltip && (
                     <div className="absolute -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                      {token.symbol} is subjected to high volatility
+                      {token.symbol} is uncertified token, higher risk.
                     </div>
                   )}
                 </div>
@@ -2376,7 +2376,7 @@ function StablePoolCard({
               : ''
           }  flex items-center   xs:justify-between md:justify-between`}
         >
-          <Images
+          <TknImages
             tokens={poolData.tokens}
             size="8"
             className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
@@ -2412,7 +2412,7 @@ function StablePoolCard({
                   </span>
                   {showTooltip && (
                     <div className="absolute -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                      {token.symbol} is subjected to high volatility
+                      {token.symbol} is uncertified token, higher risk.
                     </div>
                   )}
                 </div>

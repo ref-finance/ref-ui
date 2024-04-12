@@ -29,7 +29,7 @@ import { useCanFarmV2 } from 'src/state/farm';
 import { useHistory } from 'react-router';
 import { useClientMobile } from 'src/utils/device';
 import { Link } from 'react-router-dom';
-import { Images, Symbols } from 'src/components/stableswap/CommonComp';
+import { Images, Symbols, TknImages } from 'src/components/stableswap/CommonComp';
 import { WatchListStartFull } from 'src/components/icon/WatchListStar';
 import { openUrl } from 'src/services/commonV3';
 import { getPoolFeeApr, getPoolListFarmAprTip } from 'src/pages/pools/utils';
@@ -378,7 +378,7 @@ function StablePoolCard({
           }  flex items-center   xs:justify-between md:justify-between`}
         >
           <div className="flex items-center">
-            <Images
+            <TknImages
               tokens={poolData.tokens}
               size="8"
               className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
@@ -399,7 +399,7 @@ function StablePoolCard({
                   </span>
                   {showTooltip && (
                     <div className="absolute -top-3 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                      {token.symbol} is subjected to high volatility
+                      {token.symbol} is uncertified token, higher risk.
                     </div>
                   )}
                 </div>

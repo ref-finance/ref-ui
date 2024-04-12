@@ -1643,6 +1643,7 @@ export function CollectedIcon(props: any) {
 export function TknIcon(props: any) {
   return (
     <svg
+      {...props}
       width="29"
       height="10"
       viewBox="0 0 29 10"

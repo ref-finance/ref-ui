@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { WatchListStartFull } from 'src/components/icon/WatchListStar';
 import { ALL_STABLE_POOL_IDS } from 'src/services/near';
 import { FarmStampNew, TokenRisk } from 'src/components/icon';
+import { TknIcon } from 'src/components/icon/Common';
 
 function MobilePoolRow({
   pool,
@@ -130,7 +131,7 @@ function MobilePoolRow({
                 is_muti_tokens ? 'flex-wrap w-12' : ''
               } ${!!morePoolButton ? 'relative bottom-1' : ''}`}
             >
-              <div
+              {/* <div
                 className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full relative z-10"
                 style={{
                   height: '26px',
@@ -156,7 +157,34 @@ function MobilePoolRow({
                   className="w-full rounded-full"
                   src={curRowTokens?.[1].icon}
                 />
-              </div>
+              </div> */}
+              {curRowTokens.map((token, index) => {
+                const atRisk = isTokenAtRisk(token);
+                return (
+                  <div key={token.id} className="relative inline-block">
+                    <div
+                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative z-10 ${
+                        index > 0 ? '-ml-1.5' : ''
+                      }`}
+                      style={{
+                        height: '26px',
+                        width: '26px',
+                      }}
+                    >
+                      <img
+                        className="rounded-full w-full"
+                        src={token.icon}
+                        alt={token.symbol}
+                      />
+                    </div>
+                    {atRisk && (
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center z-50">
+                        <TknIcon className="transform scale-75"/>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               {curRowTokens?.[2] ? (
                 <div
                   className={`h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full ${
@@ -222,7 +250,7 @@ function MobilePoolRow({
                       </span>
                       {showTooltip && (
                         <div className="absolute -top-3 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                          {token.symbol} is subjected to high volatility
+                          {token.symbol} is uncertified token, higher risk.
                         </div>
                       )}
                     </div>

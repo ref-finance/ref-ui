@@ -36,12 +36,14 @@ export default function SelectTokenTable({
     tokens.length > 0 && (
       <div>
         {tokens
-          .filter(
-            (token) =>
-              !!token &&
-              ((showRiskTokens && 'isRisk' in token) ||
-                (!showRiskTokens && !('isRisk' in token)))
-          )
+          .filter((token) => {
+            if (!token) return false;
+            if (showRiskTokens) {
+              return 'isRisk' in token && !token.isUserToken;
+            } else {
+              return !('isRisk' in token) || token.isUserToken;
+            }
+          })
           .map((token, index) => (
             <SelectTokenList
               index={index}

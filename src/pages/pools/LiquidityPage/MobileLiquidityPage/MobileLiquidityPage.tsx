@@ -74,6 +74,7 @@ import BigNumber from 'bignumber.js';
 import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/LiquidityV1PoolsMobile';
 import { PoolsTip } from '../../poolsComponents/poolsTip';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { TknIcon } from 'src/components/icon/Common';
 
 function MobileLiquidityPage({
   pools,
@@ -913,7 +914,7 @@ function MobilePoolRowV2({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center justify-start">
             <div className="flex items-center">
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+              {/* <div className="h-6 w-6 border border-gradientFromHover rounded-full">
                 <img
                   key={tokens[0].id.substring(0, 12).substring(0, 12)}
                   className="rounded-full w-full"
@@ -927,7 +928,34 @@ function MobilePoolRowV2({
                   className="w-full rounded-full"
                   src={tokens[1].icon}
                 />
-              </div>
+              </div> */}
+              {curRowTokens.map((token, index) => {
+                const atRisk = isTokenAtRisk(token);
+                return (
+                  <div key={token.id} className="relative inline-block">
+                    <div
+                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative z-10 ${
+                        index > 0 ? '-ml-1.5' : ''
+                      }`}
+                      style={{
+                        height: '26px',
+                        width: '26px',
+                      }}
+                    >
+                      <img
+                        className="rounded-full w-full"
+                        src={token.icon}
+                        alt={token.symbol}
+                      />
+                    </div>
+                    {atRisk && (
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center z-50">
+                        <TknIcon className="transform scale-75" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               {tokens[2] ? (
                 <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
                   <img
@@ -979,7 +1007,7 @@ function MobilePoolRowV2({
                   </span>
                   {showTooltip && (
                     <div className="absolute -top-3 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                      {token.symbol} is subjected to high volatility
+                      {token.symbol} is uncertified token, higher risk.
                     </div>
                   )}
                 </div>
