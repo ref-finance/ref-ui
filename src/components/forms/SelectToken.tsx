@@ -123,16 +123,16 @@ export function SingleToken({
           <img
             src={token.icon}
             alt={toRealSymbol(token.symbol)}
-            className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"
+            className="w-9 h-9 inline-block mr-2 border rounded-full border-black relative"
           />
           {isRisk ? (
-            <div className="absolute bottom-2 left-9">
+            <div className="absolute bottom-2 left-9 xsm:left-6">
               <TknIcon />
             </div>
           ) : null}
         </>
       ) : (
-        <div className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight relative">
+        <div className="w-9 h-9 inline-block mr-2 border rounded-full border-black relative">
           {isRisk ? (
             <div className="absolute bottom-0 left-1">
               <TknIcon />
