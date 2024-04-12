@@ -172,7 +172,7 @@ export function SingleToken({
           ) : null}
         </div>
         <span
-          className="text-xs text-primaryText overflow-hidden whitespace-nowrap w-36 truncate"
+          className="text-xs text-primaryText overflow-hidden whitespace-nowrap w-32 truncate"
           title={token.name}
         >
           {token.name}
