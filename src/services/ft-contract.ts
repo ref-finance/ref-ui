@@ -155,6 +155,7 @@ export interface TokenMetadata {
   nearNonVisible?: number | string;
   t_value?: string;
   isRisk?: boolean;
+  isUserToken?: boolean;
 }
 export const ftGetTokenMetadata = async (
   id: string,

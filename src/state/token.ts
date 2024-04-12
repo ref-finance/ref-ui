@@ -20,6 +20,7 @@ import {
 } from '../services/ft-contract';
 import {
   getWhitelistedTokens,
+  getWhitelistedTokensInfo,
   getTokenBalances,
   getUserRegisteredTokens,
   TokenBalancesView,
@@ -167,30 +168,36 @@ export const useRainbowWhitelistTokens = () => {
 export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
   useEffect(() => {
-    getWhitelistedTokens()
-      .then(async (tokenIds) => {
-        const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
+    getWhitelistedTokensInfo()
+      .then(async (tokenInfo) => {
+        const { globalWhitelist, userWhitelist } = tokenInfo;
+        const allWhiteTokenIds = [
+          ...new Set([...globalWhitelist, ...userWhitelist, ...extraTokenIds]),
+        ];
         const allTokens = (await db.queryAllTokens()) || [];
         const postfix = await get_auto_whitelisted_postfix();
-        const whiteList = await Promise.all(
-          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        const whiteMetaDataList = await Promise.all(
+          allWhiteTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+        const globalMetaDataWhitelist = whiteMetaDataList.filter((m) =>
+          globalWhitelist.includes(m.id)
         );
         const riskTokens: TokenMetadata[] = allTokens
           .filter((token: TokenMetadata) => {
             return (
               postfix.some((p) => token.id.includes(p)) &&
-              !whiteList.find((w) => w.id === token.id)
+              !globalMetaDataWhitelist.find((w) => w.id === token.id)
             );
           })
           .map((token) => {
             token.isRisk = true;
+            token.isUserToken = !!userWhitelist.includes(token.id);
             return token;
           });
-        return [...whiteList, ...riskTokens];
+        return [...whiteMetaDataList, ...riskTokens];
       })
       .then(setTokens);
   }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
-
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
 export const useRiskTokens = () => {
