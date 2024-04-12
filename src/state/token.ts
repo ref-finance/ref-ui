@@ -182,7 +182,11 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         const globalMetaDataWhitelist = whiteMetaDataList.filter((m) =>
           globalWhitelist.includes(m.id)
         );
-        const riskTokens: TokenMetadata[] = allTokens
+        const whiteMap = whiteMetaDataList.reduce(
+          (sum, cur) => ({ ...sum, ...{ [cur.id]: cur } }),
+          {}
+        );
+        allTokens
           .filter((token: TokenMetadata) => {
             return (
               postfix.some((p) => token.id.includes(p)) &&
@@ -192,9 +196,10 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
           .map((token) => {
             token.isRisk = true;
             token.isUserToken = !!userWhitelist.includes(token.id);
+            whiteMap[token.id] = token;
             return token;
           });
-        return [...whiteMetaDataList, ...riskTokens];
+        return Object.values(whiteMap) as TokenMetadata[];
       })
       .then(setTokens);
   }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
