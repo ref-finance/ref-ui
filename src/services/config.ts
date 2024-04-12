@@ -9,7 +9,7 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             simpleName: 'official rpc',
           },
           lavaRpc: {
-            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            url: 'https://near.lava.build',
             simpleName: 'lava rpc',
           },
           betaRpc: {
@@ -76,7 +76,7 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             simpleName: 'official rpc',
           },
           lavaRpc: {
-            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            url: 'https://near.lava.build',
             simpleName: 'lava rpc',
           },
           betaRpc: {
@@ -128,7 +128,6 @@ export default function getConfig(
       localStorage.removeItem('endPoint');
     }
   } catch (error) {}
-  // console.log('666666666666666-env', env);
   switch (env) {
     case 'production':
     case 'mainnet':
@@ -194,9 +193,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -343,9 +342,9 @@ export default function getConfig(
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -439,9 +438,9 @@ export default function getConfig(
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -538,9 +537,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
