@@ -208,7 +208,7 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
 export const useRiskTokens = () => {
   const tokens = useWhitelistTokens();
   const allRiskTokens = useMemo(() => {
-    return tokens?.filter((token) => token.isRisk && !token.isUserToken);
+    return tokens?.filter((token) => token.isRisk);
   }, [tokens]);
   return allRiskTokens || [];
 };
