@@ -179,7 +179,7 @@ function MobilePoolRow({
                     </div>
                     {atRisk && (
                       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center z-50">
-                        <TknIcon className="transform scale-75"/>
+                        <TknIcon className="transform scale-75" />
                       </div>
                     )}
                   </div>

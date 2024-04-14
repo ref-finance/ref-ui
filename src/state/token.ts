@@ -382,7 +382,7 @@ export const useTokenPriceList = (dep?: any) => {
   }, [tokenListTrigger]);
 
   if (Object.keys(tokenPriceList).length > 0) {
-    tokenPriceList['NEAR'] = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
+    tokenPriceList.NEAR = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
   }
 
   return tokenPriceList;

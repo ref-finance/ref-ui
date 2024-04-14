@@ -29,7 +29,11 @@ import { useCanFarmV2 } from 'src/state/farm';
 import { useHistory } from 'react-router';
 import { useClientMobile } from 'src/utils/device';
 import { Link } from 'react-router-dom';
-import { Images, Symbols, TknImages } from 'src/components/stableswap/CommonComp';
+import {
+  Images,
+  Symbols,
+  TknImages,
+} from 'src/components/stableswap/CommonComp';
 import { WatchListStartFull } from 'src/components/icon/WatchListStar';
 import { openUrl } from 'src/services/commonV3';
 import { getPoolFeeApr, getPoolListFarmAprTip } from 'src/pages/pools/utils';

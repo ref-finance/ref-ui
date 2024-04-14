@@ -84,7 +84,11 @@ import {
   getCurrentWallet,
 } from '../../../utils/wallets-integration';
 import { unwrapedNear, wnearMetadata } from '../../../services/wrap-near';
-import { Images, Symbols, TknImages } from '../../../components/stableswap/CommonComp';
+import {
+  Images,
+  Symbols,
+  TknImages,
+} from '../../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../../ReferendumPage';
 import { StartPoolIcon } from '../../../components/icon/WatchListStar';
 import {

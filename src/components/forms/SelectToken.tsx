@@ -468,11 +468,13 @@ export default function SelectToken({
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
+  const [listTknData, setListTknData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
   const [commonBassesTokens, setCommonBassesTokens] = useState([]);
   const [searchNoData, setSearchNoData] = useState(false);
+  const [tknSearchNoData, setTknSearchNoData] = useState(false);
   const [addTokenLoading, setAddTokenLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [addTokenError, setAddTokenError] = useState(false);
@@ -487,32 +489,37 @@ export default function SelectToken({
   const intl = useIntl();
   const searchRef = useRef(null);
   const [activeTab, setActiveTab] = useState('Default');
-  const {
-    tokensData,
-    loading: loadingTokensData,
-    trigger,
-  } = useTokensData(
-    tokens.filter((t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1),
+  const { tokensData, loading: loadingTokensData } = useTokensData(
+    tokens.filter(
+      (t) =>
+        TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
+        (!t.isRisk || (t.isRisk && t.isUserToken))
+    ),
     balances,
     visible
   );
+  const { tokensData: tknTokensData, loading: loadingTKNTokensData } =
+    useTokensData(
+      tokens.filter(
+        (t) =>
+          TOKEN_BLACK_LIST.indexOf(t.id) === -1 && t.isRisk && !t.isUserToken
+      ),
+      balances,
+      visible
+    );
   useEffect(() => {
-    if (tokensData?.length) {
+    if (tokensData?.length && !loadingTokensData) {
+      tokensData.sort(sortTypes[currentSort].fn);
       setListData(tokensData);
     }
-  }, [tokensData?.length]);
-  const sortByCondition = useCallback(
-    _.debounce((tokensData, currentSort) => {
-      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-      setListData(sortedData);
-    }, 500),
-    [sortBy]
-  );
+  }, [tokensData?.length, loadingTokensData]);
   useEffect(() => {
-    if (tokensData?.length) {
-      sortByCondition(tokensData, currentSort);
+    if (tknTokensData?.length && !loadingTKNTokensData) {
+      tknTokensData.sort(sortTypes[currentSort].fn);
+      setListTknData(tknTokensData);
     }
-  }, [loadingTokensData, currentSort, sortBy, tokensData?.length]);
+  }, [tknTokensData?.length, loadingTKNTokensData]);
+
   useEffect(() => {
     getLatestCommonBassesTokens();
   }, [tokensData]);
@@ -566,12 +573,28 @@ export default function SelectToken({
         token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
       return condition1 || condition2;
     });
+    const resultTkn = tknTokensData.filter((token) => {
+      const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
+      if (!symbol) return false;
+      const condition1 = toRealSymbol(symbol)
+        .toLocaleUpperCase()
+        .includes(value.toLocaleUpperCase());
+      const condition2 =
+        token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
+      return condition1 || condition2;
+    });
     result.sort(sortBySymbol);
     setListData(result);
+    setListTknData(resultTkn);
     if (!loadingTokensData && value.length > 0 && result.length == 0) {
       setSearchNoData(true);
     } else {
       setSearchNoData(false);
+    }
+    if (!loadingTKNTokensData && value.length > 0 && resultTkn.length == 0) {
+      setTknSearchNoData(true);
+    } else {
+      setTknSearchNoData(false);
     }
   };
 
@@ -845,7 +868,7 @@ export default function SelectToken({
                         handleClose={handleClose}
                         balances={balances}
                         forCross={forCross}
-                        tokens={listData}
+                        tokens={listData.concat(listTknData)}
                       />
                     )}
                   </>
@@ -856,7 +879,7 @@ export default function SelectToken({
                     tokenPriceList={tokenPriceList}
                     currentSort={currentSort}
                     onSortChange={onSortChange}
-                    tokens={listData}
+                    tokens={listTknData}
                     onClick={(token) => {
                       if (token.id != NEARXIDS[0]) {
                         if (
@@ -879,7 +902,7 @@ export default function SelectToken({
               </div>
             </localTokens.Provider>
           </div>
-          {searchNoData ? (
+          {searchNoData && activeTab === 'Default' ? (
             <div className="flex flex-col  items-center justify-center mt-32 relative z-10">
               <div className="text-sm text-farmText">
                 <FormattedMessage id="no_token_found"></FormattedMessage>
@@ -902,6 +925,13 @@ export default function SelectToken({
                   />
                 </GradientButton>
               ) : null}
+            </div>
+          ) : null}
+          {tknSearchNoData && activeTab === 'TKN' ? (
+            <div className="flex flex-col  items-center justify-center mt-32 relative z-10">
+              <div className="text-sm text-farmText">
+                <FormattedMessage id="no_token_found"></FormattedMessage>
+              </div>
             </div>
           ) : null}
         </section>
