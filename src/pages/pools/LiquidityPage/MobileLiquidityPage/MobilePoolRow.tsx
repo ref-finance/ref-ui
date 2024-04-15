@@ -126,7 +126,7 @@ function MobilePoolRow({
       ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
       : '';
   return (
-    <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
+    <div className="w-full hover:bg-poolRowHover overflow-visible">
       <Link
         ref={ref}
         className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-1.5 py-5 text-white"
@@ -234,8 +234,11 @@ function MobilePoolRow({
             </div>
             <div className="flex flex-col">
               <div className="flex items-center justify-start">
-                <div className="flex items-center flex-wrap">
-                  <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
+                <div className="flex items-center">
+                  <div
+                    className="text-sm ml-2 font-semibold whitespace-normal break-words mb-0.5"
+                    style={{ maxWidth: '130px' }}
+                  >
                     {curRowTokens[0].symbol +
                       '-' +
                       curRowTokens[1].symbol +
