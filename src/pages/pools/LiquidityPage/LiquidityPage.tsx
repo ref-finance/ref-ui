@@ -268,7 +268,7 @@ function PoolRow({
       >
         <div className="col-span-3 md:col-span-4 flex items-center">
           <div className="flex items-center">
-            <TknImages tokens={tokens} size="8" />
+            <TknImages tokens={tokens} size="30px" />
             <div className="flex items-center">
               <div className="flex flex-wrap max-w-48 text-sm ml-3">
                 <label>{tokens[0].symbol}</label>-
@@ -468,7 +468,7 @@ function PoolRowV2({
           }`}
         >
           <div className="flex items-center">
-            <TknImages tokens={tokens} size="8" />
+            <TknImages tokens={tokens} size="30px" />
             <div className="text-sm ml-3">
               {tokens[0].symbol +
                 '-' +
@@ -2410,7 +2410,7 @@ function StablePoolCard({
         >
           <TknImages
             tokens={poolData.tokens}
-            size="8"
+            size="30px"
             className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
             layout="vertical"
             layoutSize="16"

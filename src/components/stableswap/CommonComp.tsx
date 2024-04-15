@@ -125,7 +125,7 @@ export const TknImages = ({
                     className="rounded-full"
                   />
                   {isRisk && (
-                    <div className="absolute bottom-0 left-0.5 z-40">
+                    <div className="absolute bottom-0 left-0 z-40">
                       <TknIcon />
                     </div>
                   )}
