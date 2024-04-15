@@ -512,13 +512,13 @@ export default function SelectToken({
       tokensData.sort(sortTypes[currentSort].fn);
       setListData(tokensData);
     }
-  }, [tokensData?.length, loadingTokensData]);
+  }, [tokensData?.length, loadingTokensData, currentSort]);
   useEffect(() => {
     if (tknTokensData?.length && !loadingTKNTokensData) {
       tknTokensData.sort(sortTypes[currentSort].fn);
       setListTknData(tknTokensData);
     }
-  }, [tknTokensData?.length, loadingTKNTokensData]);
+  }, [tknTokensData?.length, loadingTKNTokensData, currentSort]);
 
   useEffect(() => {
     getLatestCommonBassesTokens();
