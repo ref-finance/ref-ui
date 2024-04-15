@@ -113,6 +113,18 @@ function MobilePoolRow({
     </button>
   );
   const is_muti_tokens = curRowTokens?.length > 3;
+  const atRiskTokens = curRowTokens.filter((token) =>
+    riskTokens.some((riskToken) => riskToken.id === token.id)
+  );
+  const hasRiskTokens = atRiskTokens.length > 0;
+  const tooltipText =
+    atRiskTokens.length > 1
+      ? `${atRiskTokens
+          .map((t) => t.symbol)
+          .join(' and ')} are uncertified tokens with high risk.`
+      : atRiskTokens.length === 1
+      ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
+      : '';
   return (
     <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
       <Link
@@ -236,26 +248,22 @@ function MobilePoolRow({
                     <WatchListStartFull />
                   </div>
                 )}
-                {curRowTokens.map((token) => {
-                  const atRisk = isTokenAtRisk(token);
-                  return atRisk ? (
-                    <div
-                      key={token.id}
-                      className="ml-2 relative"
-                      onMouseEnter={() => setShowTooltip(true)}
-                      onMouseLeave={() => setShowTooltip(false)}
-                    >
-                      <span>
-                        <TokenRisk />
-                      </span>
-                      {showTooltip && (
-                        <div className="absolute -top-3 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
-                          {token.symbol} is uncertified token, higher risk.
-                        </div>
-                      )}
-                    </div>
-                  ) : null;
-                })}
+                {hasRiskTokens && (
+                  <div
+                    className="ml-2 relative"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  >
+                    <span>
+                      <TokenRisk />
+                    </span>
+                    {showTooltip && (
+                      <div className="absolute -top-3 z-50 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                        {tooltipText}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center relative top-0.5">

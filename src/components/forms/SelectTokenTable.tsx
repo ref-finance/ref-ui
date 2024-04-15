@@ -34,33 +34,60 @@ export default function SelectTokenTable({
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
-      <div>
-        {tokens
-          .filter((token) => {
-            if (!token) return false;
-            if (showRiskTokens) {
-              return 'isRisk' in token && !token.isUserToken;
-            } else {
-              return !('isRisk' in token) || token.isUserToken;
-            }
-          })
-          .map((token, index) => (
-            <SelectTokenList
-              index={index}
-              key={token.id + token.symbol}
-              onClick={onClick}
-              token={token}
-              price={tokenPriceList?.[token.id]?.price}
-              sortBy={sortBy}
-              forCross={forCross}
-              isRisk={showRiskTokens}
-              totalAmount={
-                balances
-                  ? toReadableNumber(token.decimals, balances[token.id])
-                  : ''
-              }
-            />
-          ))}
+      <div className="-mt-8">
+        <table className="text-left w-full text-sm text-gray-400 table-auto">
+          <div
+            className="-top-6 z-30 text-primaryText flex justify-end "
+            style={{ background: 'rgb(29, 41, 50)' }}
+          >
+            <tr className="font-normal">
+              <th className={`font-normal pb-2 pr-6 w-min `}>
+                <span
+                  className="cursor-pointer flex justify-end items-center whitespace-nowrap"
+                  onClick={() => onSortChange('near')}
+                >
+                  <span className="ml-1">
+                    <FormattedMessage id="balance" />
+                  </span>
+                  <TiArrowSortedUp
+                    className={`inline-block cursor-pointer ${
+                      sortBy === 'near' && currentSort === 'down'
+                        ? 'transform rotate-180'
+                        : ''
+                    }`}
+                  />
+                </span>
+              </th>
+            </tr>
+          </div>
+          <div>
+            {tokens
+              .filter((token) => {
+                if (!token) return false;
+                if (showRiskTokens) {
+                  return 'isRisk' in token && !token.isUserToken;
+                } else {
+                  return !('isRisk' in token) || token.isUserToken;
+                }
+              })
+              .map((token, index) => (
+                <SelectTokenList
+                  index={index}
+                  key={token.id + token.symbol}
+                  onClick={onClick}
+                  token={token}
+                  price={tokenPriceList?.[token.id]?.price}
+                  sortBy={sortBy}
+                  forCross={forCross}
+                  totalAmount={
+                    balances
+                      ? toReadableNumber(token.decimals, balances[token.id])
+                      : ''
+                  }
+                />
+              ))}
+          </div>
+        </table>
       </div>
     )
   );

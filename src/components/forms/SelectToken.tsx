@@ -562,7 +562,7 @@ export default function SelectToken({
     setAddTokenError(false);
     setAddTokenLoading(false);
     setSearchValue(value);
-    // setShowCommonBasses(value.length === 0);
+    setShowCommonBasses(value.length === 0);
     const result = tokensData.filter((token) => {
       const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
       if (!symbol) return false;
@@ -786,18 +786,28 @@ export default function SelectToken({
                 getLatestCommonBassesTokenIds,
               }}
             >
-              <div className="flex items-center justify-between border-b border-borderColor border-opacity-30 text-primaryText text-sm cursor-pointer">
+              {showCommonBasses && (
+                <CommonBasses
+                  onClick={(token) => {
+                    onSelect && onSelect(token);
+                  }}
+                  tokenPriceList={tokenPriceList}
+                  allowWNEAR={allowWNEAR}
+                  handleClose={handleClose}
+                />
+              )}
+              <div className="mt-4 mb-4 relative z-50 mx-6 flex w-max items-center justify-between border border-borderColor rounded-lg border-opacity-20 text-primaryText text-sm cursor-pointer">
                 <div
-                  className={`flex-1 text-center py-2.5 ${
+                  className={`text-center px-2.5 py-2 ${
                     activeTab === 'Default'
-                      ? 'text-white border-b-2 border-white'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
                       : ''
                   }`}
                   onClick={() => setActiveTab('Default')}
                 >
                   Default
                 </div>
-                <div
+                {/* <div
                   className={`flex-1 text-center py-2.5 ${
                     activeTab === 'Watchlist'
                       ? 'text-white border-b-2 border-white'
@@ -806,11 +816,11 @@ export default function SelectToken({
                   onClick={() => setActiveTab('Watchlist')}
                 >
                   Watchlist
-                </div>
+                </div> */}
                 <div
-                  className={`flex-1 text-center py-2.5 ${
+                  className={`text-center px-2.5 py-2 ${
                     activeTab === 'TKN'
-                      ? 'text-white border-b-2 border-white'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
                       : ''
                   }`}
                   onClick={() => setActiveTab('TKN')}
@@ -855,7 +865,7 @@ export default function SelectToken({
                     showRiskTokens={false}
                   />
                 )}
-                {activeTab === 'Watchlist' && (
+                {/* {activeTab === 'Watchlist' && (
                   <>
                     {showCommonBasses && (
                       <CommonBasses
@@ -872,7 +882,7 @@ export default function SelectToken({
                       />
                     )}
                   </>
-                )}
+                )} */}
                 {activeTab === 'TKN' && (
                   <SelectTokenTable
                     sortBy={sortBy}

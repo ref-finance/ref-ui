@@ -96,7 +96,6 @@ export function IconLeftV3({
   showArrow?: boolean;
   hover?: boolean;
 }) {
-  console.log(token, '111');
   return (
     <div
       className={`${className} flex max-w-p150 items-center bg-primaryText text-white text-lg  rounded-full flex-shrink-0 pr-4 cursor-pointer  ${

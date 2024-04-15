@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { toRealSymbol } from '../../utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { FormattedMessage } from 'react-intl';
-import { WNEARExchngeIcon } from '../../components/icon/Common';
+import { TknIcon, WNEARExchngeIcon } from '../../components/icon/Common';
 import WrapNear from '../../components/forms/WrapNear';
 import { wallet } from 'src/services/near';
 import { isMobile } from '../../utils/device';
@@ -21,14 +21,10 @@ import SelectTokenList from '../forms/SelectTokenList';
 import { TokenBalancesView } from '../../../src/services/token';
 import { toReadableNumber } from '../../utils/numbers';
 interface CommonBassesProps {
-  tokens: TokenMetadata[];
   onClick: (token: TokenMetadata) => void;
   tokenPriceList: Record<string, any>;
   allowWNEAR: boolean;
-  sortBy: string;
   handleClose: any;
-  balances?: TokenBalancesView;
-  forCross?: boolean;
 }
 const COMMON_BASSES = [
   'USN',
@@ -48,47 +44,38 @@ const COMMON_BASSES = [
 ];
 
 export default function CommonBasses({
-  tokens,
   onClick,
   tokenPriceList,
   allowWNEAR,
   handleClose,
-  balances,
-  sortBy,
-  forCross,
 }: CommonBassesProps) {
   const { commonBassesTokens } = useContext(localTokens);
-  const commonBassesTokenIds = new Set(
-    commonBassesTokens.map((token) => token.id)
-  );
+  // const commonBassesTokenIds = new Set(
+  //   commonBassesTokens.map((token) => token.id)
+  // );
   return (
-    <section>
-      <div>
-        {tokens
-          .filter(
-            (token) =>
-              commonBassesTokenIds.has(token?.id) && token.symbol !== 'wNEAR'
-          )
-          .map((token: TokenMetadata, index) => {
-            const price = tokenPriceList[token.id]?.price;
-            return (
-              <div
-                key={token.id + token.symbol}
-                onClick={() => {
-                  if (
-                    !(
-                      token.id == WRAP_NEAR_CONTRACT_ID &&
-                      token.symbol == 'wNEAR' &&
-                      !allowWNEAR
-                    )
-                  ) {
-                    onClick && onClick(token);
-                  }
-                  handleClose();
-                }}
-              >
-                {/* <Token token={token} price={price} /> */}
-                <SelectTokenList
+    <section className="px-6 xsm:px-3 pt-2">
+      <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
+        {commonBassesTokens.map((token: TokenMetadata) => {
+          const price = tokenPriceList[token.id]?.price;
+          return (
+            <div
+              key={token.id + token.symbol}
+              onClick={() => {
+                if (
+                  !(
+                    token.id == WRAP_NEAR_CONTRACT_ID &&
+                    token.symbol == 'wNEAR' &&
+                    !allowWNEAR
+                  )
+                ) {
+                  onClick && onClick(token);
+                }
+                handleClose();
+              }}
+            >
+              <Token token={token} price={price} />
+              {/* <SelectTokenList
                   index={index}
                   key={token.id + token.symbol}
                   onClick={onClick}
@@ -101,10 +88,10 @@ export default function CommonBasses({
                       ? toReadableNumber(token.decimals, balances[token.id])
                       : ''
                   }
-                />
-              </div>
-            );
-          })}
+                /> */}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -127,6 +114,7 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
     );
     getLatestCommonBassesTokens();
   }
+  const isTokenAtRisk = !!token.isRisk;
   return (
     <div
       onMouseEnter={() => setHover(true)}
@@ -137,11 +125,18 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
       style={{ minWidth: '90px' }}
     >
       {token.icon ? (
-        <img
-          src={token.icon}
-          alt={toRealSymbol(token.symbol)}
-          className="w-7 h-7 inline-block mr-2 border rounded-full border-greenLight"
-        />
+        <div className="relative flex-shrink-0">
+          <img
+            src={token.icon}
+            alt={toRealSymbol(token.symbol)}
+            className="w-7 h-7 inline-block mr-2 border rounded-full border-black"
+          />
+          {isTokenAtRisk ? (
+            <div className="absolute bottom-0 left-0">
+              <TknIcon />
+            </div>
+          ) : null}
+        </div>
       ) : (
         <div className="w-7 h-7 inline-block mr-2 border rounded-full border-greenLight"></div>
       )}

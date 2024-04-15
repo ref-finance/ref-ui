@@ -6,7 +6,7 @@ import { SingleToken } from './SelectToken';
 import { RefIcon } from '../icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
 import { WalletContext } from '../../utils/wallets-integration';
-import { CollectedIcon, NotFavoritedIcon } from '../icon/Common';
+import { CollectedIcon, NotFavoritedIcon, PinEmpty, PinSolid } from '../icon/Common';
 import { localTokens, USER_COMMON_TOKEN_LIST } from './SelectToken';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 interface TokenProps {
@@ -136,21 +136,21 @@ export default function SelectTokenList({
           {
             <>
               {hasPin ? (
-                <CollectedIcon
+                <PinSolid
                   onClick={(e: any) => {
                     e.stopPropagation();
                     removeToken(token);
                   }}
                   className="text-primaryText hover:text-pinEmptyHoverColor cursor-pointer"
-                ></CollectedIcon>
+                ></PinSolid>
               ) : (
-                <NotFavoritedIcon
+                <PinEmpty
                   onClick={(e: any) => {
                     e.stopPropagation();
                     pinToken(token);
                   }}
                   className="text-primaryText hover:text-pinEmptyHoverColor cursor-pointer"
-                ></NotFavoritedIcon>
+                ></PinEmpty>
               )}
             </>
           }
