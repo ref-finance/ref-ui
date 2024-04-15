@@ -34,7 +34,7 @@ export default function SelectTokenTable({
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
-      <div className="-mt-8">
+      <div className="-mt-11">
         <table className="text-left w-full text-sm text-gray-400 table-auto">
           <div
             className="-top-6 z-30 text-primaryText flex justify-end "
@@ -60,7 +60,7 @@ export default function SelectTokenTable({
               </th>
             </tr>
           </div>
-          <div>
+          <div className="mt-2">
             {tokens
               .filter((token) => {
                 if (!token) return false;
