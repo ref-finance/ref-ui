@@ -16,6 +16,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://beta.rpc.mainnet.near.org',
             simpleName: 'official beta rpc',
           },
+          fastnearRpc: {
+            url: 'https://free.rpc.fastnear.com',
+            simpleName: 'fastnear rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
           //   simpleName: 'blockpi rpc',
@@ -82,6 +86,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
           betaRpc: {
             url: 'https://beta.rpc.mainnet.near.org',
             simpleName: 'official beta rpc',
+          },
+          fastnearRpc: {
+            url: 'https://free.rpc.fastnear.com',
+            simpleName: 'fastnear rpc',
           },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
