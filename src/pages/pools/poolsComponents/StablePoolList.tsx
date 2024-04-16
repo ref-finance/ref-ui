@@ -397,7 +397,7 @@ function StablePoolCard({
           <div className="flex items-center">
             <TknImages
               tokens={poolData.tokens}
-              size="30px"
+              size="8"
               className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
               layout="vertical"
               layoutSize="16"
