@@ -129,7 +129,7 @@ export function Content() {
     )
       return;
 
-    window.near.on('accountChanged', async () => {
+    window?.sender?.near?.on('accountChanged', async () => {
       const senderModule = selector.store
         .getState()
         .modules.find((m) => m.id === 'sender');
