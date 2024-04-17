@@ -124,25 +124,25 @@ export function Content() {
 
   useEffect(() => {
     if (
-      !window?.near?.isSender ||
+      !window?.sender?.near ||
       selector?.store?.getState()?.selectedWalletId !== 'sender'
     )
       return;
+    window?.sender?.near?.on('accountChanged', async (changedAccountId) => {
+      // const senderModule = selector.store
+      //   .getState()
+      //   .modules.find((m) => m.id === 'sender');
 
-    window.near.on('accountChanged', async () => {
-      const senderModule = selector.store
-        .getState()
-        .modules.find((m) => m.id === 'sender');
+      // const senderWallet = (await senderModule.wallet()) as InjectedWallet;
 
-      const senderWallet = (await senderModule.wallet()) as InjectedWallet;
-
-      await senderWallet.signIn({
-        contractId: ORDERLY_ASSET_MANAGER,
-      });
-
-      window.location.reload();
+      // await senderWallet.signIn({
+      //   contractId: ORDERLY_ASSET_MANAGER,
+      // });
+      if (accountId !== changedAccountId) {
+        window.location.reload();
+      }
     });
-  }, [window.near]);
+  }, [window?.sender, accountId]);
 
   useGlobalPopUp(globalState);
 
