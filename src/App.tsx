@@ -15,7 +15,7 @@ import { LedgerTransactionModal } from './context/modal-ui/modal';
 import { XmasActivityContextProvider } from './context/XmasActivity';
 import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
 import RpcList from 'src/components/rpc';
-console.log('555555555555', process?.env?.REACT_APP_NEAR_ENV);
+import AccessModal from './components/portfolio/AccessModal';
 function App() {
   return (
     <Router>
