@@ -123,13 +123,11 @@ export function Content() {
   }, [accountId, getAccount]);
 
   useEffect(() => {
-    console.log('6666666还没进来呢');
     if (
       !window?.sender?.near ||
       selector?.store?.getState()?.selectedWalletId !== 'sender'
     )
       return;
-    console.log('7777777777进来啦');
     window?.sender?.near?.on('accountChanged', async (changedAccountId) => {
       // const senderModule = selector.store
       //   .getState()
@@ -140,8 +138,6 @@ export function Content() {
       // await senderWallet.signIn({
       //   contractId: ORDERLY_ASSET_MANAGER,
       // });
-      debugger;
-      console.log('8888888888进来切换拉');
       if (accountId !== changedAccountId) {
         window.location.reload();
       }
