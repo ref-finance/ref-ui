@@ -44,6 +44,7 @@ import {
   DownArrowLightMobile,
   FarmStampNew,
   PoolDaoBannerMobile,
+  TokenRisk,
   UpArrowDeep,
 } from 'src/components/icon';
 import { SearchIcon } from 'src/components/icon/FarmBoost';
@@ -57,6 +58,7 @@ import {
 import {
   REF_MOBILE_POOL_ID_INPUT,
   REF_POOL_ID_SEARCHING_KEY,
+  TokenPriceListContext,
 } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import MobilePoolRow from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/MobilePoolRow';
 import StablePoolList from 'src/pages/pools/poolsComponents/StablePoolList';
@@ -72,6 +74,7 @@ import BigNumber from 'bignumber.js';
 import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidityPage/LiquidityV1PoolsMobile';
 import { PoolsTip } from '../../poolsComponents/poolsTip';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { TknIcon } from 'src/components/icon/Common';
 
 function MobileLiquidityPage({
   pools,
@@ -832,8 +835,12 @@ function MobilePoolRowV2({
   relatedSeed?: Seed;
 }) {
   const { ref } = useInView();
-
+  const { riskTokens } = useContext(TokenPriceListContext);
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const isTokenAtRisk = (token) => {
+    return riskTokens.some((riskToken) => riskToken.id === token.id);
+  };
   const displayOfTopBinApr = useDCLTopBinFee({
     pool,
     way: 'value',
@@ -898,6 +905,18 @@ function MobilePoolRowV2({
     }
     return '';
   }
+  const atRiskTokens = curRowTokens.filter((token) =>
+    riskTokens.some((riskToken) => riskToken.id === token.id)
+  );
+  const hasRiskTokens = atRiskTokens.length > 0;
+  const tooltipText =
+    atRiskTokens.length > 1
+      ? `${atRiskTokens
+          .map((t) => t.symbol)
+          .join(' and ')} are uncertified tokens with high risk.`
+      : atRiskTokens.length === 1
+      ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
+      : '';
   return (
     <div className="w-full hover:bg-poolRowHover" onClick={goDetailV2}>
       <div
@@ -907,7 +926,7 @@ function MobilePoolRowV2({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center justify-start">
             <div className="flex items-center">
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+              {/* <div className="h-6 w-6 border border-gradientFromHover rounded-full">
                 <img
                   key={tokens[0].id.substring(0, 12).substring(0, 12)}
                   className="rounded-full w-full"
@@ -921,7 +940,34 @@ function MobilePoolRowV2({
                   className="w-full rounded-full"
                   src={tokens[1].icon}
                 />
-              </div>
+              </div> */}
+              {curRowTokens.map((token, index) => {
+                const atRisk = isTokenAtRisk(token);
+                return (
+                  <div key={token.id} className="relative inline-block">
+                    <div
+                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative z-10 ${
+                        index > 0 ? '-ml-1.5' : ''
+                      }`}
+                      style={{
+                        height: '26px',
+                        width: '26px',
+                      }}
+                    >
+                      <img
+                        className="rounded-full w-full"
+                        src={token.icon}
+                        alt={token.symbol}
+                      />
+                    </div>
+                    {atRisk && (
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center z-50">
+                        <TknIcon className="transform scale-75" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               {tokens[2] ? (
                 <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
                   <img
@@ -959,6 +1005,22 @@ function MobilePoolRowV2({
                 )}
               </div>
             </div>
+            {hasRiskTokens && (
+              <div
+                className="ml-2 relative"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <span>
+                  <TokenRisk />
+                </span>
+                {showTooltip && (
+                  <div className="absolute -top-3 z-50 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    {tooltipText}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex flex-col items-end">
             {showSortedValue({

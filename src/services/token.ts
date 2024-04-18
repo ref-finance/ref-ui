@@ -498,6 +498,26 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
     ]),
   ];
 };
+export const getWhitelistedTokensInfo = async (): Promise<
+  Record<string, string[]>
+> => {
+  let userWhitelist = [];
+  const globalWhitelist = await refFiViewFunction({
+    methodName: 'get_whitelisted_tokens',
+  });
+  if (getCurrentWallet()?.wallet?.isSignedIn()) {
+    userWhitelist = await refFiViewFunction({
+      methodName: 'get_user_whitelisted_tokens',
+      args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
+    });
+  }
+  return {
+    globalWhitelist: [
+      ...new Set<string>([...globalWhitelist, ...extraStableTokenIds]),
+    ],
+    userWhitelist,
+  };
+};
 
 export const getGlobalWhitelist = async (): Promise<string[]> => {
   const globalWhitelist = await refFiViewFunction({
@@ -541,4 +561,11 @@ export const round = (decimals: number, minAmountOut: string) => {
         Math.round(Number(minAmountOut) * Math.pow(10, decimals)) /
           Math.pow(10, decimals)
       ).toString();
+};
+
+export const get_auto_whitelisted_postfix = async (): Promise<string[]> => {
+  const metadata = await refFiViewFunction({
+    methodName: 'metadata',
+  });
+  return metadata.auto_whitelisted_postfix;
 };

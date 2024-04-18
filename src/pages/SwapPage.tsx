@@ -321,9 +321,11 @@ function SwapPage() {
     if (token.id === WRAP_NEAR_CONTRACT_ID) {
       token.icon = nearMetadata.icon;
       token.symbol = 'NEAR';
+      token.name = 'Near';
       wnearToken = JSON.parse(JSON.stringify(token));
       wnearToken.icon = wnearMetadata.icon;
       wnearToken.symbol = wnearMetadata.symbol;
+      wnearToken.name = 'Wrapped NEAR fungible token';
     }
   });
 

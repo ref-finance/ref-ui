@@ -302,9 +302,9 @@ export const usePools = (props: {
             ? rawPools.map((rawPool) => parsePool(rawPool))
             : await getPoolsFromCache({
                 page,
-                tokenName: tokenName,
+                tokenName,
                 column: sortBy,
-                order: order,
+                order,
               });
 
         setRawPools(rawPools);
