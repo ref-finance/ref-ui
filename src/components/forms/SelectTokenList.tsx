@@ -6,7 +6,12 @@ import { SingleToken } from './SelectToken';
 import { RefIcon } from '../icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
 import { WalletContext } from '../../utils/wallets-integration';
-import { CollectedIcon, NotFavoritedIcon, PinEmpty, PinSolid } from '../icon/Common';
+import {
+  CollectedIcon,
+  NotFavoritedIcon,
+  PinEmpty,
+  PinSolid,
+} from '../icon/Common';
 import { localTokens, USER_COMMON_TOKEN_LIST } from './SelectToken';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 interface TokenProps {
