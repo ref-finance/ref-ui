@@ -17,6 +17,7 @@ import {
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
 import { Contract, KeyPair, utils } from 'near-api-js';
+import BN from 'bn.js';
 
 import {
   getNormalizeTradingKey,
@@ -72,7 +73,8 @@ const announceLedgerAccessKey = async (accountId: string) => {
         'user_announce_key',
         'user_request_set_trading_key',
         'create_user_account',
-      ]
+      ],
+      new BN(utils.format.parseNearAmount('0.25'))
     );
   } else {
     keyStore.setKey(getConfig().networkId, accountId, keyPairLedger);
@@ -97,6 +99,7 @@ const announceLedgerAccessKey = async (accountId: string) => {
                   'user_request_set_trading_key',
                   'create_user_account',
                 ],
+                allowance: '250000000000000000000000',
               },
             },
           },

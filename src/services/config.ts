@@ -9,12 +9,16 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             simpleName: 'official rpc',
           },
           lavaRpc: {
-            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            url: 'https://near.lava.build',
             simpleName: 'lava rpc',
           },
           betaRpc: {
             url: 'https://beta.rpc.mainnet.near.org',
             simpleName: 'official beta rpc',
+          },
+          fastnearRpc: {
+            url: 'https://free.rpc.fastnear.com',
+            simpleName: 'fastnear rpc',
           },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
@@ -76,12 +80,16 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             simpleName: 'official rpc',
           },
           lavaRpc: {
-            url: 'https://g.w.lavanet.xyz/gateway/near/rpc-http/a6e88c7710da77f09430aacd6328efd6',
+            url: 'https://near.lava.build',
             simpleName: 'lava rpc',
           },
           betaRpc: {
             url: 'https://beta.rpc.mainnet.near.org',
             simpleName: 'official beta rpc',
+          },
+          fastnearRpc: {
+            url: 'https://free.rpc.fastnear.com',
+            simpleName: 'fastnear rpc',
           },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
@@ -137,13 +145,12 @@ export default function getConfig(
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         myNearWalletUrl: 'https://app.mynearwallet.com/',
-
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         nearExplorerUrl: 'https://explorer.near.org/',
-        indexerUrl: 'https://mainnet-indexer.ref-finance.com',
+        indexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
-        txIdApiUrl: 'https://api2.nearblocks.io',
+        txIdApiUrl: 'https://api3.nearblocks.io',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -152,12 +159,28 @@ export default function getConfig(
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.v2.ref-finance.near',
+        USDC_TOKEN_ID:
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        USDT_TOKEN_ID: 'usdt.tether-token.near',
+        USDCe_TOKEN_ID:
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        USDTe_TOKEN_ID:
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
         XREF_TOKEN_ID: 'xtoken.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
         POOL_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 20,
+        BTC_POOL_ID: '3364',
+        BTCIDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near',
+        ],
+        BTC_IDS_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
+        },
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 3020,
         STABLE_TOKEN_USN_IDS: [
           'usn',
@@ -186,9 +209,10 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+
         BLACKLIST_POOL_IDS: [
           '3699',
           '3734',
@@ -238,7 +262,9 @@ export default function getConfig(
           '2497',
           '2194',
           '2320',
+          '4744',
         ],
+
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
@@ -249,21 +275,15 @@ export default function getConfig(
           '3612#0',
           '3612#1',
         ],
-        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv2.ref-labs.near',
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
+        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
-        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
-          'usdt.tether-token.near',
-          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
-          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
-          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
-        ],
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID || 4513,
         FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID || 4514,
         USDT_USDC_TOKEN_IDS: [
@@ -273,6 +293,12 @@ export default function getConfig(
         FRAX_USDC_TOKEN_IDS: [
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
+        USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
+          'usdt.tether-token.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         ],
         SOL_SOLBridge_POOL_ID: process.env.SOL_SOLBridge_POOL_ID || 4744,
         SOL_SOLBridge_TOKEN_IDS: [
@@ -305,6 +331,11 @@ export default function getConfig(
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
         REF_TOKEN_ID: 'ref.fakes.testnet',
+        USDC_TOKEN_ID:
+          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
+        USDT_TOKEN_ID: 'usdtt.fakes.testnet',
+        USDCe_TOKEN_ID: 'usdc.fakes.testnet',
+        USDTe_TOKEN_ID: 'usdt.fakes.testnet',
         XREF_TOKEN_ID: 'xref.ref-finance.testnet',
         REF_VE_CONTRACT_ID: 'v010.refve.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
@@ -337,9 +368,9 @@ export default function getConfig(
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -400,6 +431,11 @@ export default function getConfig(
           process.env.REF_FARM_CONTRACT_ID || 'farm-dev.ref-dev.testnet',
         // REF_VE_CONTRACT_ID: 'dev-20220623151446-29039416013661',
         REF_TOKEN_ID: 'ref.fakes.testnet',
+        USDC_TOKEN_ID:
+          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
+        USDT_TOKEN_ID: 'usdtt.fakes.testnet',
+        USDCe_TOKEN_ID: 'usdc.fakes.testnet',
+        USDTe_TOKEN_ID: 'usdt.fakes.testnet',
         XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
@@ -434,9 +470,9 @@ export default function getConfig(
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -483,7 +519,7 @@ export default function getConfig(
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
-        txIdApiUrl: 'https://api2.nearblocks.io',
+        txIdApiUrl: 'https://api3.nearblocks.io',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -492,6 +528,13 @@ export default function getConfig(
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.v2.ref-finance.near',
+        USDC_TOKEN_ID:
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        USDT_TOKEN_ID: 'usdt.tether-token.near',
+        USDCe_TOKEN_ID:
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        USDTe_TOKEN_ID:
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
         XREF_TOKEN_ID: 'xtoken.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
@@ -535,9 +578,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -588,6 +631,7 @@ export default function getConfig(
           '2497',
           '2194',
           '2320',
+          '4744',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,

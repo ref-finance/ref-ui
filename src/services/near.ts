@@ -232,6 +232,10 @@ export const REF_UNI_SWAP_CONTRACT_ID = config.REF_UNI_SWAP_CONTRACT_ID;
 export const REF_AIRDRAOP_CONTRACT_ID = config.REF_AIRDROP_CONTRACT_ID;
 
 export const REF_TOKEN_ID = config.REF_TOKEN_ID;
+export const USDC_TOKEN_ID = config.USDC_TOKEN_ID;
+export const USDT_TOKEN_ID = config.USDT_TOKEN_ID;
+export const USDCe_TOKEN_ID = config.USDCe_TOKEN_ID;
+export const USDTe_TOKEN_ID = config.USDTe_TOKEN_ID;
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
 export const LP_STORAGE_AMOUNT = '0.01';
 
