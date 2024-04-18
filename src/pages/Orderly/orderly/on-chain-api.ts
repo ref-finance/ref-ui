@@ -271,7 +271,6 @@ const user_request_withdraw = async (token: string, amount: string) => {
     amount: ONE_YOCTO_NEAR,
   };
 };
-
 export {
   get_user_trading_key,
   get_listed_tokens,

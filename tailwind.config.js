@@ -431,6 +431,7 @@ module.exports = {
         memePoolBoxBorderColor: '#3F5361',
         memeDarkColor: '#182833',
         memeyellowColor: '#F9A43F',
+        keyCheckBorder: '#45535D',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

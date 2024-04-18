@@ -72,16 +72,12 @@ import {
 import { MobileNavBar } from './MobileNav';
 import { QuestionTip } from './TipWrapper';
 import { getURLInfo } from './transactionTipPopUp';
-import USNBuyComponent from 'src/components/forms/USNBuyComponent';
-import { SWAP_MODE_KEY } from '../../pages/SwapPage';
-import Marquee from 'src/components/layout/Marquee';
 
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
 } from 'src/context/WalletSelectorContext';
 
-import { SWAP_MODE } from '../../pages/SwapPage';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { BuyNearButton } from '../button/Button';
 import {
@@ -94,20 +90,14 @@ import {
   REF_FI_SENDER_WALLET_ACCESS_KEY,
 } from '../../pages/Orderly/orderly/utils';
 import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
-import {
-  MoreIcon,
-  ArrowDownIcon,
-  DownTriangleIcon,
-} from 'src/components/icon/Nav';
+import { ArrowDownIcon, DownTriangleIcon } from 'src/components/icon/Nav';
 import { openUrl } from '../../services/commonV3';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
 import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 import { WalletSelectorModal } from './WalletSelector';
 import { isNewHostName } from '../../services/config';
-import { WrapNearIcon } from './WrapNear';
-
-const config = getConfig();
+import { KeyIcon } from '../../components/portfolio/icons';
+import AccessKeyModal from '../../components/portfolio/AccessKeyModal';
 
 export function AccountTipDownByAccountID({ show }: { show: boolean }) {
   return (
@@ -158,6 +148,9 @@ function AccountEntry({
   const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
 
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const [keyModalShow, setKeyModalShow] = useState<boolean>(
+    localStorage.getItem('ACCESS_KEY_OPEN') !== '1'
+  );
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
       CONST_ACKNOWLEDGE_WALLET_RISK
@@ -208,7 +201,7 @@ function AccountEntry({
           REF_FI_SENDER_WALLET_ACCESS_KEY
         );
 
-        const allKeys = Object.keys(JSON.parse(senderAccessKey)['allKeys']);
+        const allKeys = Object.keys(JSON.parse(senderAccessKey).allKeys);
 
         //@ts-ignore
 
@@ -252,26 +245,6 @@ function AccountEntry({
         history.push('/overview');
       },
     },
-    // {
-    //   icon: <ActivityIcon />,
-    //   textId: 'recent_activity',
-    //   selected: location.pathname == '/recent',
-    //   click: () => {
-    //     history.push('/recent');
-    //   },
-    // },
-    // {
-    //   icon: <WalletIcon />,
-    //   textId: 'go_to_near_wallet',
-    //   // subIcon: <HiOutlineExternalLink />,
-    //   click: () => {
-    //     openUrl(
-    //       selector.store.getState().selectedWalletId === 'my-near-wallet'
-    //         ? config.myNearWalletUrl
-    //         : config.walletUrl
-    //     );
-    //   },
-    // },
   ];
 
   function showToast() {
@@ -283,7 +256,13 @@ function AccountEntry({
       setCopyButtonDisabled(false);
     }, 1000);
   }
-
+  function closeKeyModal() {
+    localStorage.setItem('ACCESS_KEY_OPEN', '1');
+    setKeyModalShow(false);
+  }
+  function showkeyModal() {
+    setKeyModalShow(true);
+  }
   const isMobile = useClientMobile();
   const isDisableChangeWallet = ['keypom', 'Keypom Account'].includes(
     currentWalletName
@@ -528,9 +507,21 @@ function AccountEntry({
                           <FarmDot inFarm={hasBalanceOnRefAccount} />
                         ) : null}
                       </label>
-                      {/* {item.subIcon ? (
-                        <label className="text-lg ml-2">{item.subIcon}</label>
-                      ) : null} */}
+                    </div>
+                    <div
+                      onClick={showkeyModal}
+                      className={`flex items-center mx-3 text-sm cursor-pointer font-semibold py-4 pl-3 hover:text-white hover:bg-black rounded-lg hover:bg-opacity-10 ${
+                        item.selected
+                          ? 'text-white bg-black bg-opacity-10'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      <label className="w-9">
+                        <KeyIcon />
+                      </label>
+                      <label className="cursor-pointer text-base">
+                        Access Key
+                      </label>
                     </div>
                     {hasBalanceOnRefAccount && item.textId === 'your_assets' ? (
                       <div
@@ -553,6 +544,9 @@ function AccountEntry({
           </div>
         ) : null}
       </div>
+      {accountId && keyModalShow ? (
+        <AccessKeyModal isOpen={keyModalShow} onRequestClose={closeKeyModal} />
+      ) : null}
     </div>
   );
 }
