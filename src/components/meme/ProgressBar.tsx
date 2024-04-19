@@ -146,7 +146,7 @@ function RaceTemplate({ children }: any) {
   return (
     <div
       className="border-b border-greenLight border-opacity-10"
-      style={{ height: is_mobile ? '130px' : '124px' }}
+      style={{ height: is_mobile ? '130px' : '142px' }}
     >
       {children}
     </div>
