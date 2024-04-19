@@ -8,23 +8,10 @@ import React, {
 } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
-import { matchPath } from 'react-router';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { Card } from 'src/components/card/Card';
-import {
-  IconAirDropGreenTip,
-  Logo,
-  NavLogoIcon,
-  Near,
-} from 'src/components/icon';
-import {
-  AccountIcon,
-  ActivityIcon,
-  SignoutIcon,
-  WalletIcon,
-  WNEARExchngeIcon,
-} from 'src/components/icon/Common';
-import { XrefIcon } from 'src/components/icon/Xref';
+import { NavLogoIcon, Near } from 'src/components/icon';
+import { AccountIcon } from 'src/components/icon/Common';
 import { Context } from 'src/components/wrapper';
 import getConfig from 'src/services/config';
 import { NEARXIDS, wallet } from 'src/services/near';
@@ -32,37 +19,20 @@ import {
   BridgeButton,
   menuItemType,
   useLanguageItems,
-  useMenuItems,
   useMenus,
 } from 'src/utils/menu';
-import { getAccount } from '../../services/airdrop';
-import {
-  auroraAddr,
-  batchCallWithdraw,
-  useAuroraTokens,
-} from '../../services/aurora/aurora';
+import { auroraAddr, useAuroraTokens } from '../../services/aurora/aurora';
 import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import { useAuroraBalances } from '../../services/aurora/aurora';
 import { getAuroraConfig } from '../../services/aurora/config';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
-import { isMobile, useClientMobile, useMobile } from '../../utils/device';
+import { useClientMobile, useMobile } from '../../utils/device';
 import { toReadableNumber } from '../../utils/numbers';
-import {
-  getCurrentWallet,
-  senderWallet,
-} from '../../utils/wallets-integration';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 import { WalletContext } from '../../utils/wallets-integration';
-import {
-  getAccountName,
-  saveSenderLoginRes,
-} from '../../utils/wallets-integration';
-import {
-  AuroraIcon,
-  ConnectDot,
-  CopyIcon,
-  HasBalance,
-} from '../icon/CrossSwapIcons';
+import { getAccountName } from '../../utils/wallets-integration';
+import { AuroraIcon, CopyIcon, HasBalance } from '../icon/CrossSwapIcons';
 import { FarmDot } from '../icon/FarmStamp';
 import {
   FiChevronRight,

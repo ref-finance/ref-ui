@@ -26,7 +26,6 @@ function AccessKeyModal(props: any) {
   const { isOpen, onRequestClose } = props;
   const cardWidth = isMobile() ? '95vw' : '32vw';
   const cardHeight = isMobile() ? '90vh' : '100vh';
-  // const [selfIsOpen, setSelfIsOpen] = useState(isOpen);
   const [currentUsedKeys, setCurrentUsedKeys] = useState<string[]>([]);
   const { accountId } = useWalletSelector();
   const [tab, setTab] = useState<'accessKey' | 'orderlyKey'>('accessKey');
@@ -122,7 +121,7 @@ function AuthorizedApps({
   }, [functionCallKeys, currentUsedKeys.length]);
   function getAllowance(b: string) {
     if (b) {
-      return toPrecision(toReadableNumber(24, b), maxLength);
+      return toPrecision(toReadableNumber(24, b), maxLength) + ' NEAR';
     }
     return 'Unlimited';
   }
@@ -221,7 +220,6 @@ function AuthorizedApps({
                     (item?.access_key?.permission as Ipermission)?.FunctionCall
                       ?.allowance
                   )}{' '}
-                  NEAR
                 </span>
               </div>
             </div>
