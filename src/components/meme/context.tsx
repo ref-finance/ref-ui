@@ -101,7 +101,11 @@ function MemeContextProvider({ children }: any) {
     init();
   }, []);
   useEffect(() => {
-    if (isSignedIn && Object.keys(seeds).length && Object.keys(xrefSeeds).length) {
+    if (
+      isSignedIn &&
+      Object.keys(seeds).length &&
+      Object.keys(xrefSeeds).length
+    ) {
       init_user();
     }
   }, [isSignedIn, Object.keys(seeds).length, Object.keys(xrefSeeds).length]);
