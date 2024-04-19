@@ -78,6 +78,44 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = tableData.slice(indexOfFirstItem, indexOfLastItem);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const getCustomPaginationRange = (current, total) => {
+    let pages = [];
+    const lastPage = total;
+    const secondLastPage = total - 1;
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, index) => index + 1);
+    }
+    if (current === 1) {
+      pages = [1, 2, 3, '...', secondLastPage, lastPage];
+    } else if (current === 2) {
+      pages = [1, 2, 3, '...', secondLastPage, lastPage];
+    } else if (current === lastPage - 3) {
+      pages = [current - 1, current, lastPage - 2, lastPage - 1, lastPage];
+    } else if (current === lastPage - 2) {
+      pages = [current - 2, current - 1, current, lastPage - 1, lastPage];
+    } else if (current === lastPage - 1) {
+      pages = [current - 3, current - 2, current - 1, current, lastPage];
+    } else if (current === lastPage) {
+      pages = [
+        lastPage - 4,
+        lastPage - 3,
+        lastPage - 2,
+        lastPage - 1,
+        lastPage,
+      ];
+    } else {
+      pages = [
+        current - 1,
+        current,
+        current + 1,
+        '...',
+        secondLastPage,
+        lastPage,
+      ];
+    }
+
+    return pages;
+  };
 
   return (
     <div className={`text-primaryText ${hidden ? 'hidden' : ''}`}>
@@ -90,25 +128,37 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
       >
         <div>Ranking</div>
         <div>Wallet</div>
-        <div className="flex items-center justify-center cursor-pointer">
+        <div
+          onClick={() => handleSort('$LONK')}
+          className="flex items-center justify-center cursor-pointer"
+        >
           <LonkLogo className="mr-1.5" />
           Lonk
-          {/* {renderSortIcon('Lonk')} */}
+          {renderSortIcon('Lonk')}
         </div>
-        <div className="flex items-center justify-center cursor-pointer">
+        <div
+          onClick={() => handleSort('$NEKO')}
+          className="flex items-center justify-center cursor-pointer"
+        >
           <NekoLogo className="mr-1.5" />
           Neko
-          {/* {renderSortIcon('Neko')} */}
+          {renderSortIcon('Neko')}
         </div>
-        <div className="flex items-center justify-center cursor-pointer">
+        <div
+          onClick={() => handleSort('$BLACKDRAGON')}
+          className="flex items-center justify-center cursor-pointer"
+        >
           <BlackdragonLogo className="mr-1.5" />
           Blackdragon
-          {/* {renderSortIcon('Blackdragon')} */}
+          {renderSortIcon('Blackdragon')}
         </div>
-        <div className="flex items-center justify-center cursor-pointer">
+        <div
+          onClick={() => handleSort('$SHITZU')}
+          className="flex items-center justify-center cursor-pointer"
+        >
           <ShitzuLogo className="mr-1.5" />
           Shitzu
-          {/* {renderSortIcon('Shitzu')} */}
+          {renderSortIcon('Shitzu')}
         </div>
         <div
           onClick={() => handleSort('Total Balance ($)')}
@@ -192,21 +242,37 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
           Previous
         </div>
         <div>
-          {[...Array(Math.ceil(tableData.length / itemsPerPage)).keys()].map(
-            (x) => (
-              <button
-                key={x + 1}
-                onClick={() => paginate(x + 1)}
-                className={`mr-3.5 py-1 px-2 rounded-md ${
-                  currentPage === x + 1
-                    ? 'bg-limitOrderInputColor bg-opacity-30 text-white'
-                    : 'text-primaryText'
-                }`}
-              >
-                {x + 1}
-              </button>
-            )
-          )}
+          <div>
+            {getCustomPaginationRange(
+              currentPage,
+              Math.ceil(tableData.length / itemsPerPage)
+            ).map((page, index) => {
+              if (typeof page === 'number') {
+                return (
+                  <button
+                    key={index}
+                    onClick={() => paginate(page)}
+                    className={`mr-3.5 py-1 px-2 rounded-md ${
+                      currentPage === page
+                        ? 'bg-limitOrderInputColor bg-opacity-30 text-white'
+                        : 'text-primaryText'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              } else {
+                return (
+                  <span
+                    key={index}
+                    className="mr-3.5 py-1 px-2 rounded-md text-primaryText cursor-default"
+                  >
+                    {page}
+                  </span>
+                );
+              }
+            })}
+          </div>
         </div>
         <div
           className={`flex justify-center items-center ${
