@@ -13,7 +13,7 @@ import {
   classificationOfCoins,
   Seed,
 } from '../../../services/farm';
-import { ArrowDownLarge } from '../../../components/icon';
+import { ArrowDownLarge, TokenRisk } from '../../../components/icon';
 import { useHistory } from 'react-router';
 import { Card } from '../../../components/card/Card';
 import { find } from 'lodash';
@@ -84,7 +84,11 @@ import {
   getCurrentWallet,
 } from '../../../utils/wallets-integration';
 import { unwrapedNear, wnearMetadata } from '../../../services/wrap-near';
-import { Images, Symbols } from '../../../components/stableswap/CommonComp';
+import {
+  Images,
+  Symbols,
+  TknImages,
+} from '../../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../../ReferendumPage';
 import { StartPoolIcon } from '../../../components/icon/WatchListStar';
 import {
@@ -152,6 +156,7 @@ import {
   REF_POOL_ID_SEARCHING_KEY,
   TokenPriceListContext,
 } from './constLiquidityPage';
+import { useRiskTokens } from '../../../state/token';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -196,6 +201,7 @@ export const getPoolListV2FarmAprTip = () => {
 `;
 };
 
+// todo need delete
 function PoolRow({
   pool,
   index,
@@ -221,16 +227,30 @@ function PoolRow({
   mark?: boolean;
   farmApr?: number;
 }) {
+  const { riskTokens } = useContext(TokenPriceListContext);
   const curRowTokens = useTokens(pool.tokenIds, tokens);
+  const isTokenAtRisk = (token) => {
+    return riskTokens.some((riskToken) => riskToken.id === token.id);
+  };
+  const [showTooltip, setShowTooltip] = useState(false);
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
-
   const { indexFail } = useContext(TokenPriceListContext);
-
   if (!curRowTokens) return <></>;
-
   tokens = sort_tokens_by_base(curRowTokens);
 
+  const atRiskTokens = curRowTokens.filter((token) =>
+    riskTokens.some((riskToken) => riskToken.id === token.id)
+  );
+  const hasRiskTokens = atRiskTokens.length > 0;
+  const tooltipText =
+    atRiskTokens.length > 1
+      ? `${atRiskTokens
+          .map((t) => t.symbol)
+          .join(' and ')} are uncertified tokens with high risk.`
+      : atRiskTokens.length === 1
+      ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
+      : '';
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
@@ -248,7 +268,7 @@ function PoolRow({
       >
         <div className="col-span-3 md:col-span-4 flex items-center">
           <div className="flex items-center">
-            <Images tokens={tokens} size="8" />
+            <TknImages tokens={tokens} size="8" />
             <div className="flex items-center">
               <div className="flex flex-wrap max-w-48 text-sm ml-3">
                 <label>{tokens[0].symbol}</label>-
@@ -256,6 +276,22 @@ function PoolRow({
                 {tokens[2] ? <label>-{tokens[2]?.symbol}</label> : null}
                 {tokens[3] ? <label>-{tokens[3]?.symbol}</label> : null}
               </div>
+              {hasRiskTokens && (
+                <div
+                  className="ml-2 relative"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+                  <span>
+                    <TokenRisk />
+                  </span>
+                  {showTooltip && (
+                    <div className="absolute -top-3 z-50 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                      {tooltipText}
+                    </div>
+                  )}
+                </div>
+              )}
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
                   {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1
@@ -352,7 +388,12 @@ function PoolRowV2({
   h24volume?: string;
   relatedSeed?: Seed;
 }) {
+  const { riskTokens } = useContext(TokenPriceListContext);
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const isTokenAtRisk = (token) => {
+    return riskTokens.some((riskToken) => riskToken.id === token.id);
+  };
   const history = useHistory();
   const topBinApr = useDCLTopBinFee({
     pool,
@@ -399,6 +440,18 @@ function PoolRowV2({
     }
     return '';
   }
+  const atRiskTokens = curRowTokens.filter((token) =>
+    riskTokens.some((riskToken) => riskToken.id === token.id)
+  );
+  const hasRiskTokens = atRiskTokens.length > 0;
+  const tooltipText =
+    atRiskTokens.length > 1
+      ? `${atRiskTokens
+          .map((t) => t.symbol)
+          .join(' and ')} are uncertified tokens with high risk.`
+      : atRiskTokens.length === 1
+      ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
+      : '';
   return (
     <div
       className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20 cursor-pointer"
@@ -415,13 +468,29 @@ function PoolRowV2({
           }`}
         >
           <div className="flex items-center">
-            <Images tokens={tokens} size="8" />
+            <TknImages tokens={tokens} size="8" />
             <div className="text-sm ml-3">
               {tokens[0].symbol +
                 '-' +
                 tokens[1].symbol +
                 `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
             </div>
+            {hasRiskTokens && (
+              <div
+                className="ml-2 relative"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <span>
+                  <TokenRisk />
+                </span>
+                {showTooltip && (
+                  <div className="absolute -top-3 z-50 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    {tooltipText}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           {mark ? (
             <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
@@ -1683,13 +1752,13 @@ export default function LiquidityPage() {
     watchList,
   } = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<boolean | any>(false);
+  const riskTokens = useRiskTokens();
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
     sortBy,
     order,
   });
-
   const tokenPriceList = useTokenPriceList();
 
   const [farmOnly, setFarmOnly] = useState<boolean>(
@@ -1873,6 +1942,7 @@ export default function LiquidityPage() {
     <TokenPriceListContext.Provider
       value={{
         indexFail: Object.keys(tokenPriceList).length == 0,
+        riskTokens,
       }}
     >
       {!clientMobileDevice && (
@@ -2265,10 +2335,15 @@ function StablePoolCard({
   supportFarm: boolean;
   farmApr: number;
 }) {
+  const { riskTokens } = useContext(TokenPriceListContext);
   const formattedPool = formatePoolData(poolData);
   const standPool = poolData.pool;
   standPool.tvl = poolData.poolTVL;
-
+  const curRowTokens = poolData.tokens;
+  const [showTooltip, setShowTooltip] = useState(false);
+  const isTokenAtRisk = (token) => {
+    return riskTokens.some((riskToken) => riskToken.id === token.id);
+  };
   const [hover, setHover] = useState<boolean>(false);
 
   const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
@@ -2295,6 +2370,19 @@ function StablePoolCard({
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID;
+
+  const atRiskTokens = curRowTokens.filter((token) =>
+    riskTokens.some((riskToken) => riskToken.id === token.id)
+  );
+  const hasRiskTokens = atRiskTokens.length > 0;
+  const tooltipText =
+    atRiskTokens.length > 1
+      ? `${atRiskTokens
+          .map((t) => t.symbol)
+          .join(' and ')} are uncertified tokens with high risk.`
+      : atRiskTokens.length === 1
+      ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
+      : '';
   return (
     <div
       className="mb-4 xs:mb-2 md:mb-2"
@@ -2320,7 +2408,7 @@ function StablePoolCard({
               : ''
           }  flex items-center   xs:justify-between md:justify-between`}
         >
-          <Images
+          <TknImages
             tokens={poolData.tokens}
             size="8"
             className={`mr-4 ${is_new_pool ? 'xsm:ml-4 xsm:mr-0' : ''}`}
@@ -2342,6 +2430,22 @@ function StablePoolCard({
                 </div>
               )}
             </div>
+            {hasRiskTokens && (
+              <div
+                className="ml-2 relative"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <span>
+                  <TokenRisk />
+                </span>
+                {showTooltip && (
+                  <div className="absolute -top-3 z-50 left-5 px-2 w-min py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                    {tooltipText}
+                  </div>
+                )}
+              </div>
+            )}
 
             <span
               className="xs:relative md:relative xs:top-1 md:top-1 cursor-pointer"

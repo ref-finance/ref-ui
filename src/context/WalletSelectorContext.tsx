@@ -46,6 +46,7 @@ declare global {
     };
     modal: WalletSelectorModal;
     selectorAccountId?: string | null;
+    sender?: any;
   }
 }
 interface IAccountKey {
