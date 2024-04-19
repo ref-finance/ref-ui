@@ -12,7 +12,7 @@ import {
   UserStakeRankingTab3,
 } from './icons';
 
-export default function UserStakeRanking() {
+export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   const [tableData, setTableData] = useState([]);
   const [sortConfig, setSortConfig] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,7 +80,7 @@ export default function UserStakeRanking() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="text-white mt-8">
+    <div className={`text-primaryText ${hidden ? 'hidden' : ''}`}>
       <div
         className="grid gap-6 text-sm text-gray2 text-left mb-3 px-6"
         style={{
@@ -118,7 +118,7 @@ export default function UserStakeRanking() {
           {renderSortIcon('Total Balance ($)')}
         </div>
       </div>
-      <div className="bg-memeModelgreyColor rounded-2xl mb-6">
+      <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white">
         {currentItems.map((item, index) => (
           <div
             key={item.Wallet}
