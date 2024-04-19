@@ -1,7 +1,8 @@
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
-import _ from 'lodash';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import _, { type DebounceSettings } from 'lodash';
+import React, { type DependencyList,
+  type EffectCallback,useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 
@@ -386,6 +387,8 @@ export const estimateValidator = (
   }
   return true;
 };
+
+// TODO NEW3
 export const useSwap = ({
   tokenIn,
   tokenInAmount,
@@ -457,7 +460,6 @@ export const useSwap = ({
 
     setAvgFee(avgFee);
   };
-
   const getEstimate = async () => {
     setCanSwap(false);
     setQuoteDone(false);
@@ -531,7 +533,8 @@ export const useSwap = ({
               scientificNotationToString(expectedOut.toString())
             );
             setSwapsToDo(estimates);
-            setEstimateInOut([tokenInAmount, expectedOut.toString()]);
+            setEstimateInOut([tokenInAmount, expectedOut.toString(), tokenIn.id, tokenOut.id]);
+            console.log('00000000000000-expectedOut tokenIn', tokenIn.id, expectedOut.toString());
             setCanSwap(true);
             setQuoteDone(true);
           }
@@ -563,8 +566,7 @@ export const useSwap = ({
       setTokenOutAmount('0');
     }
   };
-
-  useEffect(() => {
+  useDebouncedEffect(() => {
     const valRes =
       !swapError &&
       swapsToDo &&
@@ -598,9 +600,8 @@ export const useSwap = ({
     reEstimateTrigger,
     enableTri,
     forceEstimate,
-  ]);
-
-  useEffect(() => {
+  ], 1000)
+  useDebouncedEffect(() => {
     const valRes =
       swapsToDo &&
       tokenIn &&
@@ -621,7 +622,7 @@ export const useSwap = ({
 
     if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
     getEstimate();
-  }, [estimating]);
+  }, [estimating], 1000)
 
   useEffect(() => {
     setForceEstimate(true);
@@ -689,6 +690,36 @@ export const useSwap = ({
     estimateInOut,
   };
 };
+type DebounceOptions = number | ({ wait: number } & Partial<DebounceSettings>);
+export function useDebouncedEffect(
+  effect: EffectCallback,
+  deps: React.DependencyList,
+  debounceOptions?: DebounceOptions,
+) {
+  useEffect(() => {
+    const options =
+      typeof debounceOptions === 'number' ? { wait: debounceOptions } : debounceOptions;
+    const debouncedEffect = _.debounce(
+      () => {
+        const cleanupFn = effect();
+        if (cleanupFn) {
+          debouncedEffect.flush = cleanupFn as any;
+        }
+      },
+      options?.wait,
+      options,
+    );
+
+    debouncedEffect();
+
+    return () => {
+      debouncedEffect.cancel();
+      if (debouncedEffect.flush) {
+        debouncedEffect.flush();
+      }
+    };
+  }, [...deps]);
+}
 export const useSwapV3 = ({
   tokenIn,
   tokenInAmount,
@@ -1481,6 +1512,7 @@ export const getPriceImpact = ({
   }
 };
 
+// TODO NOW2
 export const useRefSwap = ({
   tokenIn,
   tokenInAmount,
@@ -1498,7 +1530,6 @@ export const useRefSwap = ({
 }: SwapOptions): ExchangeEstimate => {
   const {
     canSwap,
-    // tokenOutAmount,
     minAmountOut,
     swapError,
     makeSwap: makeSwapV1,
@@ -1523,7 +1554,7 @@ export const useRefSwap = ({
     reEstimateTrigger,
     supportLedger,
   });
-  const [estimateInAmount, tokenOutAmount] = estimateInOut;
+  const [estimateInAmount, tokenOutAmount, tokenInId, tokenOutId] = estimateInOut;
 
   const {
     makeSwap: makeSwapV2,
@@ -1536,7 +1567,6 @@ export const useRefSwap = ({
     canSwap: canSwapV2,
     swapErrorV3: swapErrorV2,
     tokenInAmount: tokenInAmountV2,
-    tag: tagV2,
   } = useSwapV3({
     tokenIn,
     tokenOut,
@@ -1552,7 +1582,7 @@ export const useRefSwap = ({
   const quoteDoneRef =
     quoteDoneV2 &&
     quoteDone &&
-    Big(estimateInAmount || 0).eq(tokenInAmount || 0);
+    Big(estimateInAmount || 0).eq(tokenInAmount || 0) && tokenInId == tokenIn.id && tokenOutId == tokenOut.id
   if (!quoteDoneRef)
     return {
       quoteDone: false,
@@ -1563,6 +1593,11 @@ export const useRefSwap = ({
       market: 'ref',
       tokenOutAmount: '0',
     };
+  console.log(
+    '77777777777-tokenOutAmount、tokenOutAmountV2',
+    tokenOutAmount,
+    tokenOutAmountV2
+  );
   const bestSwap =
     new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
     canSwapV2 &&
@@ -1910,6 +1945,7 @@ export const useOrderlySwap = ({
 
 export const REF_FI_BEST_MARKET_ROUTE = 'REF_FI_BEST_MARKET_ROUTE';
 
+// TODO NOW
 export const useRefSwapPro = ({
   tokenIn,
   tokenInAmount,
