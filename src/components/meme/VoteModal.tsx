@@ -46,12 +46,6 @@ function VoteModel(props: any) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const xrefBalance = useMemo(() => {
-    console.log(
-      '3333333333333-xrefTokenId, user_balances, allTokenMetadatas',
-      xrefTokenId,
-      user_balances,
-      allTokenMetadatas
-    );
     if (xrefTokenId && allTokenMetadatas?.[xrefTokenId]) {
       return toReadableNumber(
         allTokenMetadatas?.[xrefTokenId].decimals,
