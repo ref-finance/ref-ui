@@ -69,7 +69,7 @@ function AccessKeyModal(props: any) {
                 tab == 'accessKey' ? 'text-white' : 'text-limitOrderInputColor'
               }`}
             >
-              Access
+              Approved Key
             </span>
             <div
               onClick={() => {
@@ -79,7 +79,7 @@ function AccessKeyModal(props: any) {
                 tab == 'orderlyKey' ? 'text-white' : 'text-limitOrderInputColor'
               }`}
             >
-              <OrderlyIcon isActive={true} />
+              <OrderlyIcon isActive={tab == 'orderlyKey'} />
               <span className="text-lg gotham_bold">Orderly</span>
             </div>
           </div>
@@ -342,7 +342,7 @@ function OrderlyKeys({
         </div>
         <div
           className="overflow-auto hide-scrollbar px-6 border-b border-gray1 xsm:px-3"
-          style={{ maxHeight: '300px' }}
+          style={{ maxHeight: '290px' }}
         >
           <div
             className={`bg-primaryText bg-opacity-20 rounded-xl p-4 ${

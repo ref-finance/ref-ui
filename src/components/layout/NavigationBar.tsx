@@ -487,7 +487,7 @@ function AccountEntry({
                         <KeyIcon />
                       </label>
                       <label className="cursor-pointer text-base">
-                        Access Key
+                        Approved Key
                       </label>
                     </div>
                     {hasBalanceOnRefAccount && item.textId === 'your_assets' ? (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { OrderlyOrderBookIcon } from '../../components/icon/CrossSwapIcons';
 
 export function ConnnectIcon(props) {
   return (
@@ -57,6 +58,8 @@ export function ConnnectIcon(props) {
   );
 }
 export function OrderlyIcon({ isActive }: { isActive: boolean }) {
+  if (isActive)
+    return <OrderlyOrderBookIcon style={{ width: '18px', height: '18px' }} />;
   return (
     <svg
       width="18"
