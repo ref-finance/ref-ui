@@ -1,6 +1,5 @@
 import { getCurrentWallet } from '../utils/wallets-integration';
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
-import { user_request_key_removal } from '../pages/Orderly/orderly/on-chain-api';
 import { getOrderlyConfig } from '../pages/Orderly/config';
 export async function batchDeleteKeys(publicKeys: string[]) {
   const accountId = getCurrentWallet().wallet.getAccountId();
@@ -20,9 +19,16 @@ export async function batchDeleteKeys(publicKeys: string[]) {
       ],
     });
   });
-  wallet.signAndSendTransactions({
-    transactions: wstransactions,
-  });
+  wallet
+    .signAndSendTransactions({
+      transactions: wstransactions,
+    })
+    .then(() => {
+      window.location.reload();
+    })
+    .catch(() => {
+      window.location.reload();
+    });
 }
 export async function batchOrderelyDeleteKeys(publicKeys: string[]) {
   const accountId = getCurrentWallet().wallet.getAccountId();
@@ -47,7 +53,14 @@ export async function batchOrderelyDeleteKeys(publicKeys: string[]) {
       ],
     });
   });
-  wallet.signAndSendTransactions({
-    transactions: wstransactions,
-  });
+  wallet
+    .signAndSendTransactions({
+      transactions: wstransactions,
+    })
+    .then(() => {
+      window.location.reload();
+    })
+    .catch(() => {
+      window.location.reload();
+    });
 }

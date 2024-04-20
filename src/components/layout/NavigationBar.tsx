@@ -118,9 +118,7 @@ function AccountEntry({
   const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
 
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
-  const [keyModalShow, setKeyModalShow] = useState<boolean>(
-    localStorage.getItem('ACCESS_KEY_OPEN') !== '1'
-  );
+  const [keyModalShow, setKeyModalShow] = useState<boolean>(false);
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
       CONST_ACKNOWLEDGE_WALLET_RISK
@@ -227,7 +225,6 @@ function AccountEntry({
     }, 1000);
   }
   function closeKeyModal() {
-    localStorage.setItem('ACCESS_KEY_OPEN', '1');
     setKeyModalShow(false);
   }
   function showkeyModal() {
