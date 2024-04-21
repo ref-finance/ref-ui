@@ -6,7 +6,6 @@ import Footer from './components/layout/Footer';
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './app.css';
-import Guider from 'src/components/layout/Guider';
 
 import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
 
@@ -24,7 +23,6 @@ function App() {
             <Content />
 
             <Footer />
-            <Guider></Guider>
           </div>
         </XmasActivityContextProvider>
       </WalletSelectorContextProvider>

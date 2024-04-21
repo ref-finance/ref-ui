@@ -68,6 +68,7 @@ import { WalletSelectorModal } from './WalletSelector';
 import { isNewHostName } from '../../services/config';
 import { KeyIcon } from '../../components/portfolio/icons';
 import AccessKeyModal from '../../components/portfolio/AccessKeyModal';
+import Guider, { LinkLine } from 'src/components/layout/Guider';
 
 export function AccountTipDownByAccountID({ show }: { show: boolean }) {
   return (
@@ -119,6 +120,9 @@ function AccountEntry({
 
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
   const [keyModalShow, setKeyModalShow] = useState<boolean>(false);
+  const [showGuider, setShowGuider] = useState(
+    localStorage.getItem('ACCESS_MODAL_GUIDER') !== '1' && accountId
+  );
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
       CONST_ACKNOWLEDGE_WALLET_RISK
@@ -211,6 +215,7 @@ function AccountEntry({
       selected: location.pathname == '/overview',
       click: () => {
         history.push('/overview');
+        clearGuilder();
       },
     },
   ];
@@ -229,6 +234,11 @@ function AccountEntry({
   }
   function showkeyModal() {
     setKeyModalShow(true);
+    clearGuilder();
+  }
+  function clearGuilder() {
+    setShowGuider(false);
+    localStorage.setItem('ACCESS_MODAL_GUIDER', '1');
   }
   const isMobile = useClientMobile();
   const isDisableChangeWallet = ['keypom', 'Keypom Account'].includes(
@@ -329,8 +339,11 @@ function AccountEntry({
             />
           </div>
         </div>
-        {isSignedIn && hover ? (
-          <div className={`absolute top-14 pt-2 right-0 w-64 z-40`}>
+        {(isSignedIn && hover) || showGuider ? (
+          <div
+            className={`absolute top-14 pt-2 right-0 w-64`}
+            style={{ zIndex: showGuider ? '1000' : '40' }}
+          >
             <Card
               className="menu-max-height bg-cardBg cursor-default shadow-4xl "
               width="w-72"
@@ -419,6 +432,7 @@ function AccountEntry({
                   }`}
                   onClick={() => {
                     signOut();
+                    clearGuilder();
                   }}
                   disabled={isDisableChangeWallet}
                 >
@@ -436,6 +450,7 @@ function AccountEntry({
                   }`}
                   onClick={async () => {
                     modal.show();
+                    clearGuilder();
                   }}
                   disabled={isDisableChangeWallet}
                 >
@@ -477,8 +492,8 @@ function AccountEntry({
                     </div>
                     <div
                       onClick={showkeyModal}
-                      className={`flex items-center mx-3 text-sm cursor-pointer font-semibold py-4 pl-3 hover:text-white hover:bg-black rounded-lg hover:bg-opacity-10 ${
-                        item.selected
+                      className={`flex items-center mx-3 text-sm cursor-pointer font-semibold py-4 pl-3 hover:text-white hover:bg-black rounded-lg hover:bg-opacity-10  ${
+                        showGuider
                           ? 'text-white bg-black bg-opacity-10'
                           : 'text-primaryText'
                       }`}
@@ -513,6 +528,15 @@ function AccountEntry({
       </div>
       {accountId && keyModalShow ? (
         <AccessKeyModal isOpen={keyModalShow} onRequestClose={closeKeyModal} />
+      ) : null}
+      {showGuider ? (
+        <div>
+          <Guider clearGuilder={clearGuilder} />
+          <LinkLine
+            className="absolute"
+            style={{ zIndex: '1001', right: '240px', top: '265px' }}
+          />
+        </div>
       ) : null}
     </div>
   );

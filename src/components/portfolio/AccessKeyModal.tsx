@@ -188,7 +188,7 @@ function AuthorizedApps({
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
-                  <p className="text-base gotham_bold text-white">
+                  <p className="text-base gotham_bold text-white break-all">
                     {
                       (item?.access_key?.permission as Ipermission)
                         ?.FunctionCall?.receiver_id
@@ -420,7 +420,7 @@ function Checkbox({
     return (
       <div
         onClick={onClick}
-        className="flex items-center justify-center cursor-pointer w-4 h-4 rounded"
+        className="flex items-center justify-center cursor-pointer w-4 h-4 rounded flex-shrink-0"
         style={{
           background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         }}
@@ -432,7 +432,7 @@ function Checkbox({
   return (
     <span
       onClick={onClick}
-      className={`inline-block w-4 h-4 rounded cursor-pointer bg-navHighLightBg ${
+      className={`inline-block w-4 h-4 rounded cursor-pointer bg-navHighLightBg flex-shrink-0 ${
         appearance == 'b' ? 'border border-keyCheckBorder' : ''
       }`}
     ></span>
