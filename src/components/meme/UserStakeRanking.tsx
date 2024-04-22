@@ -110,6 +110,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
 
     setTableData(sortedData);
     setSortConfig({ key: keyForSort, direction: 'descending' });
+    setCurrentPage(1);
   };
 
   const renderSortIcon = (key) => {
@@ -339,7 +340,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                 </div>
                 <div className="w-10/12">
                   <div className="flex items-center justify-between text-white">
-                    <div> ${formatBalance(item['Total Balance ($)'])}</div>
+                    <div>{formatBalance(item['Total Balance ($)'])}</div>
                     <div>
                       {item['$' + selectedToken].toLocaleString('en-US', {
                         maximumFractionDigits: 2,
