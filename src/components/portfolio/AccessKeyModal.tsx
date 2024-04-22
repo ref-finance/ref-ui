@@ -20,8 +20,10 @@ import { getAccountKeyInfo } from '../../pages/Orderly/orderly/off-chain-api';
 import { IOrderKeyInfo } from '../../pages/Orderly/orderly/type';
 import { ChartLoading } from 'src/components/icon/Loading';
 import { ConnnectIcon, OrderlyIcon, CheckedIcon } from './icons';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const maxLength = 10;
-const maxOrderlyLength = 5;
+const maxOrderlyLength = 10;
 function AccessKeyModal(props: any) {
   const { isOpen, onRequestClose } = props;
   const cardWidth = isMobile() ? '95vw' : '32vw';
@@ -35,6 +37,20 @@ function AccessKeyModal(props: any) {
   async function getUsedKeys() {
     const keyUsed = await getPublicKey(accountId);
     setCurrentUsedKeys([keyUsed]);
+  }
+  function getApprovedTip() {
+    return `
+    <div class="flex items-center text-navHighLightText text-xs text-left w-48">
+        Authorize one Gas fee key per Dapp. Clean up if there are multiples.
+    </div>
+    `;
+  }
+  function getOrderlyTip() {
+    return `
+    <div class="flex items-center text-navHighLightText text-xs text-left w-48">
+    Authorize one ordering key per account. Clean up if there are multiples.
+    </div>
+    `;
   }
   return (
     <Modal
@@ -65,11 +81,21 @@ function AccessKeyModal(props: any) {
               onClick={() => {
                 setTab('accessKey');
               }}
-              className={`text-lg gotham_bold pr-4 border-r border-v3SwapGray border-opacity-20 cursor-pointer ${
+              className={`flex items-center gap-1.5 text-lg gotham_bold pr-4 border-r border-v3SwapGray border-opacity-20 cursor-pointer ${
                 tab == 'accessKey' ? 'text-white' : 'text-limitOrderInputColor'
               }`}
             >
-              Approved Key
+              Approved
+              <div
+                className="text-white text-right ml-1"
+                data-class="reactTip"
+                data-tooltip-id={'approved'}
+                data-place="top"
+                data-tooltip-html={getApprovedTip()}
+              >
+                <QuestionMark />
+                <CustomTooltip id={'approved'} />
+              </div>
             </span>
             <div
               onClick={() => {
@@ -80,7 +106,19 @@ function AccessKeyModal(props: any) {
               }`}
             >
               <OrderlyIcon isActive={tab == 'orderlyKey'} />
-              <span className="text-lg gotham_bold">Orderly</span>
+              <span className="flex items-center gap-1.5 text-lg gotham_bold">
+                Orderly
+                <div
+                  className="text-white text-right ml-1"
+                  data-class="reactTip"
+                  data-tooltip-id={'orderly'}
+                  data-place="top"
+                  data-tooltip-html={getOrderlyTip()}
+                >
+                  <QuestionMark />
+                  <CustomTooltip id={'orderly'} />
+                </div>
+              </span>
             </div>
           </div>
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
@@ -107,6 +145,8 @@ function AuthorizedApps({
   const [clear_loading, set_clear_loading] = useState<boolean>(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set([]));
   const { allKeys } = useWalletSelector();
+  const disbaledWallet = ['sender', 'neth'];
+  const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
   const functionCallKeys = useMemo(() => {
     return allKeys.filter((key) => key.access_key.permission !== 'FullAccess');
   }, [allKeys]);
@@ -154,24 +194,23 @@ function AuthorizedApps({
   }
   const disabled = selectedKeys.size === 0;
   const isEmpty = functionCallKeys.length == 0;
+  const hiddenCheckbox = disbaledWallet.includes(selectedWalletId);
   return (
     <div className={`py-4 ${hidden ? 'hidden' : ''}`}>
       <div className="flex items-center justify-between px-6 mb-3 xsm:px-3">
         <div className="flex items-center gap-1">
-          <span className="text-sm text-white gotham_bold">
-            Authorized Apps
-          </span>
+          <span className="text-sm text-white gotham_bold">Approved Keys</span>
           <span className="flex items-center justify-center text-xs text-white px-1.5 py-1.5 rounded-md gotham_bold bg-primaryText bg-opacity-20">
             {functionCallKeys.length}
           </span>
         </div>
-        {allCheckdLength > 0 ? (
+        {allCheckdLength > 0 && !hiddenCheckbox ? (
           <div className="flex items-center gap-1.5 text-sm text-primaryText">
             <Checkbox
               onClick={onCheckAll}
               checked={selectedKeys.size == allCheckdLength}
             />{' '}
-            ALL
+            Remove-10
           </div>
         ) : null}
       </div>
@@ -186,7 +225,7 @@ function AuthorizedApps({
               key={item.public_key}
               className="bg-primaryText bg-opacity-20 rounded-xl p-4 mb-3"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-1">
                   <p className="text-base gotham_bold text-white break-all">
                     {
@@ -195,8 +234,8 @@ function AuthorizedApps({
                     }
                   </p>
                   {isUsed ? (
-                    <span className="text-xs text-black px-1.5 rounded-2xl bg-primary whitespace-nowrap">
-                      Currently in use
+                    <span className="flex items-center justify-center bg-portfolioQinColor text-xs gotham_bold italic whitespace-nowrap rounded w-12 text-black">
+                      In use
                     </span>
                   ) : null}
                 </div>
@@ -204,6 +243,7 @@ function AuthorizedApps({
                   <Checkbox
                     appearance="b"
                     checked={selectedKeys.has(item.public_key)}
+                    hidden={hiddenCheckbox}
                     onClick={() => {
                       onCheck(item.public_key);
                     }}
@@ -313,7 +353,7 @@ function OrderlyKeys({
     batchOrderelyDeleteKeys(Array.from(selectedKeys));
   }
   const disabled = selectedKeys.size === 0;
-  const isEmpty = displayAllOrderlyKeys.length == 0;
+  const isEmpty = allOrderlyKeys.length == 0;
   const noConnected = allOrderlyKeys.length == 0;
   return (
     <div className={`py-4 ${hidden ? 'hidden' : ''}`}>
@@ -327,7 +367,7 @@ function OrderlyKeys({
           <div className="flex items-center gap-1">
             <span className="text-sm text-white gotham_bold">Orderly Keys</span>
             <span className="flex items-center justify-center text-xs text-white px-1.5 py-1.5 rounded-md gotham_bold bg-primaryText bg-opacity-20">
-              {displayAllOrderlyKeys.length}
+              {allOrderlyKeys.length}
             </span>
           </div>
           {allCheckdLength > 0 ? (
@@ -336,7 +376,7 @@ function OrderlyKeys({
                 onClick={onCheckAll}
                 checked={selectedKeys.size == allCheckdLength}
               />{' '}
-              ALL
+              Remove-10
             </div>
           ) : null}
         </div>
@@ -349,22 +389,30 @@ function OrderlyKeys({
               isEmpty ? 'hidden' : ''
             }`}
           >
-            {displayAllOrderlyKeys.map((key) => {
+            {allOrderlyKeys.map((key) => {
+              const isUsed = currentUsedKeys.includes(key);
               return (
                 <div
                   key={key}
                   className="flex items-center justify-between gap-6 mb-3"
                 >
-                  <span className="flex items-center flex-grow  bg-black bg-opacity-20 rounded-md text-xs text-greenColor p-2.5 break-all">
+                  <span className="flex  flex-col gap-2 flex-grow  bg-black bg-opacity-20 rounded-md text-xs text-greenColor p-2.5 break-all">
+                    {isUsed ? (
+                      <span className="flex items-center justify-center bg-portfolioQinColor text-xs gotham_bold italic whitespace-nowrap rounded w-12 text-black">
+                        In use
+                      </span>
+                    ) : null}
                     {key}
                   </span>
-                  <Checkbox
-                    appearance="b"
-                    checked={selectedKeys.has(key)}
-                    onClick={() => {
-                      onCheck(key);
-                    }}
-                  />
+                  <div className={`${isUsed ? 'invisible' : ''}`}>
+                    <Checkbox
+                      appearance="b"
+                      checked={selectedKeys.has(key)}
+                      onClick={() => {
+                        onCheck(key);
+                      }}
+                    />
+                  </div>
                 </div>
               );
             })}
@@ -411,11 +459,14 @@ function Checkbox({
   checked,
   appearance,
   onClick,
+  hidden,
 }: {
   checked?: boolean;
   appearance?: '' | 'b';
   onClick: any;
+  hidden?: boolean;
 }) {
+  if (hidden) return null;
   if (checked) {
     return (
       <div

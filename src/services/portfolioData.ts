@@ -24,10 +24,14 @@ export async function batchDeleteKeys(publicKeys: string[]) {
       transactions: wstransactions,
     })
     .then(() => {
-      window.location.reload();
+      if (wallet.id !== 'my-near-wallet') {
+        window.location.reload();
+      }
     })
     .catch(() => {
-      window.location.reload();
+      if (wallet.id !== 'my-near-wallet') {
+        window.location.reload();
+      }
     });
 }
 export async function batchOrderelyDeleteKeys(publicKeys: string[]) {
@@ -58,9 +62,13 @@ export async function batchOrderelyDeleteKeys(publicKeys: string[]) {
       transactions: wstransactions,
     })
     .then(() => {
-      window.location.reload();
+      if (wallet.id !== 'my-near-wallet') {
+        window.location.reload();
+      }
     })
     .catch(() => {
-      window.location.reload();
+      if (wallet.id !== 'my-near-wallet') {
+        window.location.reload();
+      }
     });
 }
