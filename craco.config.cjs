@@ -1,19 +1,17 @@
 /* eslint-env node */
 const path = require('path');
-const isProduction =
-  process.env.REACT_APP_NEAR_ENV === 'mainnet' ||
-  process.env.REACT_APP_NEAR_ENV === 'pub-testnet';
+const isProduction = !process.env.REACT_APP_NEAR_ENV;
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const { ProvidePlugin } = require('webpack');
 const { RetryChunkLoadPlugin } = require('webpack-retry-chunk-load-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const CompressionPlugin = require('compression-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 // Linting and type checking are only necessary as part of development and testing.
 // Omit them from production builds, as they slow down the feedback loop.
-const shouldLintOrTypeCheck = !isProduction;
 function getCacheDirectory(cacheName) {
   // Include the trailing slash to denote that this is a directory.
   return `${path.join(__dirname, 'node_modules/.cache/', cacheName)}/`;
@@ -46,6 +44,7 @@ module.exports = {
     plugins: {
       add: [
         // Webpack 5 does not polyfill node globals, so we do so for those necessary:
+        // new BundleAnalyzerPlugin(),
         new ProvidePlugin({
           Buffer: ['buffer', 'Buffer'],
           process: 'process/browser.js',
@@ -79,7 +78,8 @@ module.exports = {
     },
     configure: (webpackConfig) => {
       // webpackConfig.devtool = 'source-map';
-      isProduction ? '' : (webpackConfig.devtool = 'eval');
+      // isProduction ? '' : (webpackConfig.devtool = 'eval');
+      isProduction ? '' : (webpackConfig.devtool = 'source-map');
       //tree shaking for unused code
       webpackConfig.optimization.usedExports = true;
       //chunk split
