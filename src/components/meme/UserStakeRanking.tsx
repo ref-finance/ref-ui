@@ -309,7 +309,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
             ))}
           </div>
           <div
-            className="lg:hidden md:hidden overflow-auto overflow-x-hidden"
+            className="lg:hidden overflow-auto overflow-x-hidden"
             style={{ height: '500px' }}
           >
             {tableData.map((item, index) => (
