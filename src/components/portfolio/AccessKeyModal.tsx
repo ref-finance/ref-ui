@@ -192,9 +192,12 @@ function AuthorizedApps({
     set_clear_loading(true);
     batchDeleteKeys(Array.from(selectedKeys));
   }
+  function switchWallet() {
+    window.modal.show();
+  }
   const disabled = selectedKeys.size === 0;
   const isEmpty = functionCallKeys.length == 0;
-  const hiddenCheckbox = disbaledWallet.includes(selectedWalletId);
+  const isDisabledAction = disbaledWallet.includes(selectedWalletId);
   return (
     <div className={`py-4 ${hidden ? 'hidden' : ''}`}>
       <div className="flex items-center justify-between px-6 mb-3 xsm:px-3">
@@ -204,7 +207,7 @@ function AuthorizedApps({
             {functionCallKeys.length}
           </span>
         </div>
-        {allCheckdLength > 0 && !hiddenCheckbox ? (
+        {allCheckdLength > 0 && !isDisabledAction ? (
           <div className="flex items-center gap-1.5 text-sm text-primaryText">
             <Checkbox
               onClick={onCheckAll}
@@ -243,7 +246,7 @@ function AuthorizedApps({
                   <Checkbox
                     appearance="b"
                     checked={selectedKeys.has(item.public_key)}
-                    hidden={hiddenCheckbox}
+                    hidden={isDisabledAction}
                     onClick={() => {
                       onCheck(item.public_key);
                     }}
@@ -271,22 +274,40 @@ function AuthorizedApps({
           </div>
         ) : null}
       </div>
-      <div className="px-6 xsm:px-3">
-        <OprationButton
-          minWidth="7rem"
-          disabled={disabled}
-          onClick={batchClear}
-          background="linear-gradient(180deg, #00C6A2 0%, #008B72 100%"
-          className={`flex flex-grow items-center justify-center text-white mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-            disabled || clear_loading ? 'opacity-40' : ''
-          }`}
-        >
-          <ButtonTextWrapper
-            loading={clear_loading}
-            Text={() => <div className="flex items-center gap-2">Clear</div>}
-          />
-        </OprationButton>
-      </div>
+      {isDisabledAction ? (
+        <div className="border border-warningYellowColor border-opacity-30 px-4 py-2.5 text-memeyellowColor text-sm bg-memeyellowColor bg-opacity-10 mx-6 rounded-xl my-4">
+          This wallet doesn't support Delete Key. Consider switching to another
+          wallet if necessary.
+        </div>
+      ) : null}
+      {!isDisabledAction ? (
+        <div className="px-6 xsm:px-3">
+          <OprationButton
+            minWidth="7rem"
+            disabled={disabled}
+            onClick={batchClear}
+            background="linear-gradient(180deg, #00C6A2 0%, #008B72 100%"
+            className={`flex flex-grow items-center justify-center text-white mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
+              disabled || clear_loading ? 'opacity-40' : ''
+            }`}
+          >
+            <ButtonTextWrapper
+              loading={clear_loading}
+              Text={() => <div className="flex items-center gap-2">Clear</div>}
+            />
+          </OprationButton>
+        </div>
+      ) : (
+        <div className="px-6 xsm:px-3">
+          <OprationButton
+            minWidth="7rem"
+            onClick={switchWallet}
+            className={`flex flex-grow items-center justify-center border border-greenColor text-greenColor gotham_font rounded-xl h-12 text-base focus:outline-none`}
+          >
+            Switch Wallet
+          </OprationButton>
+        </div>
+      )}
     </div>
   );
 }
