@@ -273,10 +273,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                 style={{
                   gridTemplateColumns:
                     'minmax(auto, 4rem) minmax(auto, 30rem) minmax(auto, 18rem) minmax(auto, 12rem)',
-                  borderBottom:
-                    index === currentItems.length - 1
-                      ? 'none'
-                      : '1px solid #yourBorderColorHere',
+                  borderBottom: index === currentItems.length - 1 ? 'none' : '',
                 }}
               >
                 <div>
@@ -317,10 +314,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                 key={item.Wallet}
                 className="py-4 px-5 flex items-center border-b border-memeBorderColor"
                 style={{
-                  borderBottom:
-                    index === tableData.length - 1
-                      ? 'none'
-                      : '1px solid #yourBorderColorHere',
+                  borderBottom: index === tableData.length - 1 ? 'none' : '',
                 }}
               >
                 <div className="text-white w-12">
