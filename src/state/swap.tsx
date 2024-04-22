@@ -1593,11 +1593,7 @@ export const useRefSwap = ({
       market: 'ref',
       tokenOutAmount: '0',
     };
-  console.log(
-    '77777777777-tokenOutAmount、tokenOutAmountV2',
-    tokenOutAmount,
-    tokenOutAmountV2
-  );
+ 
   const bestSwap =
     new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
     canSwapV2 &&
