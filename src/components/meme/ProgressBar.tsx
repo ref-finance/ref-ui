@@ -37,26 +37,30 @@ const ProgressBar = () => {
       <div
         className="border-b border-memeBorderColor pt-8 bg-memeVoteBgColor rounded-t-2xl pl-14 
       text-primaryText flex item-center text-2xl gotham_bold xsm:text-lg xsm:flex xsm:justify-center 
-      xsm:items-center xsm:px-4 xsm:gap-4 xsm:pt-6"
+      xsm:items-center xsm:px-4 xsm:gap-4 xsm:pt-5 xsm:text-center"
       >
         <div
-          className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 whitespace-nowrap ${
+          className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 xsm:leading-6 whitespace-nowrap ${
             activeTab === 'weight' ? 'text-white border-b-4 border-white' : ''
           }`}
           onClick={() => setActiveTab('weight')}
         >
-          MEME Gauge Weight
+          MEME Gauge
+          <br className="lg:hidden md:hidden" />
+          Weight
         </div>
         <div
-          className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 whitespace-nowrap ${
+          className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 xsm:leading-6 whitespace-nowrap ${
             activeTab === 'ranking' ? 'text-white border-b-4 border-white' : ''
           }`}
           onClick={() => setActiveTab('ranking')}
         >
-          User stake ranking
+          User stake
+          <br className="lg:hidden md:hidden" />
+          ranking
         </div>
       </div>
-      <div className="py-7 px-8 bg-memeVoteBgColor rounded-b-2xl xsm:px-0">
+      <div className="py-7 px-8 bg-memeVoteBgColor rounded-b-2xl xsm:px-0 xsm:py-4">
         <div
           className="text-white px-2.5"
           hidden={activeTab === 'weight' ? false : true}
@@ -146,7 +150,7 @@ function RaceTemplate({ children }: any) {
   return (
     <div
       className="border-b border-greenLight border-opacity-10"
-      style={{ height: is_mobile ? '130px' : '142px' }}
+      style={{ height: is_mobile ? '110px' : '142px' }}
     >
       {children}
     </div>

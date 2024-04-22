@@ -1,5 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
+  UserStakeRankingFirst,
+  UserStakeRankingLast,
+  UserStakeRankingMobileTab1,
+  UserStakeRankingMobileTab2,
+  UserStakeRankingMobileTab3,
   UserStakeRankingNext,
   UserStakeRankingPopupDown,
   UserStakeRankingPrevious,
@@ -10,11 +15,15 @@ import {
 } from './icons';
 import { MemeContext } from './context';
 import Loading from '../layout/Loading';
+import { isMobile } from 'src/utils/device';
 
 export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [sortConfig, setSortConfig] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+    key: 'Total Balance ($)',
+    direction: 'descending',
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(7);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -26,6 +35,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   const [selectedToken, setSelectedToken] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const is_mobile = isMobile();
   useEffect(() => {
     const populateTableData = async () => {
       setIsLoading(true);
@@ -55,8 +65,6 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                 })
             : [];
         setTableHeaders(headers);
-        console.log(allTokenMetadatas);
-        console.log(headers);
         if (headers.length > 0) {
           setSelectedToken(headers[0].symbol);
         }
@@ -88,38 +96,29 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   }, [isOpen]);
 
   const handleSort = (key) => {
-    let direction = 'ascending';
-    if (
-      sortConfig &&
-      sortConfig.key === key &&
-      sortConfig.direction === 'ascending'
-    ) {
-      direction = 'descending';
-    }
     const keyForSort = key.includes('Total Balance')
       ? 'Total Balance ($)'
       : key.startsWith('$')
       ? key
       : '$' + key.toUpperCase();
+
     const sortedData = [...tableData].sort((a, b) => {
       const aValue = parseFloat(a[keyForSort] || 0);
       const bValue = parseFloat(b[keyForSort] || 0);
-      return direction === 'ascending' ? aValue - bValue : bValue - aValue;
+      return bValue - aValue;
     });
 
     setTableData(sortedData);
-    setSortConfig({ key: keyForSort, direction });
+    setSortConfig({ key: keyForSort, direction: 'descending' });
   };
 
   const renderSortIcon = (key) => {
     const isActive = sortConfig && sortConfig.key === key;
-    const isAscending = isActive && sortConfig.direction === 'ascending';
-
     return (
       <UserStakeRankingSort
-        className={`ml-1.5 text-borderColor hover:text-white transform ${
-          isAscending ? 'rotate-180' : ''
-        }`}
+        className={`ml-1.5 ${
+          isActive ? 'text-white' : 'text-borderColor hover:text-white'
+        } transform`}
       />
     );
   };
@@ -167,7 +166,27 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   const handleSelectToken = (symbol) => {
     setSelectedToken(symbol);
     setIsOpen(false);
+    if (sortConfig && sortConfig.key === '$' + selectedToken.toUpperCase()) {
+      handleSort('$' + symbol);
+    }
   };
+  function formatBalance(balance) {
+    const number = Number(balance);
+    if (isNaN(number)) {
+      return;
+    }
+
+    if (number < 0.01) {
+      return '<0.01';
+    }
+    return (
+      '$' +
+      number.toLocaleString('en-US', {
+        maximumFractionDigits: 2,
+      })
+    );
+  }
+
   return (
     <div className={`text-primaryText ${hidden ? 'hidden' : ''}`}>
       {isLoading ? (
@@ -175,19 +194,20 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
       ) : (
         <>
           <div
-            className="grid gap-6 text-sm text-gray2 text-left mb-1.5 px-6 flex items-center"
+            className="grid gap-6 text-sm text-gray2 text-left mb-1.5 px-6 flex items-center xsm:flex xsm:justify-between xsm:border-b xsm:border-memeBorderColor xsm:pb-3"
             style={{
-              gridTemplateColumns:
-                'minmax(auto, 4rem) minmax(auto, 30rem) minmax(auto, 18rem) minmax(auto, 12rem)',
+              gridTemplateColumns: is_mobile
+                ? ''
+                : 'minmax(auto, 4rem) minmax(auto, 30rem) minmax(auto, 18rem) minmax(auto, 12rem)',
             }}
           >
-            <div>Ranking</div>
-            <div>Wallet</div>
+            <div className="xsm:hidden">Ranking</div>
+            <div className="xsm:hidden">Wallet</div>
             <div
               onClick={() => handleSort('Total Balance ($)')}
               className="flex items-center cursor-pointer"
             >
-              Total Balance
+              Total Staked Value
               {renderSortIcon('Total Balance ($)')}
             </div>
             <div className="relative flex justify-end" ref={dropdownRef}>
@@ -203,20 +223,23 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                     style={{ width: '22px', height: '22px' }}
                     alt=""
                   />
-                  <p className="ml-1.5 mr-5">{selectedToken}</p>
-                  <UserStakeRankingPopupDown />
+                  <p className="ml-1.5 mr-5 xsm:hidden">{selectedToken}</p>
+                  <UserStakeRankingPopupDown className="ml-4" />
                 </div>
                 <div onClick={() => handleSort('$' + selectedToken)}>
                   {renderSortIcon('$' + selectedToken)}
                 </div>
               </div>
               {isOpen && (
-                <div className="absolute top-11 right-0 z-10 bg-memeUserStackeBgColor rounded-xl pb-1 pt-5 px-4 text-white w-60">
-                  <p className="text-base mb-2">Meme Token</p>
+                <div
+                  className="absolute top-11 right-0 z-10 bg-memeUserStackeBgColor rounded-xl pb-1 pt-5 xsm:pt-4 px-4 
+                xsm:px-3 text-white w-60 xsm:w-max xsm:bg-memeModelgreyColor xsm:border xsm:border-memeBorderColor"
+                >
+                  <p className="text-base mb-2 xsm:hidden">Meme Token</p>
                   {tableHeaders.map(({ symbol, name, icon }) => (
                     <div
                       key={symbol}
-                      className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor
+                      className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor xsm:border-none
                        ${
                          selectedToken === symbol ? 'border border-borderC' : ''
                        }`}
@@ -226,7 +249,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                         <img src={icon} alt="" className="h-5 w-5 mr-1.5" />
                         {name}
                       </div>
-                      <div>
+                      <div className="xsm:hidden">
                         <input
                           type="radio"
                           name="token"
@@ -241,7 +264,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
               )}
             </div>
           </div>
-          <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white border border-memeBorderColor">
+          <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white border border-memeBorderColor xsm:hidden">
             {currentItems.map((item, index) => (
               <div
                 key={item.Wallet}
@@ -274,9 +297,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                   {item.Wallet}
                 </div>
                 <div className="truncate max-w-10 overflow-hidden text-ellipsis">
-                  {item['Total Balance ($)'].toLocaleString('en-US', {
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatBalance(item['Total Balance ($)'])}
                 </div>
                 <div className="truncate max-w-10 overflow-hidden text-ellipsis flex justify-end">
                   {item['$' + selectedToken].toLocaleString('en-US', {
@@ -286,24 +307,86 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
               </div>
             ))}
           </div>
-          <div className="flex justify-between items-center text-sm">
-            <div
-              className={`flex justify-center items-center ${
-                currentPage > 1
-                  ? 'text-white cursor-pointer'
-                  : 'text-primaryText'
-              }`}
-              onClick={() => {
-                if (currentPage > 1) {
-                  paginate(currentPage - 1);
-                }
-              }}
-            >
-              <UserStakeRankingPrevious
-                color={currentPage > 1 ? '#FFFFFF' : '#7E8A93'}
-                className="mr-2.5"
-              />
-              Previous
+          <div
+            className="lg:hidden md:hidden overflow-auto overflow-x-hidden"
+            style={{ height: '500px' }}
+          >
+            {tableData.map((item, index) => (
+              <div
+                key={item.Wallet}
+                className="py-4 px-5 flex items-center border-b border-memeBorderColor"
+                style={{
+                  borderBottom:
+                    index === tableData.length - 1
+                      ? 'none'
+                      : '1px solid #yourBorderColorHere',
+                }}
+              >
+                <div className="text-white w-12">
+                  {(() => {
+                    const globalIndex =
+                      index + 1 + (currentPage - 1) * itemsPerPage;
+                    return globalIndex === 1 ? (
+                      <UserStakeRankingMobileTab1 />
+                    ) : globalIndex === 2 ? (
+                      <UserStakeRankingMobileTab2 />
+                    ) : globalIndex === 3 ? (
+                      <UserStakeRankingMobileTab3 />
+                    ) : (
+                      globalIndex
+                    );
+                  })()}
+                </div>
+                <div className="w-10/12">
+                  <div className="flex items-center justify-between text-white">
+                    <div> ${formatBalance(item['Total Balance ($)'])}</div>
+                    <div>
+                      {item['$' + selectedToken].toLocaleString('en-US', {
+                        maximumFractionDigits: 2,
+                      })}
+                    </div>
+                  </div>
+                  <div className="truncate w-11/12 overflow-hidden text-ellipsis">
+                    {item.Wallet}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between items-center text-sm xsm:hidden">
+            <div className="flex justify-center items-center">
+              <div
+                className={`flex justify-center items-center mr-6 cursor-pointer ${
+                  currentPage === 1 ? 'text-primaryText' : 'text-white'
+                }`}
+                onClick={() => {
+                  if (currentPage > 1) paginate(1);
+                }}
+              >
+                <UserStakeRankingFirst
+                  className="mr-2"
+                  color={currentPage === 1 ? '#7E8A93' : '#FFFFFF'}
+                />
+                First
+              </div>
+              <div
+                className={`flex justify-center items-center ${
+                  currentPage > 1
+                    ? 'text-white cursor-pointer'
+                    : 'text-primaryText'
+                }`}
+                onClick={() => {
+                  if (currentPage > 1) {
+                    paginate(currentPage - 1);
+                  }
+                }}
+              >
+                <UserStakeRankingPrevious
+                  color={currentPage > 1 ? '#FFFFFF' : '#7E8A93'}
+                  className="mr-2"
+                />
+                Previous
+              </div>
             </div>
             <div>
               <div>
@@ -338,27 +421,55 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                 })}
               </div>
             </div>
-            <div
-              className={`flex justify-center items-center ${
-                currentPage < Math.ceil(tableData.length / itemsPerPage)
-                  ? 'text-white cursor-pointer'
-                  : 'text-primaryText'
-              }`}
-              onClick={() => {
-                if (currentPage < Math.ceil(tableData.length / itemsPerPage)) {
-                  paginate(currentPage + 1);
-                }
-              }}
-            >
-              Next
-              <UserStakeRankingNext
-                color={
+            <div className="flex justify-center items-center">
+              <div
+                className={`flex justify-center items-center ${
                   currentPage < Math.ceil(tableData.length / itemsPerPage)
-                    ? '#FFFFFF'
-                    : '#7E8A93'
-                }
-                className="ml-2.5"
-              />
+                    ? 'text-white cursor-pointer'
+                    : 'text-primaryText'
+                }`}
+                onClick={() => {
+                  if (
+                    currentPage < Math.ceil(tableData.length / itemsPerPage)
+                  ) {
+                    paginate(currentPage + 1);
+                  }
+                }}
+              >
+                Next
+                <UserStakeRankingNext
+                  color={
+                    currentPage < Math.ceil(tableData.length / itemsPerPage)
+                      ? '#FFFFFF'
+                      : '#7E8A93'
+                  }
+                  className="ml-2.5"
+                />
+              </div>
+              <div
+                className={`flex justify-center items-center ml-6 cursor-pointer ${
+                  currentPage === Math.ceil(tableData.length / itemsPerPage)
+                    ? 'text-primaryText'
+                    : 'text-white'
+                }`}
+                onClick={() => {
+                  if (
+                    currentPage < Math.ceil(tableData.length / itemsPerPage)
+                  ) {
+                    paginate(Math.ceil(tableData.length / itemsPerPage));
+                  }
+                }}
+              >
+                Last
+                <UserStakeRankingLast
+                  className="ml-2"
+                  color={
+                    currentPage < Math.ceil(tableData.length / itemsPerPage)
+                      ? '#FFFFFF'
+                      : '#7E8A93'
+                  }
+                />
+              </div>
             </div>
           </div>
         </>
