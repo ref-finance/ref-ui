@@ -40,14 +40,14 @@ function AccessKeyModal(props: any) {
   }
   function getApprovedTip() {
     return `
-    <div class="flex items-center text-navHighLightText text-xs text-left w-48">
+    <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
         Authorize one Gas fee key per Dapp. Clean up if there are multiples.
     </div>
     `;
   }
   function getOrderlyTip() {
     return `
-    <div class="flex items-center text-navHighLightText text-xs text-left w-48">
+    <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
     Authorize one ordering key per account. Clean up if there are multiples.
     </div>
     `;

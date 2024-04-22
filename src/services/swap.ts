@@ -1216,7 +1216,7 @@ SwapOptions) => {
           msg: JSON.stringify({
             force: 0,
             actions: actionsList,
-            skip_unwrap_near: false,
+            ...(tokenOut.symbol == 'NEAR' ? { skip_unwrap_near: false } : {}),
           }),
         },
         gas: '180000000000000',
