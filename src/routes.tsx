@@ -236,10 +236,10 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
-    path: '/comingsoon',
+    path: '/airdop',
     element: lazy(() => {
       return import(
-        /* webpackChunkName: "memepage" */ 'src/pages/MemeComingSoon'
+        /* webpackChunkName: "memepage" */ 'src/pages/MemeAirdropListForMobile'
       );
     }),
     wrapper: 'AutoHeight',

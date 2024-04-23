@@ -196,7 +196,7 @@ const ProgressBar = () => {
               marginLeft: '50%',
               transform: 'translateX(-50%) ',
             }}
-            onClick={() => history.push('/comingsoon')}
+            onClick={() => history.push('/airdop')}
           >
             <div className="absolute top-0" style={{ left: '-1rem' }}>
               <Coin />
