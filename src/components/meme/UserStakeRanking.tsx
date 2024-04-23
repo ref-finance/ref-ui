@@ -131,6 +131,8 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
         return Array.from({ length: total }, (_, index) => index + 1);
       } else if (current === 1) {
         pages.push(1, 2, '...', total);
+      } else if (current === total - 2) {
+        pages.push(total - 2, total - 1, total);
       } else if (current === total - 1) {
         pages.push(total - 2, total - 1, total);
       } else if (current === total) {

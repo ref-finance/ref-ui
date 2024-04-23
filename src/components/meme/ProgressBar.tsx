@@ -53,7 +53,7 @@ const ProgressBar = () => {
           }`}
           onClick={() => setActiveTab('ranking')}
         >
-          User stake <br className="lg:hidden md:hidden" /> ranking
+          User Stake <br className="lg:hidden md:hidden" /> Ranking
         </div>
       </div>
       <div className="py-7 px-8 bg-memeVoteBgColor rounded-b-2xl xsm:px-0 xsm:py-4">
