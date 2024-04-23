@@ -1,4 +1,4 @@
-import { Uwon, ShillGpt } from '../components/icon/memeComingModal';
+import { Uwon, ShillGpt, UwonGreen } from '../components/icon/memeComingModal';
 export const memeComingSoonJson = [
   {
     icon: Uwon(),
@@ -39,8 +39,8 @@ export const memeComingSoonJson = [
     isShow: false,
   },
   {
-    icon: ShillGpt(),
-    title: 'shillGpt',
+    icon: UwonGreen(),
+    title: 'Uwon',
     introduce: `Lorem ipsum dolor sit amet consectetur adipisicing elit. At
     ratione qui quo sunt ipsa labore ullam.`,
     amount: '88,445,820,340.00',

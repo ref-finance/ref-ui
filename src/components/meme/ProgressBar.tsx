@@ -192,7 +192,7 @@ const ProgressBar = () => {
             style={{
               width: '11.5rem',
               borderRadius: '3.375rem',
-              bottom: '-.8rem',
+              bottom: '-.6rem',
               marginRight: '-50%',
               transform: 'translateX(50%) ',
             }}

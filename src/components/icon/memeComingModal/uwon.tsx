@@ -39,7 +39,7 @@ export function UwonMobile() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect width="40" height="40" rx="32.5" fill="url(#pattern0_1461_2702)" />
+      <rect width="40" height="40" rx="20" fill="url(#pattern0_1461_2702)" />
       <defs>
         <pattern
           id="pattern0_1461_2702"
