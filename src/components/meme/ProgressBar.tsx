@@ -236,14 +236,12 @@ const ProgressBar = () => {
                 onClick={() => setIsShowModal(false)}
               />
             </div>
+            {/* body */}
             <div style={{ height: '32rem' }} className=" overflow-auto">
               <div
                 className={`bg-memeUserStackeBgColor py-6 px-6 overflow-auto`}
               >
                 {memeComingSoonJson.map((item, index) => {
-                  {
-                    /* body */
-                  }
                   return (
                     <div
                       key={item.title + index}

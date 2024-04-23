@@ -5,7 +5,6 @@ export const memeComingSoonJson = [
     title: 'UWON',
     introduce: `Lorem ipsum dolor sit amet consectetur adipisicing elit. At
     enim exercitationem veniam eos voluptatum pariatur culpa,
-    illo, cum ullam inventore consequatur distinctio. Suscipit
     ratione qui quo sunt ipsa labore ullam.`,
     amount: '88,445,820,340.00',
     amountDollar: '$6.27M',
@@ -25,7 +24,6 @@ export const memeComingSoonJson = [
     title: 'shillGpt',
     introduce: `Lorem ipsum dolor sit amet consectetur adipisicing elit. At
     enim exercitationem veniam eos voluptatum pariatur culpa,
-    illo, cum ullam inventore consequatur distinctio. Suscipit
     ratione qui quo sunt ipsa labore ullam.`,
     amount: '88,445,820,340.00',
     amountDollar: '$6.27M',
@@ -44,8 +42,6 @@ export const memeComingSoonJson = [
     icon: ShillGpt(),
     title: 'shillGpt',
     introduce: `Lorem ipsum dolor sit amet consectetur adipisicing elit. At
-    enim exercitationem veniam eos voluptatum pariatur culpa,
-    illo, cum ullam inventore consequatur distinctio. Suscipit
     ratione qui quo sunt ipsa labore ullam.`,
     amount: '88,445,820,340.00',
     amountDollar: '$6.27M',
