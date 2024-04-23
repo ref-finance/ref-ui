@@ -1,18 +1,25 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-modal';
 import { ModalClose } from '../components/icon';
-import { RuleTips } from '../components/icon/memeComingModal';
+import { RuleTips, Goback } from '../components/icon/memeComingModal';
 import { memeComingSoonJson } from '../config/memeConfig';
+import { useHistory } from 'react-router-dom';
 export default function MemeComingSoon() {
   const [isShowModal, setIsShowModal] = useState<boolean>(false);
   const [selectListItem, setSelectListItem] = useState<any>(null);
+  const history = useHistory();
   return (
     <div
       className="text-white p-2"
       style={{ backgroundColor: 'linear-gradient(#1D2D38, #000D16)' }}
     >
       {/* title */}
-      <h3 className="font-gothamBold text-lg mb-3">Vote by xREF</h3>
+      <div className="mb-3 flex items-center justify-center relative">
+        <div className="absolute left-0" onClick={() => history.push('/meme')}>
+          <Goback />
+        </div>
+        <h3 className="font-gothamBold text-lg">Airdrop Activity</h3>
+      </div>
       {/* air drop list */}
       {memeComingSoonJson.map((item, index) => {
         return (
@@ -62,7 +69,8 @@ export default function MemeComingSoon() {
       {/* modal */}
       <Modal
         isOpen={isShowModal}
-        className="w-full h-1/2 absolute bottom-0 bg-memeModelgreyColor rounded-lg"
+        className="w-full h-1/2 absolute z-50 bottom-0 bg-memeModelgreyColor rounded-lg"
+        onRequestClose={() => setIsShowModal(false)}
         style={{
           overlay: {
             backdropFilter: 'blur(4px)',

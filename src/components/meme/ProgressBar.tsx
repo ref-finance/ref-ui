@@ -89,7 +89,7 @@ const ProgressBar = () => {
         {/* open Coming Soon modal */}
         {!is_mobile && (
           <div
-            className="ml-auto flex justify-between items-center w-44 h-12 bg-memeModelgreyColor relative hover:bg-gray-700"
+            className="ml-auto flex justify-between items-center w-44 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer"
             style={{ borderRadius: '3.375rem', top: '-.8rem', right: '1rem' }}
             onClick={() => setIsShowModal(true)}
           >
@@ -97,7 +97,7 @@ const ProgressBar = () => {
               <Coin />
             </div>
             {/*  */}
-            <span className="text-white text-base cursor-default mr-6 ml-auto">
+            <span className="text-white text-base mr-6 ml-auto">
               Coming Soon
             </span>
           </div>
@@ -188,13 +188,13 @@ const ProgressBar = () => {
         {/* mobile coming soon button */}
         {is_mobile && (
           <div
-            className="flex justify-center items-center h-12 bg-memeModelgreyColor relative hover:bg-gray-700"
+            className="flex justify-center items-center h-10 bg-memeModelgreyColor relative hover:bg-gray-700 font-normal"
             style={{
-              width: '11.5rem',
+              width: '10.6875rem',
               borderRadius: '3.375rem',
               bottom: '-.6rem',
-              marginRight: '-50%',
-              transform: 'translateX(50%) ',
+              marginLeft: '50%',
+              transform: 'translateX(-50%) ',
             }}
             onClick={() => history.push('/comingsoon')}
           >
@@ -202,9 +202,7 @@ const ProgressBar = () => {
               <Coin />
             </div>
             {/*  */}
-            <span className="text-white text-base cursor-default ml-6 mr-2">
-              Coming Soon
-            </span>
+            <span className="text-white text-sm ml-6 mr-2">Coming Soon</span>
             <ArrowRightIcon />
           </div>
         )}
@@ -214,6 +212,7 @@ const ProgressBar = () => {
       {!is_mobile && (
         <Modal
           isOpen={isShowModal}
+          onRequestClose={() => setIsShowModal(false)}
           style={{
             overlay: {
               backdropFilter: 'blur(30px)',
@@ -229,7 +228,7 @@ const ProgressBar = () => {
             {/* header */}
             <div className="px-5 xs:px-3 md:px-3 py-6 flex items-center justify-between">
               <div className="flex items-center">
-                <label className="text-white text-xl">Airdrop activity</label>
+                <label className="text-white text-xl">Airdrop Activity</label>
               </div>
               <ModalClose
                 className="cursor-pointer"
@@ -296,7 +295,7 @@ const ProgressBar = () => {
                             <RuleTips />
                             <span className="mx-2 my-2 text-base">Rules</span>
                             <div
-                              className=" w-5 h-5 rounded-md bg-gray-400 fccc"
+                              className=" w-5 h-5 rounded-md bg-gray-400 fccc cursor-pointer"
                               onClick={() =>
                                 setShowRulesIndex(index, !isShowRules[index])
                               }

@@ -49,9 +49,10 @@ body .font-gothamBold {
 
 body {
   margin: 0;
-  scrollbar-width: thin;
-  scrollbar-color: darkgrey transparent;
+  /* scrollbar-width: thin;
+  scrollbar-color: darkgrey transparent; */
 }
+
 html,
 body {
   background: #001220;
