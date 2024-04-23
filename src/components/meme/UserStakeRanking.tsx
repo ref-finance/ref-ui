@@ -361,7 +361,9 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                 <div className="w-10/12">
                   <div className="flex items-center justify-between text-white">
                     <div>
-                      ${formatBalanceConvert(item['Total Balance ($)'])}
+                      {item['Total Balance ($)'] < 0.01
+                        ? '<0.01'
+                        : `$${formatBalanceConvert(item['Total Balance ($)'])}`}
                     </div>
                     <div>{formatBalanceConvert(item['$' + selectedToken])}</div>
                   </div>
