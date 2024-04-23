@@ -310,7 +310,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                   borderBottom: index === currentItems.length - 1 ? 'none' : '',
                 }}
               >
-                <div>
+                <div className="flex justify-center items-center pr-6">
                   {(() => {
                     const globalIndex =
                       index + 1 + (currentPage - 1) * itemsPerPage;
