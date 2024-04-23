@@ -18,6 +18,7 @@ import Loading from '../layout/Loading';
 import { isMobile } from 'src/utils/device';
 
 export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
+  const is_mobile = isMobile();
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({
@@ -25,7 +26,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
     direction: 'descending',
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(7);
+  const [itemsPerPage, setItemsPerPage] = useState(isMobile() ? 10 : 7);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = tableData.slice(indexOfFirstItem, indexOfLastItem);
@@ -35,7 +36,6 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   const [selectedToken, setSelectedToken] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const is_mobile = isMobile();
   useEffect(() => {
     const populateTableData = async () => {
       setIsLoading(true);
