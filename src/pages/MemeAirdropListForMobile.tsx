@@ -5,9 +5,13 @@ import { RuleTips, Goback } from '../components/icon/memeComingModal';
 import { memeComingSoonJson } from '../config/memeConfig';
 import { useHistory } from 'react-router-dom';
 export default function MemeComingSoon() {
+  //
   const [isShowModal, setIsShowModal] = useState<boolean>(false);
+  //
   const [selectListItem, setSelectListItem] = useState<any>(null);
+  //
   const history = useHistory();
+  //
   return (
     <div
       className="text-white p-2"
@@ -20,6 +24,7 @@ export default function MemeComingSoon() {
         </div>
         <h3 className="font-gothamBold text-lg">Airdrop Activity</h3>
       </div>
+
       {/* air drop list */}
       {memeComingSoonJson.map((item, index) => {
         return (
@@ -31,12 +36,14 @@ export default function MemeComingSoon() {
             {/* icon and title */}
             <div className="flex items-center">
               {item.icon}
-              <span className="gotham_bold text-xl ml-3">{item.title}</span>
+              <span className="gotham_bold text-xl ml-3"> {item.title} </span>
             </div>
+
             {/* introduce */}
             <p className="text-primaryText text-sm my-3 max-h-40 overflow-auto">
               {item.introduce}
             </p>
+
             {/* amount */}
             <div>
               <h5 className="text-sm">Amount</h5>
@@ -44,6 +51,7 @@ export default function MemeComingSoon() {
                 {item.amount}
               </p>
             </div>
+
             {/* air drop */}
             <div className="my-3">
               <h5 className="text-sm">Airdrop time</h5>
@@ -51,6 +59,7 @@ export default function MemeComingSoon() {
                 {item.airdropTime}
               </p>
             </div>
+
             {/* rules */}
             <div
               className="absolute top-2 right-2 flex items-center"
@@ -83,16 +92,19 @@ export default function MemeComingSoon() {
       >
         {/* header */}
         <div className="px-4 pt-6 pb-1 flex items-center justify-between">
+          {/*  */}
           <div className="flex items-center">
             <label className="text-white text-xl">
               Rules for {selectListItem?.title}
             </label>
           </div>
+          {/*  */}
           <ModalClose
             className="cursor-pointer"
             onClick={() => setIsShowModal(false)}
           />
         </div>
+
         {/* content */}
         <div className="w-full p-4 h-full">
           <div className=" leading-5 overflow-auto p-3 h-3/4 flex-1 text-sm text-v3LightGreyColor border border-memeBorderColor rounded-xl bg-memeDarkColor">
