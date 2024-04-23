@@ -12,6 +12,11 @@ export default function MemeComingSoon() {
   //
   const history = useHistory();
   //
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  }, []);
   return (
     <div
       className="text-white p-2"
