@@ -7437,7 +7437,7 @@ export function UserStakeRankingFirst({
 }: { color: string } & React.SVGProps<SVGSVGElement>) {
   return (
     <svg
-    {...props}
+      {...props}
       width="9"
       height="10"
       viewBox="0 0 9 10"
