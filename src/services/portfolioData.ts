@@ -38,9 +38,12 @@ export async function batchOrderelyDeleteKeys(publicKeys: string[]) {
   const accountId = getCurrentWallet().wallet.getAccountId();
   const wallet = await window.selector.wallet();
   const wstransactions: WSTransaction[] = [];
-  let len = 10;
+  let len = 5;
   if (wallet.id === 'ledger') {
     len = 3;
+  }
+  if (wallet.id === 'my-near-wallet') {
+    len = 10;
   }
   const transactionsLength = Math.ceil(publicKeys.length / len);
   for (let index = 0; index < transactionsLength; index++) {
