@@ -45,9 +45,7 @@ const ProgressBar = () => {
           }`}
           onClick={() => setActiveTab('weight')}
         >
-          MEME Gauge
-          <br className="lg:hidden md:hidden" />
-          Weight
+          MEME Gauge <br className="lg:hidden md:hidden" /> Weight
         </div>
         <div
           className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 xsm:leading-6 whitespace-nowrap ${
@@ -55,9 +53,7 @@ const ProgressBar = () => {
           }`}
           onClick={() => setActiveTab('ranking')}
         >
-          User stake
-          <br className="lg:hidden md:hidden" />
-          ranking
+          User stake <br className="lg:hidden md:hidden" /> ranking
         </div>
       </div>
       <div className="py-7 px-8 bg-memeVoteBgColor rounded-b-2xl xsm:px-0 xsm:py-4">

@@ -125,43 +125,62 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   };
 
   const getCustomPaginationRange = (current, total) => {
-    let pages = [];
-    const lastPage = total;
-    const secondLastPage = total - 1;
-    if (total <= 5) {
-      return Array.from({ length: total }, (_, index) => index + 1);
-    }
-    if (current === 1) {
-      pages = [1, 2, 3, '...', secondLastPage, lastPage];
-    } else if (current === 2) {
-      pages = [1, 2, 3, '...', secondLastPage, lastPage];
-    } else if (current === lastPage - 3) {
-      pages = [current - 1, current, lastPage - 2, lastPage - 1, lastPage];
-    } else if (current === lastPage - 2) {
-      pages = [current - 2, current - 1, current, lastPage - 1, lastPage];
-    } else if (current === lastPage - 1) {
-      pages = [current - 3, current - 2, current - 1, current, lastPage];
-    } else if (current === lastPage) {
-      pages = [
-        lastPage - 4,
-        lastPage - 3,
-        lastPage - 2,
-        lastPage - 1,
-        lastPage,
-      ];
+    if (is_mobile) {
+      const pages = [];
+      if (total <= 3) {
+        return Array.from({ length: total }, (_, index) => index + 1);
+      } else if (current === 1) {
+        pages.push(1, 2, '...', total);
+      } else if (current === total - 1) {
+        pages.push(total - 2, total - 1, total);
+      } else if (current === total) {
+        pages.push(total - 2, total - 1, total);
+      } else {
+        pages.push(current, current + 1);
+        if (current + 1 < total) {
+          pages.push('...', total);
+        }
+      }
+      return pages;
     } else {
-      pages = [
-        current - 1,
-        current,
-        current + 1,
-        '...',
-        secondLastPage,
-        lastPage,
-      ];
+      let pages = [];
+      const lastPage = total;
+      const secondLastPage = total - 1;
+      if (total <= 5) {
+        return Array.from({ length: total }, (_, index) => index + 1);
+      }
+      if (current === 1) {
+        pages = [1, 2, 3, '...', secondLastPage, lastPage];
+      } else if (current === 2) {
+        pages = [1, 2, 3, '...', secondLastPage, lastPage];
+      } else if (current === lastPage - 3) {
+        pages = [current - 1, current, lastPage - 2, lastPage - 1, lastPage];
+      } else if (current === lastPage - 2) {
+        pages = [current - 2, current - 1, current, lastPage - 1, lastPage];
+      } else if (current === lastPage - 1) {
+        pages = [current - 3, current - 2, current - 1, current, lastPage];
+      } else if (current === lastPage) {
+        pages = [
+          lastPage - 4,
+          lastPage - 3,
+          lastPage - 2,
+          lastPage - 1,
+          lastPage,
+        ];
+      } else {
+        pages = [
+          current - 1,
+          current,
+          current + 1,
+          '...',
+          secondLastPage,
+          lastPage,
+        ];
+      }
+      return pages;
     }
-
-    return pages;
   };
+
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleSelectToken = (symbol) => {
@@ -187,7 +206,17 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
       })
     );
   }
-
+  function formatBalanceConvert(balance) {
+    if (balance < 1000) {
+      return balance.toFixed(2);
+    } else if (balance < 1000000) {
+      return (balance / 1000).toFixed(2) + 'K';
+    } else if (balance < 1000000000) {
+      return (balance / 1000000).toFixed(2) + 'M';
+    } else {
+      return (balance / 1000000000).toFixed(2) + 'B';
+    }
+  }
   return (
     <div className={`text-primaryText ${hidden ? 'hidden' : ''}`}>
       {isLoading ? (
@@ -224,10 +253,13 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                     style={{ width: '22px', height: '22px' }}
                     alt=""
                   />
-                  <p className="ml-1.5 mr-5 xsm:hidden">{selectedToken}</p>
+                  <p className="ml-1.5 xsm:hidden">{selectedToken}</p>
                   <UserStakeRankingPopupDown className="ml-4" />
                 </div>
-                <div onClick={() => handleSort('$' + selectedToken)}>
+                <div
+                  onClick={() => handleSort('$' + selectedToken)}
+                  className="cursor-pointer"
+                >
                   {renderSortIcon('$' + selectedToken)}
                 </div>
               </div>
@@ -305,19 +337,13 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
               </div>
             ))}
           </div>
-          <div
-            className="lg:hidden overflow-auto overflow-x-hidden"
-            style={{ height: '500px' }}
-          >
-            {tableData.map((item, index) => (
+          <div className="lg:hidden overflow-x-hidden">
+            {currentItems.map((item, index) => (
               <div
                 key={item.Wallet}
-                className="py-4 px-5 flex items-center border-b border-memeBorderColor"
-                style={{
-                  borderBottom: index === tableData.length - 1 ? 'none' : '',
-                }}
+                className="py-3.5 pl-3.5 flex items-center border-b border-memeBorderColor"
               >
-                <div className="text-white w-12">
+                <div className="text-white w-8 mr-2 flex justify-center">
                   {(() => {
                     const globalIndex =
                       index + 1 + (currentPage - 1) * itemsPerPage;
@@ -334,12 +360,10 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                 </div>
                 <div className="w-10/12">
                   <div className="flex items-center justify-between text-white">
-                    <div>{formatBalance(item['Total Balance ($)'])}</div>
                     <div>
-                      {item['$' + selectedToken].toLocaleString('en-US', {
-                        maximumFractionDigits: 2,
-                      })}
+                      ${formatBalanceConvert(item['Total Balance ($)'])}
                     </div>
+                    <div>{formatBalanceConvert(item['$' + selectedToken])}</div>
                   </div>
                   <div className="truncate w-11/12 overflow-hidden text-ellipsis">
                     {item.Wallet}
@@ -348,22 +372,38 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
               </div>
             ))}
           </div>
-          <div className="flex justify-between items-center text-sm xsm:hidden">
+          <div className="flex justify-between items-center text-sm xsm:px-4 xsm:mt-5">
             <div className="flex justify-center items-center">
               <div
-                className={`flex justify-center items-center mr-6 cursor-pointer ${
+                className={`flex justify-center items-center mr-6 xsm:mr-3 cursor-pointer ${
                   currentPage === 1 ? 'text-primaryText' : 'text-white'
                 }`}
                 onClick={() => {
                   if (currentPage > 1) paginate(1);
                 }}
               >
-                <UserStakeRankingFirst
-                  className="mr-2"
-                  color={currentPage === 1 ? '#7E8A93' : '#FFFFFF'}
-                />
-                First
+                <div
+                  className={`w-7 rounded-lg h-7 flex items-center justify-center ${
+                    currentPage === 1
+                      ? 'border-memeUserStackeMobileBgColor'
+                      : 'border-senderHot'
+                  } ${is_mobile ? 'border' : ''}`}
+                >
+                  <UserStakeRankingFirst
+                    color={
+                      is_mobile
+                        ? currentPage === 1
+                          ? '#7E8A93'
+                          : '#00FFD1'
+                        : currentPage === 1
+                        ? '#7E8A93'
+                        : '#FFFFFF'
+                    }
+                  />
+                </div>
+                <p className={`${is_mobile ? 'hidden' : ''}`}>First</p>
               </div>
+
               <div
                 className={`flex justify-center items-center ${
                   currentPage > 1
@@ -376,11 +416,26 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                   }
                 }}
               >
-                <UserStakeRankingPrevious
-                  color={currentPage > 1 ? '#FFFFFF' : '#7E8A93'}
-                  className="mr-2"
-                />
-                Previous
+                <div
+                  className={`w-7 rounded-lg h-7 flex items-center justify-center ${
+                    currentPage > 1
+                      ? 'border-senderHot'
+                      : 'border-memeUserStackeMobileBgColor'
+                  } ${is_mobile ? 'border' : ''}`}
+                >
+                  <UserStakeRankingPrevious
+                    color={
+                      is_mobile
+                        ? currentPage > 1
+                          ? '#00FFD1'
+                          : '#7E8A93'
+                        : currentPage > 1
+                        ? '#FFFFFF'
+                        : '#7E8A93'
+                    }
+                  />
+                </div>
+                <p className={`${is_mobile ? 'hidden' : ''}`}>Previous</p>
               </div>
             </div>
             <div>
@@ -394,7 +449,7 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                       <button
                         key={index}
                         onClick={() => paginate(page)}
-                        className={`mr-3.5 py-1 px-2 rounded-md ${
+                        className={`mr-3.5 py-1 px-2 rounded-md xsm:w-7 xsm:h-7 ${
                           currentPage === page
                             ? 'bg-limitOrderInputColor bg-opacity-30 text-white'
                             : 'text-primaryText'
@@ -431,18 +486,31 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                   }
                 }}
               >
-                Next
-                <UserStakeRankingNext
-                  color={
+                <p className="xsm:hidden">Next</p>
+                <div
+                  className={`w-7 rounded-lg h-7 flex items-center justify-center ${
                     currentPage < Math.ceil(tableData.length / itemsPerPage)
-                      ? '#FFFFFF'
-                      : '#7E8A93'
-                  }
-                  className="ml-2.5"
-                />
+                      ? 'border-senderHot'
+                      : 'border-memeUserStackeMobileBgColor'
+                  } ${is_mobile ? 'border' : ''}`}
+                >
+                  <UserStakeRankingNext
+                    color={
+                      is_mobile
+                        ? currentPage <
+                          Math.ceil(tableData.length / itemsPerPage)
+                          ? '#00FFD1'
+                          : '#7E8A93'
+                        : currentPage <
+                          Math.ceil(tableData.length / itemsPerPage)
+                        ? '#FFFFFF'
+                        : '#7E8A93'
+                    }
+                  />
+                </div>
               </div>
               <div
-                className={`flex justify-center items-center ml-6 cursor-pointer ${
+                className={`flex justify-center items-center ml-6 xsm:ml-3 cursor-pointer ${
                   currentPage === Math.ceil(tableData.length / itemsPerPage)
                     ? 'text-primaryText'
                     : 'text-white'
@@ -455,15 +523,28 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
                   }
                 }}
               >
-                Last
-                <UserStakeRankingLast
-                  className="ml-2"
-                  color={
-                    currentPage < Math.ceil(tableData.length / itemsPerPage)
-                      ? '#FFFFFF'
-                      : '#7E8A93'
-                  }
-                />
+                <p className="xsm:hidden">Last</p>
+                <div
+                  className={`w-7 rounded-lg h-7 flex items-center justify-center ${
+                    currentPage === Math.ceil(tableData.length / itemsPerPage)
+                      ? 'border-memeUserStackeMobileBgColor'
+                      : 'border-senderHot'
+                  } ${is_mobile ? 'border' : ''}`}
+                >
+                  <UserStakeRankingLast
+                    color={
+                      is_mobile
+                        ? currentPage ===
+                          Math.ceil(tableData.length / itemsPerPage)
+                          ? '#7E8A93'
+                          : '#00FFD1'
+                        : currentPage ===
+                          Math.ceil(tableData.length / itemsPerPage)
+                        ? '#7E8A93'
+                        : '#FFFFFF'
+                    }
+                  />
+                </div>
               </div>
             </div>
           </div>
