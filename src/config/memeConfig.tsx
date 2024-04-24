@@ -2,16 +2,23 @@ import { Uwon, ShillGpt, UwonGreen } from '../components/icon/memeComingModal';
 export const memeComingSoonJson = [
   {
     id: 'dragonsoultoken.near',
-    icon: Uwon(),
     title: 'DGS',
     introduce: `DGS is the exclusive token of DragonWorld game. 
     DragonWorld integrates the excellent elements of World of Warcraft and 
     Palworld, including dragon growth, dragon adventures, single and multiplayer 
     dungeons, dragon mining, dragon production farms, and a series of other interesting elements.`,
     amount: '20000000',
-    amountDollar: '$6.27M',
     airdropTime: 'May 18',
     rules: `1-30: 300000 DGS\n30-100: 100000 DGS\n100-200: 40000 DGS`,
+    isShow: false,
+  },
+  {
+    id: 'edge-fast.near',
+    title: '$FAST',
+    introduce: `$FAST is the rewards and utility token in the Edge Video AI economy. Interact with TV content and participate in live AI-generated quizzes to be rewarded with virtual points that can be exchanged for $FAST token.`,
+    amount: '?',
+    airdropTime: '?',
+    rules: `Wallet must stake all 4: LONK, NEKO, BLACKDRAGON, SHITZU meme coins on Ref Finance and be in the top 200 stakers across all pools. Equal airdrop for all in top 200, there are no multipliers`,
     isShow: false,
   },
   // {
