@@ -263,7 +263,6 @@ export default function getConfig(
           '2194',
           '2320',
           '4744',
-          '5029',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
@@ -305,6 +304,11 @@ export default function getConfig(
         SOL_SOLBridge_TOKEN_IDS: [
           'sol.token.a11bd.near',
           '22.contract.portalbridge.near',
+        ],
+        Frax_SFrax_POOL_ID: process.env.Frax_SFrax_POOL_ID || 5029,
+        Frax_SFrax_TOKEN_IDS: [
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
+          'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near',
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
         REF_MEME_FARM_CONTRACT_ID:
@@ -405,6 +409,8 @@ export default function getConfig(
         FRAX_USDC_TOKEN_IDS: [],
         SOL_SOLBridge_POOL_ID: process.env.SOL_SOLBridge_POOL_ID,
         SOL_SOLBridge_TOKEN_IDS: [],
+        Frax_SFrax_POOL_ID: process.env.Frax_SFrax_POOL_ID,
+        Frax_SFrax_TOKEN_IDS: [],
         BLACK_TOKEN_LIST: [],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
@@ -504,6 +510,8 @@ export default function getConfig(
         USDT_USDC_TOKEN_IDS: [],
         FRAX_USDC_TOKEN_IDS: [],
         SOL_SOLBridge_TOKEN_IDS: [],
+        Frax_SFrax_POOL_ID: process.env.Frax_SFrax_POOL_ID,
+        Frax_SFrax_TOKEN_IDS: [],
         BLACK_TOKEN_LIST: [],
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
@@ -633,7 +641,6 @@ export default function getConfig(
           '2194',
           '2320',
           '4744',
-          '5029',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
@@ -658,6 +665,7 @@ export default function getConfig(
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID || 4513,
         FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID || 4514,
         SOL_SOLBridge_POOL_ID: process.env.SOL_SOLBridge_POOL_ID || 4744,
+        Frax_SFrax_POOL_ID: process.env.Frax_SFrax_POOL_ID || 5029,
         USDT_USDC_TOKEN_IDS: [
           'usdt.tether-token.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
@@ -675,6 +683,10 @@ export default function getConfig(
         SOL_SOLBridge_TOKEN_IDS: [
           'sol.token.a11bd.near',
           '22.contract.portalbridge.near',
+        ],
+        Frax_SFrax_TOKEN_IDS: [
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
+          'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near',
         ],
         BLACK_TOKEN_LIST: ['token.pembrock.near'],
         REF_MEME_FARM_CONTRACT_ID:
@@ -750,6 +762,7 @@ export function getExtraStablePoolConfig(
           '4513',
           '4514',
           '4744',
+          '5029',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -768,6 +781,10 @@ export function getExtraStablePoolConfig(
         SOL_SOLBridge_POOL_INDEX: {
           'sol.token.a11bd.near': 0,
           '22.contract.portalbridge.near': 1,
+        },
+        Frax_SFrax_POOL_INDEX: {
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+          'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near': 1,
         },
       };
     case 'development':
@@ -826,6 +843,7 @@ export function getExtraStablePoolConfig(
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
         SOL_SOLBridge_POOL_INDEX: {},
+        Frax_SFrax_POOL_INDEX: {},
       };
     case 'testnet':
       return {
@@ -882,6 +900,7 @@ export function getExtraStablePoolConfig(
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
         SOL_SOLBridge_POOL_INDEX: {},
+        Frax_SFrax_POOL_INDEX: {},
       };
     default:
       return {
@@ -944,6 +963,7 @@ export function getExtraStablePoolConfig(
           '4513',
           '4514',
           '4744',
+          '5029',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -962,6 +982,10 @@ export function getExtraStablePoolConfig(
         SOL_SOLBridge_POOL_INDEX: {
           'sol.token.a11bd.near': 0,
           '22.contract.portalbridge.near': 1,
+        },
+        Frax_SFrax_POOL_INDEX: {
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+          'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near': 1,
         },
       };
   }
