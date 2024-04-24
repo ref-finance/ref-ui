@@ -1,5 +1,5 @@
 import Coin from './Coin';
-import { RuleTips } from './ruleTips';
+import { RuleIcon, RuleTips } from './ruleTips';
 import { TriangleUp } from './triangleUp';
 import { TriangleDown } from './triangleDown';
 import Uwon from './uwon';
@@ -16,4 +16,5 @@ export {
   ShillGpt,
   UwonGreen,
   Goback,
+  RuleIcon,
 };

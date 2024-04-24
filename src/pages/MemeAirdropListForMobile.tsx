@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-modal';
 import { ModalClose } from '../components/icon';
-import { RuleTips, Goback } from '../components/icon/memeComingModal';
+import { RuleTips, Goback, RuleIcon } from '../components/icon/memeComingModal';
 import { memeComingSoonJson } from '../config/memeConfig';
 import { useHistory } from 'react-router-dom';
 import { ftGetTokenMetadata } from '../services/ft-contract';
+import CustomTooltip from '../components/customTooltip/customTooltip';
 export default function MemeComingSoon() {
   const [icons, setIcons] = useState({});
   //
@@ -31,6 +32,10 @@ export default function MemeComingSoon() {
     await Promise.all(promises);
     setIcons(newIcons);
   };
+  const Tip = `
+  <div class="text-navHighLightText text-xs text-left w-40">
+  The airdropped tokens below are not investment advice.
+  </div>`;
   return (
     <div
       className="text-white p-2"
@@ -42,6 +47,16 @@ export default function MemeComingSoon() {
           <Goback />
         </div>
         <h3 className="font-gothamBold text-lg">Airdrop Activity</h3>
+        <div
+          className="text-white text-right ml-1.5 inline-block cursor-pointer"
+          data-class="reactTip"
+          data-tooltip-id="ruleId"
+          data-place="left"
+          data-tooltip-html={Tip}
+        >
+          <RuleTips />
+          <CustomTooltip id="ruleId" />
+        </div>
       </div>
 
       {/* air drop list */}
@@ -93,7 +108,7 @@ export default function MemeComingSoon() {
                 setSelectListItem(item);
               }}
             >
-              <RuleTips />
+              <RuleIcon />
               <span className="mx-2 text-sm">Rules</span>
             </div>
           </div>

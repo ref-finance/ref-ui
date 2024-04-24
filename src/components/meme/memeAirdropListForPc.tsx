@@ -37,7 +37,7 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
     await Promise.all(promises);
     setIcons(newIcons);
   };
-  const TknTip = `
+  const Tip = `
     <div class="text-navHighLightText text-xs text-left w-42">
     The airdropped tokens below are not investment advice.
     </div>`;
@@ -64,12 +64,12 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
             <div
               className="text-white text-right ml-1.5 inline-block cursor-pointer"
               data-class="reactTip"
-              data-tooltip-id="tknId"
+              data-tooltip-id="ruleId"
               data-place="left"
-              data-tooltip-html={TknTip}
+              data-tooltip-html={Tip}
             >
               <RuleTips />
-              <CustomTooltip id="tknId" />
+              <CustomTooltip id="ruleId" />
             </div>
           </div>
           <ModalClose className="cursor-pointer" onClick={onRequestClose} />
