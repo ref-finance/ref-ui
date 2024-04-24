@@ -4,6 +4,8 @@ import { RuleTips, TriangleUp, TriangleDown } from '../icon/memeComingModal';
 import { memeComingSoonJson } from '../../config/memeConfig';
 import Modal from 'react-modal';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
+import CustomTooltip from '../customTooltip/customTooltip';
+import { RuleIcon } from '../icon/memeComingModal/ruleTips';
 
 export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
   // show rules
@@ -35,7 +37,10 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
     await Promise.all(promises);
     setIcons(newIcons);
   };
-
+  const TknTip = `
+    <div class="text-navHighLightText text-xs text-left w-42">
+    The airdropped tokens below are not investment advice.
+    </div>`;
   return (
     <Modal
       isOpen={isOpen}
@@ -56,6 +61,16 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
         <div className="px-5 xs:px-3 md:px-3 py-6 flex items-center justify-between">
           <div className="flex items-center">
             <label className="text-white text-xl">Airdrop Activity</label>
+            <div
+              className="text-white text-right ml-1.5 inline-block cursor-pointer"
+              data-class="reactTip"
+              data-tooltip-id="tknId"
+              data-place="left"
+              data-tooltip-html={TknTip}
+            >
+              <RuleTips />
+              <CustomTooltip id="tknId" />
+            </div>
           </div>
           <ModalClose className="cursor-pointer" onClick={onRequestClose} />
         </div>
@@ -129,7 +144,7 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
                     {/* rule change */}
                     <div className=" select-none">
                       <div className="flex items-center">
-                        <RuleTips />
+                        <RuleIcon />
                         <span className="mx-2 my-2 text-base">Rules</span>
                         <div
                           className=" w-5 h-5 rounded-md bg-gray-400 fccc cursor-pointer"
