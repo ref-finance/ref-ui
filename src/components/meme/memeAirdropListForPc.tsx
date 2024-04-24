@@ -3,10 +3,12 @@ import { ModalClose } from '../../components/icon';
 import { RuleTips, TriangleUp, TriangleDown } from '../icon/memeComingModal';
 import { memeComingSoonJson } from '../../config/memeConfig';
 import Modal from 'react-modal';
+import { ftGetTokenMetadata } from '../../services/ft-contract';
 
 export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
   // show rules
   const [isShowRules, setShowRules] = useState<Array<any>>([]);
+  const [icons, setIcons] = useState({});
   useEffect(() => {
     const waitDealedData = new Array(memeComingSoonJson.length).fill(false);
     setShowRules(waitDealedData);
@@ -18,7 +20,22 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
     updatedWaitDealedData[index] = flag;
     setShowRules(updatedWaitDealedData);
   };
-  //
+
+  useEffect(() => {
+    setShowRules(new Array(memeComingSoonJson.length).fill(false));
+    fetchIcons();
+  }, []);
+  const fetchIcons = async () => {
+    const newIcons = {};
+    const promises = memeComingSoonJson.map(async (item) => {
+      const iconData = await ftGetTokenMetadata(item.id);
+      newIcons[item.id] = iconData.icon;
+    });
+
+    await Promise.all(promises);
+    setIcons(newIcons);
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -34,7 +51,7 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
         },
       }}
     >
-      <div className="rounded-2xl bg-cardBg" style={{ maxHeight: '37rem' }}>
+      <div className="rounded-2xl bg-cardBg" style={{ maxHeight: '36rem' }}>
         {/* header */}
         <div className="px-5 xs:px-3 md:px-3 py-6 flex items-center justify-between">
           <div className="flex items-center">
@@ -44,8 +61,11 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
         </div>
 
         {/* body */}
-        <div style={{ height: '32rem' }} className=" overflow-auto">
-          <div className={`bg-memeUserStackeBgColor py-6 px-6 overflow-auto`}>
+        <div
+          style={{ maxHeight: '32rem' }}
+          className="overflow-auto rounded-br-2xl rounded-bl-2xl"
+        >
+          <div className={`bg-memeVoteBgColor py-6 px-6 overflow-auto`}>
             {/* map */}
             {memeComingSoonJson.map((item, index) => {
               return (
@@ -59,7 +79,13 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
                   className=" bg-memeModelgreyColor rounded-2xl mb-4 py-6 px-6 flex"
                 >
                   {/* left */}
-                  {item.icon}
+                  {icons[item.id] ? (
+                    <img
+                      src={icons[item.id]}
+                      alt="Icon"
+                      style={{ width: '4rem', height: '4rem' }}
+                    />
+                  ) : null}
 
                   {/* right */}
                   <div
@@ -83,9 +109,9 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
                           <span className="text-xl gotham_bold text-greenLight">
                             {item.amount}
                           </span>
-                          <span className="ml-1 text-xs">
+                          {/* <span className="ml-1 text-xs">
                             {item.amountDollar}
-                          </span>
+                          </span> */}
                         </p>
                       </div>
 
@@ -121,7 +147,7 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
 
                       {/* collase */}
                       {isShowRules[index] ? (
-                        <div className="h-52 overflow-auto p-6 text-sm text-v3LightGreyColor border border-memeBorderColor rounded-lg bg-memeDarkColor">
+                        <div className="h-min overflow-auto p-6 text-sm text-v3LightGreyColor border border-memeBorderColor rounded-lg bg-memeDarkColor whitespace-pre-wrap leading-6">
                           {item.rules}
                         </div>
                       ) : (

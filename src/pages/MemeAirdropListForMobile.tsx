@@ -4,7 +4,9 @@ import { ModalClose } from '../components/icon';
 import { RuleTips, Goback } from '../components/icon/memeComingModal';
 import { memeComingSoonJson } from '../config/memeConfig';
 import { useHistory } from 'react-router-dom';
+import { ftGetTokenMetadata } from '../services/ft-contract';
 export default function MemeComingSoon() {
+  const [icons, setIcons] = useState({});
   //
   const [isShowModal, setIsShowModal] = useState<boolean>(false);
   //
@@ -16,7 +18,19 @@ export default function MemeComingSoon() {
     window.scrollTo({
       top: 0,
     });
+    fetchIcons();
   }, []);
+
+  const fetchIcons = async () => {
+    const newIcons = {};
+    const promises = memeComingSoonJson.map(async (item) => {
+      const iconData = await ftGetTokenMetadata(item.id);
+      newIcons[item.id] = iconData.icon;
+    });
+
+    await Promise.all(promises);
+    setIcons(newIcons);
+  };
   return (
     <div
       className="text-white p-2"
@@ -34,13 +48,19 @@ export default function MemeComingSoon() {
       {memeComingSoonJson.map((item, index) => {
         return (
           <div
-            className="flex flex-col justify-evenly w-full h-72 my-3 overflow-auto border border-memePoolBoxBorderColor rounded-2xl p-3 relative"
+            className="flex flex-col justify-evenly w-full h-72 my-3 overflow-auto border border-memePoolBoxBorderColor rounded-2xl p-3 relative bg-memeVoteBgColor"
             style={{ backgroundColor: 'linear-gradient(#213441, #15242F)' }}
             key={item.title + index}
           >
             {/* icon and title */}
             <div className="flex items-center">
-              {item.icon}
+              {icons[item.id] ? (
+                <img
+                  src={icons[item.id]}
+                  alt="Icon"
+                  style={{ width: '2.5rem', height: '2.5rem' }}
+                />
+              ) : null}
               <span className="gotham_bold text-xl ml-3"> {item.title} </span>
             </div>
 
@@ -112,7 +132,7 @@ export default function MemeComingSoon() {
 
         {/* content */}
         <div className="w-full p-4 h-full">
-          <div className=" leading-5 overflow-auto p-3 h-3/4 flex-1 text-sm text-v3LightGreyColor border border-memeBorderColor rounded-xl bg-memeDarkColor">
+          <div className=" leading-5 overflow-auto p-3 h-3/4 flex-1 text-sm text-v3LightGreyColor border border-memeBorderColor rounded-xl bg-memeDarkColor whitespace-pre-wrap leading-6">
             {selectListItem?.rules}
           </div>
         </div>
