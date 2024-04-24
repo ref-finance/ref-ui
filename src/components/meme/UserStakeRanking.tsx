@@ -189,9 +189,9 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
     setSelectedToken(symbol);
     setIsOpen(false);
     const sortKey = '$' + symbol;
-  if (sortConfig.key !== sortKey) {
-    handleSort(sortKey);
-  }
+    if (sortConfig.key !== sortKey) {
+      handleSort(sortKey);
+    }
   };
   function formatBalance(balance) {
     const number = Number(balance);
