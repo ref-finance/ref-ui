@@ -263,6 +263,7 @@ export default function getConfig(
           '2194',
           '2320',
           '4744',
+          '5029',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
@@ -632,6 +633,7 @@ export default function getConfig(
           '2194',
           '2320',
           '4744',
+          '5029',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
