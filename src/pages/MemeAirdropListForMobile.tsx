@@ -46,7 +46,7 @@ export default function MemeComingSoon() {
         <div className="absolute left-0" onClick={() => history.push('/meme')}>
           <Goback />
         </div>
-        <h3 className="font-gothamBold text-lg">Airdrop Activity</h3>
+        <h3 className="font-gothamBold text-lg">Airdrop Announcement</h3>
         <div
           className="text-white text-right ml-1.5 inline-block cursor-pointer"
           data-class="reactTip"

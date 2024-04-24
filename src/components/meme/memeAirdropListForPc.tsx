@@ -60,7 +60,7 @@ export default function MemeAirdropListForPc({ onRequestClose, isOpen }: any) {
         {/* header */}
         <div className="px-5 xs:px-3 md:px-3 py-6 flex items-center justify-between">
           <div className="flex items-center">
-            <label className="text-white text-xl">Airdrop Activity</label>
+            <label className="text-white text-xl">Airdrop Announcement</label>
             <div
               className="text-white text-right ml-1.5 inline-block cursor-pointer"
               data-class="reactTip"

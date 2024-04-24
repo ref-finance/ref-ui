@@ -4,7 +4,7 @@ export const memeComingSoonJson = [
     id: 'dragonsoultoken.near',
     icon: Uwon(),
     title: 'DGS',
-    introduce: `Description: DGS is the exclusive token of DragonWorld game. 
+    introduce: `DGS is the exclusive token of DragonWorld game. 
     DragonWorld integrates the excellent elements of World of Warcraft and 
     Palworld, including dragon growth, dragon adventures, single and multiplayer 
     dungeons, dragon mining, dragon production farms, and a series of other interesting elements.`,

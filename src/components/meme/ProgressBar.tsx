@@ -89,7 +89,7 @@ const ProgressBar = () => {
         {/* open Coming Soon modal */}
         {!is_mobile && (
           <div
-            className="ml-auto flex justify-between items-center w-44 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer"
+            className="ml-auto flex justify-between items-center w-64 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer"
             style={{ borderRadius: '3.375rem', top: '-.8rem', right: '1rem' }}
             onClick={() => setIsShowModal(true)}
           >
@@ -98,7 +98,7 @@ const ProgressBar = () => {
             </div>
             {/*  */}
             <span className="text-white text-base mr-6 ml-auto">
-              Coming Soon
+              Airdrop Announcement
             </span>
           </div>
         )}
@@ -190,7 +190,7 @@ const ProgressBar = () => {
           <div
             className="flex justify-center items-center h-10 bg-memeModelgreyColor relative hover:bg-gray-700 font-normal"
             style={{
-              width: '10.6875rem',
+              width: '16rem',
               borderRadius: '3.375rem',
               bottom: '-.6rem',
               marginLeft: '50%',
@@ -202,7 +202,9 @@ const ProgressBar = () => {
               <Coin />
             </div>
             {/*  */}
-            <span className="text-white text-sm ml-6 mr-2">Coming Soon</span>
+            <span className="text-white text-sm ml-6 mr-2">
+              Airdrop Announcement
+            </span>
             <ArrowRightIcon />
           </div>
         )}

@@ -188,9 +188,10 @@ export default function UserStakeRanking({ hidden }: { hidden: boolean }) {
   const handleSelectToken = (symbol) => {
     setSelectedToken(symbol);
     setIsOpen(false);
-    if (sortConfig && sortConfig.key === '$' + selectedToken.toUpperCase()) {
-      handleSort('$' + symbol);
-    }
+    const sortKey = '$' + symbol;
+  if (sortConfig.key !== sortKey) {
+    handleSort(sortKey);
+  }
   };
   function formatBalance(balance) {
     const number = Number(balance);
