@@ -15,6 +15,7 @@ import {
   useRainbowWhitelistTokens,
   useTokenBalances,
   useTokens,
+  useWhitelistTokens,
 } from 'src/state/token';
 import { useAllPoolsV2 } from 'src/state/swapV3';
 import _, { find } from 'lodash';
@@ -140,7 +141,7 @@ function MobileLiquidityPage({
 
   const search_id_ref = useRef(null);
 
-  const selectTokens = useRainbowWhitelistTokens();
+  const selectTokens = useWhitelistTokens();
 
   const selectBalances = useTokenBalances();
 

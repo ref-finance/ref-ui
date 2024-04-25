@@ -10,7 +10,7 @@ import {
   EditOrderlyOrder,
   ClientInfo,
   orderStatus,
-  Balance,
+  IOrderKeyInfo,
   MyOrder,
 } from './type';
 import { get_user_trading_key } from './on-chain-api';
@@ -204,6 +204,18 @@ export const getAccountInformation = async (props: {
   });
 
   return res.data;
+};
+export const getAccountKeyInfo = async (props: {
+  accountId: string;
+}): Promise<IOrderKeyInfo[]> => {
+  const url = '/v1/client/key_info';
+
+  const res = await requestOrderly({
+    url,
+    accountId: props.accountId,
+  });
+
+  return res?.data?.rows || [];
 };
 
 export const getCurrentHolding = async (props: { accountId: string }) => {

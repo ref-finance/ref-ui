@@ -33,6 +33,7 @@ import {
   usePoolTokens,
   useRainbowWhitelistTokens,
   useTokenBalances,
+  useWhitelistTokens,
 } from '../../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool, canFarms } from '../../../services/pool';
@@ -799,7 +800,7 @@ function PcLiquidityPage({
     }
   }, [tokenName, inputRef?.current]);
 
-  const selectTokens = useRainbowWhitelistTokens();
+  const selectTokens = useWhitelistTokens();
 
   const selectBalances = useTokenBalances();
 

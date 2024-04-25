@@ -43,14 +43,9 @@ import {
 } from '../services/aurora/aurora';
 import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
-import { wallet as webWallet } from 'src/services/near';
-import { getTokenPriceList } from '../services/indexer';
+import { getTokenPriceList, getTokens } from '../services/indexer';
 import { useWalletSelector } from '../context/WalletSelectorContext';
-import {
-  WalletContext,
-  getCurrentWallet,
-  WALLET_TYPE,
-} from '../utils/wallets-integration';
+import { WalletContext, getCurrentWallet } from '../utils/wallets-integration';
 import db from '../store/RefDatabase';
 import { get_auto_whitelisted_postfix } from '../services/token';
 
@@ -174,7 +169,7 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         const allWhiteTokenIds = [
           ...new Set([...globalWhitelist, ...userWhitelist, ...extraTokenIds]),
         ];
-        const allTokens = (await db.queryAllTokens()) || [];
+        const allTokens = await getAllTokens();
         const postfix = await get_auto_whitelisted_postfix();
         const whiteMetaDataList = await Promise.all(
           allWhiteTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
@@ -205,6 +200,20 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
+async function getAllTokens() {
+  let allTokens = (await db.queryAllTokens()) || [];
+  if (!allTokens.length) {
+    const tokens = await getTokens();
+    allTokens = Object.keys(tokens).reduce((acc, id) => {
+      acc.push({
+        id,
+        ...tokens[id],
+      });
+      return acc;
+    }, []);
+  }
+  return allTokens;
+}
 export const useRiskTokens = () => {
   const tokens = useWhitelistTokens();
   const allRiskTokens = useMemo(() => {

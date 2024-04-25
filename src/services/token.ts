@@ -371,24 +371,29 @@ export const batchWithdraw = async (tokenMap: any) => {
     const parsedAmount = toNonDivisibleNumber(decimals, amount);
     widthdrawActions.push({
       methodName: 'withdraw',
-      args: { token_id: tokenId, amount: parsedAmount, unregister: false },
+      args: {
+        token_id: tokenId,
+        amount: parsedAmount,
+        unregister: false,
+        skip_unwrap_near: false,
+      },
       gas: '55000000000000',
       amount: ONE_YOCTO_NEAR,
     });
-    if (tokenId === WRAP_NEAR_CONTRACT_ID) {
-      wNEARAction = {
-        receiverId: WRAP_NEAR_CONTRACT_ID,
-        functionCalls: [
-          {
-            methodName: 'near_withdraw',
-            args: {
-              amount: parsedAmount,
-            },
-            amount: ONE_YOCTO_NEAR,
-          },
-        ],
-      };
-    }
+    // if (tokenId === WRAP_NEAR_CONTRACT_ID) {
+    //   wNEARAction = {
+    //     receiverId: WRAP_NEAR_CONTRACT_ID,
+    //     functionCalls: [
+    //       {
+    //         methodName: 'near_withdraw',
+    //         args: {
+    //           amount: parsedAmount,
+    //         },
+    //         amount: ONE_YOCTO_NEAR,
+    //       },
+    //     ],
+    //   };
+    // }
   });
   transactions.push({
     receiverId: REF_FI_CONTRACT_ID,

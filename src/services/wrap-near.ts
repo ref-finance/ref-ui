@@ -183,25 +183,24 @@ export const unwrapNear = async (amount: string) => {
     functionCalls: [
       withdrawAction({
         tokenId: WRAP_NEAR_CONTRACT_ID,
-        // amount: utils.format.parseNearAmount(amount),
         amount: toNonDivisibleNumber(24, amount),
       }),
     ],
   });
 
-  transactions.push({
-    receiverId: WRAP_NEAR_CONTRACT_ID,
-    functionCalls: [
-      {
-        methodName: 'near_withdraw',
-        args: {
-          // amount: utils.format.parseNearAmount(amount),
-          amount: toNonDivisibleNumber(24, amount),
-        },
-        amount: ONE_YOCTO_NEAR,
-      },
-    ],
-  });
+  // transactions.push({
+  //   receiverId: WRAP_NEAR_CONTRACT_ID,
+  //   functionCalls: [
+  //     {
+  //       methodName: 'near_withdraw',
+  //       args: {
+  //         // amount: utils.format.parseNearAmount(amount),
+  //         amount: toNonDivisibleNumber(24, amount),
+  //       },
+  //       amount: ONE_YOCTO_NEAR,
+  //     },
+  //   ],
+  // });
 
   const needDeposit = await checkTokenNeedsStorageDeposit();
   if (needDeposit) {

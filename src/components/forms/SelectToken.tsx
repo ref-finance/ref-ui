@@ -137,7 +137,7 @@ export function SingleToken({
           className="inline-block mr-2 border rounded-full border-black relative"
           style={{ width: '30px', height: '30px' }}
         >
-          {isRisk ? (
+          {isTokenAtRisk ? (
             <div className="absolute bottom-0 left-0">
               <TknIcon />
             </div>

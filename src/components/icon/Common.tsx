@@ -1654,7 +1654,7 @@ export function TknIcon(props: any) {
         opacity="0.8"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M28.2929 0C26.2338 5.82596 20.6776 10 14.1465 10C7.61538 10 2.05918 5.82596 0 0H28.2929Z"
+        d="M29.2929 0C26.2338 5.82596 20.6776 10 14.1465 10C7.61538 10 2.05918 5.82596 0 0H29.2929Z"
         fill="black"
       />
       <path
