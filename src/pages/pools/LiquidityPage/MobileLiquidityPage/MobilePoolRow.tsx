@@ -173,11 +173,16 @@ function MobilePoolRow({
               {curRowTokens.map((token, index) => {
                 const atRisk = isTokenAtRisk(token);
                 return (
-                  <div key={token.id} className="relative inline-block">
+                  <div
+                    key={token.id}
+                    className={`relative inline-block ${
+                      index > 0 ? 'z-20' : 'z-10'
+                    }`}
+                  >
                     <div
-                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative z-10 ${
+                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative ${
                         index > 0 ? '-ml-1.5' : ''
-                      }`}
+                      } ${index > 0 ? 'z-20' : 'z-10'}`}
                       style={{
                         height: '26px',
                         width: '26px',
@@ -190,7 +195,12 @@ function MobilePoolRow({
                       />
                     </div>
                     {atRisk && (
-                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center z-50">
+                      <div
+                        className={`absolute bottom-0 transform -translate-x-1/2 text-center z-50 ${
+                          index > 0 ? 'left-1.5' : 'left-1/2'
+                        } 
+                       `}
+                      >
                         <TknIcon className="transform scale-75" />
                       </div>
                     )}
