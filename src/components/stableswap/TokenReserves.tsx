@@ -88,6 +88,7 @@ function TokenChart({
     FRAX: '#OE1519',
     SOL: '#5245B0',
     'SOL.Allbridge': '#8688CA',
+    sFRAX: '#4A6D7C',
   };
 
   const noBorderTokens = ['LINEAR', 'USDt'];

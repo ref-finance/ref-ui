@@ -56,6 +56,7 @@ import {
   USDTT_USDCC_USDT_USDC_POOL_ID,
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
+  Frax_SFrax_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -2121,7 +2122,6 @@ function TokenChart({
   );
 
   const data = tokens.map((token, i) => {
-    console.log(token)
     return {
       name: token.symbol,
       value: Number(coinsAmounts[token.id]),
@@ -2149,6 +2149,7 @@ function TokenChart({
     FRAX: '#OE1519',
     SOL: '#5245B0',
     'SOL.Allbridge': '#8688CA',
+    sFRAX: '#4A6D7C',
   };
 
   const colorLight = {
@@ -2160,7 +2161,7 @@ function TokenChart({
     USN: 'rgba(255, 255, 255, 1)',
     cUSD: 'rgba(69, 205, 133, 1)',
     HBTC: '#4D85F8',
-    WBTC: '#ED9234', 
+    WBTC: '#ED9234',
     STNEAR: '#A0A0FF',
     NEAR: '#A0B1AE',
     LINEAR: '#4081FF',
@@ -2171,6 +2172,7 @@ function TokenChart({
     FRAX: '#OE1519',
     SOL: '#5245B0',
     'SOL.Allbridge': '#8688CA',
+    sFRAX: '#4A6D7C',
   };
 
   const innerRadius = 30;
@@ -2239,7 +2241,6 @@ function TokenChart({
           activeIndex={data.findIndex((o) => o.token.id === activeToken)}
         >
           {data.map((entry, index) => {
-            console.log(color[tokens[index].symbol]);
             return (
               <Cell
                 key={`cell-${index}`}
@@ -2321,9 +2322,9 @@ const StablePoolClassIcon = ({ id }: { id: string }) => {
     <NEAR_TEXT />
   ) : USD_CLASS_STABLE_POOL_IDS.includes(id) ? (
     <USD_TEXT />
-  ) : (
+  ) : BTC_CLASS_STABLE_POOL_IDS.includes(id) ? (
     <BTC_TEXT />
-  );
+  ) : null;
 
   const isMobile = useClientMobile();
 
@@ -2377,7 +2378,8 @@ function StablePoolCard({
   const is_new_pool =
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
-    poolData.pool.id == FRAX_USDC_POOL_ID;
+    poolData.pool.id == FRAX_USDC_POOL_ID ||
+    poolData.pool.id == Frax_SFrax_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -2746,7 +2748,11 @@ function StablePoolList({
 
     return b1 && b2;
   };
-  const pinned_pool_ids = [USDTT_USDCC_USDT_USDC_POOL_ID, FRAX_USDC_POOL_ID];
+  const pinned_pool_ids = [
+    FRAX_USDC_POOL_ID,
+    USDTT_USDCC_USDT_USDC_POOL_ID,
+    Frax_SFrax_POOL_ID,
+  ];
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
     const v1 = Number(p1?.poolTVL?.toString() || 0);
     const v2 = Number(p2?.poolTVL?.toString() || 0);
@@ -2768,11 +2774,15 @@ function StablePoolList({
       getPoolFeeAprTitle(vol2.toString(), standPool2) +
       (farmAprById?.[p2.pool.id] || 0) * 100;
 
-    const is_p1_sort_top = pinned_pool_ids.includes(p1.pool.id);
-    const is_p2_sort_top = pinned_pool_ids.includes(p2.pool.id);
+    const priority1 = pinned_pool_ids.indexOf(p1.pool.id);
+    const priority2 = pinned_pool_ids.indexOf(p2.pool.id);
 
-    if (is_p1_sort_top) return -1;
-    if (is_p2_sort_top) return 1;
+    if (priority1 !== -1 && priority2 !== -1) {
+      return priority1 - priority2;
+    }
+
+    if (priority1 !== -1) return -1;
+    if (priority2 !== -1) return 1;
 
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
