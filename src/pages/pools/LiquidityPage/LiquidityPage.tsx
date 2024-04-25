@@ -57,6 +57,7 @@ import {
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
   Frax_SFrax_POOL_ID,
+  SOL_SOLBridge_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -2379,6 +2380,7 @@ function StablePoolCard({
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID ||
+    poolData.pool.id == SOL_SOLBridge_POOL_ID ||
     poolData.pool.id == Frax_SFrax_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
@@ -2752,6 +2754,7 @@ function StablePoolList({
     FRAX_USDC_POOL_ID,
     USDTT_USDCC_USDT_USDC_POOL_ID,
     Frax_SFrax_POOL_ID,
+    SOL_SOLBridge_POOL_ID,
   ];
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
     const v1 = Number(p1?.poolTVL?.toString() || 0);

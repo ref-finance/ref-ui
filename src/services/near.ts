@@ -214,7 +214,7 @@ export const USD_CLASS_STABLE_POOL_IDS = [
   USDTT_USDCC_USDT_USDC_POOL_ID.toString(),
   USDT_USDC_POOL_ID?.toString(),
   FRAX_USDC_POOL_ID?.toString(),
-  SOL_SOLBridge_POOL_ID?.toString(),
+  Frax_SFrax_POOL_ID?.toString(),
 ];
 
 export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;
