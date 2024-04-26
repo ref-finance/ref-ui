@@ -48,7 +48,7 @@ function AccessKeyModal(props: any) {
   function getOrderlyTip() {
     return `
     <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
-    Authorize one ordering key per account. Clean up if there are multiples.
+    Authorize one ordering key per account. Clean up if there are multiples. Deleting Orderly Keys may have delays as it requires confirmation from Orderly.
     </div>
     `;
   }

@@ -679,7 +679,7 @@ export default function SelectToken({
   }
   const TknTip = `
     <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
-    Created by any user on tkn.farm with the tkn.near suffix, poses high risks. Ref has not certified it. Exercise caution.
+    Created by any user on https://tkn.homes with the tkn.near suffix, poses high risks. Ref has not certified it. Exercise caution.
     </div>`;
   return (
     <MicroModal

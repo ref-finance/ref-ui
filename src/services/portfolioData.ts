@@ -38,7 +38,7 @@ export async function batchOrderelyDeleteKeys(publicKeys: string[]) {
   const accountId = getCurrentWallet().wallet.getAccountId();
   const wallet = await window.selector.wallet();
   const wstransactions: WSTransaction[] = [];
-  const len = 2;
+  const len = 1;
   // if (wallet.id === 'ledger') {
   //   len = 3;
   // }
