@@ -204,7 +204,7 @@ const parseActionView = async (action: any) => {
   return {
     datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/txns/' + action[1],
-    data: data,
+    data,
     // status: action[5] === 'SUCCESS_VALUE',
     status: action[6] && action[6].indexOf('SUCCESS') > -1,
   };
@@ -637,7 +637,7 @@ export const _search = (args: any, pools: PoolRPCView[]) => {
 
 export const _order = (args: any, pools: PoolRPCView[]) => {
   let column = args.column || 'tvl';
-  let order = args.order || 'desc';
+  const order = args.order || 'desc';
   column = args.column === 'fee' ? 'total_fee' : column;
   return _.orderBy(pools, [column], [order]);
 };
@@ -910,7 +910,7 @@ export const getTxId = async (receipt_id: string) => {
     });
 };
 export const getTokens = async () => {
-  return await fetch(config.indexerUrl + '/list-token', {
+  return await fetch(config.indexerUrlForToken + '/list-token', {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   }).then(async (res) => {

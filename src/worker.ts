@@ -50,7 +50,7 @@ const runWorker = () => {
       .then(({ result }) => JSON.parse(Buffer.from(result).toString()));
   };
   const getTokens = async () => {
-    return await fetch(config.indexerUrl + '/list-token', {
+    return await fetch(config.indexerUrlForToken + '/list-token', {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
     })
