@@ -46,9 +46,23 @@ declare global {
     };
     modal: WalletSelectorModal;
     selectorAccountId?: string | null;
+    sender?: any;
   }
 }
-
+interface IAccountKey {
+  access_key: {
+    nonce: number;
+    permission: string | Ipermission;
+  };
+  public_key: string;
+}
+export interface Ipermission {
+  FunctionCall: {
+    allowance: string;
+    method_names: string[];
+    receiver_id: string;
+  };
+}
 interface WalletSelectorContextValue {
   selector: WalletSelector;
   modal: WalletSelectorModal;
@@ -56,6 +70,7 @@ interface WalletSelectorContextValue {
   accountId: string | null;
   setAccountId: (accountId: string) => void;
   isLedger: boolean;
+  allKeys: IAccountKey[];
 }
 
 const WalletSelectorContext =
@@ -68,6 +83,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
 
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
+  const [allKeys, setAllKeys] = useState<IAccountKey[]>([]);
 
   const syncAccountState = (
     currentAccountId: string | null,
@@ -222,20 +238,19 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const getAllKeys = async (accountId: string) => {
     const account = await near.account(accountId);
 
-    const allKeys = await account.getAccessKeys();
+    const allKeys = (await account.getAccessKeys()) as IAccountKey[];
 
     const isWalletMeta = allKeys.some((k) => {
       if (k.access_key.permission === 'FullAccess') return false;
-      const meta =
-        k.access_key.permission.FunctionCall.method_names.includes(
-          '__wallet__metadata'
-        );
+      const meta = (
+        k.access_key.permission as Ipermission
+      ).FunctionCall.method_names.includes('__wallet__metadata');
       return meta;
     });
 
     const isSelectLedger =
       selector.store.getState().selectedWalletId === 'ledger';
-
+    setAllKeys(allKeys);
     setIsLedger(isSelectLedger || isWalletMeta);
   };
 
@@ -294,6 +309,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         accountId,
         setAccountId,
         isLedger,
+        allKeys,
       }}
     >
       {children}

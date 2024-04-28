@@ -371,24 +371,29 @@ export const batchWithdraw = async (tokenMap: any) => {
     const parsedAmount = toNonDivisibleNumber(decimals, amount);
     widthdrawActions.push({
       methodName: 'withdraw',
-      args: { token_id: tokenId, amount: parsedAmount, unregister: false },
+      args: {
+        token_id: tokenId,
+        amount: parsedAmount,
+        unregister: false,
+        skip_unwrap_near: false,
+      },
       gas: '55000000000000',
       amount: ONE_YOCTO_NEAR,
     });
-    if (tokenId === WRAP_NEAR_CONTRACT_ID) {
-      wNEARAction = {
-        receiverId: WRAP_NEAR_CONTRACT_ID,
-        functionCalls: [
-          {
-            methodName: 'near_withdraw',
-            args: {
-              amount: parsedAmount,
-            },
-            amount: ONE_YOCTO_NEAR,
-          },
-        ],
-      };
-    }
+    // if (tokenId === WRAP_NEAR_CONTRACT_ID) {
+    //   wNEARAction = {
+    //     receiverId: WRAP_NEAR_CONTRACT_ID,
+    //     functionCalls: [
+    //       {
+    //         methodName: 'near_withdraw',
+    //         args: {
+    //           amount: parsedAmount,
+    //         },
+    //         amount: ONE_YOCTO_NEAR,
+    //       },
+    //     ],
+    //   };
+    // }
   });
   transactions.push({
     receiverId: REF_FI_CONTRACT_ID,
@@ -498,6 +503,26 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
     ]),
   ];
 };
+export const getWhitelistedTokensInfo = async (): Promise<
+  Record<string, string[]>
+> => {
+  let userWhitelist = [];
+  const globalWhitelist = await refFiViewFunction({
+    methodName: 'get_whitelisted_tokens',
+  });
+  if (getCurrentWallet()?.wallet?.isSignedIn()) {
+    userWhitelist = await refFiViewFunction({
+      methodName: 'get_user_whitelisted_tokens',
+      args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
+    });
+  }
+  return {
+    globalWhitelist: [
+      ...new Set<string>([...globalWhitelist, ...extraStableTokenIds]),
+    ],
+    userWhitelist,
+  };
+};
 
 export const getGlobalWhitelist = async (): Promise<string[]> => {
   const globalWhitelist = await refFiViewFunction({
@@ -541,4 +566,11 @@ export const round = (decimals: number, minAmountOut: string) => {
         Math.round(Number(minAmountOut) * Math.pow(10, decimals)) /
           Math.pow(10, decimals)
       ).toString();
+};
+
+export const get_auto_whitelisted_postfix = async (): Promise<string[]> => {
+  const metadata = await refFiViewFunction({
+    methodName: 'metadata',
+  });
+  return metadata.auto_whitelisted_postfix;
 };

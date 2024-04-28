@@ -15,7 +15,7 @@ export const withdrawAction = ({
   singleTx,
 }: WithdrawActionOptions) => ({
   methodName: 'withdraw',
-  args: { token_id: tokenId, amount, unregister },
+  args: { token_id: tokenId, amount, unregister, skip_unwrap_near: false },
   gas: singleTx ? '60000000000000' : '55000000000000',
   amount: ONE_YOCTO_NEAR,
 });

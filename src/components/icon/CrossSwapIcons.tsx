@@ -721,9 +721,10 @@ export const Inch1IconAndAurora = () => {
   );
 };
 
-export const OrderlyOrderBookIcon = () => {
+export const OrderlyOrderBookIcon = (props) => {
   return (
     <svg
+      {...props}
       width="28"
       height="28"
       viewBox="0 0 28 28"

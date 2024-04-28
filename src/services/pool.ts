@@ -980,19 +980,19 @@ export const removeLiquidityFromPool = async ({
     });
   }
 
-  if (
-    tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
-    !ONLY_ZEROS.test(minimumAmounts[WRAP_NEAR_CONTRACT_ID])
-  ) {
-    transactions.push(
-      nearWithdrawTransaction(
-        toReadableNumber(
-          nearMetadata.decimals,
-          minimumAmounts[WRAP_NEAR_CONTRACT_ID]
-        )
-      )
-    );
-  }
+  // if (
+  //   tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
+  //   !ONLY_ZEROS.test(minimumAmounts[WRAP_NEAR_CONTRACT_ID])
+  // ) {
+  //   transactions.push(
+  //     nearWithdrawTransaction(
+  //       toReadableNumber(
+  //         nearMetadata.decimals,
+  //         minimumAmounts[WRAP_NEAR_CONTRACT_ID]
+  //       )
+  //     )
+  //   );
+  // }
 
   return executeMultipleTransactions(transactions);
 };
@@ -1132,19 +1132,19 @@ export const removeLiquidityFromStablePool = async ({
     });
   }
 
-  if (
-    tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
-    !ONLY_ZEROS.test(min_amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)])
-  ) {
-    transactions.push(
-      nearWithdrawTransaction(
-        toReadableNumber(
-          nearMetadata.decimals,
-          min_amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)]
-        )
-      )
-    );
-  }
+  // if (
+  //   tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
+  //   !ONLY_ZEROS.test(min_amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)])
+  // ) {
+  //   transactions.push(
+  //     nearWithdrawTransaction(
+  //       toReadableNumber(
+  //         nearMetadata.decimals,
+  //         min_amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)]
+  //       )
+  //     )
+  //   );
+  // }
 
   return executeMultipleTransactions(transactions);
 };
@@ -1286,19 +1286,19 @@ export const removeLiquidityByTokensFromStablePool = async ({
     });
   }
 
-  if (
-    tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
-    !ONLY_ZEROS.test(amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)])
-  ) {
-    transactions.push(
-      nearWithdrawTransaction(
-        toReadableNumber(
-          nearMetadata.decimals,
-          amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)]
-        )
-      )
-    );
-  }
+  // if (
+  //   tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
+  //   !ONLY_ZEROS.test(amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)])
+  // ) {
+  //   transactions.push(
+  //     nearWithdrawTransaction(
+  //       toReadableNumber(
+  //         nearMetadata.decimals,
+  //         amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)]
+  //       )
+  //     )
+  //   );
+  // }
 
   return executeMultipleTransactions(transactions);
 };

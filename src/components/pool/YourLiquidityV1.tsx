@@ -85,7 +85,11 @@ import { ModalClose } from '../../components/icon/ModalClose';
 import { unwrapedNear, WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import SelectToken from '../../components/forms/SelectToken';
-import { useRainbowWhitelistTokens, useTokenBalances } from '../../state/token';
+import {
+  useRainbowWhitelistTokens,
+  useTokenBalances,
+  useWhitelistTokens,
+} from '../../state/token';
 import { ArrowDownCur, ArrowDownWhite } from '../../components/icon/Arrows';
 import {
   getDepositableBalance,
@@ -1986,7 +1990,7 @@ export function YourLiquidityAddLiquidityModal(
   const [pool, setPool] = useState<Pool>();
 
   const [candPools, setCandPools] = useState<Pool[]>();
-  const selectTokens = useRainbowWhitelistTokens();
+  const selectTokens = useWhitelistTokens();
 
   const selectBalances = useTokenBalances();
   const [farmV2Counts, setFarmV2Counts] = useState<Record<string, number>>();

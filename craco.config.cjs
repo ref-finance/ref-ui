@@ -1,14 +1,17 @@
 /* eslint-env node */
 const path = require('path');
+const isProduction = !process.env.REACT_APP_NEAR_ENV;
+
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const isProduction = process.env.NODE_ENV === 'production';
 const { ProvidePlugin } = require('webpack');
 const { RetryChunkLoadPlugin } = require('webpack-retry-chunk-load-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
+const CompressionPlugin = require('compression-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 // Linting and type checking are only necessary as part of development and testing.
 // Omit them from production builds, as they slow down the feedback loop.
-const shouldLintOrTypeCheck = !isProduction;
 function getCacheDirectory(cacheName) {
   // Include the trailing slash to denote that this is a directory.
   return `${path.join(__dirname, 'node_modules/.cache/', cacheName)}/`;
@@ -41,6 +44,7 @@ module.exports = {
     plugins: {
       add: [
         // Webpack 5 does not polyfill node globals, so we do so for those necessary:
+        // new BundleAnalyzerPlugin(),
         new ProvidePlugin({
           Buffer: ['buffer', 'Buffer'],
           process: 'process/browser.js',
@@ -53,24 +57,57 @@ module.exports = {
           retryDelay: 2000,
           maxRetries: 3,
         }),
+        new CompressionPlugin({
+          test: /\.(js|jsx|tsx|ts|css|html)$/,
+          threshold: 4096,
+          filename: '[path][base].gz',
+        }),
+        new TerserPlugin({
+          test: /\.js(\?.*)?$/i,
+          parallel: true,
+          parallel: 4,
+          terserOptions: {
+            format: {
+              comments: false,
+            },
+          },
+          extractComments: false,
+        }),
       ],
       remove: ['CaseSensitivePathsPlugin', 'IgnorePlugin'],
     },
     configure: (webpackConfig) => {
-      webpackConfig.devtool = 'source-map';
-
+      // webpackConfig.devtool = 'source-map';
+      // isProduction ? '' : (webpackConfig.devtool = 'eval');
+      isProduction ? '' : (webpackConfig.devtool = 'source-map');
+      //tree shaking for unused code
+      webpackConfig.optimization.usedExports = true;
+      //chunk split
       webpackConfig.optimization.splitChunks = {
+        chunks: 'async',
+        minSize: 40000, // bite
+        maxAsyncRequests: 10,
+        maxInitialRequests: 10,
+        automaticNameDelimiter: '~',
+        name: false,
         cacheGroups: {
+          commonfn: {
+            test: /[\\/]node_modules[\\/](lodash|moment|mathjs)[\\/]/,
+            name: 'ln-chunk',
+            chunks: 'all',
+            priority: 60,
+            reuseExistingChunk: true,
+          },
           vendors: {
-            test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom|react-router|react-modal|react-tooltip|lodash|moment)[\\/]/,
+            test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom|react-router|react-modal|react-tooltip)[\\/]/,
             name: 'vendors',
             chunks: 'all',
             priority: 50,
             reuseExistingChunk: true,
           },
           nearWallet: {
-            test: /[\\/]node_modules[\\/](@near-wallet-selector|near-api-js|@aurora-is-near)[\\/]/,
-            name: 'nw',
+            test: /[\\/]node_modules[\\/](@near-wallet-selector|near-api-js|@aurora-is-near|@near-js)[\\/]/,
+            name: 'nw-chunk',
             chunks: 'all',
             priority: 40,
             reuseExistingChunk: true,
@@ -82,21 +119,20 @@ module.exports = {
             priority: 30,
             reuseExistingChunk: true,
           },
-
-          // icons: {
-          //   test: /[\\/]src[\\/]components[\\/]icon[\\/].+\.tsx$/,
-          //   chunks: 'all',
-          //   priority: 20,
-          //   name(module) {
-          //     const moduleFileName = module
-          //       .identifier()
-          //       .split('/')
-          //       .reduceRight((item) => item);
-          //     const chunkName = moduleFileName.replace(/\.tsx$/, '');
-          //     // console.log('chunkName', chunkName);
-          //     return `icon-${chunkName}`;
-          //   },
-          // },
+          icons: {
+            test: /[\\/]src[\\/]components[\\/]icon[\\/].+\.tsx$/,
+            chunks: 'all',
+            priority: 20,
+            name(module) {
+              const moduleFileName = module
+                .identifier()
+                .split('/')
+                .reduceRight((item) => item);
+              const chunkName = moduleFileName.replace(/\.tsx$/, '');
+              // console.log('chunkName', chunkName);
+              return `icon-${chunkName}`;
+            },
+          },
         },
       };
 
@@ -210,6 +246,19 @@ module.exports = {
       ];
 
       return webpackConfig;
+    },
+    babel: {
+      plugins: [
+        // remove console.log
+        [
+          'babel-plugin-transform-remove-console',
+          {
+            exclude: isProduction
+              ? ['error', 'warn']
+              : ['error', 'warn', 'log'],
+          },
+        ],
+      ],
     },
   },
 };

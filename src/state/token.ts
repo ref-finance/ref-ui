@@ -20,6 +20,7 @@ import {
 } from '../services/ft-contract';
 import {
   getWhitelistedTokens,
+  getWhitelistedTokensInfo,
   getTokenBalances,
   getUserRegisteredTokens,
   TokenBalancesView,
@@ -42,14 +43,11 @@ import {
 } from '../services/aurora/aurora';
 import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
-import { wallet as webWallet } from 'src/services/near';
-import { getTokenPriceList } from '../services/indexer';
+import { getTokenPriceList, getTokens } from '../services/indexer';
 import { useWalletSelector } from '../context/WalletSelectorContext';
-import {
-  WalletContext,
-  getCurrentWallet,
-  WALLET_TYPE,
-} from '../utils/wallets-integration';
+import { WalletContext, getCurrentWallet } from '../utils/wallets-integration';
+import db from '../store/RefDatabase';
+import { get_auto_whitelisted_postfix } from '../services/token';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -165,17 +163,63 @@ export const useRainbowWhitelistTokens = () => {
 export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
   useEffect(() => {
-    getWhitelistedTokens()
-      .then((tokenIds) => {
-        const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
-        return Promise.all(
-          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+    getWhitelistedTokensInfo()
+      .then(async (tokenInfo) => {
+        const { globalWhitelist, userWhitelist } = tokenInfo;
+        const allWhiteTokenIds = [
+          ...new Set([...globalWhitelist, ...userWhitelist, ...extraTokenIds]),
+        ];
+        const allTokens = await getAllTokens();
+        const postfix = await get_auto_whitelisted_postfix();
+        const whiteMetaDataList = await Promise.all(
+          allWhiteTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
         );
+        const globalMetaDataWhitelist = whiteMetaDataList.filter((m) =>
+          globalWhitelist.includes(m.id)
+        );
+        const whiteMap = whiteMetaDataList.reduce(
+          (sum, cur) => ({ ...sum, ...{ [cur.id]: cur } }),
+          {}
+        );
+        allTokens
+          .filter((token: TokenMetadata) => {
+            return (
+              postfix.some((p) => token.id.includes(p)) &&
+              !globalMetaDataWhitelist.find((w) => w.id === token.id)
+            );
+          })
+          .map((token) => {
+            token.isRisk = true;
+            token.isUserToken = !!userWhitelist.includes(token.id);
+            whiteMap[token.id] = token;
+            return token;
+          });
+        return Object.values(whiteMap) as TokenMetadata[];
       })
       .then(setTokens);
   }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
-
   return tokens?.map((t) => ({ ...t, onRef: true }));
+};
+async function getAllTokens() {
+  let allTokens = (await db.queryAllTokens()) || [];
+  if (!allTokens.length) {
+    const tokens = await getTokens();
+    allTokens = Object.keys(tokens).reduce((acc, id) => {
+      acc.push({
+        id,
+        ...tokens[id],
+      });
+      return acc;
+    }, []);
+  }
+  return allTokens;
+}
+export const useRiskTokens = () => {
+  const tokens = useWhitelistTokens();
+  const allRiskTokens = useMemo(() => {
+    return tokens?.filter((token) => token.isRisk);
+  }, [tokens]);
+  return allRiskTokens || [];
 };
 export const useGlobalWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
@@ -347,7 +391,7 @@ export const useTokenPriceList = (dep?: any) => {
   }, [tokenListTrigger]);
 
   if (Object.keys(tokenPriceList).length > 0) {
-    tokenPriceList['NEAR'] = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
+    tokenPriceList.NEAR = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
   }
 
   return tokenPriceList;

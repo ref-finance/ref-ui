@@ -4,10 +4,7 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 const plugin = require('tailwindcss/plugin');
 
 module.exports = {
-  purge: [
-    './src/**/*.{js,jsx,ts,tsx}',
-    './public/index.html'
-  ],
+  purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
   darkMode: false, // or 'media' or 'class'
   plugins: [
     plugin(function ({ addUtilities }) {
@@ -431,6 +428,8 @@ module.exports = {
         memePoolBoxBorderColor: '#3F5361',
         memeDarkColor: '#182833',
         memeyellowColor: '#F9A43F',
+        keyCheckBorder: '#45535D',
+        warningYellowColor: '#FFB200',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -40,7 +40,7 @@ const ProgressBar = () => {
           addW = p.mul(length).toFixed();
           percent = formatPercentage(p.mul(100).toFixed());
         }
-        const FeedIcon = config.progress[seed_id].feedIcon;
+        const FeedIcon = config.progress[seed_id]?.feedIcon;
         const is_pending = isPending(seed);
         const stakeButtonDisabled =
           !user_balances[seed_id] || +user_balances[seed_id] == 0 || is_pending;
