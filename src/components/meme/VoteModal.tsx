@@ -1,6 +1,7 @@
 import React, { useState, useContext, useMemo, useRef, useEffect } from 'react';
 import Modal from 'react-modal';
 import Big from 'big.js';
+import { isEmpty } from 'lodash';
 import { isMobile } from '../../utils/device';
 import {
   ArrowRightTopIcon,
@@ -31,12 +32,11 @@ import {
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from 'src/components/button/Button';
+
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function VoteModel(props: any) {
   const { isOpen, onRequestClose } = props;
-  const [selectedTab, setSelectedTab] = useState(
-    Object.keys(MEME_TOKEN_XREF_MAP)[0]
-  );
+  const [selectedTab, setSelectedTab] = useState('');
   const [amount, setAmount] = useState('');
   const [stakeLoading, setStakeLoading] = useState(false);
   const {
@@ -48,6 +48,13 @@ function VoteModel(props: any) {
     xrefContractConfig,
     donateBalances,
   } = useContext(MemeContext);
+  useEffect(() => {
+    if (!isEmpty(xrefSeeds)) {
+      setSelectedTab(
+        Object.keys(MEME_TOKEN_XREF_MAP).sort(sortByXrefStaked(xrefSeeds))[0]
+      );
+    }
+  }, [xrefSeeds]);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const xrefBalance = useMemo(() => {
@@ -133,6 +140,7 @@ function VoteModel(props: any) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  if (!selectedTab) return null;
   return (
     <Modal
       isOpen={isOpen}

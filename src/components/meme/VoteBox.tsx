@@ -1,5 +1,6 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
+import { isEmpty } from 'lodash';
 import { ArrowRightTopIcon, TipIcon } from './icons';
 import { TokenMetadata } from '../../services/ft-contract';
 import { MemeContext } from './context';
@@ -28,10 +29,9 @@ import { Seed, UserSeedInfo } from '../../services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function VoteBox() {
-  const [selectedTab, setSelectedTab] = useState(
-    Object.keys(MEME_TOKEN_XREF_MAP)[0]
-  );
+  const [selectedTab, setSelectedTab] = useState('');
   const [stakeLoading, setStakeLoading] = useState(false);
+  const [amount, setAmount] = useState('');
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const {
@@ -53,7 +53,13 @@ function VoteBox() {
     }
     return '0';
   }, [xrefTokenId, user_balances]);
-  const [amount, setAmount] = useState('');
+  useEffect(() => {
+    if (!isEmpty(xrefSeeds)) {
+      setSelectedTab(
+        Object.keys(MEME_TOKEN_XREF_MAP).sort(sortByXrefStaked(xrefSeeds))[0]
+      );
+    }
+  }, [xrefSeeds]);
   function stakeToken() {
     setStakeLoading(true);
     xrefStake({
@@ -72,6 +78,7 @@ function VoteBox() {
     Big(amount || 0).gt(xrefBalance) ||
     !selectedTab ||
     !Object.keys(xrefSeeds).length;
+  if (!selectedTab) return null;
   return (
     <div>
       <div className="mt-6 mb-5">

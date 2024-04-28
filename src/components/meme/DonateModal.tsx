@@ -1,5 +1,6 @@
 import React, { useState, useContext, useMemo, useRef, useEffect } from 'react';
 import Big from 'big.js';
+import { isEmpty } from 'lodash';
 import Modal from 'react-modal';
 import { isMobile } from '../../utils/device';
 import { WalletContext } from '../../utils/wallets-integration';
@@ -19,9 +20,7 @@ import {
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function DonateModal(props: any) {
   const { isOpen, onRequestClose } = props;
-  const [selectedTab, setSelectedTab] = useState(
-    Object.keys(MEME_TOKEN_XREF_MAP)[0]
-  );
+  const [selectedTab, setSelectedTab] = useState('');
   const [donateLoading, setDonateLoading] = useState<boolean>(false);
   const { allTokenMetadatas, tokenPriceList, user_balances, xrefSeeds } =
     useContext(MemeContext);
@@ -37,8 +36,15 @@ function DonateModal(props: any) {
     return '0';
   }, [selectedTab, user_balances, Object.keys(allTokenMetadatas || {}).length]);
   const [amount, setAmount] = useState('');
-  const cardWidth = isMobile() ? '100vw' : '25vw';
+  const cardWidth = isMobile() ? '100vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
+  useEffect(() => {
+    if (!isEmpty(xrefSeeds)) {
+      setSelectedTab(
+        Object.keys(MEME_TOKEN_XREF_MAP).sort(sortByXrefStaked(xrefSeeds))[0]
+      );
+    }
+  }, [xrefSeeds]);
   function doateToken() {
     setDonateLoading(true);
     donate({
@@ -68,6 +74,7 @@ function DonateModal(props: any) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  if (!selectedTab) return null;
   return (
     <Modal
       isOpen={isOpen}

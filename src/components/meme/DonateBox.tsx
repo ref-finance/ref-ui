@@ -1,5 +1,6 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
+import { isEmpty } from 'lodash';
 import { WalletContext } from '../../utils/wallets-integration';
 import { TokenMetadata } from '../../services/ft-contract';
 import { MemeContext } from './context';
@@ -12,10 +13,9 @@ import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
 import { sortByXrefStaked } from './tool';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function DonateBox(props: any) {
-  const [selectedTab, setSelectedTab] = useState(
-    Object.keys(MEME_TOKEN_XREF_MAP)[0]
-  );
+  const [selectedTab, setSelectedTab] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [amount, setAmount] = useState('');
   const { allTokenMetadatas, tokenPriceList, user_balances, xrefSeeds } =
     useContext(MemeContext);
   const { globalState } = useContext(WalletContext);
@@ -29,7 +29,13 @@ function DonateBox(props: any) {
     }
     return '0';
   }, [selectedTab, user_balances]);
-  const [amount, setAmount] = useState('');
+  useEffect(() => {
+    if (!isEmpty(xrefSeeds)) {
+      setSelectedTab(
+        Object.keys(MEME_TOKEN_XREF_MAP).sort(sortByXrefStaked(xrefSeeds))[0]
+      );
+    }
+  }, [xrefSeeds]);
   function stakeToken() {
     donate({
       tokenId: selectedTab,
