@@ -92,7 +92,9 @@ export const getHistoryOrder = async (
     config.indexerUrl + `/get-limit-order-log-by-account/${account_id}`,
     {
       method: 'GET',
-      headers: getAuthenticationHeaders('/get-limit-order-log-by-account'),
+      headers: getAuthenticationHeaders(
+        `/get-limit-order-log-by-account/${account_id}`
+      ),
     }
   ).then((res) => res.json());
 };
@@ -157,7 +159,9 @@ export const getHistoryOrderSwapInfo = async (
     config.indexerUrl + `/get-limit-order-swap-by-account/${account_id}`,
     {
       method: 'GET',
-      headers: getAuthenticationHeaders('/get-limit-order-swap-by-account'),
+      headers: getAuthenticationHeaders(
+        `/get-limit-order-swap-by-account/${account_id}`
+      ),
     }
   ).then((res) => res.json());
 };
@@ -209,25 +213,20 @@ const parseActionView = async (action: any) => {
   return {
     datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/txns/' + action[1],
-    data: data,
-    // status: action[5] === 'SUCCESS_VALUE',
+    data,
     status: action[6] && action[6].indexOf('SUCCESS') > -1,
   };
 };
 
 export const getYourPools = async (): Promise<PoolRPCView[]> => {
-  return await fetch(
-    config.indexerUrl +
-      '/liquidity-pools/' +
-      getCurrentWallet()?.wallet?.getAccountId(),
-    {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-        ...getAuthenticationHeaders('/liquidity-pools'),
-      },
-    }
-  )
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(config.indexerUrl + '/liquidity-pools/' + account_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders(`/liquidity-pools/${account_id}`),
+    },
+  })
     .then((res) => res.json())
     .then((pools) => {
       return pools;
@@ -706,18 +705,14 @@ export type ActionData = Awaited<ReturnType<typeof parseActionView>>;
 type Awaited<T> = T extends Promise<infer P> ? P : never;
 
 export const getLatestActions = async (): Promise<Array<ActionData>> => {
-  return await fetch(
-    config.indexerUrl +
-      '/latest-actions/' +
-      getCurrentWallet()?.wallet?.getAccountId(),
-    {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-        ...getAuthenticationHeaders('/latest-actions'),
-      },
-    }
-  )
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(config.indexerUrl + '/latest-actions/' + account_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders(`/latest-actions/${account_id}`),
+    },
+  })
     .then((res) => res.json())
     .then((items) => {
       const tasks = items.map(async (item: any) => await parseActionView(item));
@@ -868,14 +863,16 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
     });
 };
 export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
   return await fetch(
-    config.indexerUrl +
-      `/get-limit-order-log-by-account/${getCurrentWallet()?.wallet?.getAccountId()}`,
+    config.indexerUrl + `/get-limit-order-log-by-account/${account_id}`,
     {
       method: 'GET',
       headers: {
         'Content-type': 'application/json; charset=UTF-8',
-        ...getAuthenticationHeaders('/get-limit-order-log-by-account'),
+        ...getAuthenticationHeaders(
+          `/get-limit-order-log-by-account/${account_id}`
+        ),
       },
     }
   )
