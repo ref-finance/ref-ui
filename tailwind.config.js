@@ -435,6 +435,7 @@ module.exports = {
         memeVoteBorderColor: '#55646E',
         keyCheckBorder: '#45535D',
         warningYellowColor: '#FFB200',
+        memeBorderBlackColor: '#1C2D38',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

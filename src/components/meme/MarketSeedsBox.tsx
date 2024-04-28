@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { ArrowRightIcon } from './icons';
 import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
 import { MemeContext } from './context';
@@ -19,7 +19,13 @@ import { emptyObject, getSeedApr, isPending, emptyNumber } from './tool';
 
 const is_mobile = isMobile();
 
-const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
+const MarketSeedsBox = ({
+  hidden,
+  displaySeedsPercent,
+}: {
+  hidden: boolean;
+  displaySeedsPercent: Record<string, string>;
+}) => {
   const { seeds, user_balances, lpSeeds, xrefSeeds, xrefTokenId } =
     useContext(MemeContext);
   const { globalState } = useContext(WalletContext);
@@ -85,14 +91,19 @@ const MarketSeedsBox = ({ hidden }: { hidden: boolean }) => {
             className="flex flex-col justify-between border border-memeBorderColor bg-swapCardGradient rounded-2xl px-4 py-6"
           >
             <div className="flex items-stretch gap-4">
-              <img
-                src={seed.token_meta_data.icon}
-                style={{
-                  width: is_mobile ? '62px' : '86px',
-                  height: is_mobile ? '62px' : '86px',
-                }}
-                className=" rounded-full"
-              />
+              <div className="flex justify-center flex-shrink-0 relative">
+                <img
+                  src={seed.token_meta_data.icon}
+                  style={{
+                    width: is_mobile ? '62px' : '86px',
+                    height: is_mobile ? '62px' : '86px',
+                  }}
+                  className="rounded-full"
+                />
+                <div className="flex items-center justify-center absolute top-16 xsm:top-12 bg-senderHot text-base text-cardBg px-3.5 xsm:px-1.5 xsm:py-0 xsm:text-sm py-1 rounded-lg xs:rounded-md gotham_bold border border-memeBorderBlackColor">
+                  {displaySeedsPercent[seed_id]}
+                </div>
+              </div>
               <div className="flex flex-col justify-between gap-1.5 xsm:gap-0">
                 <div className="flex items-center justify-between gap-1 xsm:flex-col xsm:items-start xsm:flex-grow">
                   <span className="text-xl gotham_bold text-white">

@@ -125,71 +125,73 @@ function DonateListPc({
   showModal: any;
 }) {
   return (
-    <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-4">
-      <div className="overflow-x-auto">
-        <div className="min-w-full divide-y divide-memeVoteBgColor">
-          <div className="grid grid-cols-5 pt-6 px-5 pb-2.5 text-sm">
-            <div className="col-span-2">Meme Project</div>
-            <div>xREF</div>
-            <div>Voters</div>
-            <div className="pl-1">Donation</div>
-          </div>
-          {donateList
-            .sort((b, a) => {
-              return Big(a.xrefStakedAmount)
-                .minus(b.xrefStakedAmount)
-                .toNumber();
-            })
-            .map((donateData: IDonate) => {
-              return (
-                <div
-                  key={donateData.memeTokenId}
-                  className="grid grid-cols-5 p-4 items-center text-base text-white"
-                >
-                  <div className="flex items-center col-span-2">
+    <div>
+      <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-4">
+        <div className="overflow-x-auto">
+          <div className="min-w-full divide-y divide-memeVoteBgColor">
+            <div className="grid grid-cols-5 pt-6 px-5 pb-2.5 text-sm">
+              <div className="col-span-2">Meme Project</div>
+              <div>xREF</div>
+              <div>Voters</div>
+              <div className="pl-1">Donation</div>
+            </div>
+            {donateList
+              .sort((b, a) => {
+                return Big(a.xrefStakedAmount)
+                  .minus(b.xrefStakedAmount)
+                  .toNumber();
+              })
+              .map((donateData: IDonate) => {
+                return (
+                  <div
+                    key={donateData.memeTokenId}
+                    className="grid grid-cols-5 p-4 items-center text-base text-white"
+                  >
+                    <div className="flex items-center col-span-2">
+                      <div className="flex items-center gap-1.5">
+                        <img
+                          className="w-5 h-5 rounded-full"
+                          src={donateData.metadata?.icon}
+                        />
+                        <span>{donateData.metadata?.symbol}</span>
+                        {donateData.win ? (
+                          <div
+                            className="text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
+                            style={{ transform: 'skewX(-20deg)' }}
+                          >
+                            Listed
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="gotham_bold">
+                      {toInternationalCurrencySystem_number(
+                        donateData.xrefStakedAmount
+                      )}
+                    </div>
+                    <div className="gotham_bold">{donateData.xrefVoters}</div>
                     <div className="flex items-center gap-1.5">
                       <img
                         className="w-5 h-5 rounded-full"
                         src={donateData.metadata?.icon}
                       />
-                      <span>{donateData.metadata?.symbol}</span>
-                      {donateData.win ? (
-                        <div
-                          className="text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
-                          style={{ transform: 'skewX(-20deg)' }}
-                        >
-                          Listed
-                        </div>
-                      ) : null}
+                      <div className="flex flex-col">
+                        <span className="gotham_bold">
+                          {toInternationalCurrencySystem_number(
+                            donateData.donateBalance
+                          )}
+                        </span>
+                        <span className="text-xs">
+                          {toInternationalCurrencySystem_usd(
+                            donateData.donateValue
+                          )}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="gotham_bold">
-                    {toInternationalCurrencySystem_number(
-                      donateData.xrefStakedAmount
-                    )}
-                  </div>
-                  <div className="gotham_bold">{donateData.xrefVoters}</div>
-                  <div className="flex items-center gap-1.5">
-                    <img
-                      className="w-5 h-5 rounded-full"
-                      src={donateData.metadata?.icon}
-                    />
-                    <div className="flex flex-col">
-                      <span className="gotham_bold">
-                        {toInternationalCurrencySystem_number(
-                          donateData.donateBalance
-                        )}
-                      </span>
-                      <span className="text-xs">
-                        {toInternationalCurrencySystem_usd(
-                          donateData.donateValue
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+          </div>
         </div>
       </div>
       <div

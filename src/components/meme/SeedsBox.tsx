@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect, useMemo } from 'react';
 import { useHistory } from 'react-router';
+import Big from 'big.js';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
   TRANSACTION_WALLET_TYPE,
@@ -9,6 +10,11 @@ import { checkTransaction } from '../../services/swap';
 import MarketSeedsBox from './MarketSeedsBox';
 import MySeedsBox from './MySeedsBox';
 import CallBackModal from './CallBackModal';
+import { getMemeDataConfig } from './memeConfig';
+import { emptyObject, getSeedsTotalStaked } from './tool';
+import { MemeContext } from './context';
+import { Seed } from '~src/services/farm';
+import { formatPercentage } from '../../utils/uiNumber';
 export interface ITxParams {
   action: 'stake' | 'unstake';
   params: any;
@@ -22,6 +28,9 @@ const SeedsBox = () => {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
+  const { seeds } = useContext(MemeContext);
+  const memeDataConfig = getMemeDataConfig();
+  const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
   const getURLInfo = () => {
     const search = window.location.search;
     const pathname = window.location.pathname;
@@ -79,6 +88,32 @@ const SeedsBox = () => {
       });
     }
   }, [txHash, isSignedIn]);
+  const displaySeeds = useMemo(() => {
+    if (emptyObject(seeds)) return {};
+    return meme_winner_tokens.reduce(
+      (acc, memeTokenId) => ({
+        ...acc,
+        ...{ [memeTokenId]: seeds[memeTokenId] },
+      }),
+      {}
+    ) as Record<string, Seed>;
+  }, [meme_winner_tokens, seeds]);
+  const displaySeedsPercent = useMemo(() => {
+    const displaySeedsPercent = {};
+    if (!emptyObject(displaySeeds)) {
+      const totalTvl = getSeedsTotalStaked(displaySeeds);
+      Object.entries(displaySeeds).map(([seed_id, seed]) => {
+        let percent = '0';
+        const seedTvl = seed.seedTvl;
+        if (Big(seedTvl).gt(0) && Big(totalTvl).gt(0)) {
+          const p = Big(seedTvl).div(totalTvl);
+          percent = formatPercentage(p.mul(100).toFixed());
+          displaySeedsPercent[seed_id] = percent;
+        }
+      });
+    }
+    return displaySeedsPercent;
+  }, [displaySeeds]);
   return (
     <div className="mt-14">
       <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
@@ -111,8 +146,14 @@ const SeedsBox = () => {
           Yours
         </div>
       </div>
-      <MarketSeedsBox hidden={tab === 'market' ? false : true} />
-      <MySeedsBox hidden={tab === 'your' ? false : true} />
+      <MarketSeedsBox
+        hidden={tab === 'market' ? false : true}
+        displaySeedsPercent={displaySeedsPercent}
+      />
+      <MySeedsBox
+        hidden={tab === 'your' ? false : true}
+        displaySeedsPercent={displaySeedsPercent}
+      />
       {isTxHashOpen && txParams ? (
         <CallBackModal
           isOpen={isTxHashOpen}

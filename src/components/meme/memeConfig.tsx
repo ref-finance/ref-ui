@@ -382,10 +382,18 @@ export function getMemeDataConfig(): any {
         'token.0xshitzu.near',
       ],
       pie_color: {
-        'token.lonkingnearbackto2024.near': '#38D999',
-        'ftv2.nekotoken.near': '#EBB200',
-        'blackdragon.tkn.near': '#FEF9D7',
-        'token.0xshitzu.near': '#41A14C',
+        'blackdragon.tkn.near': '#413B41',
+        'token.lonkingnearbackto2024.near': '#009400',
+        'gear.enleap.near': '#AF6B0A',
+        'touched.tkn.near': 'background: #8BA340',
+        'usmeme.tg': '#FFBF33',
+        '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near':
+          '#FED501',
+        'nearnvidia.near': '#A4AED8',
+        'nkok.tkn.near': '#E81F27',
+        'bean.tkn.near': '#984D2E',
+        'token.0xshitzu.near': '#50ED99',
+        'ftv2.nekotoken.near': '#FFFFFF',
       },
     };
   }

@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { ArrowRightIcon } from './icons';
 import {
   OprationButton,
   ButtonTextWrapper,
 } from 'src/components/button/Button';
 import { MemeContext } from './context';
-import { claim_all, claim, xrefClaim } from '../../services/meme';
+import { claim_all } from '../../services/meme';
 import { getMemeDataConfig, getMemeContractConfig } from './memeConfig';
 import {
   formatPercentage,
@@ -27,7 +27,13 @@ import RewardList from './RewardList';
 import { NoDataIcon } from '../../components/icon';
 
 const is_mobile = isMobile();
-const MySeedsBox = ({ hidden }: { hidden: boolean }) => {
+const MySeedsBox = ({
+  hidden,
+  displaySeedsPercent,
+}: {
+  hidden: boolean;
+  displaySeedsPercent: Record<string, string>;
+}) => {
   const {
     seeds,
     lpSeeds,
@@ -77,16 +83,6 @@ const MySeedsBox = ({ hidden }: { hidden: boolean }) => {
     } else {
       window.open(`/v2farms/${lpSeed.pool.id}-r`);
     }
-  }
-  function seedClaim(seed: Seed) {
-    set_claim_id(seed.seed_id);
-    claim(seed);
-  }
-  function xrefSeedClaim(seed: Seed) {
-    const xrefContractId = MEME_TOKEN_XREF_MAP[seed.seed_id];
-    const xrefSeed = xrefSeeds[xrefContractId];
-    set_claim_id(xrefContractId);
-    xrefClaim(xrefContractId, xrefSeed);
   }
   function seedClaimAll({
     claim_id,
@@ -171,14 +167,21 @@ const MySeedsBox = ({ hidden }: { hidden: boolean }) => {
                 className="flex flex-col justify-between border border-memeBorderColor bg-swapCardGradient rounded-2xl px-4 py-6"
               >
                 <div className="flex items-stretch gap-4">
-                  <img
-                    src={seed.token_meta_data.icon}
-                    style={{
-                      width: is_mobile ? '62px' : '86px',
-                      height: is_mobile ? '62px' : '86px',
-                    }}
-                    className=" rounded-full"
-                  />
+                  <div className="flex justify-center flex-shrink-0 relative">
+                    <img
+                      src={seed.token_meta_data.icon}
+                      style={{
+                        width: is_mobile ? '62px' : '86px',
+                        height: is_mobile ? '62px' : '86px',
+                      }}
+                      className="rounded-full"
+                    />
+                    {Object.keys(displaySeedsPercent).includes(seed_id) ? (
+                      <div className="flex items-center justify-center absolute top-16 xsm:top-12 bg-senderHot text-base text-cardBg px-3.5 xsm:px-1.5 xsm:py-0 xsm:text-sm py-1 rounded-lg xs:rounded-md gotham_bold border border-memeBorderBlackColor">
+                        {displaySeedsPercent[seed_id]}
+                      </div>
+                    ) : null}
+                  </div>
                   <div className="flex flex-col justify-between gap-1.5 xsm:gap-0">
                     <div className="flex items-center justify-between gap-1 xsm:flex-col xsm:items-start xsm:flex-grow">
                       <span className="text-xl gotham_bold text-white">
