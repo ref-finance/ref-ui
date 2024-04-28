@@ -5,13 +5,23 @@ import React, {
   createContext,
   useContext,
   useMemo,
+  useCallback,
 } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
-import { ArrowDownGreen, ArrowDownWhite } from '../icon';
+import {
+  ArrowDownGreen,
+  ArrowDownWhite,
+  QuestionMark,
+  TokenRisk,
+} from '../icon';
 import { isMobile, getExplorer } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { TokenBalancesView, getGlobalWhitelist } from '../../services/token';
+import {
+  TokenBalancesView,
+  getGlobalWhitelist,
+  get_auto_whitelisted_postfix,
+} from '../../services/token';
 import { IoCloseOutline } from '../reactIcons';
 import CommonBasses from '../../components/tokens/CommonBasses';
 import Table from '../../components/table/Table';
@@ -36,6 +46,10 @@ import {
   STABLE_TOKEN_USN_IDS,
   STNEARIDS,
   TOKEN_BLACK_LIST,
+  USDC_TOKEN_ID,
+  USDCe_TOKEN_ID,
+  USDT_TOKEN_ID,
+  USDTe_TOKEN_ID,
   USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 import {
@@ -47,6 +61,7 @@ import {
   OutLinkIcon,
   DefaultTokenImg,
   SelectTokenCloseButton,
+  TknIcon,
 } from '../../components/icon/Common';
 import _, { trimEnd } from 'lodash';
 import {
@@ -63,6 +78,8 @@ import { IconLeftV3 } from '../tokens/Icon';
 import { PoolInfo } from '../../services/swapV3';
 import { sort_tokens_by_base, openUrl } from '../../services/commonV3';
 import getConfigV2 from '../../services/configV2';
+import SelectTokenTable from './SelectTokenTable';
+import CustomTooltip from '../customTooltip/customTooltip';
 const configV2 = getConfigV2();
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
@@ -87,40 +104,82 @@ export function tokenPrice(price: string, error?: boolean) {
     </span>
   );
 }
-
 export function SingleToken({
   token,
   price,
+  isRisk,
 }: {
   token: TokenMetadata;
   price: string;
+  isRisk: boolean;
 }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const isTokenAtRisk = !!token.isRisk;
   return (
     <>
       {token.icon ? (
-        <img
-          src={token.icon}
-          alt={toRealSymbol(token.symbol)}
-          className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"
-        />
+        <div className="relative flex-shrink-0">
+          <img
+            src={token.icon}
+            alt={toRealSymbol(token.symbol)}
+            className="inline-block mr-2 border rounded-full border-black"
+            style={{ width: '30px', height: '30px' }}
+          />
+          {isTokenAtRisk ? (
+            <div className="absolute bottom-0 left-0">
+              <TknIcon />
+            </div>
+          ) : null}
+        </div>
       ) : (
-        <div className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"></div>
+        <div
+          className="inline-block mr-2 border rounded-full border-black relative"
+          style={{ width: '30px', height: '30px' }}
+        >
+          {isTokenAtRisk ? (
+            <div className="absolute bottom-0 left-0">
+              <TknIcon />
+            </div>
+          ) : null}
+        </div>
         // <DefaultTokenImg className="mr-2"></DefaultTokenImg>
       )}
       <div className="flex flex-col justify-between">
         <div className={`flex items-center`}>
-          <span className="text-sm text-white">
+          <span
+            className="text-sm text-white overflow-hidden whitespace-nowrap max-w-28 truncate"
+            title={toRealSymbol(token.symbol)}
+          >
             {toRealSymbol(token.symbol)}
           </span>
+          {isTokenAtRisk && (
+            <div
+              className="ml-2 relative"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <span>
+                <TokenRisk />
+              </span>
+              {showTooltip && (
+                <div className="absolute z-50 -top-3 left-5 px-2 w-max py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                  Uncertified token, higher risk.
+                </div>
+              )}
+            </div>
+          )}
           {is_native_token ? (
             <span className="text-gradientFromHover bg-gradientFromHover bg-opacity-30 text-sm px-1 rounded-md ml-2 border border-gradientFromHover">
               Native
             </span>
           ) : null}
         </div>
-        <span className="text-xs text-primaryText">
-          {price ? tokenPrice(price) : null}
+        <span
+          className="text-xs text-primaryText overflow-hidden whitespace-nowrap w-32 truncate"
+          title={token.name}
+        >
+          {token.name}
         </span>
       </div>
     </>
@@ -413,11 +472,13 @@ export default function SelectToken({
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
+  const [listTknData, setListTknData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
   const [commonBassesTokens, setCommonBassesTokens] = useState([]);
   const [searchNoData, setSearchNoData] = useState(false);
+  const [tknSearchNoData, setTknSearchNoData] = useState(false);
   const [addTokenLoading, setAddTokenLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [addTokenError, setAddTokenError] = useState(false);
@@ -425,43 +486,44 @@ export default function SelectToken({
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  if (!onSelect) {
-    return (
-      <button className="focus:outline-none p-1" type="button">
-        {selected}
-      </button>
-    );
-  }
   const dialogWidth = isMobile() ? '95%' : forCross ? '25%' : '420px';
   const dialogMinwidth = isMobile() ? 340 : 380;
   const dialogHeight = isMobile() ? '95%' : '57%';
   const dialogMinHeight = isMobile() ? '95%' : '540px';
   const intl = useIntl();
   const searchRef = useRef(null);
-  const {
-    tokensData,
-    loading: loadingTokensData,
-    trigger,
-  } = useTokensData(
-    tokens.filter((t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1),
+  const [activeTab, setActiveTab] = useState('Default');
+  const { tokensData, loading: loadingTokensData } = useTokensData(
+    tokens.filter(
+      (t) =>
+        TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
+        (!t.isRisk || (t.isRisk && t.isUserToken))
+    ),
     balances,
     visible
   );
+  const { tokensData: tknTokensData, loading: loadingTKNTokensData } =
+    useTokensData(
+      tokens.filter(
+        (t) =>
+          TOKEN_BLACK_LIST.indexOf(t.id) === -1 && t.isRisk && !t.isUserToken
+      ),
+      balances,
+      visible
+    );
   useEffect(() => {
-    if (!loadingTokensData) {
-      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-      sortedData.sort(sortBySymbol);
-      setListData(sortedData);
+    if (tokensData?.length && !loadingTokensData) {
+      tokensData.sort(sortTypes[currentSort].fn);
+      setListData(tokensData);
     }
-  }, [loadingTokensData, tokensData]);
+  }, [tokensData?.length, loadingTokensData, currentSort]);
+  useEffect(() => {
+    if (tknTokensData?.length && !loadingTKNTokensData) {
+      tknTokensData.sort(sortTypes[currentSort].fn);
+      setListTknData(tknTokensData);
+    }
+  }, [tknTokensData?.length, loadingTKNTokensData, currentSort]);
 
-  useEffect(() => {
-    if (!!tokensData) {
-      const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-      sortedData.sort(sortBySymbol);
-      setListData(sortedData);
-    }
-  }, [currentSort, sortBy]);
   useEffect(() => {
     getLatestCommonBassesTokens();
   }, [tokensData]);
@@ -515,12 +577,28 @@ export default function SelectToken({
         token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
       return condition1 || condition2;
     });
+    const resultTkn = tknTokensData.filter((token) => {
+      const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
+      if (!symbol) return false;
+      const condition1 = toRealSymbol(symbol)
+        .toLocaleUpperCase()
+        .includes(value.toLocaleUpperCase());
+      const condition2 =
+        token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
+      return condition1 || condition2;
+    });
     result.sort(sortBySymbol);
     setListData(result);
+    setListTknData(resultTkn);
     if (!loadingTokensData && value.length > 0 && result.length == 0) {
       setSearchNoData(true);
     } else {
       setSearchNoData(false);
+    }
+    if (!loadingTKNTokensData && value.length > 0 && resultTkn.length == 0) {
+      setTknSearchNoData(true);
+    } else {
+      setTknSearchNoData(false);
     }
   };
 
@@ -562,7 +640,14 @@ export default function SelectToken({
   function getLatestCommonBassesTokenIds() {
     const cur_status = localStorage.getItem(USER_COMMON_TOKEN_LIST);
     if (!cur_status) {
-      const init = ['near', REF_TOKEN_ID];
+      const init = [
+        'near',
+        REF_TOKEN_ID,
+        USDC_TOKEN_ID,
+        USDT_TOKEN_ID,
+        USDCe_TOKEN_ID,
+        USDTe_TOKEN_ID,
+      ];
       localStorage.setItem(USER_COMMON_TOKEN_LIST, JSON.stringify(init));
     }
     const local_user_list_str =
@@ -585,6 +670,17 @@ export default function SelectToken({
     searchRef.current.value = '';
     onSearch('');
   }
+  if (!onSelect) {
+    return (
+      <button className="focus:outline-none p-1" type="button">
+        {selected}
+      </button>
+    );
+  }
+  const TknTip = `
+    <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
+    Created by any user on https://tkn.homes with the tkn.near suffix, poses high risks. Ref has not certified it. Exercise caution.
+    </div>`;
   return (
     <MicroModal
       open={visible}
@@ -684,7 +780,7 @@ export default function SelectToken({
             ) : null}
           </div>
           <div
-            className="overflow-auto absolute w-full"
+            className="overflow-auto overflow-x-hidden absolute w-full"
             style={{ height: 'calc(100% - 150px)' }}
           >
             <localTokens.Provider
@@ -704,33 +800,124 @@ export default function SelectToken({
                   handleClose={handleClose}
                 />
               )}
-              <Table
-                sortBy={sortBy}
-                tokenPriceList={tokenPriceList}
-                currentSort={currentSort}
-                onSortChange={onSortChange}
-                tokens={listData}
-                onClick={(token) => {
-                  if (token.id != NEARXIDS[0]) {
-                    if (
-                      !(
-                        token.id == WRAP_NEAR_CONTRACT_ID &&
-                        token.symbol == 'wNEAR' &&
-                        !allowWNEAR
-                      )
-                    ) {
-                      onSelect && onSelect(token);
-                    }
-                  }
-                  handleClose();
-                }}
-                balances={balances}
-                forCross={forCross}
-              />
+              <div className="mt-4 mb-4 relative z-50 mx-6 flex w-max items-center justify-between border border-borderColor rounded-lg border-opacity-20 text-primaryText text-sm cursor-pointer">
+                <div
+                  className={`text-center px-2.5 py-2 ${
+                    activeTab === 'Default'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('Default')}
+                >
+                  Default
+                </div>
+                {/* <div
+                  className={`flex-1 text-center py-2.5 ${
+                    activeTab === 'Watchlist'
+                      ? 'text-white border-b-2 border-white'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('Watchlist')}
+                >
+                  Watchlist
+                </div> */}
+                <div
+                  className={`text-center px-2.5 py-2 ${
+                    activeTab === 'TKN'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('TKN')}
+                >
+                  TKN
+                  <div
+                    className="text-white text-right ml-1 inline-block"
+                    data-class="reactTip"
+                    data-tooltip-id="tknId"
+                    data-place="left"
+                    data-tooltip-html={TknTip}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <CustomTooltip id="tknId" />
+                  </div>
+                </div>
+              </div>
+              <div>
+                {activeTab === 'Default' && (
+                  <SelectTokenTable
+                    sortBy={sortBy}
+                    tokenPriceList={tokenPriceList}
+                    currentSort={currentSort}
+                    onSortChange={onSortChange}
+                    tokens={listData}
+                    onClick={(token) => {
+                      if (token.id != NEARXIDS[0]) {
+                        if (
+                          !(
+                            token.id == WRAP_NEAR_CONTRACT_ID &&
+                            token.symbol == 'wNEAR' &&
+                            !allowWNEAR
+                          )
+                        ) {
+                          onSelect && onSelect(token);
+                        }
+                      }
+                      handleClose();
+                    }}
+                    balances={balances}
+                    forCross={forCross}
+                    showRiskTokens={false}
+                  />
+                )}
+                {/* {activeTab === 'Watchlist' && (
+                  <>
+                    {showCommonBasses && (
+                      <CommonBasses
+                        sortBy={sortBy}
+                        onClick={(token) => {
+                          onSelect && onSelect(token);
+                        }}
+                        tokenPriceList={tokenPriceList}
+                        allowWNEAR={allowWNEAR}
+                        handleClose={handleClose}
+                        balances={balances}
+                        forCross={forCross}
+                        tokens={listData.concat(listTknData)}
+                      />
+                    )}
+                  </>
+                )} */}
+                {activeTab === 'TKN' && (
+                  <SelectTokenTable
+                    sortBy={sortBy}
+                    tokenPriceList={tokenPriceList}
+                    currentSort={currentSort}
+                    onSortChange={onSortChange}
+                    tokens={listTknData}
+                    onClick={(token) => {
+                      if (token.id != NEARXIDS[0]) {
+                        if (
+                          !(
+                            token.id == WRAP_NEAR_CONTRACT_ID &&
+                            token.symbol == 'wNEAR' &&
+                            !allowWNEAR
+                          )
+                        ) {
+                          onSelect && onSelect(token);
+                        }
+                      }
+                      handleClose();
+                    }}
+                    balances={balances}
+                    forCross={forCross}
+                    showRiskTokens={true}
+                  />
+                )}
+              </div>
             </localTokens.Provider>
           </div>
-          {searchNoData ? (
-            <div className="flex flex-col  items-center justify-center mt-12 relative z-10">
+          {searchNoData && activeTab === 'Default' ? (
+            <div className="flex flex-col  items-center justify-center mt-32 relative z-10">
               <div className="text-sm text-farmText">
                 <FormattedMessage id="no_token_found"></FormattedMessage>
               </div>
@@ -752,6 +939,13 @@ export default function SelectToken({
                   />
                 </GradientButton>
               ) : null}
+            </div>
+          ) : null}
+          {tknSearchNoData && activeTab === 'TKN' ? (
+            <div className="flex flex-col  items-center justify-center mt-32 relative z-10">
+              <div className="text-sm text-farmText">
+                <FormattedMessage id="no_token_found"></FormattedMessage>
+              </div>
             </div>
           ) : null}
         </section>
@@ -985,7 +1179,6 @@ export const SelectTokenForList = ({
   selected: string | React.ReactElement;
 }) => {
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
     if (visible)
       document.addEventListener('click', () => {

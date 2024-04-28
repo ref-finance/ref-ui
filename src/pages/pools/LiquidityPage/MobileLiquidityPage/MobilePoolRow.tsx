@@ -1,7 +1,7 @@
 import { Pool } from 'src/services/pool';
 import { TokenMetadata } from 'src/services/ft-contract';
 import { useInView } from 'react-intersection-observer';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import { useHistory } from 'react-router';
 import { openUrl, sort_tokens_by_base } from 'src/services/commonV3';
@@ -16,7 +16,8 @@ import { RiArrowRightSLine } from 'src/components/reactIcons';
 import { Link } from 'react-router-dom';
 import { WatchListStartFull } from 'src/components/icon/WatchListStar';
 import { ALL_STABLE_POOL_IDS } from 'src/services/near';
-import { FarmStampNew } from 'src/components/icon';
+import { FarmStampNew, TokenRisk } from 'src/components/icon';
+import { TknIcon } from 'src/components/icon/Common';
 
 function MobilePoolRow({
   pool,
@@ -44,9 +45,13 @@ function MobilePoolRow({
   farmCount?: number;
 }) {
   const { ref } = useInView();
+  const { riskTokens } = useContext(TokenPriceListContext);
   const curRowTokens = tokens;
+  const [showTooltip, setShowTooltip] = useState(false);
   const { indexFail } = useContext(TokenPriceListContext);
-
+  const isTokenAtRisk = (token) => {
+    return riskTokens.some((riskToken) => riskToken.id === token.id);
+  };
   const history = useHistory();
 
   if (!curRowTokens) return <></>;
@@ -108,8 +113,20 @@ function MobilePoolRow({
     </button>
   );
   const is_muti_tokens = curRowTokens?.length > 3;
+  const atRiskTokens = curRowTokens.filter((token) =>
+    riskTokens.some((riskToken) => riskToken.id === token.id)
+  );
+  const hasRiskTokens = atRiskTokens.length > 0;
+  const tooltipText =
+    atRiskTokens.length > 1
+      ? `${atRiskTokens
+          .map((t) => t.symbol)
+          .join(' and ')} are uncertified tokens with high risk.`
+      : atRiskTokens.length === 1
+      ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
+      : '';
   return (
-    <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
+    <div className="w-full hover:bg-poolRowHover overflow-visible">
       <Link
         ref={ref}
         className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-1.5 py-5 text-white"
@@ -126,7 +143,7 @@ function MobilePoolRow({
                 is_muti_tokens ? 'flex-wrap w-12' : ''
               } ${!!morePoolButton ? 'relative bottom-1' : ''}`}
             >
-              <div
+              {/* <div
                 className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full relative z-10"
                 style={{
                   height: '26px',
@@ -152,7 +169,44 @@ function MobilePoolRow({
                   className="w-full rounded-full"
                   src={curRowTokens?.[1].icon}
                 />
-              </div>
+              </div> */}
+              {curRowTokens.map((token, index) => {
+                const atRisk = isTokenAtRisk(token);
+                return (
+                  <div
+                    key={token.id}
+                    className={`relative inline-block ${
+                      index > 0 ? 'z-20' : 'z-10'
+                    }`}
+                  >
+                    <div
+                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative ${
+                        index > 0 ? '-ml-1.5' : ''
+                      } ${index > 0 ? 'z-20' : 'z-10'}`}
+                      style={{
+                        height: '26px',
+                        width: '26px',
+                      }}
+                    >
+                      <img
+                        className="rounded-full w-full"
+                        src={token.icon}
+                        alt={token.symbol}
+                      />
+                    </div>
+                    {atRisk && (
+                      <div
+                        className={`absolute bottom-0 transform -translate-x-1/2 text-center z-50 ${
+                          index > 0 ? 'left-1.5' : 'left-1/2'
+                        } 
+                       `}
+                      >
+                        <TknIcon className="transform scale-75" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               {curRowTokens?.[2] ? (
                 <div
                   className={`h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full ${
@@ -190,8 +244,11 @@ function MobilePoolRow({
             </div>
             <div className="flex flex-col">
               <div className="flex items-center justify-start">
-                <div className="flex items-center flex-wrap">
-                  <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
+                <div className="flex items-center">
+                  <div
+                    className="text-sm ml-2 font-semibold whitespace-normal break-words mb-0.5"
+                    style={{ maxWidth: '130px' }}
+                  >
                     {curRowTokens[0].symbol +
                       '-' +
                       curRowTokens[1].symbol +
@@ -202,6 +259,22 @@ function MobilePoolRow({
                 {watched && !watchPool && (
                   <div className="ml-2">
                     <WatchListStartFull />
+                  </div>
+                )}
+                {hasRiskTokens && (
+                  <div
+                    className="ml-2 relative"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  >
+                    <span>
+                      <TokenRisk />
+                    </span>
+                    {showTooltip && (
+                      <div className="absolute -top-3 z-50 left-5 px-2 w-40 py-1.5 border border-borderColor text-farmText text-xs rounded-md bg-cardBg">
+                        {tooltipText}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

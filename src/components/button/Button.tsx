@@ -544,6 +544,7 @@ export function OprationButton(props: any) {
     btnClassName,
     onClick,
     minWidth,
+    background,
     borderRadius,
     ...reset
   } = props;
@@ -555,6 +556,7 @@ export function OprationButton(props: any) {
         borderRadius: borderRadius || '8px',
         minWidth: minWidth || '',
         color: color || '',
+        background: background || '',
       }}
     >
       <button

@@ -909,3 +909,12 @@ export const getTxId = async (receipt_id: string) => {
       return [];
     });
 };
+export const getTokens = async () => {
+  return await fetch(config.indexerUrl + '/list-token', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then(async (res) => {
+    const tokens = await res.json();
+    return tokens;
+  });
+};

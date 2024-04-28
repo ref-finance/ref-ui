@@ -1216,6 +1216,7 @@ SwapOptions) => {
           msg: JSON.stringify({
             force: 0,
             actions: actionsList,
+            ...(tokenOut.symbol == 'NEAR' ? { skip_unwrap_near: false } : {}),
           }),
         },
         gas: '180000000000000',
@@ -1227,30 +1228,30 @@ SwapOptions) => {
   if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
     transactions.unshift(nearDepositTransaction(amountIn));
   }
-  if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
-    const outEstimate = new Big(0);
-    const routes = separateRoutes(swapsToDo, tokenOut.id);
+  // if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
+  //   const outEstimate = new Big(0);
+  //   const routes = separateRoutes(swapsToDo, tokenOut.id);
 
-    const bigEstimate = routes.reduce((acc, cur) => {
-      const curEstimate = round(
-        24,
-        toNonDivisibleNumber(
-          24,
-          percentLess(slippageTolerance, cur[cur.length - 1].estimate)
-        )
-      );
-      return acc.plus(curEstimate);
-    }, outEstimate);
+  //   const bigEstimate = routes.reduce((acc, cur) => {
+  //     const curEstimate = round(
+  //       24,
+  //       toNonDivisibleNumber(
+  //         24,
+  //         percentLess(slippageTolerance, cur[cur.length - 1].estimate)
+  //       )
+  //     );
+  //     return acc.plus(curEstimate);
+  //   }, outEstimate);
 
-    const minAmountOut = toReadableNumber(
-      24,
-      scientificNotationToString(bigEstimate.toString())
-    );
+  //   const minAmountOut = toReadableNumber(
+  //     24,
+  //     scientificNotationToString(bigEstimate.toString())
+  //   );
 
-    if (tokenOut.symbol == 'NEAR') {
-      transactions.push(nearWithdrawTransaction(minAmountOut));
-    }
-  }
+  //   if (tokenOut.symbol == 'NEAR') {
+  //     transactions.push(nearWithdrawTransaction(minAmountOut));
+  //   }
+  // }
 
   if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
     const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);

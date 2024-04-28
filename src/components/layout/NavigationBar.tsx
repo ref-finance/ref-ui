@@ -8,23 +8,10 @@ import React, {
 } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
-import { matchPath } from 'react-router';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { Card } from 'src/components/card/Card';
-import {
-  IconAirDropGreenTip,
-  Logo,
-  NavLogoIcon,
-  Near,
-} from 'src/components/icon';
-import {
-  AccountIcon,
-  ActivityIcon,
-  SignoutIcon,
-  WalletIcon,
-  WNEARExchngeIcon,
-} from 'src/components/icon/Common';
-import { XrefIcon } from 'src/components/icon/Xref';
+import { NavLogoIcon, Near } from 'src/components/icon';
+import { AccountIcon } from 'src/components/icon/Common';
 import { Context } from 'src/components/wrapper';
 import getConfig from 'src/services/config';
 import { NEARXIDS, wallet } from 'src/services/near';
@@ -32,37 +19,20 @@ import {
   BridgeButton,
   menuItemType,
   useLanguageItems,
-  useMenuItems,
   useMenus,
 } from 'src/utils/menu';
-import { getAccount } from '../../services/airdrop';
-import {
-  auroraAddr,
-  batchCallWithdraw,
-  useAuroraTokens,
-} from '../../services/aurora/aurora';
+import { auroraAddr, useAuroraTokens } from '../../services/aurora/aurora';
 import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import { useAuroraBalances } from '../../services/aurora/aurora';
 import { getAuroraConfig } from '../../services/aurora/config';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
-import { isMobile, useClientMobile, useMobile } from '../../utils/device';
+import { useClientMobile, useMobile } from '../../utils/device';
 import { toReadableNumber } from '../../utils/numbers';
-import {
-  getCurrentWallet,
-  senderWallet,
-} from '../../utils/wallets-integration';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 import { WalletContext } from '../../utils/wallets-integration';
-import {
-  getAccountName,
-  saveSenderLoginRes,
-} from '../../utils/wallets-integration';
-import {
-  AuroraIcon,
-  ConnectDot,
-  CopyIcon,
-  HasBalance,
-} from '../icon/CrossSwapIcons';
+import { getAccountName } from '../../utils/wallets-integration';
+import { AuroraIcon, CopyIcon, HasBalance } from '../icon/CrossSwapIcons';
 import { FarmDot } from '../icon/FarmStamp';
 import {
   FiChevronRight,
@@ -72,16 +42,12 @@ import {
 import { MobileNavBar } from './MobileNav';
 import { QuestionTip } from './TipWrapper';
 import { getURLInfo } from './transactionTipPopUp';
-import USNBuyComponent from 'src/components/forms/USNBuyComponent';
-import { SWAP_MODE_KEY } from '../../pages/SwapPage';
-import Marquee from 'src/components/layout/Marquee';
 
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
 } from 'src/context/WalletSelectorContext';
 
-import { SWAP_MODE } from '../../pages/SwapPage';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { BuyNearButton } from '../button/Button';
 import {
@@ -94,20 +60,15 @@ import {
   REF_FI_SENDER_WALLET_ACCESS_KEY,
 } from '../../pages/Orderly/orderly/utils';
 import { ORDERLY_ASSET_MANAGER } from '../../pages/Orderly/near';
-import {
-  MoreIcon,
-  ArrowDownIcon,
-  DownTriangleIcon,
-} from 'src/components/icon/Nav';
+import { ArrowDownIcon, DownTriangleIcon } from 'src/components/icon/Nav';
 import { openUrl } from '../../services/commonV3';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from 'src/constants';
 import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
 import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 import { WalletSelectorModal } from './WalletSelector';
 import { isNewHostName } from '../../services/config';
-import { WrapNearIcon } from './WrapNear';
-
-const config = getConfig();
+import { KeyIcon } from '../../components/portfolio/icons';
+import AccessKeyModal from '../../components/portfolio/AccessKeyModal';
+import Guider, { LinkLine } from 'src/components/layout/Guider';
 
 export function AccountTipDownByAccountID({ show }: { show: boolean }) {
   return (
@@ -158,6 +119,10 @@ function AccountEntry({
   const [copyButtonDisabled, setCopyButtonDisabled] = useState<boolean>(false);
 
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const [keyModalShow, setKeyModalShow] = useState<boolean>(false);
+  const [showGuider, setShowGuider] = useState(
+    localStorage.getItem('ACCESS_MODAL_GUIDER') !== '1' && accountId
+  );
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
       CONST_ACKNOWLEDGE_WALLET_RISK
@@ -208,7 +173,7 @@ function AccountEntry({
           REF_FI_SENDER_WALLET_ACCESS_KEY
         );
 
-        const allKeys = Object.keys(JSON.parse(senderAccessKey)['allKeys']);
+        const allKeys = Object.keys(JSON.parse(senderAccessKey).allKeys);
 
         //@ts-ignore
 
@@ -250,28 +215,9 @@ function AccountEntry({
       selected: location.pathname == '/overview',
       click: () => {
         history.push('/overview');
+        clearGuilder();
       },
     },
-    // {
-    //   icon: <ActivityIcon />,
-    //   textId: 'recent_activity',
-    //   selected: location.pathname == '/recent',
-    //   click: () => {
-    //     history.push('/recent');
-    //   },
-    // },
-    // {
-    //   icon: <WalletIcon />,
-    //   textId: 'go_to_near_wallet',
-    //   // subIcon: <HiOutlineExternalLink />,
-    //   click: () => {
-    //     openUrl(
-    //       selector.store.getState().selectedWalletId === 'my-near-wallet'
-    //         ? config.myNearWalletUrl
-    //         : config.walletUrl
-    //     );
-    //   },
-    // },
   ];
 
   function showToast() {
@@ -283,7 +229,17 @@ function AccountEntry({
       setCopyButtonDisabled(false);
     }, 1000);
   }
-
+  function closeKeyModal() {
+    setKeyModalShow(false);
+  }
+  function showkeyModal() {
+    setKeyModalShow(true);
+    clearGuilder();
+  }
+  function clearGuilder() {
+    setShowGuider(false);
+    localStorage.setItem('ACCESS_MODAL_GUIDER', '1');
+  }
   const isMobile = useClientMobile();
   const isDisableChangeWallet = ['keypom', 'Keypom Account'].includes(
     currentWalletName
@@ -383,8 +339,11 @@ function AccountEntry({
             />
           </div>
         </div>
-        {isSignedIn && hover ? (
-          <div className={`absolute top-14 pt-2 right-0 w-64 z-40`}>
+        {(isSignedIn && hover) || showGuider ? (
+          <div
+            className={`absolute top-14 pt-2 right-0 w-64`}
+            style={{ zIndex: showGuider ? '1000' : '40' }}
+          >
             <Card
               className="menu-max-height bg-cardBg cursor-default shadow-4xl "
               width="w-72"
@@ -473,6 +432,7 @@ function AccountEntry({
                   }`}
                   onClick={() => {
                     signOut();
+                    clearGuilder();
                   }}
                   disabled={isDisableChangeWallet}
                 >
@@ -490,6 +450,7 @@ function AccountEntry({
                   }`}
                   onClick={async () => {
                     modal.show();
+                    clearGuilder();
                   }}
                   disabled={isDisableChangeWallet}
                 >
@@ -528,9 +489,21 @@ function AccountEntry({
                           <FarmDot inFarm={hasBalanceOnRefAccount} />
                         ) : null}
                       </label>
-                      {/* {item.subIcon ? (
-                        <label className="text-lg ml-2">{item.subIcon}</label>
-                      ) : null} */}
+                    </div>
+                    <div
+                      onClick={showkeyModal}
+                      className={`flex items-center mx-3 text-sm cursor-pointer font-semibold py-4 pl-3 hover:text-white hover:bg-black rounded-lg hover:bg-opacity-10  ${
+                        showGuider
+                          ? 'text-white bg-black bg-opacity-10'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      <label className="w-9">
+                        <KeyIcon />
+                      </label>
+                      <label className="cursor-pointer text-base">
+                        Approved Key
+                      </label>
                     </div>
                     {hasBalanceOnRefAccount && item.textId === 'your_assets' ? (
                       <div
@@ -553,6 +526,18 @@ function AccountEntry({
           </div>
         ) : null}
       </div>
+      {accountId && keyModalShow ? (
+        <AccessKeyModal isOpen={keyModalShow} onRequestClose={closeKeyModal} />
+      ) : null}
+      {showGuider ? (
+        <div>
+          <Guider clearGuilder={clearGuilder} />
+          <LinkLine
+            className="absolute"
+            style={{ zIndex: '1001', right: '240px', top: '265px' }}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

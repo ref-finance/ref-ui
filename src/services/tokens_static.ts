@@ -61,6 +61,7 @@ const main_tokens = {
   'apys.token.a11bd.near': 'APYS',
   'ftv2.nekotoken.near': 'NEKO',
   'phoenix-bonds.near': 'pNEAR',
+  '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 'USDC',
 };
 const dev_tokens = {
   'wrap.testnet': 'NEAR',
@@ -90,6 +91,7 @@ const dev_tokens = {
   'v2-nearx.staderlabs.testnet': 'NearX',
   'meta-v2.pool.testnet': 'STNEAR',
   'phoenix-bonds.testnet': 'pNEAR',
+  '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 'USDC',
 };
 const testnet_tokens = {
   'wrap.testnet': 'NEAR',
@@ -135,6 +137,7 @@ const testnet_tokens = {
   'phoenix-bonds.testnet': 'pNEAR',
   'usdt.develop.v1.omomo-finance.testnet': 'USDT',
   'wnear.develop.v1.omomo-finance.testnet': 'WNEAR',
+  '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 'USDC',
 };
 
 export function getTokens() {
