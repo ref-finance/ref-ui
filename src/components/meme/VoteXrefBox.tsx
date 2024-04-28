@@ -49,7 +49,7 @@ function VoteXrefBox() {
             <div>xREF</div>
           </div>
           <div
-            className="pt-3 text-white"
+            className="pt-3 text-white pr-2"
             style={{ maxHeight: '300px', overflow: 'auto' }}
           >
             {!emptyObject(xrefSeeds) &&
