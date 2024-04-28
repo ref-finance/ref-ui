@@ -31,10 +31,18 @@ function VoteXrefBoxTop() {
         </div>
         <div className="my-8">
           <p className="text-base text-primaryText xsm:text-center">
-            Vote time:
+            xRef Vote Time:
           </p>
           <p className="gotham_bold text-xl text-white xsm:text-center">
-            2024/04/01-2024/04/03
+            2024/05/01-2024/05/02
+          </p>
+        </div>
+        <div className="my-8">
+          <p className="text-base text-primaryText xsm:text-center">
+            MeMe Vote Time:
+          </p>
+          <p className="gotham_bold text-xl text-white xsm:text-center">
+            2024/05/04-2024/05/18
           </p>
         </div>
         <div>
@@ -42,7 +50,7 @@ function VoteXrefBoxTop() {
             Meme Competition:
           </p>
           <p className="gotham_bold text-xl text-white xsm:text-center">
-            2024/04/04-2024/04/14
+            2024/05/04-2024/05/18
           </p>
         </div>
       </div>

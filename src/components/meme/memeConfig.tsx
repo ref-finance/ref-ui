@@ -35,7 +35,7 @@ export const DONATE_RECEIVER_ID = ['pub-testnet', 'testnet'].includes(
   process.env.REACT_APP_NEAR_ENV
 )
   ? 'juaner.testnet'
-  : 'juaner.near';
+  : 'meme-donation.ref-labs.near';
 const LONK_CONFIG = {
   head: is_mobile ? (
     <LonkHeadMobile className="relative" style={{ top: '-14px' }} />
@@ -166,8 +166,34 @@ export function getMemeContractConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
-        XREF_MEME_FARM_CONTRACT_IDS: [],
-        MEME_TOKEN_XREF_MAP: {},
+        XREF_MEME_FARM_CONTRACT_IDS: [
+          'memefarm-xref-blackdragon.ref-labs.near',
+          'memefarm-xref-lonk.ref-labs.near',
+          'memefarm-xref-gear.ref-labs.near',
+          'memefarm-xref-touched.ref-labs.near',
+          'memefarm-xref-usm.ref-labs.near',
+          'memefarm-xref-uwon.ref-labs.near',
+          'memefarm-xref-nvidia.ref-labs.near',
+          'memefarm-xref-nkok.ref-labs.near',
+          'memefarm-xref-bean.ref-labs.near',
+          'memefarm-xref-shitzu.ref-labs.near',
+          'memefarm-xref-neko.ref-labs.near',
+        ],
+        MEME_TOKEN_XREF_MAP: {
+          'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
+          'token.lonkingnearbackto2024.near':
+            'memefarm-xref-lonk.ref-labs.near',
+          'gear.enleap.near': 'memefarm-xref-gear.ref-labs.near',
+          'touched.tkn.near': 'memefarm-xref-touched.ref-labs.near',
+          'usmeme.tg': 'memefarm-xref-usm.ref-labs.near',
+          '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near':
+            'memefarm-xref-uwon.ref-labs.near',
+          'nearnvidia.near': 'memefarm-xref-nvidia.ref-labs.near',
+          'nkok.tkn.near': 'memefarm-xref-nkok.ref-labs.near',
+          'bean.tkn.near': 'memefarm-xref-bean.ref-labs.near',
+          'token.0xshitzu.near': 'memefarm-xref-shitzu.ref-labs.near',
+          'ftv2.nekotoken.near': 'memefarm-xref-neko.ref-labs.near',
+        },
       };
     case 'pub-testnet':
       return {
@@ -218,8 +244,34 @@ export function getMemeContractConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
-        XREF_MEME_FARM_CONTRACT_IDS: [],
-        MEME_TOKEN_XREF_MAP: {},
+        XREF_MEME_FARM_CONTRACT_IDS: [
+          'memefarm-xref-blackdragon.ref-labs.near',
+          'memefarm-xref-lonk.ref-labs.near',
+          'memefarm-xref-gear.ref-labs.near',
+          'memefarm-xref-touched.ref-labs.near',
+          'memefarm-xref-usm.ref-labs.near',
+          'memefarm-xref-uwon.ref-labs.near',
+          'memefarm-xref-nvidia.ref-labs.near',
+          'memefarm-xref-nkok.ref-labs.near',
+          'memefarm-xref-bean.ref-labs.near',
+          'memefarm-xref-shitzu.ref-labs.near',
+          'memefarm-xref-neko.ref-labs.near',
+        ],
+        MEME_TOKEN_XREF_MAP: {
+          'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
+          'token.lonkingnearbackto2024.near':
+            'memefarm-xref-lonk.ref-labs.near',
+          'gear.enleap.near': 'memefarm-xref-gear.ref-labs.near',
+          'touched.tkn.near': 'memefarm-xref-touched.ref-labs.near',
+          'usmeme.tg': 'memefarm-xref-usm.ref-labs.near',
+          '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near':
+            'memefarm-xref-uwon.ref-labs.near',
+          'nearnvidia.near': 'memefarm-xref-nvidia.ref-labs.near',
+          'nkok.tkn.near': 'memefarm-xref-nkok.ref-labs.near',
+          'bean.tkn.near': 'memefarm-xref-bean.ref-labs.near',
+          'token.0xshitzu.near': 'memefarm-xref-shitzu.ref-labs.near',
+          'ftv2.nekotoken.near': 'memefarm-xref-neko.ref-labs.near',
+        },
       };
   }
 }

@@ -2,7 +2,12 @@ import React, { useState, useContext, useMemo, useRef, useEffect } from 'react';
 import Modal from 'react-modal';
 import Big from 'big.js';
 import { isMobile } from '../../utils/device';
-import { ArrowRightTopIcon, ModalCloseIcon, SelectsDown, TipIcon } from './icons';
+import {
+  ArrowRightTopIcon,
+  ModalCloseIcon,
+  SelectsDown,
+  TipIcon,
+} from './icons';
 import { TokenMetadata } from '../../services/ft-contract';
 import { MemeContext } from './context';
 import { getMemeContractConfig } from './memeConfig';

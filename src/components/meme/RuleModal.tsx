@@ -39,7 +39,7 @@ function RuleModal(props: any) {
             height: cardHeight,
           }}
         >
-          <p className="mt-4">New campaign start on 8th of April</p>
+          <p className="mt-4">New campaign start on 1st of May</p>
           <p className="mt-5">
             A new selection of top 5 reward meme tokens is voted by holders of
             xREF, with 25% boosted reward for the overall campaign (NEAR + Ref
@@ -49,44 +49,57 @@ function RuleModal(props: any) {
           <ul className="text-sm list-disc pl-3">
             <li>
               Meme token projects ask xREF holders to deposit into their vault
-              for the selection period
+              for the selection from May 1st
             </li>
             <li>
-              Meme token communities deposit some meme token into their xREF
-              vault, to encourage more xREF holders to deposit more to vote for
-              the selection of their meme token into the meme campaign
+              During the voting process, Memetoken communities can participate
+              in donating in the 'Show love for voters' section and allocate
+              rewards to users to incentivize them to stake xREF and vote for
+              the Memetoken
             </li>
             <li>
               The first voting period is a 48h window, to vote in xREF for your
               preferred memetoken
             </li>
             <li>
-              After the 48h, we have the top five memecoins selected through
+              After the 48h, we have the top three memecoins selected through
               xREF staking
             </li>
             <li>
               The following 24h, after the 48h, is for users to now stake their
-              memecoin token to compete as before (for the gauge weight of their
-              NEAR/REF reward distribution to their memetoken pool staking
+              Memecoin token to compete as before
             </li>
             <li>
-              xREF holderes will be incentivized to stake as thry will be
-              randomly selected for additional memecoins tokens drop to push for
-              incentivisation to stake then their memecoins tokens
+              Note:
+              <p>
+                1) As same mechanism as before - snapshot on meme gauge weight
+                for the 80/20 % staking and pools
+              </p>
+              <p>
+                2) *xRef stake will determine Ref allocation ratio, while
+                MeMeToken stake only determines Near allocation ratio.
+              </p>
+            </li>
+            <li>
+              The top 2 out of 5 will be maintained from the current campaign
+              and as an ongoing mechanism for following months, while the other
+              3 seats will rotate based on the results of their xREF staking
+              within a 48-hour period.
             </li>
           </ul>
           <p className="mt-5">Some rules:</p>
           <ul className="text-sm list-disc pl-3">
             <li>
-              Users can unstake their xREF after the voting period but it won’t
-              affect the pools, or they can leave their staked xREF
+              Users can unstake their xREF after the voting period of xREF but
+              it won’t affect the pools, or they can leave their staked xREF for
+              the next round of vote at the end of the month
             </li>
             <li>
               xREF unstaking will have one day of cooldown before being able to
               withdraw
             </li>
             <li>
-              For staked memecoin tokens, it wil still take five days of
+              For staked memecoin tokens, it will still take five days of
               cooldown period before being able to withdraw the tokens.
             </li>
             <li>

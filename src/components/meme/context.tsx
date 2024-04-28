@@ -101,7 +101,11 @@ function MemeContextProvider({ children }: any) {
     init();
   }, []);
   useEffect(() => {
-    if (isSignedIn && Object.keys(seeds).length && Object.keys(xrefSeeds).length) {
+    if (
+      isSignedIn &&
+      Object.keys(seeds).length &&
+      Object.keys(xrefSeeds).length
+    ) {
       init_user();
     }
   }, [isSignedIn, Object.keys(seeds).length, Object.keys(xrefSeeds).length]);
@@ -156,7 +160,7 @@ function MemeContextProvider({ children }: any) {
       seeds.map((seed: Seed) => list_seed_farms(seed.seed_id))
     );
     // get all token metadata
-    const tokenIds = new Set();
+    const tokenIds = new Set(memeTokenIds);
     farmList.forEach((farms: FarmBoost[]) => {
       farms.forEach((farm: FarmBoost) => {
         tokenIds.add(farm.terms.reward_token);
