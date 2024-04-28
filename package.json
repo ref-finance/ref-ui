@@ -117,7 +117,7 @@
     "@near-wallet-selector/modal-ui": "^8.9.7",
     "@near-wallet-selector/my-near-wallet": "^8.9.7",
     "@near-wallet-selector/near-mobile-wallet": "^8.9.7",
-    "@near-wallet-selector/neth": "^8.9.7",
+    "@near-wallet-selector/neth": "^7.9.1",
     "@near-wallet-selector/nightly": "^8.9.7",
     "@near-wallet-selector/sender": "^8.9.7",
     "@near-wallet-selector/wallet-connect": "^7.9.1",
