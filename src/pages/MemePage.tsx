@@ -4,7 +4,6 @@ import { isMobile } from '../utils/device';
 import { MemeContextProvider } from '../components/meme/context';
 import MobileBanner from '../components/meme/MobileBanner';
 import Overview from '../components/meme/Overview';
-import ProgressBar from '../components/meme/ProgressBar';
 import VoteXREF from '../components/meme/VoteXREF';
 import SeedsBox from '../components/meme/SeedsBox';
 import WithdrawList from '../components/meme/WithdrawList';

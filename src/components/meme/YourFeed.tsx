@@ -87,7 +87,11 @@ function YourFeed({ seed_id }: { seed_id: string }) {
             src=${xrefSeeds?.[xrefContractId]?.token_meta_data?.icon}
           />
           <span class="text-sm text-white">
-          ${formatLineUi(youFeedData.xrefAmount.toFixed())}
+          ${formatLineUi(
+            toInternationalCurrencySystem_number(
+              youFeedData.xrefAmount.toFixed()
+            )
+          )}
           </span>
         </div>
       </div>

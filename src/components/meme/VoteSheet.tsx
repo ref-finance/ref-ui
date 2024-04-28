@@ -56,13 +56,13 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
             <div>
               <p className="text-base text-center">Current Round:</p>
               <span className="text-white text-lg text-center">
-                2024/05/04-2024/05/18
+                2024/05/04-2024/05/17
               </span>
             </div>
             <div>
               <p className="text-base text-center">Next Round:</p>
               <span className="text-white text-lg text-center">
-                2024/05/19-2024/06/01
+                2024/05/18-2024/05/31
               </span>
             </div>
           </div>

@@ -2,9 +2,39 @@ import React, { useState } from 'react';
 import VoteBox from './VoteBox';
 import DonateBox from './DonateBox';
 import { isMobile } from '../../utils/device';
+import QuestionMark from 'src/components/farm/QuestionMark';
+import CustomTooltip from '../customTooltip/customTooltip';
 function VoteXrefBoxTop() {
   const [voteTab, setVoteTab] = useState<'vote' | 'donate'>('vote');
   const cardWidth = isMobile() ? '95vw' : '25vw';
+  function filterVoteTip() {
+    return `
+    <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
+      Filter MeMeSeason Participants
+    </div>
+    `;
+  }
+  function xRefVoteTip() {
+    return `
+    <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
+        Determine the distribution ratio for Ref rewards
+    </div>
+    `;
+  }
+  function MeMeVoteTip() {
+    return `
+    <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
+        Determine the distribution ratio for Near rewards
+    </div>
+    `;
+  }
+  function memeCompetitionTip() {
+    return `
+    <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
+        Determine the distribution ratio for the next round
+    </div>
+    `;
+  }
   return (
     <div className="flex lg:items-start lg:justify-between gap-14 xsm:flex-col xsm:items-center">
       {/* Date */}
@@ -33,24 +63,67 @@ function VoteXrefBoxTop() {
           <p className="text-base text-primaryText xsm:text-center">
             xRef Vote Time:
           </p>
-          <p className="gotham_bold text-xl text-white xsm:text-center">
+          <p className="flex items-center xsm:justify-center gap-1 gotham_bold text-xl text-white xsm:text-center">
             2024/05/01-2024/05/02
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-tooltip-id="filterVoteTipId"
+              data-place="top"
+              data-tooltip-html={filterVoteTip()}
+            >
+              <QuestionMark></QuestionMark>
+              <CustomTooltip id="filterVoteTipId" />
+            </div>
+          </p>
+          <p className="flex items-center xsm:justify-center gap-1 gotham_bold text-xl text-white xsm:text-center">
+            2024/05/03-2024/05/03
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-tooltip-id="xRefVoteTipId"
+              data-place="top"
+              data-tooltip-html={xRefVoteTip()}
+            >
+              <QuestionMark></QuestionMark>
+              <CustomTooltip id="xRefVoteTipId" />
+            </div>
           </p>
         </div>
         <div className="my-8">
-          <p className="text-base text-primaryText xsm:text-center">
+          <p className="gap-1 text-base text-primaryText xsm:text-center">
             MeMe Vote Time:
           </p>
-          <p className="gotham_bold text-xl text-white xsm:text-center">
-            2024/05/04-2024/05/18
+          <p className="flex items-center xsm:justify-center  gotham_bold text-xl text-white xsm:text-center">
+            2024/05/03-2024/05/03
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-tooltip-id="MeMeVoteTipId"
+              data-place="top"
+              data-tooltip-html={MeMeVoteTip()}
+            >
+              <QuestionMark></QuestionMark>
+              <CustomTooltip id="MeMeVoteTipId" />
+            </div>
           </p>
         </div>
         <div>
-          <p className="text-base text-primaryText xsm:text-center">
+          <p className="gap-1 text-base text-primaryText xsm:text-center">
             Meme Competition:
           </p>
-          <p className="gotham_bold text-xl text-white xsm:text-center">
-            2024/05/04-2024/05/18
+          <p className="flex items-center xsm:justify-center  gotham_bold text-xl text-white xsm:text-center">
+            2024/05/04-2024/05/17
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-tooltip-id="memeCompetitionTipId"
+              data-place="top"
+              data-tooltip-html={memeCompetitionTip()}
+            >
+              <QuestionMark></QuestionMark>
+              <CustomTooltip id="memeCompetitionTipId" />
+            </div>
           </p>
         </div>
       </div>

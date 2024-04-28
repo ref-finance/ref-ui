@@ -385,7 +385,7 @@ export function getMemeDataConfig(): any {
         'blackdragon.tkn.near': '#413B41',
         'token.lonkingnearbackto2024.near': '#009400',
         'gear.enleap.near': '#AF6B0A',
-        'touched.tkn.near': 'background: #8BA340',
+        'touched.tkn.near': '#8BA340',
         'usmeme.tg': '#FFBF33',
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near':
           '#FED501',
