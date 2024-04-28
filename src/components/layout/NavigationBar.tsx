@@ -529,7 +529,7 @@ function AccountEntry({
       {accountId && keyModalShow ? (
         <AccessKeyModal isOpen={keyModalShow} onRequestClose={closeKeyModal} />
       ) : null}
-      {showGuider ? (
+      {showGuider && !isMobile ? (
         <div>
           <Guider clearGuilder={clearGuilder} />
           <LinkLine
