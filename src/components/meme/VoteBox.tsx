@@ -28,7 +28,7 @@ import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { Seed, UserSeedInfo } from '../../services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
-function VoteBox() {
+function VoteBox({ isActivityOn }: { isActivityOn: boolean }) {
   const [selectedTab, setSelectedTab] = useState('');
   const [stakeLoading, setStakeLoading] = useState(false);
   const [amount, setAmount] = useState('');
@@ -77,7 +77,8 @@ function VoteBox() {
     Big(amount || 0).lte(0) ||
     Big(amount || 0).gt(xrefBalance) ||
     !selectedTab ||
-    !Object.keys(xrefSeeds).length;
+    !Object.keys(xrefSeeds).length ||
+    !isActivityOn;
   if (!selectedTab) return null;
   return (
     <div>

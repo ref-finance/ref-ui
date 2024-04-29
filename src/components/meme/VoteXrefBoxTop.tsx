@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import VoteBox from './VoteBox';
 import DonateBox from './DonateBox';
 import { isMobile } from '../../utils/device';
@@ -6,7 +6,23 @@ import QuestionMark from 'src/components/farm/QuestionMark';
 import CustomTooltip from '../customTooltip/customTooltip';
 function VoteXrefBoxTop() {
   const [voteTab, setVoteTab] = useState<'vote' | 'donate'>('vote');
+  const startTime = '2024-05-01 08:00:00';
+  const [isActivityOn, setIsActivityOn] = useState(
+    new Date().getTime() - new Date(startTime).getTime() >= 0
+  );
   const cardWidth = isMobile() ? '95vw' : '25vw';
+  useEffect(() => {
+    if (!isActivityOn) {
+      const intervalId = setInterval(() => {
+        if (new Date().getTime() - new Date(startTime).getTime() >= 0) {
+          setIsActivityOn(true);
+        }
+      }, 1000);
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [isActivityOn]);
   function filterVoteTip() {
     return `
     <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
@@ -164,7 +180,11 @@ function VoteXrefBoxTop() {
             Donate Meme
           </span>
         </div>
-        {voteTab == 'vote' ? <VoteBox /> : <DonateBox />}
+        {voteTab == 'vote' ? (
+          <VoteBox isActivityOn={isActivityOn} />
+        ) : (
+          <DonateBox isActivityOn={isActivityOn} />
+        )}
       </div>
     </div>
   );

@@ -101,34 +101,35 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                 ) : null}
               </div>
               <div
-                className="pt-3 pl-5 pr-4 text-white text-base relative"
+                className=" text-white text-base"
                 style={{ maxHeight: '300px', overflow: 'auto' }}
               >
-                {!emptyObject(xrefSeeds) &&
-                  Object.keys(MEME_TOKEN_XREF_MAP)
-                    .sort(sortByXrefStaked(xrefSeeds))
-                    .map((memeTokenId) => {
-                      const xrefContractId = MEME_TOKEN_XREF_MAP[memeTokenId];
-                      const xrefSeed: Seed = xrefSeeds[xrefContractId];
-                      const userStakedAmount = toReadableNumber(
-                        xrefSeed.seed_decimal,
-                        xrefFarmContractUserData?.[xrefContractId]
-                          ?.join_seeds?.[xrefTokenId]?.free_amount || '0'
-                      );
-                      const seedTotalStakedAmount = toReadableNumber(
-                        xrefSeed.seed_decimal,
-                        xrefSeed.total_seed_amount
-                      );
-                      function getXrefTip() {
-                        const apr = getSeedApr(xrefSeed);
-                        const totalMemeReward = toReadableNumber(
-                          allTokenMetadatas?.[memeTokenId]?.decimals || 0,
-                          getTotalRewardBalance(
-                            xrefSeed,
-                            donateBalances?.[memeTokenId] || 0
-                          )
+                <div className="relative pt-3 pl-5 pr-4 xsm:pb-px">
+                  {!emptyObject(xrefSeeds) &&
+                    Object.keys(MEME_TOKEN_XREF_MAP)
+                      .sort(sortByXrefStaked(xrefSeeds))
+                      .map((memeTokenId) => {
+                        const xrefContractId = MEME_TOKEN_XREF_MAP[memeTokenId];
+                        const xrefSeed: Seed = xrefSeeds[xrefContractId];
+                        const userStakedAmount = toReadableNumber(
+                          xrefSeed.seed_decimal,
+                          xrefFarmContractUserData?.[xrefContractId]
+                            ?.join_seeds?.[xrefTokenId]?.free_amount || '0'
                         );
-                        return `<div class="px-2">
+                        const seedTotalStakedAmount = toReadableNumber(
+                          xrefSeed.seed_decimal,
+                          xrefSeed.total_seed_amount
+                        );
+                        function getXrefTip() {
+                          const apr = getSeedApr(xrefSeed);
+                          const totalMemeReward = toReadableNumber(
+                            allTokenMetadatas?.[memeTokenId]?.decimals || 0,
+                            getTotalRewardBalance(
+                              xrefSeed,
+                              donateBalances?.[memeTokenId] || 0
+                            )
+                          );
+                          return `<div class="px-2">
                                   <div class="flex items-center justify-between text-xs text-farmText gap-3.5">
                                     <span>Reward ${
                                       allTokenMetadatas?.[memeTokenId]?.symbol
@@ -144,68 +145,70 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
                                     )}</span>
                                   </div>
                                 </div>`;
-                      }
-                      return (
-                        <div
-                          key={memeTokenId}
-                          className={`grid grid-cols-${
-                            isSignedIn ? 4 : 3
-                          } mb-5`}
-                        >
-                          <div className="flex items-center col-span-2">
-                            <div className="flex items-center gap-1.5">
-                              <img
-                                className="w-5 h-5 rounded-full"
-                                src={allTokenMetadatas?.[memeTokenId]?.icon}
-                              />
-                              <p
-                                className="overflow-hidden w-24 whitespace-nowrap xsm:w-20"
-                                style={{ textOverflow: 'ellipsis' }}
-                              >
-                                {allTokenMetadatas?.[memeTokenId]?.symbol}
-                              </p>
+                        }
+                        return (
+                          <div
+                            key={memeTokenId}
+                            className={`grid grid-cols-${
+                              isSignedIn ? 4 : 3
+                            } mb-5`}
+                          >
+                            <div className="flex items-center col-span-2">
+                              <div className="flex items-center gap-1.5">
+                                <img
+                                  className="w-5 h-5 rounded-full"
+                                  src={allTokenMetadatas?.[memeTokenId]?.icon}
+                                />
+                                <p
+                                  className="overflow-hidden w-24 whitespace-nowrap xsm:w-20"
+                                  style={{ textOverflow: 'ellipsis' }}
+                                >
+                                  {allTokenMetadatas?.[memeTokenId]?.symbol}
+                                </p>
+                              </div>
+                              {memeDataConfig.meme_winner_tokens.includes(
+                                memeTokenId
+                              ) ? (
+                                <div
+                                  className="ml-1 text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform xsm:ml-0"
+                                  style={{ transform: 'skewX(-20deg)' }}
+                                >
+                                  Listed
+                                </div>
+                              ) : null}
                             </div>
-                            {memeDataConfig.meme_winner_tokens.includes(
-                              memeTokenId
-                            ) ? (
-                              <div
-                                className="ml-1 text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform xsm:ml-0"
-                                style={{ transform: 'skewX(-20deg)' }}
-                              >
-                                Listed
+                            <div
+                              data-class="reactTip"
+                              data-tooltip-id={`xrefTip_${memeTokenId}`}
+                              data-place="top"
+                              data-tooltip-html={getXrefTip()}
+                            >
+                              <div className="gotham_bold text-right">
+                                {toInternationalCurrencySystem_number(
+                                  seedTotalStakedAmount
+                                )}
+                              </div>
+                              <CustomTooltip id={`xrefTip_${memeTokenId}`} />
+                            </div>
+                            {isSignedIn ? (
+                              <div className="justify-self-end gotham_bold">
+                                {toInternationalCurrencySystem_number(
+                                  userStakedAmount
+                                )}
                               </div>
                             ) : null}
                           </div>
-                          <div
-                            data-class="reactTip"
-                            data-tooltip-id={`xrefTip_${memeTokenId}`}
-                            data-place="top"
-                            data-tooltip-html={getXrefTip()}
-                          >
-                            <div className="gotham_bold text-right">
-                              {toInternationalCurrencySystem_number(
-                                seedTotalStakedAmount
-                              )}
-                            </div>
-                            <CustomTooltip id={`xrefTip_${memeTokenId}`} />
-                          </div>
-                          {isSignedIn ? (
-                            <div className="justify-self-end gotham_bold">
-                              {toInternationalCurrencySystem_number(
-                                userStakedAmount
-                              )}
-                            </div>
-                          ) : null}
-                        </div>
-                      );
-                    })}
-                {is_mobile ? (
-                  <div
-                    className={`absolute left-0 top-0 bottom-0 right-0 bg-senderHot bg-opacity-5 w-${
-                      isSignedIn ? '2/4' : '2/3'
-                    }`}
-                  ></div>
-                ) : null}
+                        );
+                      })}
+                  {is_mobile ? (
+                    <div
+                      style={{ border: '1px solid #173E45' }}
+                      className={`absolute left-0 top-0 bottom-0 right-0 bg-senderHot bg-opacity-5 w-${
+                        isSignedIn ? '2/4' : '2/3'
+                      }`}
+                    ></div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

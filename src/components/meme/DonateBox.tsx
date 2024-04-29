@@ -12,7 +12,7 @@ import DonateTipModal from './DonateTipModal';
 import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
 import { sortByXrefStaked } from './tool';
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
-function DonateBox(props: any) {
+function DonateBox({ isActivityOn }: { isActivityOn: boolean }) {
   const [selectedTab, setSelectedTab] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -54,7 +54,8 @@ function DonateBox(props: any) {
     Big(amount || 0).lte(0) ||
     Big(amount || 0).gt(balance) ||
     !selectedTab ||
-    !Object.keys(xrefSeeds).length;
+    !Object.keys(xrefSeeds).length ||
+    !isActivityOn;
   return (
     <div>
       <div className="mt-6 mb-5">
