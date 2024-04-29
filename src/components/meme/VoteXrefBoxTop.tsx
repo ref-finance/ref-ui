@@ -108,7 +108,7 @@ function VoteXrefBoxTop() {
         </div>
         <div className="my-8">
           <p className="gap-1 text-base text-primaryText xsm:text-center">
-            MeMe Vote Time:
+            Meme Vote Time:
           </p>
           <p className="flex items-center xsm:justify-center  gotham_bold text-xl text-white xsm:text-center">
             2024/05/03-2024/05/03

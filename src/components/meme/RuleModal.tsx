@@ -41,7 +41,7 @@ function RuleModal(props: any) {
         >
           <p className="mt-4">New campaign start on 1st of May</p>
           <p className="mt-5">
-            A new selection of top 5 reward meme tokens is voted by holders of
+            A new selection of top 5 reward Meme tokens is voted by holders of
             xREF, with 25% boosted reward for the overall campaign (NEAR + Ref
             reward).
           </p>
@@ -59,10 +59,10 @@ function RuleModal(props: any) {
             </li>
             <li>
               The first voting period is a 48h window, to vote in xREF for your
-              preferred memetoken
+              preferred Memetoken
             </li>
             <li>
-              After the 48h, we have the top three memecoins selected through
+              After the 48h, we have the top three Memecoins selected through
               xREF staking
             </li>
             <li>
@@ -72,7 +72,7 @@ function RuleModal(props: any) {
             <li>
               Note:
               <p>
-                1) As same mechanism as before - snapshot on meme gauge weight
+                1) As same mechanism as before - snapshot on Meme gauge weight
                 for the 80/20 % staking and pools
               </p>
               <p>
@@ -99,16 +99,16 @@ function RuleModal(props: any) {
               withdraw
             </li>
             <li>
-              For staked memecoin tokens, it will still take five days of
+              For staked Memecoin tokens, it will still take five days of
               cooldown period before being able to withdraw the tokens.
             </li>
             <li>
-              The selected five memecoins will have their staking pools running
+              The selected five Memecoins will have their staking pools running
               for one month
             </li>
             <li>
               After that, the competition starts again. Some may remain
-              depending on voting or new memecoins may take the spot.
+              depending on voting or new Memecoins may take the spot.
             </li>
           </ul>
         </div>

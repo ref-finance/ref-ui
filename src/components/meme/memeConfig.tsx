@@ -281,11 +281,11 @@ export function getMemeDataConfig(): any {
     return {
       description: {
         'lonk.fakes.testnet':
-          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average Memecoin.',
         'neko.fakes.testnet':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.fakes.testnet':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
+          'Black Dragon is a second generation Memecoin that has emerged from the NEAR stack.',
         'shitzu.fakes.testnet':
           'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
@@ -318,11 +318,11 @@ export function getMemeDataConfig(): any {
     return {
       description: {
         'lonk.fakes.testnet':
-          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average Memecoin.',
         'neko.fakes.testnet':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.fakes.testnet':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
+          'Black Dragon is a second generation Memecoin that has emerged from the NEAR stack.',
         'shitzu.fakes.testnet':
           'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
@@ -355,13 +355,13 @@ export function getMemeDataConfig(): any {
     return {
       description: {
         'token.lonkingnearbackto2024.near':
-          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average memecoin.',
+          'Lonking, not shorting. Home of NEAR degens.Born from collective frenship, firmly grounded in the realms of memetics and humor. 龙 Lonk is not your average Memecoin.',
         'ftv2.nekotoken.near':
           'NEKO is the first community token on NEAR with a focus on creator empowerment. NEKO is on a mission to bring mass adoption to NEAR protocol.',
         'blackdragon.tkn.near':
-          'Black Dragon is a second generation memecoin that has emerged from the NEAR stack.',
+          'Black Dragon is a second generation Memecoin that has emerged from the NEAR stack.',
         'token.0xshitzu.near':
-          'Introducing $SHITZU, the original meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
+          'Introducing $SHITZU, the original Meme coin of Aurora, and now available on NEAR mainnet. 100% driven by community effort.',
       },
       lp_farm: {
         'token.lonkingnearbackto2024.near': '4314',
