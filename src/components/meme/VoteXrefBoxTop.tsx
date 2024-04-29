@@ -129,7 +129,7 @@ function VoteXrefBoxTop() {
             Meme Competition:
           </p>
           <p className="flex items-center xsm:justify-center  gotham_bold text-xl text-white xsm:text-center">
-            2024/05/04-2024/05/17
+            2024/05/04-2024/06/03
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
