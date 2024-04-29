@@ -77,7 +77,7 @@ function RuleModal(props: any) {
               </p>
               <p>
                 2) *xRef stake will determine Ref allocation ratio, while
-                MeMeToken stake only determines Near allocation ratio.
+                MemeToken stake only determines Near allocation ratio.
               </p>
             </li>
             <li>

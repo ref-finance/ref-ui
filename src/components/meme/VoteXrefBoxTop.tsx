@@ -70,9 +70,9 @@ function VoteXrefBoxTop() {
           </p>
           <p className="text-base text-primaryText xsm:text-center">
             All donated tokens will be added by Ref to the corresponding xRef
-            Farming Pool for MeMeToken within 1-2 days. The farming release
+            Farming Pool for MemeToken within 1-2 days. The farming release
             period is set for 2 weeks. Users staking xRef in the corresponding
-            MeMeToken will receive these donations.
+            MemeToken will receive these donations.
           </p>
         </div>
         <div className="my-8">
