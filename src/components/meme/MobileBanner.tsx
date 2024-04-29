@@ -12,7 +12,7 @@ const Banner = () => {
   }
   return (
     <div className="relative flex items-center justify-center w-full">
-      <img src="https://assets.ref.finance/images/memeBannerMobile.png" />
+      <img src="https://assets.ref.finance/images/memeBannerMobile2.png" />
       <div className="absolute right-6 bottom-10 z-10" onClick={showRule}>
         <MobileBannerCoreBtnIconBg />
       </div>
