@@ -49,8 +49,6 @@ body .font-gothamBold {
 
 body {
   margin: 0;
-  scrollbar-width: thin;
-  /* scrollbar-color: darkgrey transparent; */
 }
 html,
 body {
@@ -96,7 +94,11 @@ input[type='number'] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00ffd1 0%, #00ba98 100%);
+  background: #7e8a93;
+  border-radius: 8px;
+}
+.transparentScrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
   border-radius: 8px;
 }
 
@@ -1424,16 +1426,6 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 .nws-modal-wrapper .nws-modal {
   border: 1px solid #414d55;
-}
-
-::-webkit-scrollbar {
-  width: 4px;
-  border-radius: 2px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #626486;
-  border-radius: 2px;
 }
 
 :root {

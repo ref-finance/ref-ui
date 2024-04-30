@@ -1,7 +1,6 @@
 /* eslint-env node */
 const path = require('path');
-const isProduction = !process.env.REACT_APP_NEAR_ENV;
-
+const isProduction = !(process.env.REACT_APP_DEVELOP == 'true');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const { ProvidePlugin } = require('webpack');
@@ -62,23 +61,25 @@ module.exports = {
           threshold: 4096,
           filename: '[path][base].gz',
         }),
-        new TerserPlugin({
-          test: /\.js(\?.*)?$/i,
-          parallel: true,
-          parallel: 4,
-          terserOptions: {
-            format: {
-              comments: false,
-            },
-          },
-          extractComments: false,
-        }),
+        ...(isProduction
+          ? [
+              new TerserPlugin({
+                test: /\.js(\?.*)?$/i,
+                parallel: true,
+                parallel: 4,
+                terserOptions: {
+                  format: {
+                    comments: false,
+                  },
+                },
+                extractComments: false,
+              }),
+            ]
+          : []),
       ],
       remove: ['CaseSensitivePathsPlugin', 'IgnorePlugin'],
     },
     configure: (webpackConfig) => {
-      // webpackConfig.devtool = 'source-map';
-      // isProduction ? '' : (webpackConfig.devtool = 'eval');
       isProduction ? '' : (webpackConfig.devtool = 'source-map');
       //tree shaking for unused code
       webpackConfig.optimization.usedExports = true;

@@ -2,19 +2,19 @@ import React, { useState, useContext, useMemo } from 'react';
 import Big from 'big.js';
 import { MemeContext } from './context';
 import { toInternationalCurrencySystem_usd } from '../../utils/uiNumber';
-import { getSeedApr } from '../../services/meme';
+import { emptyObject, getSeedApr } from './tool';
 import { formatPercentage } from '../../utils/uiNumber';
 import { Seed } from '~src/services/farm';
 import { TokenMetadata } from '~src/services/ft-contract';
 import { isMobile } from '../../utils/device';
+import { getTotalStaked, getListedMemeSeeds } from './tool';
 const Overview = () => {
-  const { seeds, lpSeeds } = useContext(MemeContext);
+  const { seeds, lpSeeds, xrefSeeds } = useContext(MemeContext);
   const [totalStaked, maxAprSeed, totalStaker] = useMemo(() => {
-    if (!Object.values(seeds).length) return ['-', [], '-'];
-    const t_staked = Object.values(seeds).reduce((acc, cur) => {
-      return acc.plus(cur.seedTvl || 0);
-    }, Big(0));
-    const [maxSeed, maxApr] = Object.values(seeds).reduce(
+    if (emptyObject(seeds)) return ['-', [], '-'];
+    const listedMemeSeeds = getListedMemeSeeds(seeds);
+    const t_staked = getTotalStaked(seeds, xrefSeeds);
+    const [maxSeed, maxApr] = Object.values(listedMemeSeeds).reduce(
       (acc, seed) => {
         const apr = getSeedApr(seed);
         if (acc[1].gt(apr)) {
@@ -25,17 +25,19 @@ const Overview = () => {
       },
       [seeds[0], Big(0)]
     );
-    const totalStaker = Object.values(seeds)
-      .reduce((acc, seed) => {
-        return acc.plus(seed.farmer_count);
-      }, Big(0))
-      .toFixed();
+    const totalStakerMeme = Object.values(seeds).reduce((acc, seed) => {
+      return acc.plus(seed.farmer_count);
+    }, Big(0));
+    const totalStakerXref = Object.values(xrefSeeds).reduce((acc, seed) => {
+      return acc.plus(seed.farmer_count);
+    }, Big(0));
+    const totalStaker = totalStakerMeme.plus(totalStakerXref).toFixed();
     return [
       toInternationalCurrencySystem_usd(t_staked),
       [maxSeed, maxApr.toFixed()],
       totalStaker,
     ];
-  }, [seeds]) as any;
+  }, [seeds, xrefSeeds]) as any;
   const topApyFarm = useMemo(() => {
     const list = Object.entries(lpSeeds);
     if (!list.length) return [];
@@ -62,7 +64,7 @@ const Overview = () => {
   return (
     <>
       {is_mobile ? (
-        <div className="relative z-50 grid grid-cols-2 pl-6 pr-2 mt-6">
+        <div className="relative z-50 grid grid-cols-2 gap-2.5 mt-6 px-3">
           <TemplateMobile title="Total Staked">
             <span className="text-xl gotham_bold text-white">
               {totalStaked}
@@ -207,8 +209,12 @@ function TemplateMobile({ title, children, ...props }: any) {
   return (
     <div
       {...props}
-      className="flex flex-grow flex-col justify-center w-full gap-1.5"
-      style={{ height: '80px' }}
+      className="flex flex-grow flex-col justify-center w-full gap-1.5 rounded-2xl pl-3.5"
+      style={{
+        height: '80px',
+        border: '1px solid rgba(151, 151, 151, 0.2)',
+        background: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
+      }}
     >
       <span className="text-sm text-white">{title}</span>
       {children}

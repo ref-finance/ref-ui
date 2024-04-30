@@ -250,6 +250,7 @@ export const getAmount = (amount: string) =>
   amount ? new BN(utils.format.parseNearAmount(amount)) : new BN('0');
 
 export interface RefFiViewFunctionOptions {
+  contractId?: string;
   methodName: string;
   args?: object;
 }
@@ -531,7 +532,7 @@ export interface RefContractViewFunctionOptions
   extends RefFiViewFunctionOptions {
   gas?: string;
   amount?: string;
-  contarctId?: string;
+  contractId?: string;
 }
 
 export const refContractViewFunction = ({
@@ -615,23 +616,10 @@ export const refMeMeFarmViewFunction = ({
     .viewFunction(REF_MEME_FARM_CONTRACT_ID, methodName, args);
 };
 
-export const refMeMeFarmFunctionCall = async ({
+export const xrefMeMeFarmViewFunction = ({
+  contractId,
   methodName,
   args,
-  gas,
-  amount,
-}: RefFiFunctionCallOptions) => {
-  const transaction: Transaction = {
-    receiverId: REF_MEME_FARM_CONTRACT_ID,
-    functionCalls: [
-      {
-        methodName,
-        args,
-        amount,
-        gas,
-      },
-    ],
-  };
-
-  return await executeMultipleTransactions([transaction]);
+}: RefFiViewFunctionOptions) => {
+  return wallet.account().viewFunction(contractId, methodName, args);
 };
