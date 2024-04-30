@@ -26,7 +26,7 @@ function VoteXrefBoxTop() {
   function filterVoteTip() {
     return `
     <div class="flex items-center text-navHighLightText text-xs text-left w-48 gotham_font">
-      Filter MeMeSeason Participants
+      Filter MemeSeason Participants
     </div>
     `;
   }
