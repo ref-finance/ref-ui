@@ -80,7 +80,7 @@ function VoteXrefBoxTop() {
             xRef Vote Time:
           </p>
           <p className="flex items-center xsm:justify-center gap-1 gotham_bold text-xl text-white xsm:text-center">
-            05/01 UTC 0 - 05/02 UTC 0
+            05/01 UTC 0 - 05/03 UTC 0
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
@@ -93,7 +93,7 @@ function VoteXrefBoxTop() {
             </div>
           </p>
           <p className="flex items-center xsm:justify-center gap-1 gotham_bold text-xl text-white xsm:text-center">
-            05/03 UTC 0 - 05/03 UTC 0
+            05/03 UTC 0 - 05/04 UTC 0
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
@@ -111,7 +111,7 @@ function VoteXrefBoxTop() {
             Meme Vote Time:
           </p>
           <p className="flex items-center xsm:justify-center  gotham_bold text-xl text-white xsm:text-center">
-            05/03 UTC 0 - 05/03 UTC 0
+            05/03 UTC 0 - 05/04 UTC 0
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
@@ -129,7 +129,7 @@ function VoteXrefBoxTop() {
             Meme Competition:
           </p>
           <p className="flex items-center xsm:justify-center  gotham_bold text-xl text-white xsm:text-center">
-            05/04 UTC 0 - 06/03 UTC 0
+            05/04 UTC 0 - 06/04 UTC 0
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
