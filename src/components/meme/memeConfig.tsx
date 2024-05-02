@@ -380,6 +380,7 @@ export function getMemeDataConfig(): any {
         'ftv2.nekotoken.near',
         'blackdragon.tkn.near',
         'token.0xshitzu.near',
+        'touched.tkn.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',

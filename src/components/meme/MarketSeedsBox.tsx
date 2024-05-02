@@ -104,7 +104,7 @@ const MarketSeedsBox = ({
                   {displaySeedsPercent[seed_id]}
                 </div>
               </div>
-              <div className="flex flex-col justify-between gap-1.5 xsm:gap-0">
+              <div className="flex flex-col justify-between gap-1.5 xsm:gap-0 flex-grow">
                 <div className="flex items-center justify-between gap-1 xsm:flex-col xsm:items-start xsm:flex-grow">
                   <span className="text-xl gotham_bold text-white">
                     {seed.token_meta_data.symbol}
@@ -175,7 +175,7 @@ const MarketSeedsBox = ({
               }`}
             >
               {stakeButtonDisabled && is_pending ? (
-                <div className="flex-grow">
+                <div className="flex-grow w-full">
                   <div
                     data-class="reactTip"
                     data-tooltip-id={`lp_farm_button_${seed_id}`}
