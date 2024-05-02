@@ -374,7 +374,7 @@ export function PointsComponent() {
                   config={{
                     radiusMode: priceRangeMode == 'by_radius',
                     svgWidth: is_mobile
-                      ? window.screen.width - 32 || '330'
+                      ? document.documentElement.clientWidth - 32 || '330'
                       : '',
                   }}
                   reverse={pair_is_reverse}
@@ -391,7 +391,7 @@ export function PointsComponent() {
                   config={{
                     controlHidden: true,
                     svgWidth: is_mobile
-                      ? window.screen.width - 32 || '330'
+                      ? document.documentElement.clientWidth - 32 || '330'
                       : '',
                   }}
                   chartType="USER"
