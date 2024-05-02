@@ -173,47 +173,20 @@ const MarketSeedsBox = ({
                 isSignedIn ? '' : 'hidden'
               }`}
             >
-              {stakeButtonDisabled ? (
-                <div className="flex-grow w-full">
-                  <div
-                    data-class="reactTip"
-                    data-tooltip-id={`lp_farm_button_${seed_id}`}
-                    data-place="top"
-                    data-tooltip-html={comeSoonTip()}
-                  >
-                    <OprationButton
-                      disabled={stakeButtonDisabled}
-                      onClick={() => {
-                        set_modal_action_seed_id(seed.seed_id);
-                        setIsStakeOpen(true);
-                      }}
-                      className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
-                        stakeButtonDisabled
-                          ? 'bg-memePoolBoxBorderColor'
-                          : 'bg-greenLight'
-                      }`}
-                    >
-                      Feed {seed.token_meta_data.symbol}
-                    </OprationButton>
-                    <CustomTooltip id={`lp_farm_button_${seed_id}`} />
-                  </div>
-                </div>
-              ) : (
-                <OprationButton
-                  disabled={stakeButtonDisabled}
-                  onClick={() => {
-                    set_modal_action_seed_id(seed.seed_id);
-                    setIsStakeOpen(true);
-                  }}
-                  className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
-                    stakeButtonDisabled
-                      ? 'bg-memePoolBoxBorderColor'
-                      : 'bg-greenLight'
-                  }`}
-                >
-                  Feed {seed.token_meta_data.symbol}
-                </OprationButton>
-              )}
+              <OprationButton
+                disabled={stakeButtonDisabled}
+                onClick={() => {
+                  set_modal_action_seed_id(seed.seed_id);
+                  setIsStakeOpen(true);
+                }}
+                className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
+                  stakeButtonDisabled
+                    ? 'bg-memePoolBoxBorderColor'
+                    : 'bg-greenLight'
+                }`}
+              >
+                Feed {seed.token_meta_data.symbol}
+              </OprationButton>
             </div>
           </div>
         );
