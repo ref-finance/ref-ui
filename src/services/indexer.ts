@@ -24,6 +24,7 @@ import {
 import { getPool as getPoolRPC } from '../services/pool';
 import { BLACKLIST_POOL_IDS } from './near';
 import { TokenMetadata } from './ft-contract';
+import { getAuthenticationHeaders } from './signature';
 
 const config = getConfig();
 
@@ -45,6 +46,7 @@ export const getPoolsByTokensIndexer = async ({
       `/list-pools-by-tokens?token0=${token0}&token1=${token1}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders('/list-pools-by-tokens'),
     }
   ).then((res) => res.json());
 
@@ -90,6 +92,9 @@ export const getHistoryOrder = async (
     config.indexerUrl + `/get-limit-order-log-by-account/${account_id}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders(
+        `/get-limit-order-log-by-account/${account_id}`
+      ),
     }
   ).then((res) => res.json());
 };
@@ -142,6 +147,7 @@ export const getTokenFlow = async ({
       }`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders('/get-token-flow'),
     }
   ).then((res) => res.json());
 };
@@ -153,6 +159,9 @@ export const getHistoryOrderSwapInfo = async (
     config.indexerUrl + `/get-limit-order-swap-by-account/${account_id}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders(
+        `/get-limit-order-swap-by-account/${account_id}`
+      ),
     }
   ).then((res) => res.json());
 };
@@ -204,22 +213,20 @@ const parseActionView = async (action: any) => {
   return {
     datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/txns/' + action[1],
-    data: data,
-    // status: action[5] === 'SUCCESS_VALUE',
+    data,
     status: action[6] && action[6].indexOf('SUCCESS') > -1,
   };
 };
 
 export const getYourPools = async (): Promise<PoolRPCView[]> => {
-  return await fetch(
-    config.indexerUrl +
-      '/liquidity-pools/' +
-      getCurrentWallet()?.wallet?.getAccountId(),
-    {
-      method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }
-  )
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(config.indexerUrl + '/liquidity-pools/' + account_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders(`/liquidity-pools/${account_id}`),
+    },
+  })
     .then((res) => res.json())
     .then((pools) => {
       return pools;
@@ -229,7 +236,10 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
 export const getTopPoolsIndexer = async () => {
   return await fetch(config.indexerUrl + '/list-top-pools', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/list-top-pools'),
+    },
   })
     .then((res) => res.json())
     .then((poolList) => {
@@ -248,7 +258,10 @@ export const getTopPoolsIndexerRaw = async () => {
   try {
     const response = await fetch(config.indexerUrl + '/list-top-pools', {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-top-pools'),
+      },
       signal: controller.signal,
     });
 
@@ -277,7 +290,10 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     } else {
       pools = await fetch(config.indexerUrl + '/list-top-pools', {
         method: 'GET',
-        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/list-top-pools'),
+        },
       }).then((res) => res.json());
 
       // include non-stable pools on top pool list
@@ -339,6 +355,7 @@ export const getAllPoolsIndexer = async (amountThresh?: string) => {
       `/list-pools?${amountThresh ? `amounts=${amountThresh}` : ''}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders('/list-pools'),
     }
   ).then((res) => res.json());
 
@@ -348,7 +365,10 @@ export const getAllPoolsIndexer = async (amountThresh?: string) => {
 export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
   return await fetch(config.indexerUrl + '/get-pool?pool_id=' + pool_id, {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/get-pool'),
+    },
   })
     .then((res) => res.json())
     .then((pool) => {
@@ -378,7 +398,10 @@ export const getClassicPoolSwapRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-swap?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-swap'),
+      },
     }
   )
     .then((res) => res.json())
@@ -411,7 +434,10 @@ export const getDCLPoolSwapRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-dcl-swap?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-dcl-swap'),
+      },
     }
   )
     .then((res) => res.json())
@@ -446,7 +472,10 @@ export const getClassicPoolLiquidtyRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-liquidity?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-liquidity'),
+      },
     }
   )
     .then((res) => res.json())
@@ -476,7 +505,10 @@ export const getDCLPoolLiquidtyRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-dcl-liquidity?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-dcl-liquidity'),
+      },
     }
   )
     .then((res) => res.json())
@@ -507,7 +539,10 @@ export const getLimitOrderRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-limit-order?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-limit-order'),
+      },
     }
   )
     .then((res) => res.json())
@@ -545,7 +580,10 @@ export const getDCLAccountFee = async (props: {
       config.indexerUrl + `/get-fee-by-account?${paramString}`,
       {
         method: 'GET',
-        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/get-fee-by-account'),
+        },
       }
     ).then((res) => res.json());
   } catch (error) {
@@ -570,7 +608,10 @@ export const getProposalHashes = async ({
       proposal_ids.join('|'),
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-proposal-hash-by-id'),
+      },
     }
   )
     .then((res) => res.json())
@@ -589,7 +630,10 @@ export const getPoolsByIds = async ({
   if (!ids) return [];
   return fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/list-pools-by-ids'),
+    },
   })
     .then((res) => res.json())
     .then((pools) => {
@@ -604,7 +648,10 @@ export const getPoolsByIds = async ({
 export const getTokenPriceList = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/list-token-price', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/list-token-price'),
+    },
   })
     .then((res) => res.json())
     .then((list) => {
@@ -615,7 +662,10 @@ export const getTokenPriceList = async (): Promise<any> => {
 export const getIndexerStatus = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/get-service-version', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/get-service-version'),
+    },
   }).then((res) => res.status !== 502);
 };
 
@@ -655,15 +705,14 @@ export type ActionData = Awaited<ReturnType<typeof parseActionView>>;
 type Awaited<T> = T extends Promise<infer P> ? P : never;
 
 export const getLatestActions = async (): Promise<Array<ActionData>> => {
-  return await fetch(
-    config.indexerUrl +
-      '/latest-actions/' +
-      getCurrentWallet()?.wallet?.getAccountId(),
-    {
-      method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }
-  )
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(config.indexerUrl + '/latest-actions/' + account_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders(`/latest-actions/${account_id}`),
+    },
+  })
     .then((res) => res.json())
     .then((items) => {
       const tasks = items.map(async (item: any) => await parseActionView(item));
@@ -679,7 +728,10 @@ export const getListHistoryTokenPriceByIds = async (
     config.indexerUrl + '/list-history-token-price-by-ids?ids=' + tokenIds,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-history-token-price-by-ids'),
+      },
     }
   )
     .then((res) => res.json())
@@ -696,7 +748,10 @@ export const getV3PoolVolumeById = async (pool_id: string): Promise<any[]> => {
     config.indexerUrl + '/get-dcl-pools-volume?pool_id=' + pool_id,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-dcl-pools-volume'),
+      },
     }
   )
     .then((res) => res.json())
@@ -717,7 +772,10 @@ export const getV3poolTvlById = async (pool_id: string): Promise<any[]> => {
     config.indexerUrl + '/get-dcl-pools-tvl-list?pool_id=' + pool_id,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-dcl-pools-tvl-list'),
+      },
     }
   )
     .then((res) => res.json())
@@ -734,7 +792,10 @@ export const getV3Pool24VolumeById = async (pool_id: string): Promise<any> => {
     config.indexerUrl + '/get-24h-volume-by-id?pool_id=' + pool_id,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-24h-volume-by-id'),
+      },
     }
   )
     .then((res) => res.json())
@@ -748,7 +809,10 @@ export const getV3Pool24VolumeById = async (pool_id: string): Promise<any> => {
 export const getAllV3Pool24Volume = async (): Promise<any[]> => {
   return await fetch(config.indexerUrl + '/get-24h-volume-list', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/get-24h-volume-list'),
+    },
   })
     .then((res) => res.json())
     .then((list) => {
@@ -787,6 +851,7 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
       `account_id=${accountId}&dimension=${dateType}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders('/get-assets-by-account'),
     }
   )
     .then((res) => res.json())
@@ -798,12 +863,17 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
     });
 };
 export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
   return await fetch(
-    config.indexerUrl +
-      `/get-limit-order-log-by-account/${getCurrentWallet()?.wallet?.getAccountId()}`,
+    config.indexerUrl + `/get-limit-order-log-by-account/${account_id}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders(
+          `/get-limit-order-log-by-account/${account_id}`
+        ),
+      },
     }
   )
     .then((res) => res.json())
@@ -840,7 +910,10 @@ export const getTokenPairRate = async ({
       `/token-price-report?token=${token.id}&base_token=${base_token.id}&dimension=${dimension}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/token-price-report'),
+      },
     }
   )
     .then(async (res) => {
@@ -871,7 +944,10 @@ export const getDclPoolPoints = async (
 ) => {
   return await fetch(
     config.indexerUrl +
-      `/get-dcl-points?pool_id=${pool_id}&slot_number=${bin}&start_point=${start_point}&end_point=${end_point}`
+      `/get-dcl-points?pool_id=${pool_id}&slot_number=${bin}&start_point=${start_point}&end_point=${end_point}`,
+    {
+      headers: getAuthenticationHeaders('/get-dcl-points'),
+    }
   )
     .then(async (res) => {
       const data = await res.json();
@@ -888,7 +964,10 @@ export const getDclUserPoints = async (
 ) => {
   return await fetch(
     config.indexerUrl +
-      `/get-dcl-points-by-account?pool_id=${pool_id}&slot_number=${bin}&account_id=${account_id}`
+      `/get-dcl-points-by-account?pool_id=${pool_id}&slot_number=${bin}&account_id=${account_id}`,
+    {
+      headers: getAuthenticationHeaders('/get-dcl-points-by-account'),
+    }
   )
     .then(async (res) => {
       const data = await res.json();
