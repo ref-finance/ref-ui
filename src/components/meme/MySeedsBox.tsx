@@ -125,7 +125,9 @@ const MySeedsBox = ({
       >
         {!emptyObject(mySeeds) &&
           Object.entries(mySeeds).map(([seed_id, seed]) => {
-            const hasLpSeed = lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
+            const hasLpSeed =
+              lpSeeds[seed_id]?.farmList[0]?.status &&
+              lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
             const {
               memeUnStakeButtonDisabled,
               memeClaimButtonDisabled,
