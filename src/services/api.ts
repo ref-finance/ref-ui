@@ -5,6 +5,7 @@ import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
 import { getCurrentWallet } from '../utils/wallets-integration';
 import { TokenMetadata } from './ft-contract';
+import { getAuthenticationHeaders } from './signature';
 
 const config = getConfig();
 
@@ -103,7 +104,10 @@ export const getUserWalletTokens = async (): Promise<any> => {
 export const getCurrentUnixTime = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/timestamp', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/timestamp'),
+    },
   })
     .then((res) => res.json())
     .then((ts) => {
@@ -120,7 +124,10 @@ export const currentRefPrice = async (): Promise<any> => {
       '/get-token-price?token_id=token.v2.ref-finance.near',
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-token-price'),
+      },
     }
   )
     .then((res) => res.json())
@@ -137,7 +144,10 @@ export const currentTokensPrice = async (ids: string): Promise<any> => {
     config.indexerUrl + '/list-token-price-by-ids?ids=' + ids,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-token-price-by-ids'),
+      },
     }
   )
     .then((res) => res.json())
