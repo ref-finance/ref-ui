@@ -194,7 +194,7 @@ function StakeModal(props: any) {
       });
     }
   }
-  const FeedIcon = progressConfig.progress[seed_id].feedIcon;
+  const FeedIcon = progressConfig?.progress[seed_id]?.feedIcon;
   return (
     <Modal
       isOpen={isOpen}
@@ -379,7 +379,10 @@ function StakeModal(props: any) {
                 loading={stakeLoading}
                 Text={() => (
                   <div className="flex items-center gap-2">
-                    Feed <FeedIcon className="w-5 h-5 relative -top-0.5" />
+                    Feed{' '}
+                    {FeedIcon ? (
+                      <FeedIcon className="w-5 h-5 relative -top-0.5" />
+                    ) : null}
                   </div>
                 )}
               />

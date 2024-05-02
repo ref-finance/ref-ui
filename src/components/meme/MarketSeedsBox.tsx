@@ -76,12 +76,11 @@ const MarketSeedsBox = ({
       }`}
     >
       {Object.entries(displaySeeds).map(([seed_id, seed]) => {
-        const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[seed_id]];
-        const is_pending = isPending(seed) && isPending(xrefSeed);
+        // const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[seed_id]];
+        // const is_pending = isPending(seed) && isPending(xrefSeed);
         const stakeButtonDisabled =
-          (emptyNumber(user_balances[seed_id]) &&
-            emptyNumber(user_balances[xrefTokenId])) ||
-          is_pending;
+          emptyNumber(user_balances[seed_id]) &&
+          emptyNumber(user_balances[xrefTokenId]);
         const hasLpSeed =
           lpSeeds[seed_id]?.farmList[0]?.status &&
           lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
@@ -174,7 +173,7 @@ const MarketSeedsBox = ({
                 isSignedIn ? '' : 'hidden'
               }`}
             >
-              {stakeButtonDisabled && is_pending ? (
+              {stakeButtonDisabled ? (
                 <div className="flex-grow w-full">
                   <div
                     data-class="reactTip"
