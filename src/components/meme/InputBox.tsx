@@ -11,6 +11,7 @@ export function InputAmount({
   changeAmount,
   amount,
   title,
+  hidden,
 }: {
   token: TokenMetadata;
   balance: string;
@@ -18,6 +19,7 @@ export function InputAmount({
   changeAmount: any;
   amount: string;
   title?: string;
+  hidden?: boolean;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -44,9 +46,9 @@ export function InputAmount({
     return '$-';
   }
   return (
-    <div>
+    <div className={`${hidden ? 'hidden' : ''}`}>
       <div
-        className={`rounded-xl p-3 mt-7 border bg-black bg-opacity-20 border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
+        className={`rounded-xl p-3 mt-7 border bg-black bg-opacity-20 border-inputV3BorderColor hover:border-inputV3BorderHoverColor xsm:mt-4`}
       >
         <div className="flex items-center justify-between">
           <input

@@ -120,8 +120,8 @@ function AccountEntry({
 
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
   const [keyModalShow, setKeyModalShow] = useState<boolean>(false);
-  const [showGuider, setShowGuider] = useState(
-    localStorage.getItem('ACCESS_MODAL_GUIDER') !== '1' && accountId
+  const [showGuider, setShowGuider] = useState<boolean>(
+    !!(localStorage.getItem('ACCESS_MODAL_GUIDER') !== '1' && accountId)
   );
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
@@ -233,6 +233,7 @@ function AccountEntry({
     setKeyModalShow(false);
   }
   function showkeyModal() {
+    document.documentElement.style.overflow = 'visible';
     setKeyModalShow(true);
     clearGuilder();
   }
@@ -529,7 +530,7 @@ function AccountEntry({
       {accountId && keyModalShow ? (
         <AccessKeyModal isOpen={keyModalShow} onRequestClose={closeKeyModal} />
       ) : null}
-      {showGuider ? (
+      {showGuider && !isMobile ? (
         <div>
           <Guider clearGuilder={clearGuilder} />
           <LinkLine
