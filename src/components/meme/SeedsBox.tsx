@@ -109,6 +109,8 @@ const SeedsBox = () => {
           const p = Big(seedTvl).div(totalTvl);
           percent = formatPercentage(p.mul(100).toFixed());
           displaySeedsPercent[seed_id] = percent;
+        } else {
+          displaySeedsPercent[seed_id] = '0%';
         }
       });
     }
