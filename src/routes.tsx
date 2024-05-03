@@ -228,22 +228,22 @@ const routes: Route[] = [
     }),
     wrapper: 'AutoHeight',
   },
-  {
-    path: '/meme',
-    element: lazy(() => {
-      return import(
-        /* webpackChunkName: "MemeHotPage" */ 'src/pages/MemeHotPage'
-      );
-    }),
-    wrapper: 'AutoHeight',
-  },
   // {
   //   path: '/meme',
   //   element: lazy(() => {
-  //     return import(/* webpackChunkName: "MemePage" */ 'src/pages/MemePage');
+  //     return import(
+  //       /* webpackChunkName: "MemeHotPage" */ 'src/pages/MemeHotPage'
+  //     );
   //   }),
   //   wrapper: 'AutoHeight',
   // },
+  {
+    path: '/meme',
+    element: lazy(() => {
+      return import(/* webpackChunkName: "MemePage" */ 'src/pages/MemePage');
+    }),
+    wrapper: 'AutoHeight',
+  },
   {
     path: '/',
     element: lazy(() => {

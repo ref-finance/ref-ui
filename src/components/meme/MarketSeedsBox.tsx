@@ -76,12 +76,11 @@ const MarketSeedsBox = ({
       }`}
     >
       {Object.entries(displaySeeds).map(([seed_id, seed]) => {
-        const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[seed_id]];
-        const is_pending = isPending(seed) && isPending(xrefSeed);
+        // const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[seed_id]];
+        // const is_pending = isPending(seed) && isPending(xrefSeed);
         const stakeButtonDisabled =
-          (emptyNumber(user_balances[seed_id]) &&
-            emptyNumber(user_balances[xrefTokenId])) ||
-          is_pending;
+          emptyNumber(user_balances[seed_id]) &&
+          emptyNumber(user_balances[xrefTokenId]);
         const hasLpSeed =
           lpSeeds[seed_id]?.farmList[0]?.status &&
           lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
@@ -104,7 +103,7 @@ const MarketSeedsBox = ({
                   {displaySeedsPercent[seed_id]}
                 </div>
               </div>
-              <div className="flex flex-col justify-between gap-1.5 xsm:gap-0">
+              <div className="flex flex-col justify-between gap-1.5 xsm:gap-0 flex-grow">
                 <div className="flex items-center justify-between gap-1 xsm:flex-col xsm:items-start xsm:flex-grow">
                   <span className="text-xl gotham_bold text-white">
                     {seed.token_meta_data.symbol}
@@ -174,47 +173,20 @@ const MarketSeedsBox = ({
                 isSignedIn ? '' : 'hidden'
               }`}
             >
-              {stakeButtonDisabled && is_pending ? (
-                <div className="flex-grow">
-                  <div
-                    data-class="reactTip"
-                    data-tooltip-id={`lp_farm_button_${seed_id}`}
-                    data-place="top"
-                    data-tooltip-html={comeSoonTip()}
-                  >
-                    <OprationButton
-                      disabled={stakeButtonDisabled}
-                      onClick={() => {
-                        set_modal_action_seed_id(seed.seed_id);
-                        setIsStakeOpen(true);
-                      }}
-                      className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
-                        stakeButtonDisabled
-                          ? 'bg-memePoolBoxBorderColor'
-                          : 'bg-greenLight'
-                      }`}
-                    >
-                      Feed {seed.token_meta_data.symbol}
-                    </OprationButton>
-                    <CustomTooltip id={`lp_farm_button_${seed_id}`} />
-                  </div>
-                </div>
-              ) : (
-                <OprationButton
-                  disabled={stakeButtonDisabled}
-                  onClick={() => {
-                    set_modal_action_seed_id(seed.seed_id);
-                    setIsStakeOpen(true);
-                  }}
-                  className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
-                    stakeButtonDisabled
-                      ? 'bg-memePoolBoxBorderColor'
-                      : 'bg-greenLight'
-                  }`}
-                >
-                  Feed {seed.token_meta_data.symbol}
-                </OprationButton>
-              )}
+              <OprationButton
+                disabled={stakeButtonDisabled}
+                onClick={() => {
+                  set_modal_action_seed_id(seed.seed_id);
+                  setIsStakeOpen(true);
+                }}
+                className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
+                  stakeButtonDisabled
+                    ? 'bg-memePoolBoxBorderColor'
+                    : 'bg-greenLight'
+                }`}
+              >
+                Feed {seed.token_meta_data.symbol}
+              </OprationButton>
             </div>
           </div>
         );

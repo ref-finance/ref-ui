@@ -377,9 +377,10 @@ export function getMemeDataConfig(): any {
       },
       meme_winner_tokens: [
         'token.lonkingnearbackto2024.near',
-        'ftv2.nekotoken.near',
         'blackdragon.tkn.near',
+        'nkok.tkn.near',
         'token.0xshitzu.near',
+        '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',
