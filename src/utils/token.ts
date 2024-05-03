@@ -1,6 +1,6 @@
 export const toRealSymbol = (symbol: string) => {
   if (!symbol) return '';
-  const blackList = ['nUSDO'];
+  const blackList = ['nUSDO', 'nKOK'];
 
   if (!symbol) return symbol;
 
