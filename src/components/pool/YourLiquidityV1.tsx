@@ -113,6 +113,7 @@ import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
+import { FeeTipV1 } from '../../components/pool/FeeTip';
 const is_mobile = isMobile();
 const { BLACK_TOKEN_LIST } = getConfig();
 export const StakeListContext = createContext(null);
@@ -2739,7 +2740,7 @@ export function YourLiquidityAddLiquidityModal(
                   </GradientButton>
                 </div>
               ) : null}
-
+              <FeeTipV1 />
               <ButtonRender />
               <BLACKTip className="mt-2" show={disabled_add} />
             </div>

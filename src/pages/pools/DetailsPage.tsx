@@ -140,6 +140,7 @@ const { BLACK_TOKEN_LIST } = getConfig();
 import { PoolRefreshModal } from './PoolRefreshModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import LockLP from 'src/components/pool/LockLP';
+import { FeeTipV1 } from 'src/components/pool/FeeTip';
 
 interface ParamTypes {
   id: string;
@@ -859,7 +860,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           </label>
         </div>
       ) : null}
-
+      <FeeTipV1 />
       <ButtonRender />
     </div>
   );
@@ -2742,7 +2743,6 @@ export default function PoolDetailsPage() {
                 }
               />
             </div>
-            {/* TODO */}
             {pool?.id && (
               <div className="mt-2.5 mb-10">
                 <LockLP userShares={shares} pool={pool} tokens={tokens} />
