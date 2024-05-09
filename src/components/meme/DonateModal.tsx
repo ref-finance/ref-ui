@@ -12,6 +12,7 @@ import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
 import { donate } from '../../services/meme';
 import { ModalCloseIcon, SelectsDown, TipIcon } from './icons';
 import { sortByXrefStaked, emptyObject } from './tool';
+import DonateConfirmModal from './DonateConfirmModal';
 import {
   OprationButton,
   ConnectToNearBtn,
@@ -21,6 +22,7 @@ const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
 function DonateModal(props: any) {
   const { isOpen, onRequestClose } = props;
   const [selectedTab, setSelectedTab] = useState('');
+  const [confirmIsOpen, setConfirmIsOpen] = useState<boolean>(false);
   const [donateLoading, setDonateLoading] = useState<boolean>(false);
   const { allTokenMetadatas, tokenPriceList, user_balances, xrefSeeds } =
     useContext(MemeContext);
@@ -74,6 +76,12 @@ function DonateModal(props: any) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  function openDonateConfirmModal() {
+    setConfirmIsOpen(true);
+  }
+  function closeDonateConfirmModal() {
+    setConfirmIsOpen(false);
+  }
   if (!selectedTab) return null;
   return (
     <Modal
@@ -203,7 +211,7 @@ function DonateModal(props: any) {
             <OprationButton
               minWidth="7rem"
               disabled={disabled}
-              onClick={doateToken}
+              onClick={openDonateConfirmModal}
               className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
                 disabled || donateLoading ? 'opacity-40' : ''
               }`}
@@ -232,6 +240,15 @@ function DonateModal(props: any) {
           </p>
         </div>
       </div>
+      {confirmIsOpen && (
+        <DonateConfirmModal
+          isOpen={confirmIsOpen}
+          onRequestClose={closeDonateConfirmModal}
+          amount={amount}
+          symbol={allTokenMetadatas?.[selectedTab]?.symbol}
+          onDonate={doateToken}
+        />
+      )}
     </Modal>
   );
 }
