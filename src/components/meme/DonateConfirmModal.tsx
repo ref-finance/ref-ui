@@ -9,7 +9,7 @@ import { ModalCloseIcon } from './icons';
 function DonateConfirmModal(props: any) {
   const { isOpen, onRequestClose, amount, symbol, onDonate } = props;
   const [donateLoading, setDonateLoading] = useState(false);
-  const cardWidth = isMobile() ? '95vw' : '327px';
+  const cardWidth = isMobile() ? '95vw' : '380px';
   function doDonate() {
     setDonateLoading(true);
     onDonate();
@@ -29,35 +29,37 @@ function DonateConfirmModal(props: any) {
       }}
     >
       <div
-        className="p-4 text-sm text-black bg-senderHot rounded-2xl"
+        className="border border-memeDonateBorderColor border-opacity-20 bg-memeDonateBgColor rounded-2xl p-5 pt-4 text-white"
         style={{
           width: cardWidth,
         }}
       >
         <div className="title flex items-center justify-between">
-          <div className="text-black text-2xl gotham_bold">Donate</div>
+          <div className="text-white text-xl gotham_bold">
+            Donation Instructions
+          </div>
           <ModalCloseIcon
             className="cursor-pointer text-black"
-            color="black"
             onClick={onRequestClose}
           />
         </div>
-        <p className="mt-3 mb-2">
+        <p className="mt-3 mb-2 text-sm text-white">
           Please confirm that once you execute Donate, you will lose {amount}{' '}
           {symbol}.
         </p>
         <div className="flex justify-center">
           <OprationButton
             onClick={doDonate}
-            className={`border border-black px-3 py-1 gotham_bold cursor-pointer rounded-md mt-2 ${
+            className={`bg-senderHot px-3 py-1 gotham_bold cursor-pointer rounded-md mt-2 w-20 outline-none ${
               donateLoading ? 'opacity-40' : ''
             }`}
           >
             <ButtonTextWrapper
               loading={donateLoading}
-              loadingColor="#000"
               Text={() => (
-                <div className="flex items-center gap-2">Got it!</div>
+                <div className="flex items-center gap-2 text-base text-boxBorder">
+                  Got it!
+                </div>
               )}
             />
           </OprationButton>
