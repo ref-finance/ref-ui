@@ -138,7 +138,6 @@ const LockLP = ({
   function switchFold() {
     setFold(!fold);
   }
-  if (!is_mft_registered) return null;
   return (
     <LockDataProvider.Provider
       value={{
@@ -279,6 +278,7 @@ const LockLP = ({
           <LockedModal
             isOpen={isLockedOpen}
             onRequestClose={closeLockedModal}
+            is_mft_registered={is_mft_registered}
           />
         )}
         {isUnLockedOpen && (

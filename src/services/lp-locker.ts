@@ -51,10 +51,12 @@ export const lock_lp = async ({
   token_id,
   amount,
   unlock_time_sec,
+  is_mft_registered,
 }: {
   token_id: string;
   amount: string;
   unlock_time_sec: number;
+  is_mft_registered: boolean;
 }) => {
   const transactions: Transaction[] = [];
   const neededStorage = await checkNeedsStorageDeposit();
@@ -62,6 +64,21 @@ export const lock_lp = async ({
     transactions.unshift({
       receiverId: REF_TOKEN_LOCKER_CONTRACT_ID,
       functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  if (!is_mft_registered) {
+    transactions.unshift({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'mft_register',
+          args: {
+            token_id,
+            account_id: REF_TOKEN_LOCKER_CONTRACT_ID,
+          },
+          amount: '0.01',
+        },
+      ],
     });
   }
   transactions.push({

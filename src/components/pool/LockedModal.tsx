@@ -12,7 +12,7 @@ import { LockDataProvider } from './LockLP';
 import RangeSlider from './RangeSlider';
 import Modal from 'react-modal';
 function LockedModal(props: any) {
-  const { isOpen, onRequestClose } = props;
+  const { isOpen, onRequestClose, is_mft_registered } = props;
   const { pool, userShares, lockedData, tokens } = useContext(LockDataProvider);
   const [lock_loading, set_lock_loading] = useState<boolean>(false);
   const [isMax, setIsMax] = useState<boolean>(false);
@@ -38,6 +38,7 @@ function LockedModal(props: any) {
       token_id: `:${pool.id}`,
       amount: Big(toNonDivisibleNumber(24, amount)).toFixed(0),
       unlock_time_sec: +new_unlock_time_sec.toFixed(0),
+      is_mft_registered,
       // unlock_time_sec: 1715094000,
     });
   }
