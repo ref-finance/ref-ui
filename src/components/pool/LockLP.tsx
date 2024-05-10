@@ -97,9 +97,12 @@ const LockLP = ({
   function getSharesPercent(locked_balance: string) {
     const sharesInPool = pool.shareSupply;
     const sharesInLocked = locked_balance;
-    const percent = formatPercentage(
-      Big(sharesInLocked).div(sharesInPool).mul(100).toFixed()
-    );
+    let percent = '0';
+    if (Big(sharesInPool || '0').gt(0)) {
+      percent = formatPercentage(
+        Big(sharesInLocked).div(sharesInPool).mul(100).toFixed()
+      );
+    }
     return percent;
   }
   function closeLockedModal() {
