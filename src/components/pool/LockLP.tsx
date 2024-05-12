@@ -15,6 +15,8 @@ import config from '../../services/config';
 import { formatPercentage } from '../../utils/uiNumber';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { TokenMetadata } from '../../services/ft-contract';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 const { REF_FI_CONTRACT_ID } = config();
 export const LockDataProvider = createContext<{
   pool: Pool;
@@ -47,7 +49,7 @@ const LockLP = ({
       const { locked_balance, unlock_time_sec } = lp_locked_list[accountId];
       return [getSharesPercent(locked_balance), secToTime(unlock_time_sec)];
     }
-    return ['', ''];
+    return [{ percent: '', displayPercent: '' }, ''];
   }, [accountId, lp_locked_list]);
   const total_locked_percent = useMemo(() => {
     const totalLocked = Object.values(lp_locked_list).reduce((sum, cur) => {
@@ -98,12 +100,15 @@ const LockLP = ({
     const sharesInPool = pool.shareSupply;
     const sharesInLocked = locked_balance;
     let percent = '0';
+    let displayPercent = '0%';
     if (Big(sharesInPool || '0').gt(0)) {
-      percent = formatPercentage(
-        Big(sharesInLocked).div(sharesInPool).mul(100).toFixed()
-      );
+      percent = Big(sharesInLocked).div(sharesInPool).mul(100).toFixed();
+      displayPercent = formatPercentage(percent);
     }
-    return percent;
+    return {
+      percent,
+      displayPercent,
+    };
   }
   function closeLockedModal() {
     setIsLockedOpen(false);
@@ -169,7 +174,7 @@ const LockLP = ({
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-white text-sm gotham_bold">
-                  {total_locked_percent || '-'}
+                  {total_locked_percent?.displayPercent || '-'}
                 </span>
                 <LockIcon />
               </div>
@@ -177,7 +182,7 @@ const LockLP = ({
             <div className="flex flex-col gap-3.5">
               <span className="text-sm text-primaryText">My locking</span>
               <span className="text-sm text-greenColor gotham_bold">
-                {your_locked_percent || '-'}
+                {your_locked_percent?.displayPercent || '-'}
               </span>
             </div>
           </div>
@@ -209,7 +214,9 @@ const LockLP = ({
               >
                 {Object.entries(lp_locked_list).map(
                   ([account_id, lockedData], index) => {
-                    const percent = getSharesPercent(lockedData.locked_balance);
+                    const { percent, displayPercent } = getSharesPercent(
+                      lockedData.locked_balance
+                    );
                     if (account_id == accountId) return null;
                     return (
                       <div
@@ -220,11 +227,26 @@ const LockLP = ({
                             : 'mb-4 '
                         }`}
                       >
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm text-white">{percent}</span>
-                          <span className="text-sm text-v3SwapGray">
-                            Locked
-                          </span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-4 h-4">
+                            <CircularProgressbar
+                              styles={buildStyles({
+                                pathColor: '#00FFD1',
+                                strokeLinecap: 'butt',
+                                trailColor: 'rgba(255, 255, 255, 0.3)',
+                              })}
+                              strokeWidth={10}
+                              value={+percent}
+                            />
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm text-white">
+                              {displayPercent}
+                            </span>
+                            <span className="text-sm text-v3SwapGray">
+                              Locked
+                            </span>
+                          </div>
                         </div>
                         <span className="text-sm text-primaryText">
                           {secToTime(lockedData.unlock_time_sec)}
@@ -241,9 +263,22 @@ const LockLP = ({
           <div className="flex flex-col bg-primaryText bg-opacity-10 rounded-md mt-2 px-4 py-3.5 gap-3.5">
             <span className="text-sm text-v3SwapGray">My locking</span>
             <div className="flex items-center justify-between">
-              <span className="text-lg text-white gotham_bold">
-                {your_locked_percent || '-'}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-4 h-4">
+                  <CircularProgressbar
+                    styles={buildStyles({
+                      pathColor: '#00FFD1',
+                      strokeLinecap: 'butt',
+                      trailColor: 'rgba(255, 255, 255, 0.3)',
+                    })}
+                    strokeWidth={10}
+                    value={+(your_locked_percent?.percent || '0')}
+                  />
+                </div>
+                <span className="text-lg text-white gotham_bold">
+                  {your_locked_percent?.displayPercent || '-'}
+                </span>
+              </div>
               <span className="text-sm text-primaryText">
                 {your_unLocked_time}
               </span>
