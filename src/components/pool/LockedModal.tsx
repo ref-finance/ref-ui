@@ -10,15 +10,15 @@ import { formatWithCommas_number } from 'src/utils/uiNumber';
 import { lock_lp } from '../../services/lp-locker';
 import { LockDataProvider } from './LockLP';
 import RangeSlider from './RangeSlider';
+import LockedConfirmModal from './LockedConfirmModal';
 import Modal from 'react-modal';
 function LockedModal(props: any) {
   const { isOpen, onRequestClose, is_mft_registered } = props;
   const { pool, userShares, lockedData, tokens } = useContext(LockDataProvider);
-  const [lock_loading, set_lock_loading] = useState<boolean>(false);
-  const [isMax, setIsMax] = useState<boolean>(false);
   const [sliderAmount, setSliderAmount] = useState<string>('0');
   const [amount, setAmount] = useState<string>('');
   const [months, setMonths] = useState<string | number>('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
   const cardWidth = isMobile() ? '95vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
   const balance = toReadableNumber(24, userShares);
@@ -33,7 +33,6 @@ function LockedModal(props: any) {
     ];
   }, [lockedData, months]);
   function lock() {
-    set_lock_loading(true);
     lock_lp({
       token_id: `:${pool.id}`,
       amount: Big(toNonDivisibleNumber(24, amount)).toFixed(0),
@@ -58,6 +57,12 @@ function LockedModal(props: any) {
     Big(months || 0).lte(0) ||
     isInValidMonths ||
     Big(amount || 0).gt(balance);
+  function openConfirmModal() {
+    setIsConfirmOpen(true);
+  }
+  function closeConfirmModal() {
+    setIsConfirmOpen(false);
+  }
   return (
     <Modal
       isOpen={isOpen}
@@ -119,7 +124,6 @@ function LockedModal(props: any) {
             <RangeSlider
               setAmount={setAmount}
               balance={balance}
-              setIsMax={setIsMax}
               sliderAmount={sliderAmount}
               setSliderAmount={setSliderAmount}
             />
@@ -154,25 +158,27 @@ function LockedModal(props: any) {
           {/* button */}
           <GradientButton
             disabled={disabled}
-            onClick={lock}
+            onClick={openConfirmModal}
             color="#fff"
-            loading={lock_loading}
-            btnClassName={disabled || lock_loading ? 'cursor-not-allowed' : ''}
+            btnClassName={disabled ? 'cursor-not-allowed' : ''}
             className={`flex-shrink-0 mt-6 h-12 text-center text-sm text-white focus:outline-none font-semibold ${
               disabled ? 'opacity-40' : ''
             }`}
           >
-            <ButtonTextWrapper
-              loading={lock_loading}
-              Text={() => (
-                <div className="flex items-center justify-center gap-2 text-base">
-                  <LockLargeIcon />
-                  Lock
-                </div>
-              )}
-            />
+            <div className="flex items-center justify-center gap-2 text-base">
+              <LockLargeIcon />
+              Lock
+            </div>
           </GradientButton>
         </div>
+        {isConfirmOpen && (
+          <LockedConfirmModal
+            isOpen={isConfirmOpen}
+            onRequestClose={closeConfirmModal}
+            months={months}
+            onLock={lock}
+          />
+        )}
       </div>
     </Modal>
   );

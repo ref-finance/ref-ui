@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { toPrecision } from 'src/utils/numbers';
 import Big from 'big.js';
 export default function RangeSlider(props: any) {
-  const { setAmount, balance, setIsMax, sliderAmount, setSliderAmount } = props;
+  const { setAmount, balance, sliderAmount, setSliderAmount } = props;
   const [splitList] = useState([0, 25, 50, 75, 100]);
 
   const tipRef = useRef(null);
@@ -15,11 +15,6 @@ export default function RangeSlider(props: any) {
       tipRef.current.style.left = `${+sliderAmount}%`;
       const marginLeft = -13 - (20 * +sliderAmount) / 100;
       tipRef.current.style.marginLeft = `${marginLeft}px`;
-    }
-    if (+sliderAmount == 100) {
-      setIsMax(true);
-    } else {
-      setIsMax(false);
     }
   }, [sliderAmount]);
   function changeValue(v: string) {

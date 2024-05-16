@@ -15,6 +15,7 @@ import config from '../../services/config';
 import { formatPercentage } from '../../utils/uiNumber';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { TokenMetadata } from '../../services/ft-contract';
+import { secToTime, tokenAmountInShares } from './utils';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 const { REF_FI_CONTRACT_ID } = config();
@@ -44,13 +45,18 @@ const LockLP = ({
   useEffect(() => {
     init();
   }, []);
-  const [your_locked_percent, your_unLocked_time] = useMemo(() => {
-    if (lp_locked_list[accountId]) {
-      const { locked_balance, unlock_time_sec } = lp_locked_list[accountId];
-      return [getSharesPercent(locked_balance), secToTime(unlock_time_sec)];
-    }
-    return [{ percent: '', displayPercent: '' }, ''];
-  }, [accountId, lp_locked_list]);
+  const [your_locked_percent, your_unLocked_time, your_locked_balance] =
+    useMemo(() => {
+      if (lp_locked_list[accountId]) {
+        const { locked_balance, unlock_time_sec } = lp_locked_list[accountId];
+        return [
+          getSharesPercent(locked_balance),
+          secToTime(unlock_time_sec),
+          locked_balance,
+        ];
+      }
+      return [{ percent: '', displayPercent: '' }, '', '0'];
+    }, [accountId, lp_locked_list]);
   const total_locked_percent = useMemo(() => {
     const totalLocked = Object.values(lp_locked_list).reduce((sum, cur) => {
       return sum.plus(cur.locked_balance);
@@ -77,24 +83,6 @@ const LockLP = ({
       }, {});
       set_lp_locked_list(current_lp_locked_list);
     }
-  }
-  function secToTime(seconds) {
-    const date = new Date(seconds * 1000);
-    const year = date.getFullYear();
-    let month: string | number = date.getMonth() + 1;
-    let day: string | number = date.getDate();
-    const hour = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
-    const minute =
-      date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
-    // const second =
-    //   date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
-    if (month < 10) month = '0' + month;
-    if (day < 10) day = '0' + day;
-    const currentTime =
-      year + '/' + month + '/' + day + '  ' + hour + ':' + minute;
-    // ':' +
-    // second;
-    return currentTime;
   }
   function getSharesPercent(locked_balance: string) {
     const sharesInPool = pool.shareSupply;
@@ -126,6 +114,18 @@ const LockLP = ({
       setIsUnLockedOpen(true);
     }
   }
+  const [tokenA_amount, tokenB_amount] = useMemo(() => {
+    if (your_locked_balance && tokens && pool && accountId) {
+      return [
+        tokenAmountInShares(pool, tokens[0], your_locked_balance),
+        tokenAmountInShares(pool, tokens[1], your_locked_balance),
+      ];
+    }
+    return ['0', '0'];
+  }, [your_locked_balance, tokens, pool, accountId]);
+  function switchFold() {
+    setFold(!fold);
+  }
   function lockingTip() {
     return `
     <div class="flex items-center text-navHighLightText text-xs text-left xsm:w-52 lg:w-64 gotham_font px-4 xsm:px-0 xsm:ml-4">
@@ -136,13 +136,32 @@ const LockLP = ({
     </div>
     `;
   }
-  const lockButtonDisabled = Big(userShares || 0).lte(0);
-  const unLockButtonDisabled = Big(
-    lp_locked_list?.[accountId]?.unlock_time_sec || 0
-  ).gte(new Date().getTime() / 1000);
-  function switchFold() {
-    setFold(!fold);
+  function yourLockedDetail() {
+    if (!your_locked_percent?.displayPercent) return '';
+    return `
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between text-xs text-white gap-5">
+          <div class="flex items-center gap-2">
+              <img src="${tokens?.[0]?.icon}" class="w-5 h-5 rounded-full"/>
+              <span class="text-white">${tokens?.[0]?.symbol}</span>
+          </div>
+          <span>${tokenA_amount}</span>
+        </div>
+        <div class="flex items-center justify-between text-sm text-white gap-5">
+          <div class="flex items-center gap-2">
+            <img src="${tokens?.[1].icon}" class="w-5 h-5 rounded-full"/>
+            <span class="text-white">${tokens?.[1].symbol}</span>
+          </div>
+          <span>${tokenB_amount}</span>
+        </div>
+      </div>
+    `;
   }
+  const lockButtonDisabled = Big(userShares || 0).lte(0);
+  const unLockButtonDisabled =
+    Big(lp_locked_list?.[accountId]?.unlock_time_sec || 0).gte(
+      new Date().getTime() / 1000
+    ) || !your_unLocked_time;
   return (
     <LockDataProvider.Provider
       value={{
@@ -181,9 +200,24 @@ const LockLP = ({
             </div>
             <div className="flex flex-col gap-3.5">
               <span className="text-sm text-primaryText">My locking</span>
-              <span className="text-sm text-greenColor gotham_bold">
-                {your_locked_percent?.displayPercent || '-'}
-              </span>
+              <div
+                className="text-white"
+                data-class="reactTip"
+                data-tooltip-id="yourLockedId"
+                data-place="top"
+                data-tooltip-html={yourLockedDetail()}
+              >
+                <span
+                  className={`text-sm text-greenColor gotham_bold ${
+                    your_locked_percent?.displayPercent
+                      ? 'border-b border-greenColor border-dashed'
+                      : ''
+                  }`}
+                >
+                  {your_locked_percent?.displayPercent || '-'}
+                </span>
+                <CustomTooltip id="yourLockedId" />
+              </div>
             </div>
           </div>
           <div
@@ -198,88 +232,88 @@ const LockLP = ({
           </div>
         </div>
         {/* detail list */}
-        <div className={`mt-5 ${fold ? 'hidden' : ''}`}>
+        <div
+          className={`${Object.keys(lp_locked_list).length ? 'mt-5' : ''} ${
+            fold ? 'hidden' : ''
+          }`}
+        >
           {/* global */}
-          {Object.keys(lp_locked_list).filter(
-            (account_id: string) => account_id !== accountId
-          ).length ? (
-            <div className="flex flex-col bg-primaryText bg-opacity-10 rounded-md mt-2 py-3.5 px-2">
-              <div className="flex items-center justify-between text-sm text-v3SwapGray mb-5 px-2">
-                <span>Phase locking</span>
-                <span>Expiration time</span>
-              </div>
-              <div
-                className="overflow-auto px-2"
-                style={{ maxHeight: '100px' }}
-              >
-                {Object.entries(lp_locked_list)
-                  .sort((b, a) => {
-                    return b[1].unlock_time_sec - a[1].unlock_time_sec;
-                  })
-                  .map(([account_id, lockedData], index) => {
-                    const { percent, displayPercent } = getSharesPercent(
-                      lockedData.locked_balance
-                    );
-                    if (account_id == accountId) return null;
-                    return (
-                      <div
-                        key={account_id}
-                        className={`flex items-center justify-between ${
-                          index == Object.entries(lp_locked_list).length - 1
-                            ? ''
-                            : 'mb-4 '
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-4 h-4">
-                            <CircularProgressbar
-                              styles={buildStyles({
-                                pathColor: '#00FFD1',
-                                strokeLinecap: 'butt',
-                                trailColor: 'rgba(255, 255, 255, 0.3)',
-                              })}
-                              strokeWidth={10}
-                              value={+percent}
-                            />
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm text-white">
-                              {displayPercent}
-                            </span>
-                            <span className="text-sm text-v3SwapGray">
-                              Locked
-                            </span>
-                          </div>
-                        </div>
-                        <span className="text-sm text-primaryText">
-                          {secToTime(lockedData.unlock_time_sec)}
-                        </span>
-                      </div>
-                    );
-                  })}
-              </div>
+          <div
+            className={`flex flex-col bg-primaryText bg-opacity-10 rounded-md mt-2 py-3.5 px-2 ${
+              Object.entries(lp_locked_list).length ? '' : 'hidden'
+            }`}
+          >
+            <div className="flex items-center justify-between text-sm text-v3SwapGray mb-5 px-2">
+              <span>Phase locking</span>
+              <span>Expiration time</span>
             </div>
-          ) : null}
+            <div className="overflow-auto px-2" style={{ maxHeight: '100px' }}>
+              {Object.entries(lp_locked_list)
+                .sort((b, a) => {
+                  return b[1].unlock_time_sec - a[1].unlock_time_sec;
+                })
+                .map(([account_id, lockedData], index) => {
+                  const { percent, displayPercent } = getSharesPercent(
+                    lockedData.locked_balance
+                  );
+                  return (
+                    <div
+                      key={account_id}
+                      className={`flex items-center justify-between ${
+                        index == Object.entries(lp_locked_list).length - 1
+                          ? ''
+                          : 'mb-4 '
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-4 h-4">
+                          <CircularProgressbar
+                            styles={buildStyles({
+                              pathColor: '#00FFD1',
+                              strokeLinecap: 'butt',
+                              trailColor: 'rgba(255, 255, 255, 0.3)',
+                            })}
+                            strokeWidth={10}
+                            value={+percent}
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm text-white">
+                            {displayPercent}
+                          </span>
+                          <span className="text-sm text-v3SwapGray">
+                            Locked
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-sm text-primaryText">
+                        {secToTime(lockedData.unlock_time_sec)}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
 
           {/* yours */}
-          <div className="flex flex-col bg-primaryText bg-opacity-10 rounded-md mt-2 px-4 py-3.5 gap-3.5">
+          <div
+            className={`flex flex-col bg-primaryText bg-opacity-10 rounded-md mt-2 px-4 py-3.5 gap-3.5 ${
+              your_unLocked_time ? '' : 'hidden'
+            }`}
+          >
             <span className="text-sm text-v3SwapGray">My locking</span>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <div className="w-4 h-4">
-                  <CircularProgressbar
-                    styles={buildStyles({
-                      pathColor: '#00FFD1',
-                      strokeLinecap: 'butt',
-                      trailColor: 'rgba(255, 255, 255, 0.3)',
-                    })}
-                    strokeWidth={10}
-                    value={+(your_locked_percent?.percent || '0')}
-                  />
-                </div>
-                <span className="text-lg text-white gotham_bold">
+              <div
+                className="text-white"
+                data-class="reactTip"
+                data-tooltip-id="yourLockedId2"
+                data-place="top"
+                data-tooltip-html={yourLockedDetail()}
+              >
+                <span className="text-lg text-white gotham_bold border-b border-white border-dashed">
                   {your_locked_percent?.displayPercent || '-'}
                 </span>
+                <CustomTooltip id="yourLockedId2" />
               </div>
               <span className="text-sm text-primaryText">
                 {your_unLocked_time}
@@ -288,27 +322,23 @@ const LockLP = ({
           </div>
           {/* button */}
           <div className="flex items-center justify-end mt-3 gap-2.5">
-            {!lockButtonDisabled ? (
-              <div
-                onClick={openLockedModal}
-                className={`flex items-center justify-center cursor-pointer text-sm text-white border border-white border-opacity-50 rounded-md w-28 h-8 ${
-                  lockButtonDisabled ? 'opacity-40 cursor-not-allowed' : ''
-                }`}
-              >
-                Lock
-              </div>
-            ) : null}
+            <div
+              onClick={openLockedModal}
+              className={`flex items-center justify-center cursor-pointer text-sm text-white border border-white border-opacity-50 rounded-md w-28 h-8 ${
+                lockButtonDisabled ? 'opacity-40 cursor-not-allowed' : ''
+              }`}
+            >
+              Lock
+            </div>
 
-            {your_unLocked_time ? (
-              <div
-                onClick={openUnLockedModal}
-                className={`flex items-center justify-center cursor-pointer text-sm text-white border border-white border-opacity-50 rounded-md w-28 h-8 ${
-                  unLockButtonDisabled ? 'opacity-40 cursor-not-allowed' : ''
-                }`}
-              >
-                UnLock
-              </div>
-            ) : null}
+            <div
+              onClick={openUnLockedModal}
+              className={`flex items-center justify-center cursor-pointer text-sm text-white border border-white border-opacity-50 rounded-md w-28 h-8 ${
+                unLockButtonDisabled ? 'opacity-40 cursor-not-allowed' : ''
+              }`}
+            >
+              UnLock
+            </div>
           </div>
         </div>
         {isLockedOpen && (

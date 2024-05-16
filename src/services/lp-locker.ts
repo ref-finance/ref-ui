@@ -28,6 +28,12 @@ export const get_accounts_paged = async (): Promise<ILockerAccounts[]> => {
     args: { from_index: 0, limit: 300 },
   });
 };
+export const get_account = async (): Promise<ILockerAccounts> => {
+  return lockerViewFunction({
+    methodName: 'get_account',
+    args: { account_id: getCurrentWallet().wallet.getAccountId() },
+  });
+};
 export const mft_has_registered = async (
   token_id: string
 ): Promise<boolean> => {
