@@ -212,8 +212,11 @@ const LockLP = ({
                 className="overflow-auto px-2"
                 style={{ maxHeight: '100px' }}
               >
-                {Object.entries(lp_locked_list).map(
-                  ([account_id, lockedData], index) => {
+                {Object.entries(lp_locked_list)
+                  .sort((b, a) => {
+                    return b[1].unlock_time_sec - a[1].unlock_time_sec;
+                  })
+                  .map(([account_id, lockedData], index) => {
                     const { percent, displayPercent } = getSharesPercent(
                       lockedData.locked_balance
                     );
@@ -253,8 +256,7 @@ const LockLP = ({
                         </span>
                       </div>
                     );
-                  }
-                )}
+                  })}
               </div>
             </div>
           ) : null}
