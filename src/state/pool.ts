@@ -41,6 +41,7 @@ import {
   _order,
   _search,
   getTopPools,
+  getTopPoolsByNewUI,
   getPool,
   get24hVolumes,
   getV3PoolVolumeById,
@@ -142,7 +143,7 @@ export const useBatchTotalShares = (
   const [sharesDone, setSharesDone] = useState<boolean>(false);
 
   const getFarmStake = (pool_id: number) => {
-    let farmStake = '0';
+    const farmStake = '0';
 
     const seedIdList: string[] = Object.keys(finalStakeList);
     let tempFarmStake: string | number = '0';
@@ -261,6 +262,7 @@ interface LoadPoolsOpts {
   tokenName?: string;
   sortBy?: string;
   order?: string;
+  getTopPoolsProps?: any;
 }
 
 export const usePools = (props: {
@@ -268,17 +270,19 @@ export const usePools = (props: {
   tokenName?: string;
   sortBy?: string;
   order?: string;
+  getTopPoolsProps?: any;
 }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
   const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [cardLoading, setCardLoding] = useState(true);
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
 
   useEffect(() => {
     if (!loading) {
+      console.log(rawPools.map, 'rawPools.map');
       setRequestPoolList(
         rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
       );
@@ -294,8 +298,9 @@ export const usePools = (props: {
     tokenName,
     sortBy,
     order,
+    getTopPoolsProps,
   }: LoadPoolsOpts) {
-    getTopPools()
+    getTopPoolsByNewUI({ ...getTopPoolsProps })
       .then(async (rawPools) => {
         const pools =
           rawPools.length > 0
@@ -330,7 +335,10 @@ export const usePools = (props: {
           )
         );
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setCardLoding(false);
+      });
   }
 
   const loadPools = useCallback(debounce(_loadPools, 500), []);
@@ -360,12 +368,33 @@ export const usePools = (props: {
     });
   }, [page]);
 
+  useEffect(() => {
+    setCardLoding(true);
+    loadPools({
+      accumulate: true,
+      tokenName: props.tokenName,
+      sortBy: props.sortBy,
+      order: props.order,
+      getTopPoolsProps: props.getTopPoolsProps,
+    });
+    console.log(props.getTopPoolsProps, 'props.getTopPoolsProps.farm');
+  }, [
+    props.getTopPoolsProps.farm,
+    props.getTopPoolsProps.hide_low_pool,
+    props.getTopPoolsProps.type,
+    props.getTopPoolsProps.sort,
+    props.getTopPoolsProps.order,
+    props.getTopPoolsProps.order_by,
+    props.getTopPoolsProps.offset,
+  ]);
+
   return {
     pools,
     hasMore,
     nextPage,
     loading,
     volumes,
+    cardLoading,
   };
 };
 

@@ -23,11 +23,7 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import {
-  getTopPools,
-  getTopPoolsIndexer,
-  getTopPoolsIndexerRaw,
-} from '../services/indexer';
+import { getTopPools, getTopPoolsIndexerRaw } from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -238,13 +234,13 @@ export const getCachedPoolsByTokenId = async ({
   token1Id: string;
   token2Id: string;
 }) => {
-  let normalItems = await db
+  const normalItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token1Id)
     .and((item) => item.token2Id === token2Id)
     .primaryKeys();
-  let reverseItems = await db
+  const reverseItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token2Id)
@@ -487,7 +483,7 @@ export const getPoolsByTokensAurora = async ({
   ) {
     setLoadingData && setLoadingData(true);
 
-    let triPools = await getAllTriPools(
+    const triPools = await getAllTriPools(
       tokenIn && tokenOut
         ? [
             tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
@@ -804,7 +800,7 @@ export const predictLiquidityShares = async (
 ): Promise<string> => {
   return refFiViewFunction({
     methodName: 'predict_add_stable_liquidity',
-    args: { pool_id: pool_id, amounts },
+    args: { pool_id, amounts },
   });
 };
 

@@ -233,20 +233,6 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     });
 };
 
-export const getTopPoolsIndexer = async () => {
-  return await fetch(config.indexerUrl + '/list-top-pools', {
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json; charset=UTF-8',
-      ...getAuthenticationHeaders('/list-top-pools'),
-    },
-  })
-    .then((res) => res.json())
-    .then((poolList) => {
-      return poolList.map((p: any) => parsePool(p));
-    });
-};
-
 export const getTopPoolsIndexerRaw = async () => {
   const timeoutDuration = 20000; // 20 seconds in milliseconds
 
@@ -349,6 +335,60 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
   }
 };
 
+export const getTopPoolsByNewUI = async ({
+  type = 'classic',
+  sort = 'tvl',
+  limit = '100',
+  offset = '0',
+  farm = 'false',
+  hide_low_pool = 'false',
+  order = 'desc',
+}: {
+  type?: string;
+  sort?: string;
+  limit?: string;
+  offset?: string;
+  farm?: string | boolean;
+  hide_low_pool?: string | boolean;
+  order: string;
+}): Promise<PoolRPCView[]> => {
+  console.log(farm);
+  if (type != 'classic') {
+    return getTopPools();
+  } else {
+    try {
+      let pools: any;
+
+      pools = await fetch(
+        config.newPoolsIndexerUrl +
+          `/list-pools?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+          },
+        }
+      ).then((res) => res.json());
+
+      if (pools?.data?.list.length > 0) {
+        localStorage.setItem('poolsTotal', pools.data.total);
+        pools = pools.data.list;
+        pools = pools.map((pool: any) => parsePoolView(pool));
+        return pools
+          .filter((pool: { token_account_ids: string | any[]; id: any }) => {
+            return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
+          })
+          .filter(filterBlackListPools);
+      } else {
+        pools = [];
+        return [];
+      }
+    } catch (error) {
+      return [];
+    }
+  }
+};
+
 export const getAllPoolsIndexer = async (amountThresh?: string) => {
   const rawRes = await fetch(
     config.indexerUrl +
@@ -358,7 +398,7 @@ export const getAllPoolsIndexer = async (amountThresh?: string) => {
       headers: getAuthenticationHeaders('/list-pools'),
     }
   ).then((res) => res.json());
-
+  console.log(rawRes, 'rawRes315>>>>>');
   return rawRes.map((r: any) => parsePool(r));
 };
 
@@ -687,7 +727,7 @@ export const _search = (args: any, pools: PoolRPCView[]) => {
 
 export const _order = (args: any, pools: PoolRPCView[]) => {
   let column = args.column || 'tvl';
-  let order = args.order || 'desc';
+  const order = args.order || 'desc';
   column = args.column === 'fee' ? 'total_fee' : column;
   return _.orderBy(pools, [column], [order]);
 };

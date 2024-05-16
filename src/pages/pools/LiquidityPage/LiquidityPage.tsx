@@ -18,6 +18,7 @@ import { useHistory } from 'react-router';
 import { Card } from '../../../components/card/Card';
 import { find } from 'lodash';
 import { SelectModal } from '../../../components/layout/SelectModal';
+import Pagination from '../../../components/poolsPagination/Pagination';
 import {
   useAllPools,
   usePools,
@@ -740,7 +741,17 @@ function PcLiquidityPage({
   h24VolumeV2,
   do_farms_v2_poos,
   farmAprById,
+  totalItems,
+  pageSize,
+  handlePageChange,
+  handleSizeChange,
+  cardLoading,
 }: {
+  cardLoading: boolean;
+  totalItems: number;
+  pageSize: number;
+  handlePageChange: (key: any, size: any) => void;
+  handleSizeChange: (key: number) => void;
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
   activeTab: string;
@@ -794,6 +805,7 @@ function PcLiquidityPage({
 
     setTvlV2(scientificNotationToString(tvl.toString()));
   }, [allPoolsV2]);
+  //
   useEffect(() => {
     if (inputRef?.current) {
       inputRef.current.value = tokenName;
@@ -946,6 +958,7 @@ function PcLiquidityPage({
 
   if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
+
   return (
     <>
       <PoolTabV3></PoolTabV3>
@@ -1273,6 +1286,7 @@ function PcLiquidityPage({
             farmAprById={farmAprById}
           />
         )}
+        {/* classic pools */}
         {activeTab === 'v1' && (
           <Card width="w-full" className="bg-cardBg" padding="pb-7 px-0">
             <div
@@ -1287,6 +1301,7 @@ function PcLiquidityPage({
 
               <div className="ml-8 justify-between  flex">
                 <div className="flex items-center">
+                  {/* check farm */}
                   <div
                     className="flex items-center mr-5 cursor-pointer"
                     onClick={() => {
@@ -1301,6 +1316,7 @@ function PcLiquidityPage({
                       <FormattedMessage id="farm" defaultMessage="Farm" />
                     </div>
                   </div>
+                  {/* check low pools */}
                   <div
                     className="flex items-center mr-5 cursor-pointer"
                     onClick={() => {
@@ -1334,6 +1350,7 @@ function PcLiquidityPage({
                 <div className="col-span-3 md:col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
+                {/* fee */}
                 <div className="col-span-1 justify-self-center md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
@@ -1373,17 +1390,17 @@ function PcLiquidityPage({
                     )}
                   </span>
                 </div>
-
+                {/* apy */}
                 <div className="col-span-1 justify-self-center  relative right-1 md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
-                      reSortBy !== 'apr' ? 'hover:text-white' : ''
-                    } ${reSortBy === 'apr' ? 'text-gradientFrom' : ''}`}
+                      sortBy !== 'apy' ? 'hover:text-white' : ''
+                    } ${sortBy === 'apy' ? 'text-gradientFrom' : ''}`}
                     onClick={() => {
-                      onSortChange('');
-                      setReSortBy('apr');
-                      reSortBy !== 'apr' && onOrderChange('desc');
-                      reSortBy === 'apr' &&
+                      onSortChange('apy');
+                      setReSortBy('');
+                      sortBy !== 'apy' && onOrderChange('desc');
+                      sortBy === 'apy' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
@@ -1391,16 +1408,18 @@ function PcLiquidityPage({
                   </span>
 
                   <span
-                    className={reSortBy !== 'apr' ? 'hidden' : 'cursor-pointer'}
+                    className={`cursor-pointer ${
+                      sortBy !== 'apy' ? 'hidden' : ''
+                    }`}
                     onClick={() => {
-                      onSortChange('');
-                      setReSortBy('apr');
-                      reSortBy !== 'apr' && onOrderChange('desc');
-                      reSortBy === 'apr' &&
+                      onSortChange('apy');
+                      setReSortBy('');
+                      sortBy !== 'apy' && onOrderChange('desc');
+                      sortBy === 'apy' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
-                    {reSortBy === 'apr' ? (
+                    {sortBy === 'apy' ? (
                       order === 'desc' ? (
                         <DownArrowLight />
                       ) : (
@@ -1411,17 +1430,17 @@ function PcLiquidityPage({
                     )}
                   </span>
                 </div>
-
+                {/* 24h */}
                 <div className="col-span-1 justify-self-center relative  md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
-                      reSortBy !== 'volume' ? 'hover:text-white' : ''
-                    } ${reSortBy === 'volume' ? 'text-gradientFrom' : ''}`}
+                      sortBy !== '24h' ? 'hover:text-white' : ''
+                    } ${sortBy === '24h' ? 'text-gradientFrom' : ''}`}
                     onClick={() => {
-                      onSortChange('');
-                      setReSortBy('volume');
-                      reSortBy !== 'volume' && onOrderChange('desc');
-                      reSortBy === 'volume' &&
+                      onSortChange('24h');
+                      setReSortBy('');
+                      sortBy !== '24h' && onOrderChange('desc');
+                      sortBy === '24h' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
@@ -1432,18 +1451,18 @@ function PcLiquidityPage({
                   </span>
 
                   <span
-                    className={
-                      reSortBy !== 'volume' ? 'hidden' : 'cursor-pointer'
-                    }
+                    className={`cursor-pointer ${
+                      sortBy !== '24h' ? 'hidden' : ''
+                    }`}
                     onClick={() => {
-                      onSortChange('');
-                      setReSortBy('volume');
-                      reSortBy !== 'volume' && onOrderChange('desc');
-                      reSortBy === 'volume' &&
+                      onSortChange('24h');
+                      setReSortBy('');
+                      sortBy !== '24h' && onOrderChange('desc');
+                      sortBy === '24h' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
-                    {reSortBy === 'volume' ? (
+                    {sortBy === '24h' ? (
                       order === 'desc' ? (
                         <DownArrowLight />
                       ) : (
@@ -1454,7 +1473,7 @@ function PcLiquidityPage({
                     )}
                   </span>
                 </div>
-
+                {/* tvl */}
                 <div className="col-span-1 justify-self-center relative left-4 flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
@@ -1495,28 +1514,50 @@ function PcLiquidityPage({
               </header>
 
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-                {pools
-                  ?.filter(poolFilterFunc)
-                  .sort(poolReSortingFunc)
-                  .map((pool, i) => {
-                    return (
-                      <div key={'v1-pc' + pool.id}>
-                        <PoolRow
-                          tokens={poolTokenMetas[pool.id]}
-                          farmApr={farmAprById ? farmAprById[pool.id] : null}
-                          pool={pool}
-                          index={i + 1}
-                          selectCoinClass={selectCoinClass}
-                          morePoolIds={poolsMorePoolsIds[pool.id]}
-                          supportFarm={!!farmCounts[pool.id]}
-                          farmCount={farmCounts[pool.id]}
-                          h24volume={volumes[pool.id]}
-                          watched={!!find(watchPools, { id: pool.id })}
-                        />
-                      </div>
-                    );
-                  })}
+                {activeTab != 'v1'
+                  ? pools
+                      ?.filter(poolFilterFunc)
+                      .sort(poolReSortingFunc)
+                      .map((pool, i) => {
+                        return (
+                          <div key={'v1-pc' + pool.id}>
+                            <PoolRow
+                              tokens={poolTokenMetas[pool.id]}
+                              farmApr={
+                                farmAprById ? farmAprById[pool.id] : null
+                              }
+                              pool={pool}
+                              index={i + 1}
+                              selectCoinClass={selectCoinClass}
+                              morePoolIds={poolsMorePoolsIds[pool.id]}
+                              supportFarm={!!farmCounts[pool.id]}
+                              farmCount={farmCounts[pool.id]}
+                              h24volume={volumes[pool.id]}
+                              watched={!!find(watchPools, { id: pool.id })}
+                            />
+                          </div>
+                        );
+                      })
+                  : pools?.filter(poolFilterFunc).map((pool, i) => {
+                      return (
+                        <div key={'v1-pc' + pool.id}>
+                          <PoolRow
+                            tokens={poolTokenMetas[pool.id]}
+                            farmApr={farmAprById ? farmAprById[pool.id] : null}
+                            pool={pool}
+                            index={i + 1}
+                            selectCoinClass={selectCoinClass}
+                            morePoolIds={poolsMorePoolsIds[pool.id]}
+                            supportFarm={!!farmCounts[pool.id]}
+                            farmCount={farmCounts[pool.id]}
+                            h24volume={volumes[pool.id]}
+                            watched={!!find(watchPools, { id: pool.id })}
+                          />
+                        </div>
+                      );
+                    })}
               </div>
+              {cardLoading && <Loading></Loading>}
             </section>
           </Card>
         )}
@@ -1590,6 +1631,7 @@ function PcLiquidityPage({
                     className={'pr-1'}
                     maxWidth="210px"
                   />
+                  {/* total locked amounts */}
                   <span
                     className={`cursor-pointer ${
                       v2SortBy !== 'top_bin_apr' ? 'hidden' : ''
@@ -1722,6 +1764,14 @@ function PcLiquidityPage({
             farmAprById={farmAprById}
           />
         )}
+        <div className="mt-10">
+          <Pagination
+            totalItems={totalItems}
+            itemsPerPage={pageSize}
+            onChangePage={handlePageChange}
+            onPageSizeChange={handleSizeChange}
+          ></Pagination>
+        </div>
       </div>
       {isSignedIn && (
         <AddPoolModal
@@ -1755,11 +1805,7 @@ export default function LiquidityPage() {
   const [hideLowTVL, setHideLowTVL] = useState<boolean | any>(false);
   const riskTokens = useRiskTokens();
   const [displayPools, setDisplayPools] = useState<Pool[]>();
-  const { pools, hasMore, nextPage, loading, volumes } = usePools({
-    tokenName,
-    sortBy,
-    order,
-  });
+
   const tokenPriceList = useTokenPriceList();
 
   const [farmOnly, setFarmOnly] = useState<boolean>(
@@ -1769,6 +1815,32 @@ export default function LiquidityPage() {
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
   );
+
+  // pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  const [totalItems, setTotalItems] = useState(0);
+
+  useEffect(() => {
+    if (localStorage.getItem('poolsTotal')) {
+      setTotalItems(Number(localStorage.getItem('poolsTotal')));
+    }
+  }, [localStorage.getItem('poolsTotal')]);
+
+  // pagination end
+
+  const handlePageChange = (newPage, newSize) => {
+    setCurrentPage(newPage);
+    console.log(`Changed to page ${newPage} with size ${newSize}`);
+    // fetch
+  };
+
+  //
+  const handleSizeChange = (newSize) => {
+    setPageSize(newSize);
+    console.log(`Changed page size to ${newSize}`);
+    //
+  };
 
   const switchActiveTab = (curTab: string) => {
     setActiveTab(curTab);
@@ -1780,6 +1852,25 @@ export default function LiquidityPage() {
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
     Record<string, Seed>
   >({});
+  const activeObj = {
+    v1: 'classic',
+    v2: 'dcl',
+    stable: 'stable',
+  };
+  const { pools, hasMore, nextPage, loading, volumes, cardLoading } = usePools({
+    tokenName,
+    sortBy,
+    order,
+    getTopPoolsProps: {
+      farm: farmOnly,
+      hide_low_pool: hideLowTVL,
+      type: activeObj[activeTab],
+      sort: sortBy,
+      order,
+      offset: (currentPage - 1) * pageSize,
+    },
+  });
+
   useEffect(() => {
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
@@ -1980,6 +2071,11 @@ export default function LiquidityPage() {
           hasMore={hasMore}
           nextPage={nextPage}
           do_farms_v2_poos={do_farms_v2_poos}
+          totalItems={totalItems}
+          handlePageChange={handlePageChange}
+          handleSizeChange={handleSizeChange}
+          pageSize={pageSize}
+          cardLoading={cardLoading}
         />
       )}
 
