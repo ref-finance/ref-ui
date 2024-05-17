@@ -15,6 +15,11 @@ import { emptyObject, getSeedsTotalStaked } from './tool';
 import { MemeContext } from './context';
 import { Seed } from '~src/services/farm';
 import { formatPercentage } from '../../utils/uiNumber';
+import UserRankingModal from './UserRankingModal';
+import MemeAirdropListForPc from './memeAirdropListForPc';
+import { CoinPc, UserRanking } from './icons';
+import { isMobile } from '../../utils/device';
+const is_mobile = isMobile();
 export interface ITxParams {
   action: 'stake' | 'unstake';
   params: any;
@@ -31,6 +36,8 @@ const SeedsBox = () => {
   const { seeds } = useContext(MemeContext);
   const memeDataConfig = getMemeDataConfig();
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
+  const [isUserRanking, setUserRanking] = useState(false);
+  const [isShowAirdropModal, setShowAirdropModal] = useState<boolean>(false);
   const getURLInfo = () => {
     const search = window.location.search;
     const pathname = window.location.pathname;
@@ -118,34 +125,92 @@ const SeedsBox = () => {
   }, [displaySeeds]);
   return (
     <div className="mt-14">
-      <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
-        <div
-          className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
-            tab === 'market'
-              ? `text-white border-b-4 ${
-                  isSignedIn ? 'border-white' : 'border-transparent'
-                }`
-              : 'border-b-4 text-primaryText border-transparent'
-          }`}
-          onClick={() => {
-            setTab('market');
-          }}
-        >
-          Feed Meme
+      <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
+          <div
+            className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
+              tab === 'market'
+                ? `text-white border-b-4 ${
+                    isSignedIn ? 'border-white' : 'border-transparent'
+                  }`
+                : 'border-b-4 text-primaryText border-transparent'
+            }`}
+            onClick={() => {
+              setTab('market');
+            }}
+          >
+            Feed Meme
+          </div>
+          <div
+            className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
+              isSignedIn ? '' : 'hidden'
+            } ${
+              tab === 'your'
+                ? 'text-white border-white'
+                : 'text-primaryText border-transparent'
+            }`}
+            onClick={() => {
+              setTab('your');
+            }}
+          >
+            Yours
+          </div>
         </div>
-        <div
-          className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
-            isSignedIn ? '' : 'hidden'
-          } ${
-            tab === 'your'
-              ? 'text-white border-white'
-              : 'text-primaryText border-transparent'
-          }`}
-          onClick={() => {
-            setTab('your');
-          }}
-        >
-          Yours
+        <div className="flex -mr-3">
+          <div
+            className="ml-auto flex justify-between items-center w-40 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-8"
+            style={{ borderRadius: '3.375rem', top: '-.8rem', right: '1rem' }}
+            onClick={() => setUserRanking(true)}
+          >
+            <div className="absolute top-0" style={{ left: '-1.3rem' }}>
+              <UserRanking />
+            </div>
+            <span className="text-white text-base mr-4 ml-auto gotham_bold">
+              User ranking
+            </span>
+          </div>
+          {!is_mobile && (
+            <div
+              className="ml-auto flex justify-between items-center w-60 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer"
+              style={{ borderRadius: '3.375rem', top: '-.8rem', right: '1rem' }}
+              onClick={() => setShowAirdropModal(true)}
+            >
+              <div className="absolute top-0" style={{ left: '-1.3rem' }}>
+                <CoinPc />
+              </div>
+              <span className="text-white text-base mr-4 ml-auto gotham_bold">
+                Airdrop Announcement
+              </span>
+            </div>
+          )}
+          {is_mobile && (
+            <div
+              className="ml-auto flex justify-between items-center w-60 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer"
+              style={{ borderRadius: '3.375rem', top: '-.8rem', right: '1rem' }}
+              onClick={() => history.push('/airdop')}
+            >
+              <div className="absolute top-0" style={{ left: '-1.3rem' }}>
+                <CoinPc />
+              </div>
+              <span className="text-white text-sm ml-6 mr-2 gotham_bold">
+                Airdrop Announcement
+              </span>
+            </div>
+          )}
+          <UserRankingModal
+            isOpen={isUserRanking}
+            onRequestClose={() => {
+              setUserRanking(false);
+            }}
+          />
+          {!is_mobile && (
+            <MemeAirdropListForPc
+              isOpen={isShowAirdropModal}
+              onRequestClose={() => {
+                setShowAirdropModal(false);
+              }}
+            />
+          )}
         </div>
       </div>
       <MarketSeedsBox
