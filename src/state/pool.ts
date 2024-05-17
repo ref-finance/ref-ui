@@ -293,18 +293,53 @@ export const usePools = (props: {
 
   const nextPage = () => setPage((page) => page + 1);
 
-  function _loadPools({ getTopPoolsProps }: LoadPoolsOpts) {
+  function _loadPools({
+    accumulate = true,
+    tokenName,
+    sortBy,
+    order,
+    getTopPoolsProps,
+  }: LoadPoolsOpts) {
     getTopPoolsByNewUI({ ...getTopPoolsProps })
       .then(async (rawPools) => {
         const pools =
           rawPools.length > 0
             ? rawPools.map((rawPool) => parsePool(rawPool))
-            : [];
+            : props.getTopPoolsProps.type == 'classic'
+            ? new Array(10).fill('')
+            : await getPoolsFromCache({
+                page,
+                tokenName,
+                column: sortBy,
+                order,
+              });
 
         setRawPools(rawPools);
 
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
-        setPools(pools);
+
+        setPools(
+          props.getTopPoolsProps.type == 'classic'
+            ? pools
+            : (currentPools) =>
+                pools.reduce<Pool[]>(
+                  (acc: Pool[], pool) => {
+                    if (
+                      acc.some(
+                        (p) =>
+                          p.fee === pool.fee &&
+                          p.tokenIds.includes(pool.tokenIds[0]) &&
+                          p.tokenIds.includes(pool.tokenIds[1]) &&
+                          p.shareSupply === pool.shareSupply
+                      )
+                    )
+                      return acc;
+                    acc.push(pool);
+                    return acc;
+                  },
+                  accumulate ? currentPools.slice() : []
+                )
+        );
       })
       .finally(() => {
         setLoading(false);
