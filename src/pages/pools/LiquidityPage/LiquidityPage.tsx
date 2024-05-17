@@ -74,11 +74,7 @@ import {
   useClientMobile,
   isClientMobie,
 } from '../../../utils/device';
-import {
-  usePoolsMorePoolIds,
-  useDayVolumesPools,
-  useYourliquidity,
-} from '../../../state/pool';
+import { useDayVolumesPools, useYourliquidity } from '../../../state/pool';
 import { PoolTabV3 } from '../../../components/pool/PoolTabV3';
 import { SearchIcon } from '../../../components/icon/FarmBoost';
 import {
@@ -209,7 +205,6 @@ function PoolRow({
   index,
   selectCoinClass,
   tokens,
-  morePoolIds,
   supportFarm,
   farmCount,
   h24volume,
@@ -221,7 +216,6 @@ function PoolRow({
   index?: number;
   selectCoinClass?: string;
   tokens?: TokenMetadata[];
-  morePoolIds: string[];
   supportFarm: boolean;
   farmCount: number;
   h24volume: string;
@@ -575,7 +569,6 @@ function WatchListCard({
   farmCounts,
   volumes,
   watchV2Pools,
-  poolsMorePoolsIds,
   watchList,
   tokenName,
   do_farms_v2_poos,
@@ -586,7 +579,6 @@ function WatchListCard({
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
-  poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
   tokenName: string;
   do_farms_v2_poos: Record<string, Seed>;
@@ -685,7 +677,6 @@ function WatchListCard({
                         pool={pool}
                         farmApr={farmAprById ? farmAprById[pool.id] : null}
                         tokens={poolTokenMetas[pool.id]}
-                        morePoolIds={poolsMorePoolsIds[pool.id]}
                         farmCount={farmCounts[pool.id]}
                         supportFarm={!!farmCounts[pool.id]}
                         h24volume={volumes[pool.id]}
@@ -729,7 +720,6 @@ function PcLiquidityPage({
   nextPage,
   allPools,
   poolTokenMetas,
-  poolsMorePoolsIds,
   farmCounts,
   farmOnly,
   setFarmOnly,
@@ -772,7 +762,6 @@ function PcLiquidityPage({
   onSortChange: (by: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
-  poolsMorePoolsIds: Record<string, string[]>;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
@@ -1280,7 +1269,6 @@ function PcLiquidityPage({
             volumes={volumes}
             watchV2Pools={watchV2Pools}
             watchList={watchList}
-            poolsMorePoolsIds={poolsMorePoolsIds}
             tokenName={tokenName}
             do_farms_v2_poos={do_farms_v2_poos}
             farmAprById={farmAprById}
@@ -1523,7 +1511,6 @@ function PcLiquidityPage({
                         pool={pool}
                         index={i + 1}
                         selectCoinClass={selectCoinClass}
-                        morePoolIds={poolsMorePoolsIds[pool.id]}
                         supportFarm={!!farmCounts[pool.id]}
                         farmCount={farmCounts[pool.id]}
                         h24volume={volumes[pool.id]}
@@ -1740,14 +1727,16 @@ function PcLiquidityPage({
             farmAprById={farmAprById}
           />
         )}
-        <div className="mt-10">
-          <Pagination
-            totalItems={totalItems}
-            itemsPerPage={pageSize}
-            onChangePage={handlePageChange}
-            onPageSizeChange={handleSizeChange}
-          ></Pagination>
-        </div>
+        {activeTab == 'v1' && (
+          <div className="mt-10">
+            <Pagination
+              totalItems={totalItems}
+              itemsPerPage={pageSize}
+              onChangePage={handlePageChange}
+              onPageSizeChange={handleSizeChange}
+            ></Pagination>
+          </div>
+        )}
       </div>
       {isSignedIn && (
         <AddPoolModal
@@ -1962,8 +1951,6 @@ export default function LiquidityPage() {
     }
   }, [txHash]);
 
-  const poolsMorePoolsIds = usePoolsMorePoolIds();
-
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
   const v3PoolVolumes = useV3VolumesPools();
   const stablePools = useAllStablePools();
@@ -2024,7 +2011,6 @@ export default function LiquidityPage() {
           switchActiveTab={switchActiveTab}
           tokenName={tokenName}
           pools={displayPools}
-          poolsMorePoolsIds={poolsMorePoolsIds}
           onHide={(isHide) => {
             localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
             setHideLowTVL(isHide);
@@ -2063,7 +2049,6 @@ export default function LiquidityPage() {
           switchActiveTab={switchActiveTab}
           poolTokenMetas={poolTokenMetas}
           hideLowTVL={hideLowTVL}
-          poolsMorePoolsIds={poolsMorePoolsIds}
           tokenName={tokenName}
           pools={displayPools}
           watchPools={watchPools}

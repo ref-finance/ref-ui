@@ -92,7 +92,6 @@ function MobileLiquidityPage({
   hideLowTVL,
   allPools,
   poolTokenMetas,
-  poolsMorePoolsIds,
   farmCounts,
   farmOnly,
   setFarmOnly,
@@ -120,7 +119,6 @@ function MobileLiquidityPage({
   onSearch: (name: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
-  poolsMorePoolsIds: Record<string, string[]>;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   switchActiveTab: (tab: string) => void;
@@ -303,7 +301,6 @@ function MobileLiquidityPage({
           watchV2Pools={watchV2Pools}
           farmCounts={farmCounts}
           volumes={volumes}
-          poolsMorePoolsIds={poolsMorePoolsIds}
           watchList={watchList}
           do_farms_v2_poos={do_farms_v2_poos}
           farmAprById={farmAprById}
@@ -524,7 +521,6 @@ function MobileLiquidityPage({
               selectCoinClass,
               poolTokenMetas,
               watchPools,
-              poolsMorePoolsIds,
               farmCounts,
               farmAprById,
               filterList,
@@ -678,7 +674,6 @@ function MobileWatchListCard({
   farmCounts,
   volumes,
   watchV2Pools,
-  poolsMorePoolsIds,
   watchList,
   do_farms_v2_poos,
   farmAprById,
@@ -688,7 +683,6 @@ function MobileWatchListCard({
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
-  poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
   farmAprById: Record<string, number>;
@@ -788,7 +782,6 @@ function MobileWatchListCard({
                     sortBy={sortBy}
                     pool={pool}
                     watched={!!find(watchPools, { id: pool.id })}
-                    morePoolIds={poolsMorePoolsIds[pool.id]}
                     supportFarm={!!farmCounts[pool.id]}
                     h24volume={volumes[pool.id]}
                     watchPool

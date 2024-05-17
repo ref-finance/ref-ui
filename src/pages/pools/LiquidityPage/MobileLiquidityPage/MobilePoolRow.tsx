@@ -24,7 +24,6 @@ function MobilePoolRow({
   sortBy,
   watched,
   tokens,
-  morePoolIds,
   supportFarm,
   h24volume,
   watchPool,
@@ -36,7 +35,6 @@ function MobilePoolRow({
   sortBy: string;
   watched: Boolean;
   tokens?: TokenMetadata[];
-  morePoolIds: string[];
   supportFarm: Boolean;
   h24volume: string;
   watchPool?: boolean;
@@ -79,39 +77,6 @@ function MobilePoolRow({
     else if (sortBy === 'apr') return `${getPoolFeeApr(h24volume, pool)}%`;
   };
 
-  const morePoolButton = !(
-    morePoolIds?.length &&
-    morePoolIds?.length > 1 &&
-    !watchPool
-  ) ? null : (
-    <button
-      className={
-        morePoolIds?.length && morePoolIds?.length > 1 && !watchPool
-          ? ' text-farmText bg-black flex items-center bg-opacity-20 rounded-lg text-xs max-w-min  whitespace-nowrap px-2 justify-between ml-2 py-0.5'
-          : ''
-      }
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        history.push(`/more_pools/${pool.tokenIds}`, {
-          morePoolIds,
-          tokens,
-        });
-      }}
-    >
-      <span>
-        {morePoolIds.length}
-        &nbsp;
-        <FormattedMessage
-          id="pools"
-          defaultMessage={'Pools'}
-        ></FormattedMessage>
-      </span>
-      <span>
-        <RiArrowRightSLine className="w-4 h-4 ml-1" />
-      </span>
-    </button>
-  );
   const is_muti_tokens = curRowTokens?.length > 3;
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -139,9 +104,9 @@ function MobilePoolRow({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center">
             <div
-              className={`flex items-center ${
+              className={`flex items-center relative bottom-1 ${
                 is_muti_tokens ? 'flex-wrap w-12' : ''
-              } ${!!morePoolButton ? 'relative bottom-1' : ''}`}
+              } `}
             >
               {/* <div
                 className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full relative z-10"

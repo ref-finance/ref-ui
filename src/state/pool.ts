@@ -426,48 +426,48 @@ export const useMorePoolIds = ({
   return ids;
 };
 
-export const usePoolsMorePoolIds = () => {
-  // top pool id to more pool ids:Array
-  const [poolsMorePoolIds, setMorePoolIds] = useState<Record<string, string[]>>(
-    {}
-  );
+// export const usePoolsMorePoolIds = () => {
+//   // top pool id to more pool ids:Array
+//   const [poolsMorePoolIds, setMorePoolIds] = useState<Record<string, string[]>>(
+//     {}
+//   );
 
-  const getAllPoolsTokens = async () => {
-    return (await getAllPoolsIndexer()).filter(
-      (p: Pool) => p.pool_kind && p.pool_kind === 'SIMPLE_POOL'
-    );
-  };
+//   const getAllPoolsTokens = async () => {
+//     return (await getAllPoolsIndexer()).filter(
+//       (p: Pool) => p.pool_kind && p.pool_kind === 'SIMPLE_POOL'
+//     );
+//   };
 
-  useEffect(() => {
-    getAllPoolsTokens().then((res) => {
-      const poolsMorePoolIds = res.map((p: any) => {
-        const id1 = p.tokenIds[0];
-        const id2 = p.tokenIds[1];
+//   useEffect(() => {
+//     getAllPoolsTokens().then((res) => {
+//       const poolsMorePoolIds = res.map((p: any) => {
+//         const id1 = p.tokenIds[0];
+//         const id2 = p.tokenIds[1];
 
-        return res
-          .filter(
-            (resP: any) =>
-              resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
-          )
-          .map((a: any) => a.id.toString());
-      });
+//         return res
+//           .filter(
+//             (resP: any) =>
+//               resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
+//           )
+//           .map((a: any) => a.id.toString());
+//       });
 
-      const parsedIds = poolsMorePoolIds.reduce(
-        (acc: any, cur: any, i: number) => {
-          return {
-            ...acc,
-            [res[i].id.toString()]: cur,
-          };
-        },
-        {}
-      );
+//       const parsedIds = poolsMorePoolIds.reduce(
+//         (acc: any, cur: any, i: number) => {
+//           return {
+//             ...acc,
+//             [res[i].id.toString()]: cur,
+//           };
+//         },
+//         {}
+//       );
 
-      setMorePoolIds(parsedIds);
-    });
-  }, []);
+//       setMorePoolIds(parsedIds);
+//     });
+//   }, []);
 
-  return poolsMorePoolIds;
-};
+//   return poolsMorePoolIds;
+// };
 
 export const useMorePools = ({
   tokenIds,

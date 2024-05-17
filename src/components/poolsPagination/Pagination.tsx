@@ -1,8 +1,5 @@
 import React, { useState, useMemo } from 'react';
 
-import { PrePage, NextPage } from '../icon/poolsPagination';
-import { text } from 'd3';
-
 const Pagination = ({
   totalItems,
   itemsPerPage,
