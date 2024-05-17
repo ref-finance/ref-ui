@@ -54,7 +54,7 @@ export const getPoolBalance = async (pool_id: number) => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
     args: {
-      pool_id: pool_id,
+      pool_id,
       account_id: getCurrentWallet()?.wallet?.getAccountId(),
     },
   }).then((balance) => {

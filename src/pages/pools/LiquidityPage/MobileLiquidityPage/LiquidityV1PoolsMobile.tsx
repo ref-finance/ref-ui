@@ -41,7 +41,6 @@ const LiquidityV1PoolsMobile = ({
   selectCoinClass,
   poolTokenMetas,
   watchPools,
-  poolsMorePoolsIds,
   farmCounts,
   farmAprById,
   filterList,
@@ -274,7 +273,6 @@ const LiquidityV1PoolsMobile = ({
                 sortBy={sortBy}
                 watched={!!find(watchPools, { id: pool.id })}
                 key={i}
-                morePoolIds={poolsMorePoolsIds[pool.id]}
                 supportFarm={!!farmCounts[pool.id]}
                 h24volume={volumes[pool.id]}
                 farmApr={farmAprById[pool.id]}

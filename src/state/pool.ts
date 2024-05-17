@@ -20,6 +20,7 @@ import {
   getSharesInPool,
   getTotalPools,
   parsePool,
+  parsePoolNew,
   Pool,
   PoolDetails,
   removeLiquidityFromPool,
@@ -271,21 +272,23 @@ export const usePools = (props: {
   sortBy?: string;
   order?: string;
   getTopPoolsProps?: any;
+  activeTab?: any;
 }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
-  const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
+  const [rawPools, setRawPools] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [cardLoading, setCardLoding] = useState(true);
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
 
+  const [shortSavePools, setShortSavePools] = useState([]);
   useEffect(() => {
-    if (!loading) {
-      console.log(rawPools.map, 'rawPools.map');
+    if (!loading && rawPools.length) {
       setRequestPoolList(
         rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
       );
+      console.log(rawPools, 'rawpals');
     }
   }, [loading, rawPools.length]);
 
@@ -293,20 +296,38 @@ export const usePools = (props: {
 
   const nextPage = () => setPage((page) => page + 1);
 
-  function _loadPools({
+  function _loadPools({ getTopPoolsProps }: LoadPoolsOpts) {
+    getTopPoolsByNewUI({ ...getTopPoolsProps })
+      .then(async (res) => {
+        const pools =
+          res.length > 0
+            ? res.map((item) => parsePoolNew(item))
+            : new Array(10).fill('');
+
+        setShortSavePools(pools);
+
+        // setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
+
+        setPools(pools);
+        console.log(pools, '......pools');
+      })
+      .finally(() => {
+        setLoading(false);
+        setCardLoding(false);
+      });
+  }
+
+  function _loadPoolsOri({
     accumulate = true,
     tokenName,
     sortBy,
     order,
-    getTopPoolsProps,
   }: LoadPoolsOpts) {
-    getTopPoolsByNewUI({ ...getTopPoolsProps })
+    getTopPools()
       .then(async (rawPools) => {
         const pools =
           rawPools.length > 0
             ? rawPools.map((rawPool) => parsePool(rawPool))
-            : props.getTopPoolsProps.type == 'classic'
-            ? new Array(10).fill('')
             : await getPoolsFromCache({
                 page,
                 tokenName,
@@ -318,27 +339,24 @@ export const usePools = (props: {
 
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
 
-        setPools(
-          props.getTopPoolsProps.type == 'classic'
-            ? pools
-            : (currentPools) =>
-                pools.reduce<Pool[]>(
-                  (acc: Pool[], pool) => {
-                    if (
-                      acc.some(
-                        (p) =>
-                          p.fee === pool.fee &&
-                          p.tokenIds.includes(pool.tokenIds[0]) &&
-                          p.tokenIds.includes(pool.tokenIds[1]) &&
-                          p.shareSupply === pool.shareSupply
-                      )
-                    )
-                      return acc;
-                    acc.push(pool);
-                    return acc;
-                  },
-                  accumulate ? currentPools.slice() : []
+        setPools((currentPools) =>
+          pools.reduce<Pool[]>(
+            (acc: Pool[], pool) => {
+              if (
+                acc.some(
+                  (p) =>
+                    p.fee === pool.fee &&
+                    p.tokenIds.includes(pool.tokenIds[0]) &&
+                    p.tokenIds.includes(pool.tokenIds[1]) &&
+                    p.shareSupply === pool.shareSupply
                 )
+              )
+                return acc;
+              acc.push(pool);
+              return acc;
+            },
+            accumulate ? currentPools.slice() : []
+          )
         );
       })
       .finally(() => {
@@ -347,7 +365,10 @@ export const usePools = (props: {
       });
   }
 
-  const loadPools = useCallback(debounce(_loadPools, 500), []);
+  const loadPools = useCallback(
+    debounce(props.activeTab == 'v1' ? _loadPools : _loadPoolsOri, 100),
+    []
+  );
 
   useEffect(() => {
     if (props.getTopPoolsProps.type != 'classic') {
@@ -367,24 +388,40 @@ export const usePools = (props: {
   }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
-    setLoading(true);
-    loadPools({
-      accumulate: true,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
-      order: props.order,
-    });
+    if (props.getTopPoolsProps.type == 'classic') {
+      const newPools = shortSavePools.filter(
+        (item) =>
+          item.search_symbols
+            .toLowerCase()
+            .indexOf(props.tokenName.toLowerCase()) !== -1
+      );
+      props.tokenName ? setPools(newPools) : setPools(shortSavePools);
+    }
+  }, [props.tokenName]);
+
+  useEffect(() => {
+    if (props.getTopPoolsProps.type != 'classic') {
+      setLoading(true);
+      loadPools({
+        accumulate: true,
+        tokenName: props.tokenName,
+        sortBy: props.sortBy,
+        order: props.order,
+      });
+    }
   }, [page]);
 
   useEffect(() => {
-    setCardLoding(true);
-    loadPools({
-      accumulate: true,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
-      order: props.order,
-      getTopPoolsProps: props.getTopPoolsProps,
-    });
+    if (props.getTopPoolsProps.type == 'classic') {
+      setCardLoding(true);
+      loadPools({
+        accumulate: true,
+        tokenName: props.tokenName,
+        sortBy: props.sortBy,
+        order: props.order,
+        getTopPoolsProps: props.getTopPoolsProps,
+      });
+    }
   }, [
     props.getTopPoolsProps.farm,
     props.getTopPoolsProps.hide_low_pool,

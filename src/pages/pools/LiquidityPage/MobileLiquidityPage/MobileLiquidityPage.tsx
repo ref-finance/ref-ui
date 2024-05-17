@@ -76,8 +76,15 @@ import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidit
 import { PoolsTip } from '../../poolsComponents/poolsTip';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from 'src/components/icon/Common';
+import Pagination from '../../../../components/poolsPagination/Pagination';
 
 function MobileLiquidityPage({
+  h24VolumeV2,
+  totalItems,
+  pageSize,
+  handlePageChange,
+  handleSizeChange,
+  cardLoading,
   pools,
   tokenName,
   order,
@@ -103,6 +110,13 @@ function MobileLiquidityPage({
   do_farms_v2_poos,
   farmAprById,
 }: {
+  cardLoading: boolean;
+  totalItems: number;
+  pageSize: number;
+  handlePageChange: (key: any, size: any) => void;
+  handleSizeChange: (key: number) => void;
+  h24VolumeV2: string;
+  farmAprById: Record<string, number>;
   pools: Pool[];
   poolTokenMetas: any;
   farmOnly: boolean;
@@ -126,7 +140,6 @@ function MobileLiquidityPage({
   watchV2Pools: PoolInfo[];
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
-  farmAprById: Record<string, number>;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -652,6 +665,16 @@ function MobileLiquidityPage({
             farmCounts={farmCounts}
             farmAprById={farmAprById}
           />
+        )}
+        {activeTab == 'v1' && (
+          <div className="mt-10">
+            <Pagination
+              totalItems={totalItems}
+              itemsPerPage={pageSize}
+              onChangePage={handlePageChange}
+              onPageSizeChange={handleSizeChange}
+            ></Pagination>
+          </div>
         )}
       </div>
       {isSignedIn && (

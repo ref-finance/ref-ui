@@ -119,6 +119,32 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   pool_kind: pool?.pool_kind,
 });
 
+export const parsePoolNew = (pool: any, id?: number): any => {
+  console.log(pool, id);
+  return {
+    id: Number(id >= 0 ? id : pool.id),
+    tokenIds: pool.token_account_ids,
+    supplies: pool.amounts.reduce(
+      (acc: { [tokenId: string]: string }, amount: string, i: number) => {
+        acc[pool.token_account_ids[i]] = amount;
+        return acc;
+      },
+      {}
+    ),
+    fee: pool.total_fee,
+    shareSupply: pool.shares_total_supply,
+    tvl: pool.tvl,
+    token0_ref_price: pool.token0_ref_price,
+    pool_kind: pool?.pool_kind,
+    apy: pool.apy,
+    farm_apy: pool.farm_apy,
+    is_farm: pool.is_farm,
+    volume_24h: pool.volume_24h,
+    token_symbols: pool.token_symbols,
+    search_symbols: pool.token_symbols.join('-'),
+  };
+};
+
 export const getPools = async ({
   page = 1,
   perPage = DEFAULT_PAGE_LIMIT,

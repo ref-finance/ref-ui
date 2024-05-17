@@ -352,40 +352,34 @@ export const getTopPoolsByNewUI = async ({
   hide_low_pool?: string | boolean;
   order: string;
 }): Promise<PoolRPCView[]> => {
-  console.log(farm);
-  if (type != 'classic') {
-    return getTopPools();
-  } else {
-    try {
-      let pools: any;
+  try {
+    let pools: any;
 
-      pools = await fetch(
-        config.newPoolsIndexerUrl +
-          `/list-pools?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-          },
-        }
-      ).then((res) => res.json());
-
-      if (pools?.data?.list.length > 0) {
-        localStorage.setItem('poolsTotal', pools.data.total);
-        pools = pools.data.list;
-        pools = pools.map((pool: any) => parsePoolView(pool));
-        return pools
-          .filter((pool: { token_account_ids: string | any[]; id: any }) => {
-            return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
-          })
-          .filter(filterBlackListPools);
-      } else {
-        pools = [];
-        return [];
+    pools = await fetch(
+      config.newPoolsIndexerUrl +
+        `/list-pools?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
       }
-    } catch (error) {
+    ).then((res) => res.json());
+
+    if (pools?.data?.list.length > 0) {
+      localStorage.setItem('poolsTotal', pools.data.total);
+      pools = pools.data.list;
+      return pools
+        .filter((pool: { token_account_ids: string | any[]; id: any }) => {
+          return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
+        })
+        .filter(filterBlackListPools);
+    } else {
+      pools = [];
       return [];
     }
+  } catch (error) {
+    return [];
   }
 };
 
