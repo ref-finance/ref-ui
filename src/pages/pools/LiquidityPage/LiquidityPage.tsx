@@ -311,7 +311,7 @@ function PoolRow({
           </div>
         </div>
         <div className="col-span-1 flex items-center justify-center justify-self-center py-1 md:hidden ">
-          {calculateFeePercent(pool.fee)}%
+          {pool.fee * 100}%
         </div>
         <div
           className="col-span-1 flex flex-col items-center justify-self-center text-sm py-1"
@@ -1514,48 +1514,24 @@ function PcLiquidityPage({
               </header>
 
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-                {activeTab != 'v1'
-                  ? pools
-                      ?.filter(poolFilterFunc)
-                      .sort(poolReSortingFunc)
-                      .map((pool, i) => {
-                        return (
-                          <div key={'v1-pc' + pool.id}>
-                            <PoolRow
-                              tokens={poolTokenMetas[pool.id]}
-                              farmApr={
-                                farmAprById ? farmAprById[pool.id] : null
-                              }
-                              pool={pool}
-                              index={i + 1}
-                              selectCoinClass={selectCoinClass}
-                              morePoolIds={poolsMorePoolsIds[pool.id]}
-                              supportFarm={!!farmCounts[pool.id]}
-                              farmCount={farmCounts[pool.id]}
-                              h24volume={volumes[pool.id]}
-                              watched={!!find(watchPools, { id: pool.id })}
-                            />
-                          </div>
-                        );
-                      })
-                  : pools?.filter(poolFilterFunc).map((pool, i) => {
-                      return (
-                        <div key={'v1-pc' + pool.id}>
-                          <PoolRow
-                            tokens={poolTokenMetas[pool.id]}
-                            farmApr={farmAprById ? farmAprById[pool.id] : null}
-                            pool={pool}
-                            index={i + 1}
-                            selectCoinClass={selectCoinClass}
-                            morePoolIds={poolsMorePoolsIds[pool.id]}
-                            supportFarm={!!farmCounts[pool.id]}
-                            farmCount={farmCounts[pool.id]}
-                            h24volume={volumes[pool.id]}
-                            watched={!!find(watchPools, { id: pool.id })}
-                          />
-                        </div>
-                      );
-                    })}
+                {pools?.filter(poolFilterFunc).map((pool, i) => {
+                  return (
+                    <div key={'v1-pc' + pool.id}>
+                      <PoolRow
+                        tokens={poolTokenMetas[pool.id]}
+                        farmApr={farmAprById ? farmAprById[pool.id] : null}
+                        pool={pool}
+                        index={i + 1}
+                        selectCoinClass={selectCoinClass}
+                        morePoolIds={poolsMorePoolsIds[pool.id]}
+                        supportFarm={!!farmCounts[pool.id]}
+                        farmCount={farmCounts[pool.id]}
+                        h24volume={volumes[pool.id]}
+                        watched={!!find(watchPools, { id: pool.id })}
+                      />
+                    </div>
+                  );
+                })}
               </div>
               {cardLoading && <Loading></Loading>}
             </section>
@@ -1827,8 +1803,6 @@ export default function LiquidityPage() {
     }
   }, [localStorage.getItem('poolsTotal')]);
 
-  // pagination end
-
   const handlePageChange = (newPage, newSize) => {
     setCurrentPage(newPage);
     console.log(`Changed to page ${newPage} with size ${newSize}`);
@@ -1842,6 +1816,8 @@ export default function LiquidityPage() {
     //
   };
 
+  // pagination end
+
   const switchActiveTab = (curTab: string) => {
     setActiveTab(curTab);
 
@@ -1852,11 +1828,13 @@ export default function LiquidityPage() {
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
     Record<string, Seed>
   >({});
+
   const activeObj = {
     v1: 'classic',
     v2: 'dcl',
     stable: 'stable',
   };
+
   const { pools, hasMore, nextPage, loading, volumes, cardLoading } = usePools({
     tokenName,
     sortBy,
@@ -1870,7 +1848,6 @@ export default function LiquidityPage() {
       offset: (currentPage - 1) * pageSize,
     },
   });
-
   useEffect(() => {
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
@@ -1937,6 +1914,7 @@ export default function LiquidityPage() {
     );
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL, farmOnly, farmCounts]);
+
   const poolTokenMetas = usePoolTokens(pools);
 
   const onSearch = useCallback(

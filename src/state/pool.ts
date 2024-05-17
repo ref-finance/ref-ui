@@ -293,47 +293,18 @@ export const usePools = (props: {
 
   const nextPage = () => setPage((page) => page + 1);
 
-  function _loadPools({
-    accumulate = true,
-    tokenName,
-    sortBy,
-    order,
-    getTopPoolsProps,
-  }: LoadPoolsOpts) {
+  function _loadPools({ getTopPoolsProps }: LoadPoolsOpts) {
     getTopPoolsByNewUI({ ...getTopPoolsProps })
       .then(async (rawPools) => {
         const pools =
           rawPools.length > 0
             ? rawPools.map((rawPool) => parsePool(rawPool))
-            : await getPoolsFromCache({
-                page,
-                tokenName,
-                column: sortBy,
-                order,
-              });
+            : [];
 
         setRawPools(rawPools);
 
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
-        setPools((currentPools) =>
-          pools.reduce<Pool[]>(
-            (acc: Pool[], pool) => {
-              if (
-                acc.some(
-                  (p) =>
-                    p.fee === pool.fee &&
-                    p.tokenIds.includes(pool.tokenIds[0]) &&
-                    p.tokenIds.includes(pool.tokenIds[1]) &&
-                    p.shareSupply === pool.shareSupply
-                )
-              )
-                return acc;
-              acc.push(pool);
-              return acc;
-            },
-            accumulate ? currentPools.slice() : []
-          )
-        );
+        setPools(pools);
       })
       .finally(() => {
         setLoading(false);
@@ -344,18 +315,20 @@ export const usePools = (props: {
   const loadPools = useCallback(debounce(_loadPools, 500), []);
 
   useEffect(() => {
-    const args = {
-      page,
-      perPage: DEFAULT_PAGE_LIMIT,
-      tokenName: trim(props.tokenName),
-      column: props.sortBy,
-      order: props.order,
-    };
+    if (props.getTopPoolsProps.type != 'classic') {
+      const args = {
+        page,
+        perPage: DEFAULT_PAGE_LIMIT,
+        tokenName: trim(props.tokenName),
+        column: props.sortBy,
+        order: props.order,
+      };
 
-    const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
-      parsePool(rawPool)
-    );
-    setPools(newPools);
+      const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
+        parsePool(rawPool)
+      );
+      setPools(newPools);
+    }
   }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
@@ -377,7 +350,6 @@ export const usePools = (props: {
       order: props.order,
       getTopPoolsProps: props.getTopPoolsProps,
     });
-    console.log(props.getTopPoolsProps, 'props.getTopPoolsProps.farm');
   }, [
     props.getTopPoolsProps.farm,
     props.getTopPoolsProps.hide_low_pool,
