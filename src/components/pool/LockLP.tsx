@@ -147,7 +147,7 @@ const LockLP = ({
           </div>
           <span>${tokenA_amount}</span>
         </div>
-        <div class="flex items-center justify-between text-sm text-white gap-5">
+        <div class="flex items-center justify-between text-xs text-white gap-5">
           <div class="flex items-center gap-2">
             <img src="${tokens?.[1].icon}" class="w-5 h-5 rounded-full"/>
             <span class="text-white">${tokens?.[1].symbol}</span>
