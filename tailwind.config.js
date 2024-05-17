@@ -438,6 +438,8 @@ module.exports = {
         memeBorderBlackColor: '#1C2D38',
         memeDonateBorderColor: '#979797',
         memeDonateBgColor: '#213441',
+        memeUserStackeBgColor: '#213441',
+        memeUserStackeMobileBgColor: '#44525D',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
