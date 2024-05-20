@@ -325,18 +325,19 @@ function PoolRow({
             data-tooltip-html={getPoolListFarmAprTip()}
             data-tooltip-id={'pool_list_pc_apr' + pool.id}
           >
-            {`${Number(pool.apy).toFixed(2)}%`}
-            {supportFarm &&
-              !Number.isNaN(farmApr) &&
-              farmApr !== null &&
-              farmApr !== undefined &&
-              farmApr > 0 &&
-              h24volume && (
-                <span className="text-xs text-gradientFrom">
-                  {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
-                </span>
-              )}
-            {supportFarm && farmApr > 0 && (
+            {`${
+              Number(pool.apy).toFixed(0) != '0'
+                ? Number(pool.apy).toFixed(2) + '%'
+                : '0'
+            }`}
+            <span className="text-xs text-gradientFrom">
+              {`${
+                Number(pool.farm_apy).toFixed(0) != '0'
+                  ? Number(pool.farm_apy).toFixed(2) + '%'
+                  : ''
+              }`}
+            </span>
+            {Number(pool.farm_apy).toFixed(0) != '0' && (
               <CustomTooltip
                 className="w-20"
                 id={'pool_list_pc_apr' + pool.id}

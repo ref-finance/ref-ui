@@ -85,15 +85,16 @@ const Pagination = ({
 
   return (
     <div
-      className={`flex justify-between items-center text-white text-sm font-bold cursor-pointer`}
+      className={`flex justify-center items-center text-white text-sm font-bold cursor-pointer`}
     >
       <div
         style={currentPage == 1 ? disableStyle : activeLinkStyle}
         onClick={() => currentPage > 1 && goToPage(currentPage - 1)}
+        className="mr-auto"
       >
         {`<<  Previous`}
       </div>
-      <ul className="flex w-80">
+      <ul className="flex w-80 justify-center">
         {pageNumbersList.map((item, index) => {
           if (item === '...') {
             return (
@@ -128,6 +129,7 @@ const Pagination = ({
             : activeLinkStyle
         }
         onClick={() => currentPage < pageCount && goToPage(currentPage + 1)}
+        className=" ml-auto"
       >
         {`Next  >>`}
       </div>

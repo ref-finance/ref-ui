@@ -120,7 +120,6 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
 });
 
 export const parsePoolNew = (pool: any, id?: number): any => {
-  console.log(pool, id);
   return {
     id: Number(id >= 0 ? id : pool.id),
     tokenIds: pool.token_account_ids,

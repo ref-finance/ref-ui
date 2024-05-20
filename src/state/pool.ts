@@ -259,7 +259,7 @@ export const usePool = (id: number | string) => {
 };
 
 interface LoadPoolsOpts {
-  accumulate: boolean;
+  accumulate?: boolean;
   tokenName?: string;
   sortBy?: string;
   order?: string;
@@ -283,12 +283,17 @@ export const usePools = (props: {
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
 
   const [shortSavePools, setShortSavePools] = useState([]);
+
+  useEffect(() => {
+    setPools([]);
+    if (props.activeTab == 'v1') setLoading(true);
+  }, [props.activeTab]);
+
   useEffect(() => {
     if (!loading && rawPools.length) {
       setRequestPoolList(
         rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
       );
-      console.log(rawPools, 'rawpals');
     }
   }, [loading, rawPools.length]);
 
@@ -300,16 +305,13 @@ export const usePools = (props: {
     getTopPoolsByNewUI({ ...getTopPoolsProps })
       .then(async (res) => {
         const pools =
-          res.length > 0
-            ? res.map((item) => parsePoolNew(item))
-            : new Array(10).fill('');
+          res.length > 0 ? res.map((item) => parsePoolNew(item)) : [];
 
         setShortSavePools(pools);
 
         // setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
 
         setPools(pools);
-        console.log(pools, '......pools');
       })
       .finally(() => {
         setLoading(false);
@@ -364,14 +366,9 @@ export const usePools = (props: {
         setCardLoding(false);
       });
   }
-
-  const loadPools = useCallback(
-    debounce(props.activeTab == 'v1' ? _loadPools : _loadPoolsOri, 100),
-    []
-  );
-
+  const loadPools = props.activeTab == 'v1' ? _loadPools : _loadPoolsOri;
   useEffect(() => {
-    if (props.getTopPoolsProps.type != 'classic') {
+    if (props.activeTab != 'v1') {
       const args = {
         page,
         perPage: DEFAULT_PAGE_LIMIT,
@@ -388,7 +385,7 @@ export const usePools = (props: {
   }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
-    if (props.getTopPoolsProps.type == 'classic') {
+    if (props.activeTab != 'v1') {
       const newPools = shortSavePools.filter(
         (item) =>
           item.search_symbols
@@ -400,7 +397,7 @@ export const usePools = (props: {
   }, [props.tokenName]);
 
   useEffect(() => {
-    if (props.getTopPoolsProps.type != 'classic') {
+    if (props.activeTab != 'v1') {
       setLoading(true);
       loadPools({
         accumulate: true,
@@ -412,13 +409,9 @@ export const usePools = (props: {
   }, [page]);
 
   useEffect(() => {
-    if (props.getTopPoolsProps.type == 'classic') {
+    if (props.activeTab == 'v1' || props.activeTab == 'v1') {
       setCardLoding(true);
       loadPools({
-        accumulate: true,
-        tokenName: props.tokenName,
-        sortBy: props.sortBy,
-        order: props.order,
         getTopPoolsProps: props.getTopPoolsProps,
       });
     }
