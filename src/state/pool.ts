@@ -62,6 +62,7 @@ import {
   getDCLTopBinFee,
   getTokenPriceList,
   getIndexerStatus,
+  getPoolsDetailByIds,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -283,7 +284,6 @@ export const usePools = (props: {
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
 
   const [shortSavePools, setShortSavePools] = useState([]);
-
   useEffect(() => {
     setPools([]);
     if (props.activeTab == 'v1') setLoading(true);
@@ -385,7 +385,7 @@ export const usePools = (props: {
   }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
-    if (props.activeTab != 'v1') {
+    if (props.activeTab == 'v1') {
       const newPools = shortSavePools.filter(
         (item) =>
           item.search_symbols
@@ -406,10 +406,10 @@ export const usePools = (props: {
         order: props.order,
       });
     }
-  }, [page]);
+  }, [page, props.activeTab]);
 
   useEffect(() => {
-    if (props.activeTab == 'v1' || props.activeTab == 'v1') {
+    if (props.activeTab == 'v1') {
       setCardLoding(true);
       loadPools({
         getTopPoolsProps: props.getTopPoolsProps,
@@ -424,7 +424,6 @@ export const usePools = (props: {
     props.getTopPoolsProps.order_by,
     props.getTopPoolsProps.offset,
   ]);
-
   return {
     pools,
     hasMore,
@@ -708,26 +707,51 @@ export const useWatchPools = () => {
       }
     });
     if (ids_v1.length > 0) {
-      getPoolsByIds({ pool_ids: ids_v1 })
-        .then((res) => {
-          const resPools = res.map((pool) => parsePool(pool));
+      //
+      const knownPoolIds = new Set(ALL_STABLE_POOL_IDS);
+      const knownIds_v1 = ids_v1.filter((id) => knownPoolIds.has(id));
+      const unknownIds_v1 = ids_v1.filter((id) => !knownPoolIds.has(id));
 
-          return resPools;
-        })
-        .then((resPools) => {
-          return Promise.all(
-            resPools.map(async (p) => {
-              return {
-                ...p,
-                metas: await ftGetTokensMetadata(p.tokenIds),
-              };
-            })
-          );
-        })
-        .then((res) => {
-          setWatchPools(res);
-        });
+      Promise.all([
+        getPoolsByIds({ pool_ids: knownIds_v1 })
+          .then((res) => {
+            const resPools = res.map((pool) => parsePool(pool));
+
+            return resPools;
+          })
+          .then((resPools) => {
+            return Promise.all(
+              resPools.map(async (p) => {
+                return {
+                  ...p,
+                  metas: await ftGetTokensMetadata(p.tokenIds),
+                };
+              })
+            );
+          }),
+        getPoolsDetailByIds({ pool_ids: unknownIds_v1 })
+          .then((res) => {
+            const resPools = res.map((pool) => parsePoolNew(pool));
+
+            return resPools;
+          })
+          .then((resPools) => {
+            return Promise.all(
+              resPools.map(async (p) => {
+                return {
+                  ...p,
+                  metas: await ftGetTokensMetadata(p.tokenIds),
+                };
+              })
+            );
+          }),
+      ]).then(([res1, res2]) => {
+        const allPools = [...res1, ...res2];
+        setWatchPools(allPools);
+      });
     }
+
+    //
     if (ids_v2.length > 0) {
       getV2PoolsByIds(ids_v2).then((res: PoolInfo[]) => {
         setWatchV2Pools(

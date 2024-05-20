@@ -679,6 +679,36 @@ export const getPoolsByIds = async ({
     });
 };
 
+export const getPoolsDetailByIds = async ({
+  pool_ids,
+}: {
+  pool_ids: string[];
+}): Promise<PoolRPCView[]> => {
+  const ids = pool_ids.join('|');
+  if (!ids) return [];
+
+  return Promise.all(
+    pool_ids.map((pool_id) => {
+      return fetch(
+        config.newPoolsIndexerUrl + '/pool/detail?pool_id=' + pool_id,
+        {
+          method: 'GET',
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+          },
+        }
+      )
+        .then((res) => res.json())
+        .then((pools) => {
+          return pools.data;
+        })
+        .catch(() => {
+          return [];
+        });
+    })
+  );
+};
+
 export const getTokenPriceList = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/list-token-price', {
     method: 'GET',

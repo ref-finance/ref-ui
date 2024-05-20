@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { isMobile } from '../../utils/device';
 
 const Pagination = ({
   totalItems,
@@ -83,6 +84,15 @@ const Pagination = ({
     return renderList;
   }, [currentPage, pageCount]);
 
+  const pageNumbersListForMobile = useMemo(() => {
+    return (
+      <div>
+        <span className="text-white">{currentPage}</span>/
+        <span className="text-primaryText">{pageCount}</span>
+      </div>
+    );
+  }, [currentPage, pageCount]);
+
   return (
     <div
       className={`flex justify-center items-center text-white text-sm font-bold cursor-pointer`}
@@ -94,33 +104,40 @@ const Pagination = ({
       >
         {`<<  Previous`}
       </div>
-      <ul className="flex w-80 justify-center">
-        {pageNumbersList.map((item, index) => {
-          if (item === '...') {
-            return (
-              <li key={`ellipsis-${index}`} className="w-6 h-6 frcc rounded">
-                <span className="page-link" onClick={() => goPreOrNext(index)}>
-                  {item}
-                </span>
-              </li>
-            );
-          } else {
-            return (
-              <li
-                key={item}
-                className={`frcc w-6 h-6 rounded ${
-                  index % 2 == 0 ? 'mx-2' : ''
-                }`}
-                style={currentPage == item ? activePageStyle : undefined}
-              >
-                <span className="page-link" onClick={() => goToPage(item)}>
-                  {item}
-                </span>
-              </li>
-            );
-          }
-        })}
-      </ul>
+      {!isMobile() ? (
+        <ul className="flex w-80 justify-center">
+          {pageNumbersList.map((item, index) => {
+            if (item === '...') {
+              return (
+                <li key={`ellipsis-${index}`} className="w-6 h-6 frcc rounded">
+                  <span
+                    className="page-link"
+                    onClick={() => goPreOrNext(index)}
+                  >
+                    {item}
+                  </span>
+                </li>
+              );
+            } else {
+              return (
+                <li
+                  key={item}
+                  className={`frcc w-6 h-6 rounded ${
+                    index % 2 == 0 ? 'mx-2' : ''
+                  }`}
+                  style={currentPage == item ? activePageStyle : undefined}
+                >
+                  <span className="page-link" onClick={() => goToPage(item)}>
+                    {item}
+                  </span>
+                </li>
+              );
+            }
+          })}
+        </ul>
+      ) : (
+        pageNumbersListForMobile
+      )}
 
       <div
         style={

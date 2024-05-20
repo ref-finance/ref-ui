@@ -309,13 +309,13 @@ function PoolRow({
 
         {/* fee */}
         <div className="col-span-1 flex items-center justify-center justify-self-center py-1 md:hidden ">
-          {activeTab == 'v1'
+          {Reflect.has(pool, 'farm_apy')
             ? (pool.fee * 100).toFixed(2)
             : calculateFeePercent(pool.fee)}
           %
         </div>
         {/* apr */}
-        {activeTab == 'v1' ? (
+        {Reflect.has(pool, 'farm_apy') ? (
           <div
             className="col-span-1 flex flex-col items-center justify-self-center text-sm py-1"
             data-type="info"
@@ -327,9 +327,9 @@ function PoolRow({
           >
             {`${
               Number(pool.apy).toFixed(0) != '0'
-                ? Number(pool.apy).toFixed(2) + '%'
+                ? Number(pool.apy).toFixed(2)
                 : '0'
-            }`}
+            }%`}
             <span className="text-xs text-gradientFrom">
               {`${
                 Number(pool.farm_apy).toFixed(0) != '0'
@@ -376,7 +376,7 @@ function PoolRow({
           </div>
         )}
         {/* 24h */}
-        {activeTab == 'v1' ? (
+        {Reflect.has(pool, 'farm_apy') ? (
           <div
             className="col-span-1 flex items-center justify-center py-1 justify-self-center relative "
             title={h24volume}
@@ -995,7 +995,6 @@ function PcLiquidityPage({
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
-
     return poolTokenMetas?.[p.id]?.some((tk: TokenMetadata) =>
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
