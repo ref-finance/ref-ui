@@ -109,6 +109,7 @@ import {
 } from '../components/d3Chart/interfaces';
 import { getPointByPrice, getPriceByPoint } from '../services/commonV3';
 import { formatPercentage } from '../components/d3Chart/utils';
+import { get_account, ILock } from '../services/lp-locker';
 
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
@@ -135,11 +136,11 @@ export const useBatchTotalShares = (
 ) => {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
   const [batchShares, setBatchShares] = useState<string[]>();
-
   const [batchFarmStake, setBatchFarmStake] = useState<(string | number)[]>();
+  const [batchLpLocked, setBatchLpLocked] = useState<(string | number)[]>();
   const [sharesDone, setSharesDone] = useState<boolean>(false);
+  const [accountLocked, setAccountLocked] = useState<Record<string, ILock>>();
 
   const getFarmStake = (pool_id: number) => {
     let farmStake = '0';
@@ -158,19 +159,42 @@ export const useBatchTotalShares = (
 
     return tempFarmStake;
   };
-
   useEffect(() => {
-    if (!ids || !finalStakeList || !isSignedIn || !stakeListDone)
+    if (isSignedIn) {
+      get_account().then((locked) => {
+        setAccountLocked(locked?.locked_tokens || {});
+      });
+    }
+  }, [isSignedIn]);
+  useEffect(() => {
+    if (
+      !ids ||
+      !finalStakeList ||
+      !isSignedIn ||
+      !stakeListDone ||
+      !accountLocked
+    )
       return undefined;
     getShares();
-  }, [ids?.join('-'), finalStakeList, isSignedIn, stakeListDone]);
+  }, [
+    ids?.join('-'),
+    finalStakeList,
+    isSignedIn,
+    stakeListDone,
+    accountLocked,
+  ]);
   async function getShares() {
     const shareInPools = await Promise.all(
       ids.map((id) => getSharesInPool(Number(id)))
     );
+    const shareInLocked = ids.map((id: string) => {
+      const key = `${getConfig().REF_FI_CONTRACT_ID}@:${id}`;
+      return accountLocked?.[key]?.locked_balance || '0';
+    });
     const shareInFarms = ids.map((id) => getFarmStake(Number(id)));
     setBatchShares(shareInPools);
     setBatchFarmStake(shareInFarms);
+    setBatchLpLocked(shareInLocked);
     setSharesDone(true);
   }
   return {
@@ -180,6 +204,7 @@ export const useBatchTotalShares = (
       ids?.map((id, index) => {
         return new Big(batchShares?.[index] || '0')
           .plus(new Big(batchFarmStake?.[index] || '0'))
+          .plus(new Big(batchLpLocked?.[index] || '0'))
           .toNumber();
       }) || undefined,
   };
