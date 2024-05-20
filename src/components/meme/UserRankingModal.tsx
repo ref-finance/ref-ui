@@ -331,21 +331,27 @@ function UserRankingModal(props: any) {
                   }}
                 >
                   <div className="flex justify-center items-center pr-6">
-                    {index === 0 ? (
-                      <UserStakeRankingTab1 />
-                    ) : index === 1 ? (
-                      <UserStakeRankingTab2 />
-                    ) : index === 2 ? (
-                      <UserStakeRankingTab3 />
-                    ) : (
-                      index + 1
-                    )}
+                    {(() => {
+                      const globalIndex =
+                        index + 1 + (currentPage - 1) * itemsPerPage;
+                      return globalIndex === 1 ? (
+                        <UserStakeRankingMobileTab1 />
+                      ) : globalIndex === 2 ? (
+                        <UserStakeRankingMobileTab2 />
+                      ) : globalIndex === 3 ? (
+                        <UserStakeRankingMobileTab3 />
+                      ) : (
+                        globalIndex
+                      );
+                    })()}
                   </div>
                   <div className="truncate max-w-18 overflow-hidden text-ellipsis">
                     {item.wallet}
                   </div>
                   <div className="truncate max-w-10 overflow-hidden text-ellipsis">
-                    ${item.total_value}
+                    {item.total_value < 0.01
+                      ? '<0.01'
+                      : `$${abbreviateNumber(item.total_value)}`}
                   </div>
                   <div className="max-w-10">
                     {selectedToken === 'All' &&
@@ -398,7 +404,9 @@ function UserRankingModal(props: any) {
                                   </p>
                                 </div>
                                 <div className="text-sm">
-                                  {abbreviateNumber(token.total)}
+                                  {token.total < 0.01
+                                    ? '<0.01'
+                                    : `$${abbreviateNumber(token.total)}`}
                                 </div>
                               </div>
                             ))}
@@ -407,7 +415,9 @@ function UserRankingModal(props: any) {
                       </div>
                     ) : (
                       <div className="flex justify-end">
-                        {abbreviateNumber(item.total)}
+                        {item.total < 0.01
+                          ? '<0.01'
+                          : `$${abbreviateNumber(item.total)}`}
                       </div>
                     )}
                   </div>
@@ -496,7 +506,9 @@ function UserRankingModal(props: any) {
                                       </p>
                                     </div>
                                     <div className="text-sm">
-                                      {abbreviateNumber(token.total)}
+                                      {token.total < 0.01
+                                        ? '<0.01'
+                                        : `$${abbreviateNumber(token.total)}`}
                                     </div>
                                   </div>
                                 ))}
@@ -505,7 +517,9 @@ function UserRankingModal(props: any) {
                           </div>
                         ) : (
                           <div className="flex justify-end">
-                            {abbreviateNumber(item.total)}
+                            {item.total < 0.01
+                              ? '<0.01'
+                              : `$${abbreviateNumber(item.total)}`}
                           </div>
                         )}
                       </div>
