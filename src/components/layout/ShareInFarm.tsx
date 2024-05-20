@@ -22,16 +22,18 @@ export const ShareInFarm = ({
   userTotalShare,
   forStable,
   version,
+  inStr,
 }: {
   farmStake: string | number;
   userTotalShare: BigNumber;
   forStable?: boolean;
   version?: string;
+  inStr?: string;
 }) => {
+  if (Number(farmStake) === 0) return null;
   const farmShare = Number(farmStake).toLocaleString('fullwide', {
     useGrouping: false,
   });
-
   const [hover, setHovet] = useState<boolean>(false);
 
   const farmSharePercent = userTotalShare.isGreaterThan(0)
@@ -71,15 +73,17 @@ export const ShareInFarm = ({
             Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
               ? '< 0.1'
               : toPrecision(farmSharePercent, 2, false, false)
-          }% `}{' '}
+          }% `}
         </span>
+        &nbsp;
         <span>
-          &nbsp;
-          <FormattedMessage id="in_farm" defaultMessage="in Farm" />
+          {inStr ? (
+            inStr
+          ) : (
+            <FormattedMessage id="in_farm" defaultMessage="in Farm" />
+          )}
         </span>
-
         {version && <span className={`ml-1 w-4`}>{version}</span>}
-
         {hover && forStable && (
           <span className="ml-0.5">
             <HiOutlineExternalLink />
@@ -93,17 +97,21 @@ export const ShareInFarm = ({
 export const ShareInFarmV2 = ({
   farmStake,
   userTotalShare,
+  shadowBurrowShare,
   forStable,
   version,
   poolId,
   onlyEndedFarm,
+  className,
 }: {
   farmStake: string | number;
   userTotalShare: BigNumber;
+  shadowBurrowShare?: any;
   forStable?: boolean;
   version?: string;
   poolId?: number;
   onlyEndedFarm?: boolean;
+  className?: string;
 }) => {
   const farmShare = Number(farmStake).toLocaleString('fullwide', {
     useGrouping: false,
@@ -117,43 +125,92 @@ export const ShareInFarmV2 = ({
           .toLocaleString('fullwide', { useGrouping: false })
       ).toString()
     : '0';
+  return (
+    <div className={className}>
+      <SharePercentNode
+        share={farmShare}
+        sharePercent={farmSharePercent}
+        link={
+          poolId ? `/v2farms/${poolId}-${onlyEndedFarm ? 'e' : 'r'}` : '/farms'
+        }
+        version={version}
+      />
+
+      {Number(shadowBurrowShare?.stakeAmount) !== 0 && (
+        <SharePercentNode
+          share={shadowBurrowShare?.stakeAmount}
+          sharePercent={shadowBurrowShare?.sharePercent}
+          exLink={`https://app.burrow.finance/tokenDetail/shadow_ref_v1-${poolId}`}
+          version={''}
+          isInBurrow={true}
+        />
+      )}
+    </div>
+  );
+};
+
+const SharePercentNode = ({
+  share,
+  sharePercent,
+  link,
+  exLink,
+  version,
+  isInBurrow = false,
+}) => {
+  const linkNode = (
+    <>
+      {version && (
+        <span className="mr-1 text-gradientFrom  text-left">{version}</span>
+      )}
+      <span className="text-gradientFrom mr-1">
+        {isInBurrow ? (
+          'Burrow'
+        ) : (
+          <FormattedMessage id="farms" defaultMessage="Farms" />
+        )}
+      </span>
+
+      <span className="text-right">
+        <HiOutlineExternalLink color="#00c6a2" />
+      </span>
+    </>
+  );
 
   return (
     <div className={`flex items-center  text-xs ml-4 xs:ml-2`}>
-      <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
+      <FarmDot inFarm={Number(share) > 0} className="mr-1" />
       <div className="self-start whitespace-nowrap flex items-center">
         <span className="text-farmText w-10 text-right">
           {`${
-            Number(farmSharePercent) < 0.1 && Number(farmSharePercent) > 0
+            Number(sharePercent) < 0.1 && Number(sharePercent) > 0
               ? '< 0.1'
-              : toPrecision(farmSharePercent, 2, false, false)
+              : toPrecision(sharePercent, 2, false, false)
           }% `}{' '}
         </span>
         &nbsp;
         <span className="mx-1 text-farmText text-left">
           <FormattedMessage id="in" defaultMessage="in" />
         </span>
-        <Link
-          to={
-            poolId
-              ? `/v2farms/${poolId}-${onlyEndedFarm ? 'e' : 'r'}`
-              : '/farms'
-          }
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-          className="flex items-center cursor-pointer justify-end"
-        >
-          {version && (
-            <span className="mr-1 text-gradientFrom  text-left">{version}</span>
-          )}
-          <span className="text-gradientFrom mr-1">
-            <FormattedMessage id="farms" defaultMessage="Farms" />
-          </span>
-
-          <span className="text-right">
-            <HiOutlineExternalLink color="#00c6a2" />
-          </span>
-        </Link>
+        {exLink && (
+          <a
+            href={exLink}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="flex items-center cursor-pointer justify-end"
+          >
+            {linkNode}
+          </a>
+        )}
+        {link && (
+          <Link
+            to={link}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="flex items-center cursor-pointer justify-end"
+          >
+            {linkNode}
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -91,13 +91,6 @@ export async function getAssets() {
   return assetsDetailed?.map((asset, i) => {
     const token_id = asset.token_id;
     const is_lp_asset = token_id.indexOf(lpTokenPrefix) > -1;
-    // const price = prices?.prices?.find(
-    //   (p: any) => p.asset_id === asset?.token_id
-    // );
-    // const usd = price
-    //   ? Number(price?.price?.multiplier || 0) /
-    //     10 ** ((price?.price?.decimals || 0) - tokensMetadataMap[token_id].decimals)
-    //   : 0;
     const temp_temp = Big(asset.supplied.balance)
       .plus(Big(asset.reserved))
       .minus(Big(asset.borrowed.balance));
@@ -106,21 +99,11 @@ export async function getAssets() {
       ? lptAssets[token_id].decimals + asset.config.extra_decimals
       : tokensMetadataMap[token_id].decimals + asset.config.extra_decimals;
     const availableLiquidity = Number(shrinkToken(temp.toFixed(0), decimals));
-    // const extraPrice = price?.price || {
-    //   decimals: Number(refPrices?.[asset.token_id]?.decimal || 0),
-    //   multiplier: '1',
-    // };
     return {
       ...asset,
       metadata: is_lp_asset ? lptAssets[token_id] : tokensMetadataMap[token_id],
       accountBalance: accountId ? balances?.[i] : undefined,
       availableLiquidity,
-      // price: is_lp_asset
-      //   ? getUnitLptPrice(lptAssets[token_id].tokens, priceMap, tokensMetadataMap)
-      //   : {
-      //       ...extraPrice,
-      //       usd: usd || parseFloat(refPrices?.[asset.token_id]?.price) || 0,
-      //     },
       price: is_lp_asset
         ? getUnitLptPrice(
             lptAssets[token_id].tokens,

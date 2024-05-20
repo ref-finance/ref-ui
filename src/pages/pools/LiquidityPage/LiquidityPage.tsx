@@ -7,11 +7,16 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { ShareInFarm } from '../../../components/layout/ShareInFarm';
+import {
+  ShareInFarm,
+  ShareInFarmV2,
+} from '../../../components/layout/ShareInFarm';
 import {
   classificationOfCoins_key,
   classificationOfCoins,
   Seed,
+  get_shadow_records,
+  getStakedListByAccountId,
 } from '../../../services/farm';
 import { ArrowDownLarge, TokenRisk } from '../../../components/icon';
 import { useHistory } from 'react-router';
@@ -158,6 +163,14 @@ import {
   TokenPriceListContext,
 } from './constLiquidityPage';
 import { useRiskTokens } from '../../../state/token';
+import {
+  useShadowRecordStore,
+  useStakeListStore,
+} from 'src/stores/liquidityStores';
+import {
+  PoolAvailablePercent,
+  PoolFarmAmount,
+} from 'src/components/pool/PoolShare';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -1769,6 +1782,12 @@ export default function LiquidityPage() {
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
   );
+  const setShadowRecords = useShadowRecordStore(
+    (state) => state.setShadowRecords
+  );
+  const setStakeListTogether = useStakeListStore(
+    (state) => state.setStakeListTogether
+  );
 
   const switchActiveTab = (curTab: string) => {
     setActiveTab(curTab);
@@ -1780,7 +1799,20 @@ export default function LiquidityPage() {
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
     Record<string, Seed>
   >({});
+
   useEffect(() => {
+    get_shadow_records().then((res) => {
+      setShadowRecords(res);
+    });
+    getStakedListByAccountId({})
+      .then(({ stakedList, finalStakeList, v2StakedList }) => {
+        setStakeListTogether({
+          stakeListV1: stakedList,
+          stakeListV2: v2StakedList,
+          stakeListAll: finalStakeList,
+        });
+      })
+      .catch((e) => {});
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
         const { farmList, seed_id } = seed;
@@ -2347,9 +2379,8 @@ function StablePoolCard({
   };
   const [hover, setHover] = useState<boolean>(false);
 
-  const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
-    poolData.pool.id
-  );
+  const { shares, shadowBurrowShare, farmStakeV2, userTotalShare } =
+    useYourliquidity(poolData.pool.id);
 
   const [chartActiveToken, setChartActiveToken] = useState<string>();
 
@@ -2523,7 +2554,6 @@ function StablePoolCard({
               setChartActiveToken={setChartActiveToken}
             />
           </div>
-
           <div className="absolute xl:right-8 lg:right-4 xs:hidden md:hidden">
             <TokenChart
               tokens={poolData.tokens}
@@ -2636,6 +2666,24 @@ function StablePoolCard({
               forStable
             />
           </div>
+
+          {shadowBurrowShare?.stakeAmount && (
+            <div
+              className={`cursor-pointer ${!haveFarm ? 'hidden' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                openUrl(`https://app.burrow.finance/`);
+              }}
+            >
+              <ShareInFarm
+                farmStake={shadowBurrowShare?.stakeAmount}
+                userTotalShare={userTotalShare}
+                inStr={'in Burrow'}
+                forStable
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex xs:hidden md:hidden items-center">
