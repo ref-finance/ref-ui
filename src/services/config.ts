@@ -402,7 +402,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
-        REF_TOKEN_LOCKER_CONTRACT_ID: '',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
       };
     case 'testnet':
       return {
