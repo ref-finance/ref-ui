@@ -17,7 +17,7 @@ import { Seed } from '~src/services/farm';
 import { formatPercentage } from '../../utils/uiNumber';
 import UserRankingModal from './UserRankingModal';
 import MemeAirdropListForPc from './memeAirdropListForPc';
-import { CoinPc, UserRanking } from './icons';
+import { CoinPc, MemeRightArrow, UserRanking } from './icons';
 import { isMobile } from '../../utils/device';
 const is_mobile = isMobile();
 export interface ITxParams {
@@ -125,7 +125,7 @@ const SeedsBox = () => {
   }, [displaySeeds]);
   return (
     <div className="mt-14">
-      <div className="flex items-center justify-between">
+      <div className="lg:flex lg:items-center lg:justify-between">
         <div className="flex items-center justify-between text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
           <div
             className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
@@ -156,23 +156,31 @@ const SeedsBox = () => {
             Yours
           </div>
         </div>
-        <div className="flex -mr-3">
-          <div
-            className="ml-auto flex justify-between items-center w-40 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-8"
-            style={{ borderRadius: '3.375rem', top: '-.8rem', right: '1rem' }}
-            onClick={() => setUserRanking(true)}
-          >
-            <div className="absolute top-0" style={{ left: '-1.3rem' }}>
-              <UserRanking />
-            </div>
-            <span className="text-white text-base mr-4 ml-auto gotham_bold">
-              User ranking
-            </span>
-          </div>
-          {!is_mobile && (
+        {!is_mobile && (
+          <div className="flex -mr-3">
             <div
-              className="ml-auto flex justify-between items-center w-60 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer"
-              style={{ borderRadius: '3.375rem', top: '-.8rem', right: '1rem' }}
+              className="ml-auto flex justify-between items-center w-40 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-8 border border-memeBorderColor"
+              style={{
+                borderRadius: '3.375rem',
+                top: '-.8rem',
+                right: '1rem',
+              }}
+              onClick={() => setUserRanking(true)}
+            >
+              <div className="absolute top-0" style={{ left: '-1.3rem' }}>
+                <UserRanking />
+              </div>
+              <span className="text-white text-base mr-4 ml-auto gotham_bold">
+                User ranking
+              </span>
+            </div>
+            <div
+              className="ml-auto flex justify-between items-center w-60 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
+              style={{
+                borderRadius: '3.375rem',
+                top: '-.8rem',
+                right: '1rem',
+              }}
               onClick={() => setShowAirdropModal(true)}
             >
               <div className="absolute top-0" style={{ left: '-1.3rem' }}>
@@ -182,36 +190,20 @@ const SeedsBox = () => {
                 Airdrop Announcement
               </span>
             </div>
-          )}
-          {is_mobile && (
-            <div
-              className="ml-auto flex justify-between items-center w-60 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer"
-              style={{ borderRadius: '3.375rem', top: '-.8rem', right: '1rem' }}
-              onClick={() => history.push('/airdop')}
-            >
-              <div className="absolute top-0" style={{ left: '-1.3rem' }}>
-                <CoinPc />
-              </div>
-              <span className="text-white text-sm ml-6 mr-2 gotham_bold">
-                Airdrop Announcement
-              </span>
-            </div>
-          )}
-          <UserRankingModal
-            isOpen={isUserRanking}
-            onRequestClose={() => {
-              setUserRanking(false);
-            }}
-          />
-          {!is_mobile && (
             <MemeAirdropListForPc
               isOpen={isShowAirdropModal}
               onRequestClose={() => {
                 setShowAirdropModal(false);
               }}
             />
-          )}
-        </div>
+          </div>
+        )}
+        <UserRankingModal
+          isOpen={isUserRanking}
+          onRequestClose={() => {
+            setUserRanking(false);
+          }}
+        />
       </div>
       <MarketSeedsBox
         hidden={tab === 'market' ? false : true}
@@ -231,6 +223,34 @@ const SeedsBox = () => {
           txParams={txParams}
         />
       ) : null}
+      {is_mobile && (
+        <div className="flex items-center mt-14 justify-center">
+          <div
+            className="h-10 flex rounded-3xl px-4 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-4 border border-memeBorderColor"
+            onClick={() => setUserRanking(true)}
+          >
+            <div className="absolute -top-8 left-10">
+              <UserRanking />
+            </div>
+            <span className="text-white text-sm gotham_bold mr-1.5">
+              User ranking
+            </span>
+            <MemeRightArrow />
+          </div>
+          <div
+            className="h-10 flex rounded-3xl px-5 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
+            onClick={() => history.push('/airdop')}
+          >
+            <div className="absolute -top-8 left-20">
+              <CoinPc />
+            </div>
+            <span className="text-white text-sm gotham_bold mr-1.5">
+              Airdrop Announcement
+            </span>
+            <MemeRightArrow />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

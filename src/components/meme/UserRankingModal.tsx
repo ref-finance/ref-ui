@@ -17,29 +17,84 @@ import {
   UserStakeRankingTab3,
 } from './icons';
 import { MemeContext } from './context';
-import { getMemeFarmingTokens } from '../../services/api';
+import {
+  getMemeFarmingAssetsList,
+  getMemeFarmingTokens,
+  getMemeFarmingTotalAssetsList,
+} from '../../services/api';
+import Loading from '../layout/Loading';
 function UserRankingModal(props: any) {
   const { isOpen, onRequestClose } = props;
-  const cardWidth = isMobile() ? '86vw' : '52vw';
-  const cardHeight = isMobile() ? '80vh' : '70vh';
+  const cardWidth = isMobile() ? '88vw' : '52vw';
+  const cardHeight = isMobile() ? '80vh' : '71vh';
   const is_mobile = isMobile();
   const { allTokenMetadatas } = useContext(MemeContext);
+  const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef(null);
   const [memeFarmingTokens, setMemeFarmingTokens] = useState([]);
   const [isOpenToken, setIsOpenToken] = useState(false);
   const [selectedToken, setSelectedToken] = useState('All');
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     getMemeFarmingTokens()
-  //       .then((data) => {
-  //         setMemeFarmingTokens(data);
-  //       })
-  //       .catch((error) => {
-  //         console.error('Failed to fetch meme farming tokens:', error);
-  //         setMemeFarmingTokens([]);
-  //       });
-  //   }
-  // }, [isOpen]);
+  const [tableDate, setTableDate] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(isMobile() ? 5 : 7);
+  const [totalPages, setTotalPages] = useState(0);
+  const [hoveredRow, setHoveredRow] = useState(null);
+  const [sorted, setSorted] = useState(false);
+  useEffect(() => {
+    if (isOpen) {
+      getMemeFarmingTokens()
+        .then((data) => {
+          setMemeFarmingTokens(data?.data);
+        })
+        .catch((error) => {
+          console.log(error);
+          setMemeFarmingTokens([]);
+        });
+    }
+  }, [isOpen]);
+  useEffect(() => {
+    let loadingTimeout = null;
+    if (isOpen) {
+      const fetchData = async () => {
+        loadingTimeout = setTimeout(() => {
+          setIsLoading(true);
+        }, 500);
+        try {
+          let data;
+          const offset = (currentPage - 1) * itemsPerPage;
+          if (selectedToken === 'All') {
+            data = await getMemeFarmingTotalAssetsList(
+              itemsPerPage,
+              offset,
+              'desc'
+            );
+          } else {
+            data = await getMemeFarmingAssetsList(
+              selectedToken,
+              'total_value',
+              itemsPerPage,
+              offset,
+              'desc'
+            );
+          }
+          setTableDate(data?.data.list || []);
+          setTotalPages(Math.ceil(data?.data.total / itemsPerPage));
+          setIsLoading(false);
+        } catch (error) {
+          console.log(error);
+          setTableDate([]);
+        } finally {
+          clearTimeout(loadingTimeout);
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }
+    return () => clearTimeout(loadingTimeout);
+  }, [isOpen, selectedToken, currentPage, itemsPerPage]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedToken]);
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (
@@ -60,14 +115,105 @@ function UserRankingModal(props: any) {
   const handleSelectToken = (token) => {
     setSelectedToken(token);
     setIsOpenToken(false);
+    setSorted(false);
   };
-  const tokenData = [
-    'blackdragon.tkn.near',
-    'ftv2.nekotoken.near',
-    'token.0xshitzu.near',
-    'token.lonkingnearbackto2024.near',
-  ];
-  console.log(allTokenMetadatas);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  const getCustomPaginationRange = (current, total) => {
+    if (is_mobile) {
+      const pages = [];
+      if (total <= 3) {
+        return Array.from({ length: total }, (_, index) => index + 1);
+      } else if (current === 1) {
+        pages.push(1, 2, '...', total);
+      } else if (current === total - 2) {
+        pages.push(total - 2, total - 1, total);
+      } else if (current === total - 1) {
+        pages.push(total - 2, total - 1, total);
+      } else if (current === total) {
+        pages.push(total - 2, total - 1, total);
+      } else {
+        pages.push(current, current + 1);
+        if (current + 1 < total) {
+          pages.push('...', total);
+        }
+      }
+      return pages;
+    } else {
+      let pages = [];
+      const lastPage = total;
+      const secondLastPage = total - 1;
+      if (total <= 5) {
+        return Array.from({ length: total }, (_, index) => index + 1);
+      }
+      if (current === 1) {
+        pages = [1, 2, 3, '...', secondLastPage, lastPage];
+      } else if (current === 2) {
+        pages = [1, 2, 3, '...', secondLastPage, lastPage];
+      } else if (current === lastPage - 3) {
+        pages = [current - 1, current, lastPage - 2, lastPage - 1, lastPage];
+      } else if (current === lastPage - 2) {
+        pages = [current - 2, current - 1, current, lastPage - 1, lastPage];
+      } else if (current === lastPage - 1) {
+        pages = [current - 3, current - 2, current - 1, current, lastPage];
+      } else if (current === lastPage) {
+        pages = [
+          lastPage - 4,
+          lastPage - 3,
+          lastPage - 2,
+          lastPage - 1,
+          lastPage,
+        ];
+      } else {
+        pages = [
+          current - 1,
+          current,
+          current + 1,
+          '...',
+          secondLastPage,
+          lastPage,
+        ];
+      }
+      return pages;
+    }
+  };
+  function abbreviateNumber(value) {
+    const number = Number(value);
+    if (isNaN(number)) {
+      return '';
+    } else if (number >= 1e9) {
+      return (number / 1e9).toFixed(2) + 'B';
+    } else if (number >= 1e6) {
+      return (number / 1e6).toFixed(2) + 'M';
+    } else if (number >= 1e3) {
+      return (number / 1e3).toFixed(2) + 'K';
+    } else {
+      return number.toFixed(2);
+    }
+  }
+  const handleMouseEnterRow = (itemIndex) => {
+    setHoveredRow(itemIndex);
+  };
+
+  const handleMouseLeaveRow = () => {
+    setHoveredRow(null);
+  };
+  const sortTableData = () => {
+    const sortedData = [...tableDate];
+    if (selectedToken === 'All') {
+      sortedData.sort((a, b) => {
+        const totalA = a.token_list.reduce((acc, curr) => acc + curr.total, 0);
+        const totalB = b.token_list.reduce((acc, curr) => acc + curr.total, 0);
+        return totalB - totalA;
+      });
+    } else {
+      sortedData.sort((a, b) => b.total - a.total);
+    }
+    setTableDate(sortedData);
+    setSorted(true);
+    setCurrentPage(1);
+  };
   return (
     <Modal
       isOpen={isOpen}
@@ -83,7 +229,7 @@ function UserRankingModal(props: any) {
       }}
     >
       <div
-        className="py-5 pl-5 pr-2 text-base text-v3SwapGray bg-senderHot rounded-2xl"
+        className="py-5 px-4 text-base text-v3SwapGray bg-senderHot rounded-2xl"
         style={{
           width: cardWidth,
           height: cardHeight,
@@ -101,7 +247,7 @@ function UserRankingModal(props: any) {
           style={{
             gridTemplateColumns: is_mobile
               ? ''
-              : 'minmax(auto, 4rem) minmax(auto, 30rem) minmax(auto, 18rem) minmax(auto, 12rem)',
+              : 'minmax(auto, 4rem) minmax(auto, 24rem) minmax(auto, 18rem) minmax(auto, 16rem)',
           }}
         >
           <div className="xsm:hidden">Ranking</div>
@@ -115,19 +261,29 @@ function UserRankingModal(props: any) {
                 className="cursor-pointer text-white flex items-center justify-end bg-memeModelgreyColor border border-memeBorderColor rounded-3xl pt-1.5 pb-1.5 pr-3 pl-1.5 w-max"
                 onClick={() => setIsOpenToken(!isOpenToken)}
               >
-                {allTokenMetadatas[selectedToken]?.icon && (
+                {allTokenMetadatas[selectedToken]?.icon ? (
                   <img
                     src={allTokenMetadatas[selectedToken]?.icon}
                     alt=""
                     className="h-5 w-5 mr-1.5"
                   />
+                ) : (
+                  <span className="lg:hidden md:hidden">All</span>
                 )}
-                <span>{allTokenMetadatas[selectedToken]?.symbol || 'All'}</span>
+                <span className="xsm:hidden">
+                  {allTokenMetadatas[selectedToken]?.symbol || 'All'}
+                </span>
                 <UserStakeRankingPopupDown className="ml-4" />
               </div>
+              <UserStakeRankingSort
+                className={`ml-1.5 transform cursor-pointer ${
+                  sorted ? 'text-white' : 'text-borderColor hover:text-white '
+                }`}
+                onClick={sortTableData}
+              />
             </div>
             {isOpenToken && (
-              <div className="absolute top-11 right-0 z-10 bg-memeUserStackeBgColor rounded-xl pb-1 pt-3 px-2 text-white w-60">
+              <div className="absolute top-11 right-0 z-10 bg-memeUserStackeBgColor rounded-xl pb-1 pt-3 px-2 text-white w-60 border border-borderC">
                 <div
                   className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor xsm:border-none
                   ${selectedToken === 'All' ? 'border border-borderC' : ''}`}
@@ -135,10 +291,10 @@ function UserRankingModal(props: any) {
                 >
                   <div className="flex items-center">All</div>
                 </div>
-                {tokenData.map((token, index) => (
+                {memeFarmingTokens.map((token, index) => (
                   <div
                     key={index}
-                    className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor xsm:border-none
+                    className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor
                    ${selectedToken === token ? 'border border-borderC' : ''}`}
                     onClick={() => handleSelectToken(token)}
                   >
@@ -156,29 +312,408 @@ function UserRankingModal(props: any) {
             )}
           </div>
         </div>
-        <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white border border-memeBorderColor xsm:hidden">
-          <div
-            className="grid gap-6 text-base py-4 px-6 border-b border-memePoolBoxBorderColor"
-            style={{
-              gridTemplateColumns:
-                'minmax(auto, 4rem) minmax(auto, 30rem) minmax(auto, 18rem) minmax(auto, 12rem)',
-            }}
-          >
-            <div className="flex justify-center items-center pr-6">1</div>
-            <div className="truncate max-w-18 overflow-hidden text-ellipsis">
-              1
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white border border-memeBorderColor xsm:hidden">
+              {tableDate.map((item, index) => (
+                <div
+                  key={index}
+                  className={`grid gap-6 text-base py-4 px-6 ${
+                    index === tableDate.length - 1
+                      ? ''
+                      : 'border-b border-memePoolBoxBorderColor'
+                  }`}
+                  style={{
+                    gridTemplateColumns:
+                      'minmax(auto, 4rem) minmax(auto, 24rem) minmax(auto, 18rem) minmax(auto, 16rem)',
+                  }}
+                >
+                  <div className="flex justify-center items-center pr-6">
+                    {index === 0 ? (
+                      <UserStakeRankingTab1 />
+                    ) : index === 1 ? (
+                      <UserStakeRankingTab2 />
+                    ) : index === 2 ? (
+                      <UserStakeRankingTab3 />
+                    ) : (
+                      index + 1
+                    )}
+                  </div>
+                  <div className="truncate max-w-18 overflow-hidden text-ellipsis">
+                    {item.wallet}
+                  </div>
+                  <div className="truncate max-w-10 overflow-hidden text-ellipsis">
+                    ${item.total_value}
+                  </div>
+                  <div className="max-w-10">
+                    {selectedToken === 'All' &&
+                    Array.isArray(item.token_list) ? (
+                      <div
+                        className="flex justify-end relative cursor-pointer"
+                        onMouseEnter={() => handleMouseEnterRow(index)}
+                        onMouseLeave={handleMouseLeaveRow}
+                      >
+                        {item.token_list.map((token, tokenIndex) => (
+                          <div
+                            className="relative"
+                            key={tokenIndex}
+                            style={{
+                              width: '22px',
+                              height: '22px',
+                              marginLeft: tokenIndex === 0 ? '0' : '-5px',
+                            }}
+                          >
+                            <img
+                              className="absolute size-full block left-0 top-0"
+                              src={allTokenMetadatas[token.token]?.icon || ''}
+                              alt=""
+                            />
+                          </div>
+                        ))}
+                        {hoveredRow === index && (
+                          <div
+                            className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
+                            style={{
+                              backdropFilter: 'blur(4px)',
+                            }}
+                          >
+                            {item.token_list.map((token) => (
+                              <div
+                                className="flex items-center justify-between mb-4"
+                                key={token.token}
+                              >
+                                <div className="flex items-center mr-10">
+                                  <img
+                                    className="w-5 h-5"
+                                    src={
+                                      allTokenMetadatas[token.token]?.icon || ''
+                                    }
+                                    alt=""
+                                  />
+                                  <p className="text-gray2 text-sm ml-1.5">
+                                    {allTokenMetadatas[token.token]?.symbol ||
+                                      ''}
+                                  </p>
+                                </div>
+                                <div className="text-sm">
+                                  {abbreviateNumber(token.total)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex justify-end">
+                        {abbreviateNumber(item.total)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="truncate max-w-10 overflow-hidden text-ellipsis">
-              1
+            <div className="lg:hidden md:hidden overflow-x-hidden">
+              {tableDate.map((item, index) => (
+                <div
+                  key={item.wallet}
+                  className="py-3.5 pl-3.5 flex items-center border-b border-memeBorderColor"
+                >
+                  <div className="text-white w-8 mr-2 flex justify-center">
+                    {(() => {
+                      const globalIndex =
+                        index + 1 + (currentPage - 1) * itemsPerPage;
+                      return globalIndex === 1 ? (
+                        <UserStakeRankingMobileTab1 />
+                      ) : globalIndex === 2 ? (
+                        <UserStakeRankingMobileTab2 />
+                      ) : globalIndex === 3 ? (
+                        <UserStakeRankingMobileTab3 />
+                      ) : (
+                        globalIndex
+                      );
+                    })()}
+                  </div>
+                  <div className="w-10/12">
+                    <div className="flex items-center justify-between text-white">
+                      <div>
+                        {item.total_value < 0.01
+                          ? '<0.01'
+                          : `$${abbreviateNumber(item.total_value)}`}
+                      </div>
+                      <div>
+                        {selectedToken === 'All' &&
+                        Array.isArray(item.token_list) ? (
+                          <div
+                            className="flex justify-end relative cursor-pointer"
+                            onMouseEnter={() => handleMouseEnterRow(index)}
+                            onMouseLeave={handleMouseLeaveRow}
+                          >
+                            {item.token_list.map((token, tokenIndex) => (
+                              <div
+                                className="relative"
+                                key={tokenIndex}
+                                style={{
+                                  width: '22px',
+                                  height: '22px',
+                                  marginLeft: tokenIndex === 0 ? '0' : '-5px',
+                                }}
+                              >
+                                <img
+                                  className="absolute size-full block left-0 top-0"
+                                  src={
+                                    allTokenMetadatas[token.token]?.icon || ''
+                                  }
+                                  alt=""
+                                />
+                              </div>
+                            ))}
+                            {hoveredRow === index && (
+                              <div
+                                className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
+                                style={{
+                                  backdropFilter: 'blur(4px)',
+                                }}
+                              >
+                                {item.token_list.map((token) => (
+                                  <div
+                                    className="flex items-center justify-between mb-4"
+                                    key={token.token}
+                                  >
+                                    <div className="flex items-center mr-10">
+                                      <img
+                                        className="w-5 h-5"
+                                        src={
+                                          allTokenMetadatas[token.token]
+                                            ?.icon || ''
+                                        }
+                                        alt=""
+                                      />
+                                      <p className="text-gray2 text-sm ml-1.5">
+                                        {allTokenMetadatas[token.token]
+                                          ?.symbol || ''}
+                                      </p>
+                                    </div>
+                                    <div className="text-sm">
+                                      {abbreviateNumber(token.total)}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex justify-end">
+                            {abbreviateNumber(item.total)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="truncate w-11/12 overflow-hidden text-ellipsis">
+                      {item.wallet}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="truncate max-w-10 overflow-hidden text-ellipsis flex justify-end">
-              1
+            <div className="flex justify-between items-center text-sm xsm:mt-5">
+              <div className="flex justify-center items-center">
+                <div
+                  className={`flex justify-center items-center mr-6 xsm:mr-3 cursor-pointer ${
+                    currentPage === 1 ? 'text-primaryText' : 'text-white'
+                  }`}
+                  onClick={() => {
+                    if (currentPage > 1) paginate(1);
+                  }}
+                >
+                  <div
+                    className={`w-7 rounded-lg h-7 flex items-center justify-center ${
+                      currentPage === 1
+                        ? 'border-memeUserStackeMobileBgColor'
+                        : 'border-senderHot'
+                    } ${is_mobile ? 'border' : ''}`}
+                  >
+                    <UserStakeRankingFirst
+                      color={
+                        is_mobile
+                          ? currentPage === 1
+                            ? '#7E8A93'
+                            : '#00FFD1'
+                          : currentPage === 1
+                          ? '#7E8A93'
+                          : '#FFFFFF'
+                      }
+                    />
+                  </div>
+                  <p className={`${is_mobile ? 'hidden' : ''}`}>First</p>
+                </div>
+
+                <div
+                  className={`flex justify-center items-center ${
+                    currentPage > 1
+                      ? 'text-white cursor-pointer'
+                      : 'text-primaryText'
+                  }`}
+                  onClick={() => {
+                    if (currentPage > 1) {
+                      paginate(currentPage - 1);
+                    }
+                  }}
+                >
+                  <div
+                    className={`w-7 rounded-lg h-7 flex items-center justify-center ${
+                      currentPage > 1
+                        ? 'border-senderHot'
+                        : 'border-memeUserStackeMobileBgColor'
+                    } ${is_mobile ? 'border' : ''}`}
+                  >
+                    <UserStakeRankingPrevious
+                      color={
+                        is_mobile
+                          ? currentPage > 1
+                            ? '#00FFD1'
+                            : '#7E8A93'
+                          : currentPage > 1
+                          ? '#FFFFFF'
+                          : '#7E8A93'
+                      }
+                    />
+                  </div>
+                  <p className={`${is_mobile ? 'hidden' : ''}`}>Previous</p>
+                </div>
+              </div>
+              <div>
+                <div>
+                  <PaginationComponent
+                    getCustomPaginationRange={getCustomPaginationRange}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    paginate={paginate}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-center items-center">
+                <div
+                  className={`flex justify-center items-center ${
+                    currentPage < totalPages
+                      ? 'text-white cursor-pointer'
+                      : 'text-primaryText'
+                  }`}
+                  onClick={() => {
+                    if (currentPage < totalPages) {
+                      paginate(currentPage + 1);
+                    }
+                  }}
+                >
+                  <p className="xsm:hidden">Next</p>
+                  <div
+                    className={`w-7 rounded-lg h-7 flex items-center justify-center ${
+                      currentPage < totalPages
+                        ? 'border-senderHot'
+                        : 'border-memeUserStackeMobileBgColor'
+                    } ${is_mobile ? 'border' : ''}`}
+                  >
+                    <UserStakeRankingNext
+                      color={
+                        is_mobile
+                          ? currentPage < totalPages
+                            ? '#00FFD1'
+                            : '#7E8A93'
+                          : currentPage < totalPages
+                          ? '#FFFFFF'
+                          : '#7E8A93'
+                      }
+                    />
+                  </div>
+                </div>
+                <div
+                  className={`flex justify-center items-center ml-6 xsm:ml-3 cursor-pointer ${
+                    currentPage === totalPages
+                      ? 'text-primaryText'
+                      : 'text-white'
+                  }`}
+                  onClick={() => {
+                    if (currentPage < totalPages) {
+                      paginate(totalPages);
+                    }
+                  }}
+                >
+                  <p className="xsm:hidden">Last</p>
+                  <div
+                    className={`w-7 rounded-lg h-7 flex items-center justify-center ${
+                      currentPage === totalPages
+                        ? 'border-memeUserStackeMobileBgColor'
+                        : 'border-senderHot'
+                    } ${is_mobile ? 'border' : ''}`}
+                  >
+                    <UserStakeRankingLast
+                      color={
+                        is_mobile
+                          ? currentPage === totalPages
+                            ? '#7E8A93'
+                            : '#00FFD1'
+                          : currentPage === totalPages
+                          ? '#7E8A93'
+                          : '#FFFFFF'
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </Modal>
   );
 }
 
+interface PaginationComponentProps {
+  getCustomPaginationRange: (
+    currentPage: number,
+    totalPages: number
+  ) => Array<number | string>;
+  currentPage: number;
+  totalPages: number;
+  paginate: (pageNumber: number) => void;
+}
+const PaginationComponent: React.FC<PaginationComponentProps> = ({
+  getCustomPaginationRange,
+  currentPage,
+  totalPages,
+  paginate,
+}) => {
+  const paginationRange = getCustomPaginationRange(currentPage, totalPages);
+  return (
+    <>
+      {paginationRange.map((page, index) => {
+        if (typeof page === 'number') {
+          return (
+            <button
+              key={index}
+              onClick={() => paginate(page)}
+              className={`mr-3.5 py-1 px-2 rounded-md xsm:w-7 xsm:h-7 ${
+                currentPage === page
+                  ? 'bg-limitOrderInputColor bg-opacity-30 text-white'
+                  : 'text-primaryText'
+              }`}
+            >
+              {page}
+            </button>
+          );
+        } else {
+          return (
+            <span
+              key={index}
+              className="mr-3.5 py-1 px-2 rounded-md text-primaryText cursor-default"
+            >
+              {page}
+            </span>
+          );
+        }
+      })}
+    </>
+  );
+};
 export default UserRankingModal;
