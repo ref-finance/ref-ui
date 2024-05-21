@@ -249,6 +249,18 @@ function PoolRow({
       : atRiskTokens.length === 1
       ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
       : '';
+
+  function formatNumber(value) {
+    let formattedValue = value.toFixed(2); //
+    if (formattedValue.endsWith('.00')) {
+      //
+      formattedValue = formattedValue.substring(0, formattedValue.length - 3);
+    } else if (formattedValue.endsWith('0')) {
+      // 0
+      formattedValue = formattedValue.substring(0, formattedValue.length - 1);
+    }
+    return formattedValue;
+  }
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
@@ -310,7 +322,7 @@ function PoolRow({
         {/* fee */}
         <div className="col-span-1 flex items-center justify-center justify-self-center py-1 md:hidden ">
           {Reflect.has(pool, 'farm_apy')
-            ? (pool.fee * 100).toFixed(2)
+            ? formatNumber(pool.fee * 100)
             : calculateFeePercent(pool.fee)}
           %
         </div>
@@ -327,13 +339,13 @@ function PoolRow({
           >
             {`${
               Number(pool.apy).toFixed(0) != '0'
-                ? Number(pool.apy).toFixed(2)
+                ? formatNumber(Number(pool.apy))
                 : '0'
             }%`}
             <span className="text-xs text-gradientFrom">
               {`${
                 Number(pool.farm_apy).toFixed(0) != '0'
-                  ? Number(pool.farm_apy).toFixed(2) + '%'
+                  ? formatNumber(Number(pool.farm_apy)) + '%'
                   : ''
               }`}
             </span>

@@ -52,6 +52,18 @@ function MobilePoolRow({
   };
   const history = useHistory();
 
+  function formatNumber(value) {
+    let formattedValue = value.toFixed(2); //
+    if (formattedValue.endsWith('.00')) {
+      //
+      formattedValue = formattedValue.substring(0, formattedValue.length - 3);
+    } else if (formattedValue.endsWith('0')) {
+      // 0
+      formattedValue = formattedValue.substring(0, formattedValue.length - 1);
+    }
+    return formattedValue;
+  }
+
   if (!curRowTokens) return <></>;
 
   tokens = sort_tokens_by_base(tokens);
@@ -68,7 +80,7 @@ function MobilePoolRow({
     else if (sortBy === 'fee')
       return `${
         Reflect.has(pool, 'farm_apy')
-          ? (pool.fee * 100).toFixed(2)
+          ? formatNumber(pool.fee * 100)
           : calculateFeePercent(pool.fee)
       }%`;
     else if (sortBy === 'volume_24h')
@@ -81,7 +93,9 @@ function MobilePoolRow({
         : `$${toInternationalCurrencySystem(pool.volume_24h)}`;
     else if (sortBy === 'apr')
       return `${
-        Number(pool.apy).toFixed(0) != '0' ? Number(pool.apy).toFixed(2) : '0'
+        Number(pool.apy).toFixed(0) != '0'
+          ? formatNumber(Number(pool.apy))
+          : '0'
       }%`;
   };
 
