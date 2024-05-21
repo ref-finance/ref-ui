@@ -181,7 +181,7 @@ const SeedsBox = () => {
               </span>
             </div>
             <div
-              className="ml-auto flex justify-between items-center w-60 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
+              className="ml-auto flex justify-between items-center w-36 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
               style={{
                 borderRadius: '3.375rem',
                 top: '-.8rem',
@@ -192,7 +192,7 @@ const SeedsBox = () => {
               <div className="absolute top-0" style={{ left: '-1.3rem' }}>
                 <CoinPc />
               </div>
-              <span className="text-white text-base mr-4 ml-auto gotham_bold">
+              <span className="text-white text-base mr-8 ml-auto gotham_bold">
                 Airdrop
               </span>
             </div>
