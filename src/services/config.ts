@@ -304,7 +304,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
-        REF_TOKEN_LOCKER_CONTRACT_ID: '',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -668,7 +668,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
-        REF_TOKEN_LOCKER_CONTRACT_ID: '',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
       };
   }
 }
