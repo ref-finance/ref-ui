@@ -335,7 +335,7 @@ function UserRankingModal(props: any) {
                     }`}
                   >
                     <div
-                      className="flex justify-center items-center pr-6"
+                      className="flex justify-center items-center pr-10"
                       style={{ width: '10%' }}
                     >
                       {(() => {
