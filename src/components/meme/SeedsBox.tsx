@@ -17,7 +17,13 @@ import { Seed } from '~src/services/farm';
 import { formatPercentage } from '../../utils/uiNumber';
 import UserRankingModal from './UserRankingModal';
 import MemeAirdropListForPc from './memeAirdropListForPc';
-import { CoinPc, MemeRightArrow, UserRanking } from './icons';
+import {
+  CoinMobile,
+  CoinPc,
+  MemeRightArrow,
+  UserRankingMobile,
+  UserRankingPC,
+} from './icons';
 import { isMobile } from '../../utils/device';
 const is_mobile = isMobile();
 export interface ITxParams {
@@ -168,7 +174,7 @@ const SeedsBox = () => {
               onClick={() => setUserRanking(true)}
             >
               <div className="absolute top-0" style={{ left: '-1.3rem' }}>
-                <UserRanking />
+                <UserRankingPC />
               </div>
               <span className="text-white text-base mr-4 ml-auto gotham_bold">
                 User ranking
@@ -187,7 +193,7 @@ const SeedsBox = () => {
                 <CoinPc />
               </div>
               <span className="text-white text-base mr-4 ml-auto gotham_bold">
-                Airdrop Announcement
+                Airdrop
               </span>
             </div>
             <MemeAirdropListForPc
@@ -205,6 +211,34 @@ const SeedsBox = () => {
           }}
         />
       </div>
+      {is_mobile && (
+        <div className="flex items-center mt-3.5 mb-6 justify-center">
+          <div
+            className="h-10 flex rounded-3xl px-6 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-6 border border-memeBorderColor"
+            onClick={() => setUserRanking(true)}
+          >
+            <div className="mr-2">
+              <UserRankingMobile />
+            </div>
+            <span className="text-white text-sm gotham_bold mr-1.5">
+              User ranking
+            </span>
+            {/* <MemeRightArrow /> */}
+          </div>
+          <div
+            className="h-10 flex rounded-3xl px-6 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
+            onClick={() => history.push('/airdop')}
+          >
+            <div className="mr-2">
+              <CoinMobile />
+            </div>
+            <span className="text-white text-sm gotham_bold mr-1.5">
+              Airdrop
+            </span>
+            <MemeRightArrow />
+          </div>
+        </div>
+      )}
       <MarketSeedsBox
         hidden={tab === 'market' ? false : true}
         displaySeedsPercent={displaySeedsPercent}
@@ -223,34 +257,6 @@ const SeedsBox = () => {
           txParams={txParams}
         />
       ) : null}
-      {is_mobile && (
-        <div className="flex items-center mt-14 justify-center">
-          <div
-            className="h-10 flex rounded-3xl px-4 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-4 border border-memeBorderColor"
-            onClick={() => setUserRanking(true)}
-          >
-            <div className="absolute -top-8 left-10">
-              <UserRanking />
-            </div>
-            <span className="text-white text-sm gotham_bold mr-1.5">
-              User ranking
-            </span>
-            <MemeRightArrow />
-          </div>
-          <div
-            className="h-10 flex rounded-3xl px-5 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
-            onClick={() => history.push('/airdop')}
-          >
-            <div className="absolute -top-8 left-20">
-              <CoinPc />
-            </div>
-            <span className="text-white text-sm gotham_bold mr-1.5">
-              Airdrop Announcement
-            </span>
-            <MemeRightArrow />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

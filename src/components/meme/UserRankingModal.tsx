@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import { isMobile } from '../../utils/device';
 import {
+  MemeEllipsis,
   ModalCloseIcon,
   UserStakeRankingFirst,
   UserStakeRankingLast,
@@ -25,8 +26,8 @@ import {
 import Loading from '../layout/Loading';
 function UserRankingModal(props: any) {
   const { isOpen, onRequestClose } = props;
-  const cardWidth = isMobile() ? '88vw' : '52vw';
-  const cardHeight = isMobile() ? '80vh' : '71vh';
+  const cardWidth = isMobile() ? '90vw' : '52vw';
+  const cardHeight = isMobile() ? '80vh' : '74vh';
   const is_mobile = isMobile();
   const { allTokenMetadatas } = useContext(MemeContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -229,7 +230,7 @@ function UserRankingModal(props: any) {
       }}
     >
       <div
-        className="py-5 px-4 text-base text-v3SwapGray bg-senderHot rounded-2xl"
+        className="py-5 px-4 text-base text-v3SwapGray bg-senderHot rounded-2xl "
         style={{
           width: cardWidth,
           height: cardHeight,
@@ -242,20 +243,26 @@ function UserRankingModal(props: any) {
           </div>
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
         </div>
-        <div
-          className="grid gap-6 text-sm text-gray2 text-left mb-1.5 px-6 flex items-center xsm:flex xsm:justify-between xsm:border-b xsm:border-memeBorderColor xsm:pb-3"
-          style={{
-            gridTemplateColumns: is_mobile
-              ? ''
-              : 'minmax(auto, 4rem) minmax(auto, 24rem) minmax(auto, 18rem) minmax(auto, 16rem)',
-          }}
-        >
-          <div className="xsm:hidden">Ranking</div>
-          <div className="xsm:hidden">Wallet</div>
-          <div className="flex items-center cursor-pointer">
+        <div className="text-sm text-gray2 text-left mb-1.5 px-6 flex items-center xsm:justify-between xsm:border-b xsm:border-memeBorderColor xsm:pb-3 xsm:px-0">
+          <div className="xsm:hidden" style={{ width: '10%' }}>
+            Ranking
+          </div>
+          <div className="xsm:hidden" style={{ width: '30%' }}>
+            Wallet
+          </div>
+          <div
+            className="flex items-center cursor-pointer"
+            style={{
+              width: is_mobile ? 'auto' : '30%',
+            }}
+          >
             Total Staked Value
           </div>
-          <div className="relative flex justify-end" ref={dropdownRef}>
+          <div
+            className="relative flex justify-end"
+            ref={dropdownRef}
+            style={{ width: '30%' }}
+          >
             <div className="flex items-center">
               <div
                 className="cursor-pointer text-white flex items-center justify-end bg-memeModelgreyColor border border-memeBorderColor rounded-3xl pt-1.5 pb-1.5 pr-3 pl-1.5 w-max"
@@ -268,7 +275,7 @@ function UserRankingModal(props: any) {
                     className="h-5 w-5 mr-1.5"
                   />
                 ) : (
-                  <span className="lg:hidden md:hidden">All</span>
+                  <span className="lg:hidden">All</span>
                 )}
                 <span className="xsm:hidden">
                   {allTokenMetadatas[selectedToken]?.symbol || 'All'}
@@ -316,121 +323,132 @@ function UserRankingModal(props: any) {
           <Loading />
         ) : (
           <>
-            <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white border border-memeBorderColor xsm:hidden">
-              {tableDate.map((item, index) => (
-                <div
-                  key={index}
-                  className={`grid gap-6 text-base py-4 px-6 ${
-                    index === tableDate.length - 1
-                      ? ''
-                      : 'border-b border-memePoolBoxBorderColor'
-                  }`}
-                  style={{
-                    gridTemplateColumns:
-                      'minmax(auto, 4rem) minmax(auto, 24rem) minmax(auto, 18rem) minmax(auto, 16rem)',
-                  }}
-                >
-                  <div className="flex justify-center items-center pr-6">
-                    {(() => {
-                      const globalIndex =
-                        index + 1 + (currentPage - 1) * itemsPerPage;
-                      return globalIndex === 1 ? (
-                        <UserStakeRankingMobileTab1 />
-                      ) : globalIndex === 2 ? (
-                        <UserStakeRankingMobileTab2 />
-                      ) : globalIndex === 3 ? (
-                        <UserStakeRankingMobileTab3 />
+            <div className="xsm:hidden" style={{ height: '79%' }}>
+              <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white border border-memeBorderColor ">
+                {tableDate.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`text-base py-4 px-6 h-16 flex items-center ${
+                      index === tableDate.length - 1
+                        ? ''
+                        : 'border-b border-memePoolBoxBorderColor'
+                    }`}
+                  >
+                    <div
+                      className="flex justify-center items-center pr-6"
+                      style={{ width: '10%' }}
+                    >
+                      {(() => {
+                        const globalIndex =
+                          index + 1 + (currentPage - 1) * itemsPerPage;
+                        return globalIndex === 1 ? (
+                          <UserStakeRankingMobileTab1 />
+                        ) : globalIndex === 2 ? (
+                          <UserStakeRankingMobileTab2 />
+                        ) : globalIndex === 3 ? (
+                          <UserStakeRankingMobileTab3 />
+                        ) : (
+                          globalIndex
+                        );
+                      })()}
+                    </div>
+                    <div
+                      className="truncate overflow-hidden text-ellipsis pr-6"
+                      style={{ width: '30%' }}
+                    >
+                      {item.wallet}
+                    </div>
+                    <div
+                      className="truncate overflow-hidden text-ellipsis"
+                      style={{ width: '30%' }}
+                    >
+                      {item.total_value < 0.01
+                        ? '$<0.01'
+                        : `$${abbreviateNumber(item.total_value)}`}
+                    </div>
+                    <div className="" style={{ width: '30%' }}>
+                      {selectedToken === 'All' &&
+                      Array.isArray(item.token_list) ? (
+                        <div
+                          className="flex justify-end relative cursor-pointer"
+                          onMouseEnter={() => handleMouseEnterRow(index)}
+                          onMouseLeave={handleMouseLeaveRow}
+                        >
+                          {item.token_list.map((token, tokenIndex) => (
+                            <div
+                              className="relative"
+                              key={tokenIndex}
+                              style={{
+                                width: '22px',
+                                height: '22px',
+                                marginLeft: tokenIndex === 0 ? '0' : '-5px',
+                              }}
+                            >
+                              <img
+                                className="absolute size-full block left-0 top-0"
+                                src={allTokenMetadatas[token.token]?.icon || ''}
+                                alt=""
+                              />
+                            </div>
+                          ))}
+                          {hoveredRow === index && (
+                            <div
+                              className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
+                              style={{
+                                backdropFilter: 'blur(4px)',
+                              }}
+                            >
+                              {item.token_list.map((token) => (
+                                <div
+                                  className="flex items-center justify-between mb-4"
+                                  key={token.token}
+                                >
+                                  <div className="flex items-center mr-10">
+                                    <img
+                                      className="w-5 h-5"
+                                      src={
+                                        allTokenMetadatas[token.token]?.icon ||
+                                        ''
+                                      }
+                                      alt=""
+                                    />
+                                    <p className="text-gray2 text-sm ml-1.5">
+                                      {allTokenMetadatas[token.token]?.symbol ||
+                                        ''}
+                                    </p>
+                                  </div>
+                                  <div className="text-sm">
+                                    {token.total < 0.01
+                                      ? '<0.01'
+                                      : `${abbreviateNumber(token.total)}`}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       ) : (
-                        globalIndex
-                      );
-                    })()}
+                        <div className="flex justify-end">
+                          {item.total < 0.01
+                            ? '<0.01'
+                            : `${abbreviateNumber(item.total)}`}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="truncate max-w-18 overflow-hidden text-ellipsis">
-                    {item.wallet}
-                  </div>
-                  <div className="truncate max-w-10 overflow-hidden text-ellipsis">
-                    {item.total_value < 0.01
-                      ? '<0.01'
-                      : `$${abbreviateNumber(item.total_value)}`}
-                  </div>
-                  <div className="max-w-10">
-                    {selectedToken === 'All' &&
-                    Array.isArray(item.token_list) ? (
-                      <div
-                        className="flex justify-end relative cursor-pointer"
-                        onMouseEnter={() => handleMouseEnterRow(index)}
-                        onMouseLeave={handleMouseLeaveRow}
-                      >
-                        {item.token_list.map((token, tokenIndex) => (
-                          <div
-                            className="relative"
-                            key={tokenIndex}
-                            style={{
-                              width: '22px',
-                              height: '22px',
-                              marginLeft: tokenIndex === 0 ? '0' : '-5px',
-                            }}
-                          >
-                            <img
-                              className="absolute size-full block left-0 top-0"
-                              src={allTokenMetadatas[token.token]?.icon || ''}
-                              alt=""
-                            />
-                          </div>
-                        ))}
-                        {hoveredRow === index && (
-                          <div
-                            className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
-                            style={{
-                              backdropFilter: 'blur(4px)',
-                            }}
-                          >
-                            {item.token_list.map((token) => (
-                              <div
-                                className="flex items-center justify-between mb-4"
-                                key={token.token}
-                              >
-                                <div className="flex items-center mr-10">
-                                  <img
-                                    className="w-5 h-5"
-                                    src={
-                                      allTokenMetadatas[token.token]?.icon || ''
-                                    }
-                                    alt=""
-                                  />
-                                  <p className="text-gray2 text-sm ml-1.5">
-                                    {allTokenMetadatas[token.token]?.symbol ||
-                                      ''}
-                                  </p>
-                                </div>
-                                <div className="text-sm">
-                                  {token.total < 0.01
-                                    ? '<0.01'
-                                    : `$${abbreviateNumber(token.total)}`}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex justify-end">
-                        {item.total < 0.01
-                          ? '<0.01'
-                          : `$${abbreviateNumber(item.total)}`}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-            <div className="lg:hidden md:hidden overflow-x-hidden">
+            <div
+              className="lg:hidden overflow-x-hidden"
+              style={{ height: '72%' }}
+            >
               {tableDate.map((item, index) => (
                 <div
                   key={item.wallet}
-                  className="py-3.5 pl-3.5 flex items-center border-b border-memeBorderColor"
+                  className="py-3.5 pl-3.5 flex items-center border-b border-memeBorderColor xsm:pl-0"
                 >
-                  <div className="text-white w-8 mr-2 flex justify-center">
+                  <div className="text-white w-10 mr-2 flex justify-center">
                     {(() => {
                       const globalIndex =
                         index + 1 + (currentPage - 1) * itemsPerPage;
@@ -445,11 +463,11 @@ function UserRankingModal(props: any) {
                       );
                     })()}
                   </div>
-                  <div className="w-10/12">
+                  <div style={{ width: '86%' }}>
                     <div className="flex items-center justify-between text-white">
                       <div>
                         {item.total_value < 0.01
-                          ? '<0.01'
+                          ? '$<0.01'
                           : `$${abbreviateNumber(item.total_value)}`}
                       </div>
                       <div>
@@ -460,25 +478,84 @@ function UserRankingModal(props: any) {
                             onMouseEnter={() => handleMouseEnterRow(index)}
                             onMouseLeave={handleMouseLeaveRow}
                           >
-                            {item.token_list.map((token, tokenIndex) => (
-                              <div
-                                className="relative"
-                                key={tokenIndex}
-                                style={{
-                                  width: '22px',
-                                  height: '22px',
-                                  marginLeft: tokenIndex === 0 ? '0' : '-5px',
-                                }}
-                              >
-                                <img
-                                  className="absolute size-full block left-0 top-0"
-                                  src={
-                                    allTokenMetadatas[token.token]?.icon || ''
-                                  }
-                                  alt=""
-                                />
-                              </div>
-                            ))}
+                            {item.token_list.length >= 4 ? (
+                              <>
+                                {item.token_list
+                                  .slice(0, 2)
+                                  .map((token, tokenIndex) => (
+                                    <div
+                                      className="relative"
+                                      key={tokenIndex}
+                                      style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        marginLeft:
+                                          tokenIndex === 0 ? '0' : '-5px',
+                                      }}
+                                    >
+                                      <img
+                                        className="absolute size-full block left-0 top-0"
+                                        src={
+                                          allTokenMetadatas[token.token]
+                                            ?.icon || ''
+                                        }
+                                        alt=""
+                                      />
+                                    </div>
+                                  ))}
+                                <div
+                                  className="relative"
+                                  style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    marginLeft: '-5px',
+                                  }}
+                                >
+                                  <MemeEllipsis />
+                                </div>
+                                <div
+                                  className="relative"
+                                  style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    marginLeft: '-5px',
+                                  }}
+                                >
+                                  <img
+                                    className="absolute size-full block left-0 top-0"
+                                    src={
+                                      allTokenMetadatas[
+                                        item.token_list[
+                                          item.token_list.length - 1
+                                        ].token
+                                      ]?.icon || ''
+                                    }
+                                    alt=""
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              item.token_list.map((token, tokenIndex) => (
+                                <div
+                                  className="relative"
+                                  key={tokenIndex}
+                                  style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    marginLeft: tokenIndex === 0 ? '0' : '-5px',
+                                  }}
+                                >
+                                  <img
+                                    className="absolute size-full block left-0 top-0"
+                                    src={
+                                      allTokenMetadatas[token.token]?.icon || ''
+                                    }
+                                    alt=""
+                                  />
+                                </div>
+                              ))
+                            )}
+
                             {hoveredRow === index && (
                               <div
                                 className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
@@ -508,7 +585,7 @@ function UserRankingModal(props: any) {
                                     <div className="text-sm">
                                       {token.total < 0.01
                                         ? '<0.01'
-                                        : `$${abbreviateNumber(token.total)}`}
+                                        : `${abbreviateNumber(token.total)}`}
                                     </div>
                                   </div>
                                 ))}
@@ -519,7 +596,7 @@ function UserRankingModal(props: any) {
                           <div className="flex justify-end">
                             {item.total < 0.01
                               ? '<0.01'
-                              : `$${abbreviateNumber(item.total)}`}
+                              : `${abbreviateNumber(item.total)}`}
                           </div>
                         )}
                       </div>
@@ -707,7 +784,7 @@ const PaginationComponent: React.FC<PaginationComponentProps> = ({
             <button
               key={index}
               onClick={() => paginate(page)}
-              className={`mr-3.5 py-1 px-2 rounded-md xsm:w-7 xsm:h-7 ${
+              className={`mr-3.5 py-1 px-2 xsm:px-1.5 rounded-md xsm:h-7 ${
                 currentPage === page
                   ? 'bg-limitOrderInputColor bg-opacity-30 text-white'
                   : 'text-primaryText'
@@ -720,7 +797,7 @@ const PaginationComponent: React.FC<PaginationComponentProps> = ({
           return (
             <span
               key={index}
-              className="mr-3.5 py-1 px-2 rounded-md text-primaryText cursor-default"
+              className="mr-3.5 py-1 px-2 xsm:px-1.5 rounded-md text-primaryText cursor-default"
             >
               {page}
             </span>
