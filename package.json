@@ -4,7 +4,7 @@
   "license": "MIT OR Apache-2.0",
   "scripts": {
     "analyze": "source-map-explorer 'build/*.js'",
-    "build": "craco build",
+    "build": "REACT_APP_NEAR_ENV=pub-testnet craco build",
     "build:testnet": "REACT_APP_NEAR_ENV=testnet craco build",
     "build:pub-testnet": "REACT_APP_NEAR_ENV=pub-testnet craco build",
     "build:mainnet": "REACT_APP_NEAR_ENV=mainnet craco build",
