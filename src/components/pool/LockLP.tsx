@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, createContext } from 'react';
 import { LockIcon, WarningIcon, ArrowIcon } from './Icons';
+import { TokenRisk } from '../icon/Arrows';
 import Big from 'big.js';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import LockedModal from './LockedModal';
@@ -187,7 +188,7 @@ const LockLP = ({
                   data-place="top"
                   data-tooltip-html={lockingTip()}
                 >
-                  <WarningIcon />
+                  <TokenRisk className="transform scale-75 origin-center relative top-px" />
                   <CustomTooltip id="lockingTipId" />
                 </div>
               </div>
