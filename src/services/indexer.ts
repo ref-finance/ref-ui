@@ -343,6 +343,7 @@ export const getTopPoolsByNewUI = async ({
   farm = 'false',
   hide_low_pool = 'false',
   order = 'desc',
+  token_type = '',
 }: {
   type?: string;
   sort?: string;
@@ -351,13 +352,27 @@ export const getTopPoolsByNewUI = async ({
   farm?: string | boolean;
   hide_low_pool?: string | boolean;
   order: string;
+  token_type: string;
 }): Promise<PoolRPCView[]> => {
+  let tktype = token_type;
+  if (token_type == 'all') {
+    tktype = '';
+  } else if (token_type == 'stablecoin') {
+    tktype = 'stable_coin';
+  }
+  if (sort == 'apr') {
+    sort = 'apy';
+  }
+  if (sort == 'volume_24h') {
+    sort = '24h';
+  }
+
   try {
     let pools: any;
 
     pools = await fetch(
       config.newPoolsIndexerUrl +
-        `/list-pools?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}`,
+        `/list-pools?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}`,
       {
         method: 'GET',
         headers: {
@@ -709,6 +724,23 @@ export const getPoolsDetailByIds = async ({
   );
 };
 
+export const getPoolsDetailById = async ({ pool_id }: { pool_id: string }) => {
+  return fetch(config.newPoolsIndexerUrl + '/pool/detail?pool_id=' + pool_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+    },
+  })
+    .then((res) => res.json())
+    .then((pools) => {
+      console.log(pools);
+      return pools.data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
 export const getTokenPriceList = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/list-token-price', {
     method: 'GET',
@@ -904,6 +936,16 @@ export const getAllVolume24h = async () => {
     .then((res) => res.json())
     .then((res) => {
       return res?.lastVolumeUSD;
+    });
+};
+
+export const getAllPoolData = async () => {
+  return await fetch(config.newPoolsIndexerUrl + '/all-pool-data', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res.data;
     });
 };
 

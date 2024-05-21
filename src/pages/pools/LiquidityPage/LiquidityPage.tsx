@@ -792,6 +792,7 @@ function PcLiquidityPage({
   handlePageChange,
   handleSizeChange,
   cardLoading,
+  setTknType,
 }: {
   cardLoading: boolean;
   totalItems: number;
@@ -818,6 +819,7 @@ function PcLiquidityPage({
   onSortChange: (by: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
+  setTknType: (key: string) => void;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
@@ -865,6 +867,7 @@ function PcLiquidityPage({
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
   });
+
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -883,6 +886,10 @@ function PcLiquidityPage({
   const [enableIdSearch, setEnableIdSearch] = useState<boolean>(
     !!sessionStorage.getItem(REF_POOL_ID_SEARCHING_KEY) || false
   );
+
+  useEffect(() => {
+    setTknType(selectCoinClass);
+  }, [selectCoinClass]);
 
   const handleEnableIdSearching = () => {
     if (enableIdSearch) {
@@ -1557,7 +1564,7 @@ function PcLiquidityPage({
               </header>
 
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-                {pools?.filter(poolFilterFunc).map((pool, i) => {
+                {pools.map((pool, i) => {
                   return (
                     <div key={'v1-pc' + pool.id}>
                       <PoolRow
@@ -1833,6 +1840,8 @@ export default function LiquidityPage() {
     localStorage.getItem(REF_FI_FARM_ONLY) === '1' || false
   );
 
+  const [tknType, setTknType] = useState('all');
+
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
   );
@@ -1841,6 +1850,10 @@ export default function LiquidityPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   const [totalItems, setTotalItems] = useState(0);
+
+  const handleSetTknType = (type) => {
+    setTknType(type);
+  };
 
   useEffect(() => {
     if (localStorage.getItem('poolsTotal')) {
@@ -1892,6 +1905,7 @@ export default function LiquidityPage() {
       sort: sortBy,
       order,
       offset: (currentPage - 1) * pageSize,
+      token_type: tknType,
     },
   });
   useEffect(() => {
@@ -2097,6 +2111,7 @@ export default function LiquidityPage() {
           handleSizeChange={handleSizeChange}
           pageSize={pageSize}
           cardLoading={cardLoading}
+          setTknType={handleSetTknType}
         />
       )}
 
@@ -2138,6 +2153,7 @@ export default function LiquidityPage() {
           handleSizeChange={handleSizeChange}
           pageSize={pageSize}
           cardLoading={cardLoading}
+          setTknType={handleSetTknType}
         />
       )}
       {indexerFail && (

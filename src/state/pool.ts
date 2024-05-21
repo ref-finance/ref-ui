@@ -423,6 +423,7 @@ export const usePools = (props: {
     props.getTopPoolsProps.order,
     props.getTopPoolsProps.order_by,
     props.getTopPoolsProps.offset,
+    props.getTopPoolsProps.token_type,
   ]);
   return {
     pools,

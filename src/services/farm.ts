@@ -299,7 +299,7 @@ export const getFarmInfo = async (
     userRewardNumberPerWeek.toString()
   );
 
-  let userUnclaimedRewardNumber: string =
+  const userUnclaimedRewardNumber: string =
     isSignedIn && staked && Number(staked) > 0
       ? await getUnclaimedReward(farm.farm_id)
       : '0';
@@ -362,7 +362,7 @@ export const getUnclaimedFarms = async ({
   seeds: Record<string, string>;
 }): Promise<FarmInfo[]> => {
   const isSignedIn = wallet.isSignedIn();
-  let farms: FarmInfo[] = await getFarms({
+  const farms: FarmInfo[] = await getFarms({
     page,
     perPage,
     stakedList,
@@ -387,7 +387,7 @@ export const getUnclaimedFarms = async ({
 export const getFarmsBySeedId = async (seed_id: number): Promise<Farm[]> => {
   const farms: Farm[] = await refFarmViewFunction({
     methodName: 'list_farms_by_seed',
-    args: { seed_id: seed_id },
+    args: { seed_id },
   });
 
   return farms;
@@ -415,7 +415,7 @@ export const getRewardByTokenId = async (
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_reward',
-    args: { account_id: accountId, token_id: token_id },
+    args: { account_id: accountId, token_id },
   });
 };
 
@@ -425,7 +425,7 @@ export const getUnclaimedReward = async (
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_unclaimed_reward',
-    args: { account_id: accountId, farm_id: farm_id },
+    args: { account_id: accountId, farm_id },
   });
 };
 
@@ -449,7 +449,7 @@ export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
     functionCalls: [
       {
         methodName: 'claim_reward_by_farm',
-        args: { farm_id: farm_id },
+        args: { farm_id },
       },
     ],
   });
@@ -467,7 +467,7 @@ export const claimRewardBySeed = async (seed_id: string): Promise<any> => {
     functionCalls: [
       {
         methodName: 'claim_reward_by_seed',
-        args: { seed_id: seed_id },
+        args: { seed_id },
       },
     ],
   });
@@ -515,7 +515,7 @@ export const claimAndWithDrawReward = async (
       functionCalls: [
         {
           methodName: 'claim_and_withdraw_by_seed',
-          args: { seed_id: farmsData[0]['seed_id'] },
+          args: { seed_id: farmsData[0].seed_id },
         },
       ],
     });
@@ -525,7 +525,7 @@ export const claimAndWithDrawReward = async (
       functionCalls: [
         {
           methodName: 'claim_and_withdraw_by_farm',
-          args: { farm_id: farmsData[0]['farm_id'], withdraw_all_tokens: true },
+          args: { farm_id: farmsData[0].farm_id, withdraw_all_tokens: true },
         },
       ],
     });
@@ -567,7 +567,7 @@ export const get_unclaimed_rewards = async (seed_id: string) => {
   const accountId = getCurrentWallet().wallet.getAccountId();
   return await refFarmBoostViewFunction({
     methodName: 'get_unclaimed_rewards',
-    args: { farmer_id: accountId, seed_id: seed_id },
+    args: { farmer_id: accountId, seed_id },
   });
 };
 export const get_config = async () => {
@@ -628,7 +628,7 @@ export const unStake_boost = async ({
         {
           methodName: 'unlock_and_withdraw_seed',
           args: {
-            seed_id: seed_id,
+            seed_id,
             unlock_amount,
             withdraw_amount,
           },
@@ -687,7 +687,7 @@ export const withdrawAllReward_boost = async (
     functionCalls.push({
       methodName: 'withdraw_reward',
       args: {
-        token_id: token_id,
+        token_id,
       },
       gas: '50000000000000',
     });
@@ -729,7 +729,7 @@ export const claimRewardBySeed_boost = async (
 ): Promise<any> => {
   return refFarmBoostFunctionCall({
     methodName: 'claim_reward_by_seed',
-    args: { seed_id: seed_id },
+    args: { seed_id },
   });
 };
 export const lock_free_seed = async ({
@@ -1076,7 +1076,7 @@ export const migrate_user_seed = async ({
         {
           methodName: 'withdraw_seed',
           args: {
-            seed_id: seed_id,
+            seed_id,
             amount,
             msg,
           },
@@ -1209,7 +1209,7 @@ export const stake_boost_nft = async ({
           {
             methodName: 'unlock_and_withdraw_seed',
             args: {
-              seed_id: seed_id,
+              seed_id,
               unlock_amount: '0',
               withdraw_amount,
             },
@@ -1307,7 +1307,7 @@ export const unStake_boost_nft = async ({
         {
           methodName: 'unlock_and_withdraw_seed',
           args: {
-            seed_id: seed_id,
+            seed_id,
             unlock_amount: '0',
             withdraw_amount,
           },
@@ -1358,7 +1358,7 @@ export const batch_unStake_boost_nft = async ({
         {
           methodName: 'unlock_and_withdraw_seed',
           args: {
-            seed_id: seed_id,
+            seed_id,
             unlock_amount: '0',
             withdraw_amount,
           },
@@ -1464,7 +1464,7 @@ export const batch_stake_boost_nft = async ({
           {
             methodName: 'unlock_and_withdraw_seed',
             args: {
-              seed_id: seed_id,
+              seed_id,
               unlock_amount: '0',
               withdraw_amount,
             },

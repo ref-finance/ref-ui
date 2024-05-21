@@ -31,7 +31,7 @@ function MobilePoolRow({
   farmApr,
   farmCount,
 }: {
-  pool: Pool;
+  pool: any;
   sortBy: string;
   watched: Boolean;
   tokens?: TokenMetadata[];
@@ -55,7 +55,7 @@ function MobilePoolRow({
   if (!curRowTokens) return <></>;
 
   tokens = sort_tokens_by_base(tokens);
-
+  console.log(pool, 'mobile pool');
   const showSortedValue = ({
     sortBy,
     value,
@@ -65,16 +65,24 @@ function MobilePoolRow({
   }) => {
     if (sortBy === 'tvl')
       return indexFail ? '-' : toInternationalCurrencySystem(value.toString());
-    else if (sortBy === 'fee') return `${calculateFeePercent(value)}%`;
+    else if (sortBy === 'fee')
+      return `${
+        Reflect.has(pool, 'farm_apy')
+          ? (pool.fee * 100).toFixed(2)
+          : calculateFeePercent(pool.fee)
+      }%`;
     else if (sortBy === 'volume_24h')
-      return !h24volume
+      return !pool.volume_24h
         ? '-'
-        : Number(h24volume) == 0
+        : Number(pool.volume_24h) == 0
         ? '$0'
-        : Number(h24volume) < 0.01
+        : Number(pool.volume_24h) < 0.01
         ? '$ <0.01'
-        : `$${toInternationalCurrencySystem(h24volume)}`;
-    else if (sortBy === 'apr') return `${getPoolFeeApr(h24volume, pool)}%`;
+        : `$${toInternationalCurrencySystem(pool.volume_24h)}`;
+    else if (sortBy === 'apr')
+      return `${
+        Number(pool.apy).toFixed(0) != '0' ? Number(pool.apy).toFixed(2) : '0'
+      }%`;
   };
 
   const is_muti_tokens = curRowTokens?.length > 3;

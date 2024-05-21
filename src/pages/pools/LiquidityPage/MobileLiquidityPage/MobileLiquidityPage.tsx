@@ -109,6 +109,7 @@ function MobileLiquidityPage({
   watchList,
   do_farms_v2_poos,
   farmAprById,
+  setTknType,
 }: {
   cardLoading: boolean;
   totalItems: number;
@@ -140,6 +141,7 @@ function MobileLiquidityPage({
   watchV2Pools: PoolInfo[];
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
+  setTknType: (key: string) => void;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -239,6 +241,10 @@ function MobileLiquidityPage({
   });
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
   const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    setTknType(selectCoinClass);
+  }, [selectCoinClass]);
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
@@ -544,7 +550,6 @@ function MobileLiquidityPage({
               onHide,
               pools,
               volumes,
-              poolFilterFunc,
             }}
           />
         )}
