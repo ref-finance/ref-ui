@@ -21,7 +21,7 @@ import {
 const CommunityLinks = [
   {
     label: 'Discord',
-    url: 'https://discord.gg/SJBGcfMxJz',
+    url: 'https://discord.gg/reffinance',
     icon: <FaDiscord />,
   },
   {
