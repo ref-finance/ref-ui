@@ -43,6 +43,7 @@ import {
   _search,
   getTopPools,
   getTopPoolsByNewUI,
+  getSearchResult,
   getPool,
   get24hVolumes,
   getV3PoolVolumeById,
@@ -302,7 +303,7 @@ export const usePools = (props: {
   const nextPage = () => setPage((page) => page + 1);
 
   function _loadPools({ getTopPoolsProps }: LoadPoolsOpts) {
-    getTopPoolsByNewUI({ ...getTopPoolsProps })
+    getSearchResult({ ...getTopPoolsProps, token_list: props.tokenName })
       .then(async (res) => {
         const pools =
           res.length > 0 ? res.map((item) => parsePoolNew(item)) : [];
@@ -386,13 +387,29 @@ export const usePools = (props: {
 
   useEffect(() => {
     if (props.activeTab == 'v1') {
-      const newPools = shortSavePools.filter(
-        (item) =>
-          item.search_symbols
-            .toLowerCase()
-            .indexOf(props.tokenName.toLowerCase()) !== -1
-      );
-      props.tokenName ? setPools(newPools) : setPools(shortSavePools);
+      if (props.tokenName) {
+        setCardLoding(true);
+        getSearchResult({
+          ...props.getTopPoolsProps,
+          token_list: props.tokenName,
+        })
+          .then(async (res) => {
+            const pools =
+              res.length > 0 ? res.map((item) => parsePoolNew(item)) : [];
+            setShortSavePools(pools);
+            setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
+            setPools(pools);
+          })
+          .finally(() => {
+            setLoading(false);
+            setCardLoding(false);
+          });
+      } else {
+        setCardLoding(true);
+        loadPools({
+          getTopPoolsProps: props.getTopPoolsProps,
+        });
+      }
     }
   }, [props.tokenName]);
 
@@ -730,7 +747,10 @@ export const useWatchPools = () => {
               })
             );
           }),
-        getPoolsDetailByIds({ pool_ids: unknownIds_v1 })
+        getSearchResult({
+          onlyUseId: true,
+          pool_id_list: unknownIds_v1.join(','),
+        })
           .then((res) => {
             const resPools = res.map((pool) => parsePoolNew(pool));
 

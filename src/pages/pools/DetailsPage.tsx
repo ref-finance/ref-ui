@@ -2285,7 +2285,6 @@ export default function PoolDetailsPage() {
     const knownPoolIds = new Set(ALL_STABLE_POOL_IDS);
     if (!knownPoolIds.has(id)) {
       getPoolsDetailById({ pool_id: id }).then((pool) => {
-        console.log(pool, 'detail>>>2281');
         setAllData(pool);
       });
     }

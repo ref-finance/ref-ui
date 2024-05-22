@@ -739,7 +739,7 @@ function WatchListCard({
                   return (
                     <div
                       className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
-                      key={pool?.id}
+                      key={pool?.id + i}
                     >
                       <PoolRow
                         pool={pool}
@@ -756,7 +756,7 @@ function WatchListCard({
                   return (
                     <PoolRowV2
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                      key={pool?.pool_id}
+                      key={pool?.pool_id + i}
                       pool={pool}
                       index={1 + i}
                       showCol={true}
@@ -1578,7 +1578,7 @@ function PcLiquidityPage({
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
                 {pools.map((pool, i) => {
                   return (
-                    <div key={'v1-pc' + pool.id}>
+                    <div key={'v1-pc' + pool.id + i}>
                       <PoolRow
                         tokens={poolTokenMetas[pool.id]}
                         farmApr={farmAprById ? farmAprById[pool.id] : null}
@@ -1779,7 +1779,7 @@ function PcLiquidityPage({
                   .map((pool, i) => (
                     <PoolRowV2
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                      key={pool.pool_id}
+                      key={pool.pool_id + i}
                       pool={pool}
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       index={i + 1}
@@ -2414,7 +2414,7 @@ const RenderDisplayTokensAmounts = ({
         return (
           <span
             className={`flex   `}
-            key={token.id + 'pool_page_stable_pool'}
+            key={token.id + 'pool_page_stable_pool' + i}
             onMouseEnter={() => {
               setChartActiveToken && setChartActiveToken(token.id);
             }}
