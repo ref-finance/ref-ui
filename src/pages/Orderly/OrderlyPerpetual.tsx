@@ -49,7 +49,7 @@ import { CheckBox } from './components/Common';
 import { parseSymbol } from './components/RecentTrade';
 import { NewUserTip } from './components/Common/NewUserTip';
 
-export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN7';
+export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN8';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
