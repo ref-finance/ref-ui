@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from 'src/components/card/Card';
@@ -152,7 +152,11 @@ import {
   QuestionTip,
 } from '../../components/layout/TipWrapper';
 
-import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
+import {
+  NearblocksIcon,
+  NoLiquidityDetailPageIcon,
+  PikespeakIcon,
+} from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import BLACKTip from '../../components/pool/BLACKTip';
@@ -1409,17 +1413,27 @@ export function RecentTransactions({
   };
 
   const [loadingStates, setLoadingStates] = useState({});
-  async function handleTxClick(receipt_id) {
+  const [hoveredTx, setHoveredTx] = useState(null);
+  const closeTimeoutRef = useRef(null);
+  const handleMouseEnter = (receipt_id) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setHoveredTx(receipt_id);
+  };
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredTx(null);
+    }, 200);
+  };
+  async function handleTxClick(receipt_id, url) {
     setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
     try {
       const data = await getTxId(receipt_id);
       if (data && data.receipts && data.receipts.length > 0) {
         const txHash = data.receipts[0].originated_from_transaction_hash;
-        window.open(
-          `${getConfig().explorerUrl}/txns/${txHash}`,
-          '_blank',
-          'noopener,noreferrer'
-        );
+        window.open(`${url}/${txHash}`, '_blank', 'noopener,noreferrer');
       }
     } catch (error) {
       console.error(
@@ -1492,9 +1506,8 @@ export function RecentTransactions({
           <span
             key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer"
-            onClick={() =>
-              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
-            }
+            onMouseEnter={() => handleMouseEnter(tx.receipt_id)}
+            onMouseLeave={handleMouseLeave}
           >
             {loadingStates[tx.receipt_id] ? (
               <>
@@ -1510,6 +1523,36 @@ export function RecentTransactions({
                 </span>
                 {txLink}
               </>
+            )}
+            {hoveredTx === tx.receipt_id && (
+              <div className="absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+                <div className="flex flex-col">
+                  <div
+                    className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().explorerUrl}/txns`
+                      )
+                    }
+                  >
+                    <NearblocksIcon />
+                    <p className="ml-2">nearblocks</p>
+                  </div>
+                  <div
+                    className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().pikespeakUrl}/transaction-viewer`
+                      )
+                    }
+                  >
+                    <PikespeakIcon />
+                    <p className="ml-2">Pikespeak</p>
+                  </div>
+                </div>
+              </div>
             )}
           </span>
         </td>
@@ -1541,7 +1584,7 @@ export function RecentTransactions({
     return (
       <tr
         key={tx.receipt_id + index}
-        className={`text-sm lg:grid  overflow-hidden lg:grid-cols-${
+        className={`text-sm lg:grid lg:grid-cols-${
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
@@ -1583,10 +1626,9 @@ export function RecentTransactions({
         >
           <span
             key={tx.receipt_id}
-            className="inline-flex cursor-pointer"
-            onClick={() =>
-              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
-            }
+            className="inline-flex items-center cursor-pointer"
+            onMouseEnter={() => handleMouseEnter(tx.receipt_id)}
+            onMouseLeave={handleMouseLeave}
           >
             {loadingStates[tx.receipt_id] ? (
               <>
@@ -1602,6 +1644,36 @@ export function RecentTransactions({
                 </span>
                 {txLink}
               </>
+            )}
+            {hoveredTx === tx.receipt_id && (
+              <div className="absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+                <div className="flex flex-col">
+                  <div
+                    className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().explorerUrl}/txns`
+                      )
+                    }
+                  >
+                    <NearblocksIcon />
+                    <p className="ml-2">nearblocks</p>
+                  </div>
+                  <div
+                    className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().pikespeakUrl}/transaction-viewer`
+                      )
+                    }
+                  >
+                    <PikespeakIcon />
+                    <p className="ml-2">Pikespeak</p>
+                  </div>
+                </div>
+              </div>
             )}
           </span>
         </td>
