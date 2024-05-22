@@ -27,7 +27,7 @@ import Loading from '../layout/Loading';
 function UserRankingModal(props: any) {
   const { isOpen, onRequestClose } = props;
   const cardWidth = isMobile() ? '90vw' : '52vw';
-  const cardHeight = isMobile() ? '80vh' : '74vh';
+  const cardHeight = isMobile() ? '588px' : 'auto';
   const is_mobile = isMobile();
   const { allTokenMetadatas } = useContext(MemeContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +39,7 @@ function UserRankingModal(props: any) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(isMobile() ? 5 : 7);
   const [totalPages, setTotalPages] = useState(0);
+  const rowRefs = useRef([]);
   const [hoveredRow, setHoveredRow] = useState(null);
   const [sorted, setSorted] = useState(false);
   useEffect(() => {
@@ -215,6 +216,19 @@ function UserRankingModal(props: any) {
     setSorted(true);
     setCurrentPage(1);
   };
+  const getPopupPosition = (triggerElement) => {
+    if (triggerElement) {
+      const rect = triggerElement.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const popupHeight = 200;
+      if (windowHeight - rect.bottom < popupHeight) {
+        return { top: 'initial', bottom: '150%' };
+      } else {
+        return { top: '150%', bottom: 'initial' };
+      }
+    }
+    return null;
+  };
   return (
     <Modal
       isOpen={isOpen}
@@ -282,12 +296,12 @@ function UserRankingModal(props: any) {
                 </span>
                 <UserStakeRankingPopupDown className="ml-4" />
               </div>
-              <UserStakeRankingSort
+              {/* <UserStakeRankingSort
                 className={`ml-1.5 transform cursor-pointer ${
                   sorted ? 'text-white' : 'text-borderColor hover:text-white '
                 }`}
                 onClick={sortTableData}
-              />
+              /> */}
             </div>
             {isOpenToken && (
               <div className="absolute top-11 right-0 z-10 bg-memeUserStackeBgColor rounded-xl pb-1 pt-3 px-2 text-white w-60 border border-borderC">
@@ -475,6 +489,7 @@ function UserRankingModal(props: any) {
                         Array.isArray(item.token_list) ? (
                           <div
                             className="flex justify-end relative cursor-pointer"
+                            ref={(el) => (rowRefs.current[index] = el)}
                             onMouseEnter={() => handleMouseEnterRow(index)}
                             onMouseLeave={handleMouseLeaveRow}
                           >
@@ -558,8 +573,9 @@ function UserRankingModal(props: any) {
 
                             {hoveredRow === index && (
                               <div
-                                className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
+                                className="absolute top-8 right-0 bg-boxBorder bg-opacity-90 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
                                 style={{
+                                  ...getPopupPosition(rowRefs.current[index]),
                                   backdropFilter: 'blur(4px)',
                                 }}
                               >

@@ -212,9 +212,9 @@ const SeedsBox = () => {
         />
       </div>
       {is_mobile && (
-        <div className="flex items-center mt-3.5 mb-6 justify-center">
+        <div className="flex items-center mt-3.5 mb-6 justify-between mx-3">
           <div
-            className="h-10 flex rounded-3xl px-6 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-6 border border-memeBorderColor"
+            className="h-10 flex justify-center flex-1 rounded-3xl items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-2 border border-memeBorderColor"
             onClick={() => setUserRanking(true)}
           >
             <div className="mr-2">
@@ -226,7 +226,7 @@ const SeedsBox = () => {
             {/* <MemeRightArrow /> */}
           </div>
           <div
-            className="h-10 flex rounded-3xl px-6 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
+            className="h-10 flex rounded-3xl justify-center flex-1 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
             onClick={() => history.push('/airdop')}
           >
             <div className="mr-2">
