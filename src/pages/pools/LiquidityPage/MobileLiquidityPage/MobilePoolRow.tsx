@@ -67,7 +67,6 @@ function MobilePoolRow({
   if (!curRowTokens) return <></>;
 
   tokens = sort_tokens_by_base(tokens);
-  console.log(pool, 'mobile pool');
   const showSortedValue = ({
     sortBy,
     value,

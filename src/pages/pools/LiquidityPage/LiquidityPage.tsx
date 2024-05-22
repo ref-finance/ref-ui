@@ -73,6 +73,7 @@ import {
   useMobile,
   useClientMobile,
   isClientMobie,
+  isMobile,
 } from '../../../utils/device';
 import { useDayVolumesPools, useYourliquidity } from '../../../state/pool';
 import { PoolTabV3 } from '../../../components/pool/PoolTabV3';
@@ -2085,7 +2086,7 @@ export default function LiquidityPage() {
         riskTokens,
       }}
     >
-      {!clientMobileDevice && (
+      {!isMobile() && (
         <PcLiquidityPage
           farmAprById={farmAprById}
           poolTokenMetas={poolTokenMetas}
@@ -2127,7 +2128,7 @@ export default function LiquidityPage() {
         />
       )}
 
-      {clientMobileDevice && (
+      {isMobile() && (
         <MobileLiquidityPage
           activeTab={activeTab}
           switchActiveTab={switchActiveTab}
