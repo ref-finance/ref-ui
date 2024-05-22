@@ -23,6 +23,24 @@ const Pagination = ({
   const disableStyle = { color: '#7E8A93' };
   const activeLinkStyle = { color: '#fff' };
 
+  const disableStyleMobile = {
+    color: '#7E8A93',
+    width: '1.75rem',
+    height: '1.75rem',
+    borderRadius: '8px',
+    border: '1px solid #7E8A93',
+    fontSize: '12px',
+  };
+
+  const activeLinkStyleMobile = {
+    color: '#00FFD1',
+    width: '1.75rem',
+    height: '1.75rem',
+    borderRadius: '8px',
+    border: '1px solid #00FFD1',
+    fontSize: '12px',
+  };
+
   const goToPage = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= pageCount && pageNumber !== '...') {
       setCurrentPage(pageNumber);
@@ -38,8 +56,10 @@ const Pagination = ({
 
   const goPreOrNext = (index) => {
     if (index + 1 > 5) {
+      onChangePage(currentPage + 5);
       setCurrentPage((pre) => pre + 5);
     } else {
+      onChangePage(currentPage - 5);
       setCurrentPage((pre) => pre - 5);
     }
   };
@@ -96,63 +116,122 @@ const Pagination = ({
   }, [currentPage, pageCount]);
 
   return (
-    <div
-      className={`flex justify-center items-center text-white text-sm font-bold cursor-pointer`}
-    >
+    pageCount > 0 && (
       <div
-        style={currentPage == 1 ? disableStyle : activeLinkStyle}
-        onClick={() => currentPage > 1 && goToPage(currentPage - 1)}
-        className="mr-auto"
+        className={`flex justify-center items-center text-white text-sm font-bold cursor-pointer`}
       >
-        {`<<  Previous`}
-      </div>
-      {!isMobile() ? (
-        <ul className="flex w-80 justify-center">
-          {pageNumbersList.map((item, index) => {
-            if (item === '...') {
-              return (
-                <li key={`ellipsis-${index}`} className="w-6 h-6 frcc rounded">
-                  <span
-                    className="page-link"
-                    onClick={() => goPreOrNext(index)}
-                  >
-                    {item}
-                  </span>
-                </li>
-              );
-            } else {
-              return (
-                <li
-                  key={item}
-                  className={`frcc w-6 h-6 rounded ${
-                    index % 2 == 0 ? 'mx-2' : ''
-                  }`}
-                  style={currentPage == item ? activePageStyle : undefined}
-                >
-                  <span className="page-link" onClick={() => goToPage(item)}>
-                    {item}
-                  </span>
-                </li>
-              );
-            }
-          })}
-        </ul>
-      ) : (
-        pageNumbersListForMobile
-      )}
+        {isMobile() ? (
+          <div className="flex mr-auto">
+            <div
+              className="flex items-center justify-center"
+              style={
+                currentPage == 1 ? disableStyleMobile : activeLinkStyleMobile
+              }
+              onClick={() => currentPage > 1 && goToPage(1)}
+            >
+              {`|<`}
+            </div>
+            <div
+              className="mx-6 flex items-center justify-center"
+              style={
+                currentPage == 1 ? disableStyleMobile : activeLinkStyleMobile
+              }
+              onClick={() => currentPage > 1 && goToPage(currentPage - 1)}
+            >
+              {`<<`}
+            </div>
+          </div>
+        ) : (
+          <div
+            style={currentPage == 1 ? disableStyle : activeLinkStyle}
+            onClick={() => currentPage > 1 && goToPage(currentPage - 1)}
+            className="mr-auto"
+          >
+            {`<< Previous`}
+          </div>
+        )}
 
-      <div
-        style={
-          pageCount == 1 || currentPage == pageCount
-            ? disableStyle
-            : activeLinkStyle
-        }
-        onClick={() => currentPage < pageCount && goToPage(currentPage + 1)}
-        className=" ml-auto"
-      >
-        {`Next  >>`}
+        {/* main page list */}
+        {!isMobile() ? (
+          <ul className="flex w-80 justify-center">
+            {pageNumbersList.map((item, index) => {
+              if (item === '...') {
+                return (
+                  <li
+                    key={`ellipsis-${index}`}
+                    className="w-6 h-6 frcc rounded"
+                  >
+                    <span
+                      className="page-link"
+                      onClick={() => goPreOrNext(index)}
+                    >
+                      {item}
+                    </span>
+                  </li>
+                );
+              } else {
+                return (
+                  <li
+                    key={item}
+                    className={`frcc w-6 h-6 rounded ${
+                      index % 2 == 0 ? 'mx-2' : ''
+                    }`}
+                    style={currentPage == item ? activePageStyle : undefined}
+                  >
+                    <span className="page-link" onClick={() => goToPage(item)}>
+                      {item}
+                    </span>
+                  </li>
+                );
+              }
+            })}
+          </ul>
+        ) : (
+          pageNumbersListForMobile
+        )}
+
+        {isMobile() ? (
+          <div className="flex ml-auto">
+            <div
+              className="mx-6 flex items-center justify-center"
+              style={
+                pageCount == 1 || currentPage == pageCount
+                  ? disableStyleMobile
+                  : activeLinkStyleMobile
+              }
+              onClick={() =>
+                currentPage < pageCount && goToPage(currentPage + 1)
+              }
+            >
+              {`>>`}
+            </div>
+            <div
+              className="flex items-center justify-center"
+              style={
+                pageCount == 1 || currentPage == pageCount
+                  ? disableStyleMobile
+                  : activeLinkStyleMobile
+              }
+              onClick={() => currentPage < pageCount && goToPage(pageCount)}
+            >
+              {`>|`}
+            </div>
+          </div>
+        ) : (
+          <div
+            style={
+              pageCount == 1 || currentPage == pageCount
+                ? disableStyle
+                : activeLinkStyle
+            }
+            onClick={() => currentPage < pageCount && goToPage(currentPage + 1)}
+            className=" ml-auto"
+          >
+            {`Next >>`}
+          </div>
+        )}
       </div>
-    </div>
+    )
   );
 };
 
