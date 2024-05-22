@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { isMobile } from '../../utils/device';
 
 const Pagination = ({
@@ -16,7 +16,9 @@ const Pagination = ({
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(itemsPerPage);
-
+  useEffect(() => {
+    if (currentPage > pageCount) setCurrentPage(1);
+  }, [pageCount]);
   const activePageStyle = { backgroundColor: '#566069' };
   const disableStyle = { color: '#7E8A93' };
   const activeLinkStyle = { color: '#fff' };
