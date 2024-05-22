@@ -2753,7 +2753,23 @@ export default function PoolDetailsPage() {
                     </>
                   }
                   id="apr"
-                  value={`${Number(allData.apy).toFixed(2)}%`}
+                  value={
+                    <div
+                      data-type="info"
+                      data-place="left"
+                      data-multiline={true}
+                      data-class={'reactTip'}
+                      data-tooltip-html={getPoolListFarmAprTip()}
+                      data-tooltip-id={'pool_list_pc_apr' + pool.id}
+                    >
+                      {Number(allData.apy).toFixed(2)}%
+                      {Number(allData.farm_apy) > 0 && (
+                        <span className="text-xs text-gradientFrom">
+                          {` +` + formatNumber(allData.farm_apy) + '%'}
+                        </span>
+                      )}
+                    </div>
+                  }
                 />
               </div>
             ) : (
