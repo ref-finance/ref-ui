@@ -1891,7 +1891,9 @@ export default function LiquidityPage() {
 
   const switchActiveTab = (curTab: string) => {
     setActiveTab(curTab);
-
+    if (curTab != 'v1') {
+      setCurrentPage(1);
+    }
     localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, curTab);
   };
   const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
