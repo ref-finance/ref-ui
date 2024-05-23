@@ -573,7 +573,7 @@ function UserRankingModal(props: any) {
 
                             {hoveredRow === index && (
                               <div
-                                className="absolute top-8 right-0 bg-boxBorder bg-opacity-90 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
+                                className="absolute top-8 right-0 bg-boxBorder px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
                                 style={{
                                   ...getPopupPosition(rowRefs.current[index]),
                                   backdropFilter: 'blur(4px)',
