@@ -7,6 +7,7 @@ import Overview from '../components/meme/Overview';
 import VoteXREF from '../components/meme/VoteXREF';
 import SeedsBox from '../components/meme/SeedsBox';
 import WithdrawList from '../components/meme/WithdrawList';
+import Countdown from '../components/meme/countdown';
 
 export default function MemePage() {
   const is_mobile = isMobile();
@@ -16,6 +17,7 @@ export default function MemePage() {
         {is_mobile ? <MobileBanner /> : <Banner />}
         <div className="m-auto lg:w-5/6" style={{ maxWidth: '1100px' }}>
           <Overview />
+          <Countdown />
           <VoteXREF />
           <SeedsBox />
           <WithdrawList />
