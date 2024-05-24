@@ -156,6 +156,7 @@ import {
   NearblocksIcon,
   NoLiquidityDetailPageIcon,
   PikespeakIcon,
+  TxLeftArrow,
 } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
@@ -1525,10 +1526,26 @@ export function RecentTransactions({
               </>
             )}
             {hoveredTx === tx.receipt_id && (
-              <div className="absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+              <div className="w-44 absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
                 <div className="flex flex-col">
                   <div
                     className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
                     onClick={() =>
                       handleTxClick(
                         tx.receipt_id,
@@ -1538,9 +1555,28 @@ export function RecentTransactions({
                   >
                     <NearblocksIcon />
                     <p className="ml-2">nearblocks</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
                   </div>
                   <div
                     className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
                     onClick={() =>
                       handleTxClick(
                         tx.receipt_id,
@@ -1549,7 +1585,10 @@ export function RecentTransactions({
                     }
                   >
                     <PikespeakIcon />
-                    <p className="ml-2">Pikespeak</p>
+                    <p className="ml-2">Pikespeak...</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1646,10 +1685,26 @@ export function RecentTransactions({
               </>
             )}
             {hoveredTx === tx.receipt_id && (
-              <div className="absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+              <div className="w-44 absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
                 <div className="flex flex-col">
                   <div
                     className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
                     onClick={() =>
                       handleTxClick(
                         tx.receipt_id,
@@ -1659,9 +1714,28 @@ export function RecentTransactions({
                   >
                     <NearblocksIcon />
                     <p className="ml-2">nearblocks</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
                   </div>
                   <div
                     className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
                     onClick={() =>
                       handleTxClick(
                         tx.receipt_id,
@@ -1670,7 +1744,10 @@ export function RecentTransactions({
                     }
                   >
                     <PikespeakIcon />
-                    <p className="ml-2">Pikespeak</p>
+                    <p className="ml-2">Pikespeak...</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
                   </div>
                 </div>
               </div>
