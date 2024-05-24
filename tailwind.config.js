@@ -436,6 +436,7 @@ module.exports = {
         keyCheckBorder: '#45535D',
         warningYellowColor: '#FFB200',
         memeBorderBlackColor: '#1C2D38',
+        poolDetailDarkColor: '#121D28',
         memeDonateBorderColor: '#979797',
         memeDonateBgColor: '#213441',
       },

@@ -2,7 +2,11 @@ import Big from 'big.js';
 import {
   formatWithCommas,
   toInternationalCurrencySystem,
+  calculateFairShare,
+  toRoundedReadableNumber,
 } from '../../utils/numbers';
+import { Pool } from 'src/services/pool';
+import { TokenMetadata } from 'src/services/ft-contract';
 export const formatWithCommas_usd = (v: string | number) => {
   if (isInvalid(v)) return '$-';
   const big = Big(v);
@@ -94,4 +98,45 @@ export const formatToInternationalCurrencySystem$ = (v: string | number) => {
 export const isInvalid = function (v: any) {
   if (v === '' || v === undefined || v === null) return true;
   return false;
+};
+export function secToTime(seconds) {
+  const date = new Date(seconds * 1000);
+  const year = date.getFullYear();
+  let month: string | number = date.getMonth() + 1;
+  let day: string | number = date.getDate();
+  const hour = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+  const minute =
+    date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+  // const second =
+  //   date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+  if (month < 10) month = '0' + month;
+  if (day < 10) day = '0' + day;
+  const currentTime =
+    year + '/' + month + '/' + day + '  ' + hour + ':' + minute;
+  // ':' +
+  // second;
+  return currentTime;
+}
+
+export const tokenAmountInShares = (
+  pool: Pool,
+  token: TokenMetadata,
+  shares: string
+) => {
+  const value = toRoundedReadableNumber({
+    decimals: token.decimals,
+    number: calculateFairShare({
+      shareOf: pool.supplies[token.id],
+      contribution: shares,
+      totalContribution: pool.shareSupply,
+    }),
+    precision: 3,
+    withCommas: false,
+  });
+
+  return Number(value) == 0
+    ? '0'
+    : Number(value) < 0.001 && Number(value) > 0
+    ? '< 0.001'
+    : toInternationalCurrencySystem(value, 3);
 };
