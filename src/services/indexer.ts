@@ -168,7 +168,7 @@ export const getHistoryOrderSwapInfo = async (
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
-    config.newSodakiApiUrl + `/pool/${pool_id}/24hvolume/sum`,
+    config.newSodakiApiUrl + `/poollist/${pool_id}/24hvolume/sum`,
     {
       method: 'GET',
     }
