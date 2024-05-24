@@ -319,6 +319,7 @@ export default function getConfig(
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         newPoolsIndexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
@@ -417,6 +418,7 @@ export default function getConfig(
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         newPoolsIndexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
@@ -515,6 +517,7 @@ export default function getConfig(
         indexerUrl: 'https://api.ref.finance',
         newPoolsIndexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
