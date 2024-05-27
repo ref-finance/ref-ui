@@ -83,14 +83,14 @@ function Intro({
             left: 0,
             height: '100vh',
             width: '100vw',
-            background: 'rgba(0,0,0,.7)',
+            background: 'rgba(0,0,0,.8)',
             zIndex: 100,
           }}
         ></div>
         <div
           style={{
             position: 'absolute',
-            zIndex: 102,
+            zIndex: 103,
             top: `${top + 'px'}`,
             left: ` ${left + 'px'}`,
           }}

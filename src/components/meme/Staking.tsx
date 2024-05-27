@@ -61,7 +61,24 @@ const Staking = () => {
             <Intro
               top={currentPage === 1 ? -264 : -240}
               left={currentPage === 1 ? 180 : 140}
-            ></Intro>
+            >
+              <div
+                className="grid grid-cols-3 gap-4"
+                style={{
+                  width: '28.3rem',
+                }}
+              >
+                <div className="border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
+                  Detail
+                </div>
+                <div className=" bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base">
+                  Vote
+                </div>
+                <div className="border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base">
+                  Donate
+                </div>
+              </div>
+            </Intro>
           </div>
         )}
         <div className="grid grid-cols-3 gap-4">
