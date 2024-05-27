@@ -95,7 +95,6 @@ function BeginerGuideProvider({ children }: { children: any }) {
       window.scrollX,
       window.screenY
     );
-    // 如果当前步骤不是刚刚加载完数据的步骤，则更新当前步骤
     // setCurrentPage(index);
     const shadowCloneCurrentStepRefDetail = currentStepRefDetail;
     shadowCloneCurrentStepRefDetail[index - 1] = obj;
@@ -115,12 +114,12 @@ function BeginerGuideProvider({ children }: { children: any }) {
   const intervalRef = useRef(null);
   // useEffect(() => {
   //   //
-  //   intervalRef.current = setInterval(updateModalHeight, 100); // 每200毫秒检查一次
+  //   intervalRef.current = setInterval(updateModalHeight, 100); //
 
   //   return () => clearInterval(intervalRef.current);
   // }, []);
 
-  // const [modalHeight, setModalHeight] = useState('100vh'); // 初始设置为视口高度
+  // const [modalHeight, setModalHeight] = useState('100vh'); //
 
   // const updateModalHeight = () => {
   //   const docHeight = Math.max(

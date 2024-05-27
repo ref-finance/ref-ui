@@ -1317,7 +1317,7 @@ export function CountdownFinishMobile(props: any) {
 export function AcquireXREFIcon(props) {
   return (
     <svg
-    {...props}
+      {...props}
       width="12"
       height="11"
       viewBox="0 0 12 11"

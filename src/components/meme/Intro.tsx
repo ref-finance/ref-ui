@@ -2,7 +2,15 @@ import React, { useEffect, useState, useRef } from 'react';
 import { CloseIconWithCircle } from '../../components/icon/Actions';
 import { introCurrentPageStore } from '../../stores/introCurrentPage';
 
-function Intro({ top, left }: { top: number | string; left: number | string }) {
+function Intro({
+  top,
+  left,
+  children,
+}: {
+  top: number | string;
+  left: number | string;
+  children?: any;
+}) {
   const { setCurrentPage, currentPage } = introCurrentPageStore() as any;
   const modalContentArray = [
     {
@@ -75,22 +83,10 @@ function Intro({ top, left }: { top: number | string; left: number | string }) {
             left: 0,
             height: '100vh',
             width: '100vw',
-            background: 'rgba(0,0,0,.75)',
+            background: 'rgba(0,0,0,.7)',
             zIndex: 100,
           }}
-        >
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              zIndex: 101,
-              background: 'rgba(0,0,0,.3)',
-            }}
-          ></div>
-        </div>
+        ></div>
         <div
           style={{
             position: 'absolute',
@@ -100,12 +96,12 @@ function Intro({ top, left }: { top: number | string; left: number | string }) {
           }}
         >
           {/* title */}
-          <h2 className=" font-gothamBold text-white mb-2 text-xl">
+          <h2 className=" font-gothamBold text-white mb-2 text-xl text-left">
             {modalContentArray[currentPage - 1].title}
           </h2>
           {/* main modal content */}
           <div
-            className="bg-greenLight font-gotham text-base text-black p-3 rounded-2xl cursor-default relative"
+            className="bg-greenLight font-gotham text-base text-black p-3 rounded-2xl cursor-default relative text-left"
             style={{ width: '343px' }}
           >
             {modalContentArray.map(
@@ -135,6 +131,17 @@ function Intro({ top, left }: { top: number | string; left: number | string }) {
                     Next &gt;
                   </span>
                 )}
+              {currentPage == modalContentArray.length && (
+                <span
+                  className="mx-2 hover:opacity-50"
+                  onClick={() => {
+                    localStorage.setItem('hasGuided', 'true');
+                    setCurrentPage(0);
+                  }}
+                >
+                  got it!
+                </span>
+              )}
             </div>
 
             {/*dashed line */}
@@ -173,6 +180,16 @@ function Intro({ top, left }: { top: number | string; left: number | string }) {
             <span className="mr-2">Close</span>
             <CloseIconWithCircle></CloseIconWithCircle>
           </div>
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            zIndex: 102,
+            top: 0,
+            left: 0,
+          }}
+        >
+          {children}
         </div>
       </>
       // </Modal>

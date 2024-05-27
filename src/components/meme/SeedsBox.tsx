@@ -120,15 +120,29 @@ const SeedsBox = () => {
     return displaySeedsPercent;
   }, [displaySeeds]);
 
-  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(2);
+  const positionArray = new Set([3, 4, 5]);
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(1);
+  const [positionInfo, setPositionInfo] = useState({ top: -140, left: 200 });
+  const pagePositions = {
+    3: { top: -140, left: 200 },
+    4: { top: -180, left: 250 },
+    5: { top: 150, left: 100 },
+  };
+
+  useEffect(() => {
+    if (pagePositions[currentPage]) {
+      setPositionInfo(pagePositions[currentPage]);
+    }
+  }, [currentPage]);
+
   return (
     <div className="mt-14" ref={introRef}>
+      {!hasGuided && positionArray.has(currentPage) && (
+        <div className="relative">
+          <Intro top={positionInfo.top} left={positionInfo.left}></Intro>
+        </div>
+      )}
       <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
-        {!hasGuided && currentPage === 2 && (
-          <div className="relative">
-            <Intro top={-280} left={-10}></Intro>
-          </div>
-        )}
         <div
           className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
             tab === 'market'
