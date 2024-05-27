@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import VoteSheet from './VoteSheet';
-import VotersSheet from './VotersSheet';
 import { isMobile } from '../../utils/device';
-import MyPieChart from './VoteChart';
 import { AcquireXREFIcon, CoinPc } from './icons';
 import VoteModal from './VoteModal';
 import DonateModal from './DonateModal';
@@ -11,6 +8,7 @@ import { useScrollToTopOnFirstPage } from '../../state/pool';
 import UserRankingModal from './UserRankingModal';
 import MemeAirdropListForPc from './memeAirdropListForPc';
 import VoteDetailsModal from './VoteDetailsModal';
+import StakingChart from './StakingChart';
 
 const Staking = () => {
   const is_mobile = isMobile();
@@ -57,7 +55,7 @@ const Staking = () => {
           </a>
         </div>
         <div className="mb-6" style={{ height: '285px' }}>
-          {/* <MyPieChart /> */}
+          <StakingChart chartType="xref" />
         </div>
         <div className="flex px-8 mb-6">
           <div className="flex-1 text-left ">
