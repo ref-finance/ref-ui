@@ -163,6 +163,33 @@ export function RemoveLiquidity() {
   );
 }
 
+export function CloseIconWithCircle({
+  width,
+  height,
+}: {
+  width?: string;
+  height?: string;
+}) {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 22 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="11" cy="11" r="11" fill="#061824" />
+      <circle cx="11" cy="11" r="10.5" stroke="white" strokeOpacity="0.3" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M6.91679 13.5218C6.51406 13.9245 6.51406 14.5775 6.91679 14.9802C7.31952 15.383 7.97247 15.383 8.3752 14.9802L11.2921 12.0633L14.2091 14.9802C14.6118 15.383 15.2648 15.383 15.6675 14.9802C16.0702 14.5775 16.0702 13.9245 15.6675 13.5218L12.7505 10.6049L15.6672 7.68819C16.07 7.28546 16.07 6.63251 15.6672 6.22978C15.2645 5.82705 14.6116 5.82705 14.2088 6.22978L11.2921 9.14647L8.37545 6.22978C7.97272 5.82705 7.31977 5.82705 6.91705 6.22978C6.51432 6.63251 6.51432 7.28546 6.91705 7.68819L9.83373 10.6049L6.91679 13.5218Z"
+        fill="#7E8A93"
+      />
+    </svg>
+  );
+}
+
 export function CloseIcon({
   width,
   height,
@@ -218,8 +245,8 @@ export function CloseIconBold() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M0.302046 7.59408C-0.100682 7.99681 -0.100682 8.64977 0.302046 9.05249C0.704774 9.45522 1.35773 9.45522 1.76045 9.05249L4.6774 6.13555L7.59434 9.05249C7.99707 9.45522 8.65002 9.45522 9.05274 9.05249C9.45547 8.64977 9.45547 7.99681 9.05274 7.59408L6.1358 4.67714L9.05249 1.76045C9.45522 1.35773 9.45522 0.704774 9.05249 0.302046C8.64976 -0.100682 7.99681 -0.100682 7.59408 0.302046L4.6774 3.21874L1.76071 0.302046C1.35798 -0.100682 0.705027 -0.100682 0.302299 0.302046C-0.100429 0.704774 -0.100429 1.35773 0.302299 1.76045L3.21899 4.67714L0.302046 7.59408Z"
         fill="currentColor"
       />
@@ -741,8 +768,8 @@ function Deposit() {
 const viewMap = {
   default: Default,
   'Storage Deposit': Deposit,
-  Swap: Swap,
-  Withdraw: Withdraw,
+  Swap,
+  Withdraw,
   'Register Tokens': RegisterToken,
   'Add Liquidity': AddLiquidity,
   'Remove Liquidity': RemoveLiquidity,
@@ -753,7 +780,7 @@ const viewMap = {
   'Claim Reward By Farm': AddLiquidity,
   'Withdraw Reward': Withdraw,
   'Near Deposit': Deposit,
-  Deposit: Deposit,
+  Deposit,
   'Instant swap': Swap,
   'Near Withdraw': Withdraw,
   'Add Stable Liquidity': AddLiquidity,
