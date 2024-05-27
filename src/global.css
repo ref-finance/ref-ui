@@ -10,6 +10,10 @@
   font-family: 'arial';
   src: url('./assets/Arial.ttf');
 }
+@font-face {
+  font-family: 'anton';
+  src: url('./assets/Anton.ttf');
+}
 
 * {
   box-sizing: border-box;
@@ -407,13 +411,13 @@ input.warn-input:focus {
   opacity: 1 !important;
 }
 
-.goldInput[type='range'],
+.greenInput[type='range'],
 input[type='range'] {
   display: block;
   appearance: none;
   -webkit-appearance: none;
   background: rgba(0, 0, 0, 0.2);
-  height: 10px;
+  height: 6px;
   border-radius: 5px;
   margin: 0 auto;
   outline: none;
@@ -421,23 +425,24 @@ input[type='range'] {
   background-size: 0% 100%;
   background-repeat: no-repeat;
 }
-.goldInput[type='range'] {
+.greenInput[type='range'] {
   background-image: linear-gradient(180deg, #c3bdad 0%, #af9773 100%);
 }
-.goldInput[type='range']::-webkit-slider-thumb,
+.greenInput[type='range']::-webkit-slider-thumb,
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   background-color: #00c6a2;
   width: 20px;
   height: 20px;
   border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.8);
   cursor: pointer;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
 }
-.goldInput[type='range']::-webkit-slider-thumb {
+.greenInput[type='range']::-webkit-slider-thumb {
   background-color: #bcab8f;
 }
-.goldInput.pause::-webkit-slider-thumb input.pause::-webkit-slider-thumb {
+.greenInput.pause::-webkit-slider-thumb input.pause::-webkit-slider-thumb {
   -webkit-appearance: none;
   background-color: #00c6a2;
   width: 20px;
@@ -446,7 +451,7 @@ input[type='range']::-webkit-slider-thumb {
   cursor: not-allowed;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
 }
-.goldInput.pause::-webkit-slider-thumb {
+.greenInput.pause::-webkit-slider-thumb {
   background-color: #bcab8f;
 }
 
@@ -1686,4 +1691,29 @@ svg *:focus {
 .loading-dots::after {
   content: '...';
   animation: fadeInOut 1s infinite;
+}
+
+.gradient-text h1 {
+  background: linear-gradient(180.18deg, #ffffff 21.94%, #00ffd1 99.85%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Anton';
+  font-size: 90px;
+  font-weight: 400;
+  line-height: 135.48px;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+@media (max-width: 599px) {
+  .gradient-text h1 {
+    background: linear-gradient(180.18deg, #ffffff 21.94%, #00ffd1 99.85%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: 'Anton';
+    font-size: 60px;
+    font-weight: 400;
+    line-height: 135.48px;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
 }
