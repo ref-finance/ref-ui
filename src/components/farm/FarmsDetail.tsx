@@ -94,6 +94,7 @@ import {
   openUrl,
 } from 'src/services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { FeeTipV1 } from 'src/components/pool/FeeTip';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -1863,7 +1864,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             </label>
           </div>
         ) : null}
-
+        <FeeTipV1 />
         <ButtonRender />
       </div>
       <div

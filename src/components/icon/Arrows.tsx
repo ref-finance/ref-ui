@@ -864,9 +864,10 @@ export const MyOrderMobileArrow = () => {
   );
 };
 
-export const TokenRisk = () => {
+export const TokenRisk = (props) => {
   return (
     <svg
+      {...props}
       width="18"
       height="18"
       viewBox="0 0 18 18"

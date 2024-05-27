@@ -5,26 +5,17 @@ import getConfig, { getExtraStablePoolConfig } from './config';
 import SpecialWallet from './SpecialWallet';
 import {
   getCurrentWallet,
-  senderWallet,
   walletsRejectError,
 } from '../utils/wallets-integration';
 
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
-import {
-  SENDER_WALLET_SIGNEDIN_STATE_KEY,
-  WALLET_TYPE,
-} from '../utils/wallets-integration';
-import { AccountView } from 'near-api-js/lib/providers/provider';
 import { ledgerTipTrigger } from '../utils/wallets-integration';
 import {
   addQueryParams,
   extraWalletsError,
 } from '../utils/wallets-integration';
-import {
-  TRANSACTION_WALLET_TYPE,
-  failToastAccount,
-} from '../components/layout/transactionTipPopUp';
+import { TRANSACTION_WALLET_TYPE } from '../components/layout/transactionTipPopUp';
 
 const config = getConfig();
 
@@ -623,4 +614,12 @@ export const xrefMeMeFarmViewFunction = ({
   args,
 }: RefFiViewFunctionOptions) => {
   return wallet.account().viewFunction(contractId, methodName, args);
+};
+export const lockerViewFunction = ({
+  methodName,
+  args,
+}: RefFiViewFunctionOptions) => {
+  return wallet
+    .account()
+    .viewFunction(config.REF_TOKEN_LOCKER_CONTRACT_ID, methodName, args);
 };

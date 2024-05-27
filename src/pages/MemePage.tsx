@@ -8,19 +8,14 @@ import VoteXREF from '../components/meme/VoteXREF';
 import SeedsBox from '../components/meme/SeedsBox';
 import WithdrawList from '../components/meme/WithdrawList';
 import { BeginerGuideProvider } from '../components/meme/BeginerGuideModal';
+import Countdown from '../components/meme/countdown';
+
 export default function MemePage() {
   const is_mobile = isMobile();
-  // const [modalIsOpen, setModalIsOpen] = useState(true);
-  // useEffect(() => {
-  //   const showModal = localStorage.getItem('hasGotBeginerGuide');
-  //   if (!showModal || showModal == 'false') {
-  //     setModalIsOpen(true);
-  //   }
-  // }, []);
-  useEffect(() => {
-    localStorage.setItem('IntroPage', '1');
-  }, []);
-
+  const [showCountdown, setShowCountdown] = useState(true);
+  const handleCountdownFinish = () => {
+    setShowCountdown(false);
+  };
   return (
     <MemeContextProvider>
       {/* <BeginerGuideProvider> */}
@@ -28,6 +23,9 @@ export default function MemePage() {
         {is_mobile ? <MobileBanner /> : <Banner />}
         <div className="m-auto lg:w-5/6" style={{ maxWidth: '1100px' }}>
           <Overview />
+          {showCountdown && (
+            <Countdown onCountdownFinish={handleCountdownFinish} />
+          )}
           <VoteXREF />
           <SeedsBox />
           <WithdrawList />

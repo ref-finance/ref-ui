@@ -436,8 +436,12 @@ module.exports = {
         keyCheckBorder: '#45535D',
         warningYellowColor: '#FFB200',
         memeBorderBlackColor: '#1C2D38',
+        poolDetailDarkColor: '#121D28',
         memeDonateBorderColor: '#979797',
         memeDonateBgColor: '#213441',
+        poolDetaileTxBgColor: '#1D2833',
+        poolDetaileTxBorderColor: '#2D343D',
+        poolDetaileTxHoverColor: '#2C3842',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

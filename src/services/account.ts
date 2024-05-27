@@ -10,6 +10,7 @@ import {
   refSwapV3OldVersionViewFunction,
   refMeMeFarmViewFunction,
   xrefMeMeFarmViewFunction,
+  lockerViewFunction,
 } from './near';
 
 export const ACCOUNT_MIN_STORAGE_AMOUNT = '0.005';
@@ -100,6 +101,14 @@ export const currentStorageBalanceOfXref_farm = (
 ): Promise<AccountStorageView> => {
   return xrefMeMeFarmViewFunction({
     contractId,
+    methodName: 'storage_balance_of',
+    args: { account_id: accountId },
+  });
+};
+export const currentStorageBalanceOfLocker = (
+  accountId: string
+): Promise<AccountStorageView> => {
+  return lockerViewFunction({
     methodName: 'storage_balance_of',
     args: { account_id: accountId },
   });

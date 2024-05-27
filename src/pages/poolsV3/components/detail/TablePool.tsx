@@ -29,6 +29,11 @@ import { isClientMobie } from '../../../../utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { getTxId } from 'src/services/indexer';
 import { Loading } from 'src/components/icon/Loading';
+import {
+  NearblocksIcon,
+  PikespeakIcon,
+  TxLeftArrow,
+} from 'src/components/icon/Pool';
 
 export function TablePool(props: any) {
   const { poolDetail, tokenPriceList, sole_seed } = props;
@@ -214,17 +219,27 @@ function RecentTransactions({
     setTab(tab);
   };
   const [loadingStates, setLoadingStates] = useState({});
-  async function handleTxClick(receipt_id) {
+  const [hoveredTx, setHoveredTx] = useState(null);
+  const closeTimeoutRef = useRef(null);
+  const handleMouseEnter = (receipt_id) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setHoveredTx(receipt_id);
+  };
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredTx(null);
+    }, 200);
+  };
+  async function handleTxClick(receipt_id, url) {
     setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
     try {
       const data = await getTxId(receipt_id);
       if (data && data.receipts && data.receipts.length > 0) {
         const txHash = data.receipts[0].originated_from_transaction_hash;
-        window.open(
-          `${getConfig().explorerUrl}/txns/${txHash}`,
-          '_blank',
-          'noopener,noreferrer'
-        );
+        window.open(`${url}/${txHash}`, '_blank', 'noopener,noreferrer');
       }
     } catch (error) {
       console.error(
@@ -239,7 +254,7 @@ function RecentTransactions({
     }
   }
 
-  const renderSwapTransactions = swapTransactions.map((tx) => {
+  const renderSwapTransactions = swapTransactions.map((tx, index) => {
     const swapIn = tokens.find((t) => t.id === tx.token_in);
     const swapOut = tokens.find((t) => t.id === tx.token_out);
     if (!swapIn || !swapOut) return null;
@@ -267,7 +282,10 @@ function RecentTransactions({
     );
 
     return (
-      <tr className="text-sm text-primaryText lg:grid w-full lg:grid-cols-3 hover:text-white hover:bg-poolRecentHover">
+      <tr
+        key={tx.receipt_id + index}
+        className="text-sm text-primaryText lg:grid w-full lg:grid-cols-3 hover:text-white hover:bg-poolRecentHover"
+      >
         <td className="gap-1 p-4 col-span-1">
           <span className="text-white" title={swapInAmount}>
             {displayInAmount}
@@ -291,25 +309,92 @@ function RecentTransactions({
         <td className=" relative  py-4 pr-4 lg:flex items-center justify-end col-span-1">
           <span
             key={tx.receipt_id}
-            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
-            onClick={() =>
-              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
-            }
+            className="inline-flex items-center cursor-pointer"
+            onMouseEnter={() => handleMouseEnter(tx.receipt_id)}
+            onMouseLeave={handleMouseLeave}
           >
             {loadingStates[tx.receipt_id] ? (
               <>
-                <span className="hover:underline cursor-pointer">
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
                   {tx.timestamp}
                 </span>
                 <span className="loading-dots"></span>
               </>
             ) : (
               <>
-                <span className="hover:underline cursor-pointer">
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
                   {tx.timestamp}
                 </span>
                 {txLink}
               </>
+            )}
+            {hoveredTx === tx.receipt_id && (
+              <div className="w-44 absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+                <div className="flex flex-col">
+                  <div
+                    className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().explorerUrl}/txns`
+                      )
+                    }
+                  >
+                    <NearblocksIcon />
+                    <p className="ml-2">nearblocks</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                  <div
+                    className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().pikespeakUrl}/transaction-viewer`
+                      )
+                    }
+                  >
+                    <PikespeakIcon />
+                    <p className="ml-2">Pikespeak...</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </span>
         </td>
@@ -317,7 +402,7 @@ function RecentTransactions({
     );
   });
 
-  const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
+  const renderLiquidityTransactions = liquidityTransactions.map((tx, index) => {
     const swapIn = tokens[0];
 
     const swapOut = tokens[1];
@@ -348,7 +433,10 @@ function RecentTransactions({
     );
 
     return (
-      <tr className="text-sm text-primaryText lg:grid lg:grid-cols-5 hover:text-white hover:bg-poolRecentHover">
+      <tr
+        key={tx.receipt_id + index}
+        className="text-sm text-primaryText lg:grid lg:grid-cols-5 hover:text-white hover:bg-poolRecentHover"
+      >
         <td className="gap-1 p-4  col-span-1">
           <span className="text-white">
             {(tx.method_name.toLowerCase().indexOf('add') > -1 ||
@@ -390,25 +478,92 @@ function RecentTransactions({
         <td className="relative py-4 pr-4 lg:flex items-center justify-end col-span-2">
           <span
             key={tx.receipt_id}
-            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
-            onClick={() =>
-              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
-            }
+            className="inline-flex items-center cursor-pointer"
+            onMouseEnter={() => handleMouseEnter(tx.receipt_id)}
+            onMouseLeave={handleMouseLeave}
           >
             {loadingStates[tx.receipt_id] ? (
               <>
-                <span className="hover:underline cursor-pointer">
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
                   {tx.timestamp}
                 </span>
                 <span className="loading-dots"></span>
               </>
             ) : (
               <>
-                <span className="hover:underline cursor-pointer">
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
                   {tx.timestamp}
                 </span>
                 {txLink}
               </>
+            )}
+            {hoveredTx === tx.receipt_id && (
+              <div className="w-44 absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+                <div className="flex flex-col">
+                  <div
+                    className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().explorerUrl}/txns`
+                      )
+                    }
+                  >
+                    <NearblocksIcon />
+                    <p className="ml-2">nearblocks</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                  <div
+                    className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().pikespeakUrl}/transaction-viewer`
+                      )
+                    }
+                  >
+                    <PikespeakIcon />
+                    <p className="ml-2">Pikespeak...</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </span>
         </td>
@@ -416,122 +571,194 @@ function RecentTransactions({
     );
   });
 
-  const renderLimitOrderTransactions = limitOrderTransactions.map((tx) => {
-    const swapIn = tokens.find((t) => t.id === tx.sell_token);
+  const renderLimitOrderTransactions = limitOrderTransactions.map(
+    (tx, index) => {
+      const swapIn = tokens.find((t) => t.id === tx.sell_token);
 
-    const swapOut = tokens.find((t) => t.id !== tx.sell_token);
+      const swapOut = tokens.find((t) => t.id !== tx.sell_token);
 
-    if (!swapIn || !swapOut) return null;
-    let reverse = false;
-    const sort_tokens = sort_tokens_by_base([swapIn, swapOut]);
-    if (sort_tokens[0].id !== swapIn.id) {
-      reverse = true;
+      if (!swapIn || !swapOut) return null;
+      let reverse = false;
+      const sort_tokens = sort_tokens_by_base([swapIn, swapOut]);
+      if (sort_tokens[0].id !== swapIn.id) {
+        reverse = true;
+      }
+
+      const AmountIn = toReadableNumber(swapIn.decimals, tx.amount);
+      const displayInAmount =
+        Number(AmountIn) < 0.01
+          ? '<0.01'
+          : numberWithCommas(toPrecision(AmountIn, 3));
+
+      const price = pointToPrice({
+        tokenA: swapIn,
+        tokenB: swapOut,
+        point:
+          swapIn.id === pool_id.split('|')[0]
+            ? Number(tx.point)
+            : -Number(tx.point),
+      });
+      const AmountOut = new Big(AmountIn).mul(price).toFixed();
+
+      const displayOutAmount =
+        Number(AmountOut) < 0.01
+          ? '<0.01'
+          : numberWithCommas(toPrecision(AmountOut, 3));
+
+      const txLink = (
+        <a
+          rel="noopener  noreferrer nofollow "
+          className="  hover:underline ml-2 "
+          target="_blank"
+        >
+          <HiOutlineExternalLink className="relative "></HiOutlineExternalLink>
+        </a>
+      );
+      const display_price = reverse ? reverse_price(price) : price;
+      return (
+        <tr
+          key={tx.receipt_id + index}
+          className="hover:text-white lg:grid lg:grid-cols-5 hover:bg-poolRecentHover text-sm text-primaryText"
+        >
+          <td className=" gap-1 p-4 lg:flex items-center text-white">
+            {tx.method_name.toLowerCase().indexOf('cancelled') > -1 && 'Cancel'}
+
+            {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Place'}
+          </td>
+
+          <td className="text-white lg:flex items-center">
+            <div className="frcs flex-wrap">
+              <span className="text-white mr-1" title={AmountIn}>
+                {displayInAmount}
+              </span>
+
+              <span className="text-primaryText">
+                {toRealSymbol(swapIn.symbol)}
+              </span>
+            </div>
+          </td>
+
+          <td className="lg:flex items-center">
+            <div className="frcs flex-wrap">
+              <span className="text-white mr-1" title={AmountOut}>
+                {displayOutAmount}
+              </span>
+
+              <span className="text-primaryText">
+                {toRealSymbol(swapOut.symbol)}
+              </span>
+            </div>
+          </td>
+
+          <td className="lg:flex items-center">
+            <div className="frcs flex-wrap">
+              <span className="text-white mr-1" title={price}>
+                {numberWithCommas(toPrecision(display_price, 4))}
+              </span>
+
+              <span className="text-primaryText">
+                {toRealSymbol(sort_tokens?.[1]?.symbol)}/
+                {toRealSymbol(sort_tokens?.[0]?.symbol)}
+              </span>
+            </div>
+          </td>
+
+          <td className="relative py-4 lg:flex items-center justify-end pr-2">
+            <span
+              key={tx.receipt_id}
+              className="inline-flex items-center cursor-pointer"
+              onMouseEnter={() => handleMouseEnter(tx.receipt_id)}
+              onMouseLeave={handleMouseLeave}
+            >
+              {loadingStates[tx.receipt_id] ? (
+                <>
+                  <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                    {tx.timestamp}
+                  </span>
+                  <span className="loading-dots"></span>
+                </>
+              ) : (
+                <>
+                  <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                    {tx.timestamp}
+                  </span>
+                  {txLink}
+                </>
+              )}
+              {hoveredTx === tx.receipt_id && (
+                <div className="w-44 absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+                  <div className="flex flex-col">
+                    <div
+                      className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                      onMouseEnter={(e) => {
+                        const arrow = e.currentTarget.querySelector(
+                          '.arrow'
+                        ) as HTMLElement;
+                        if (arrow) {
+                          arrow.style.display = 'block';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        const arrow = e.currentTarget.querySelector(
+                          '.arrow'
+                        ) as HTMLElement;
+                        if (arrow) {
+                          arrow.style.display = 'none';
+                        }
+                      }}
+                      onClick={() =>
+                        handleTxClick(
+                          tx.receipt_id,
+                          `${getConfig().explorerUrl}/txns`
+                        )
+                      }
+                    >
+                      <NearblocksIcon />
+                      <p className="ml-2">nearblocks</p>
+                      <div className="ml-3 arrow" style={{ display: 'none' }}>
+                        <TxLeftArrow />
+                      </div>
+                    </div>
+                    <div
+                      className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                      onMouseEnter={(e) => {
+                        const arrow = e.currentTarget.querySelector(
+                          '.arrow'
+                        ) as HTMLElement;
+                        if (arrow) {
+                          arrow.style.display = 'block';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        const arrow = e.currentTarget.querySelector(
+                          '.arrow'
+                        ) as HTMLElement;
+                        if (arrow) {
+                          arrow.style.display = 'none';
+                        }
+                      }}
+                      onClick={() =>
+                        handleTxClick(
+                          tx.receipt_id,
+                          `${getConfig().pikespeakUrl}/transaction-viewer`
+                        )
+                      }
+                    >
+                      <PikespeakIcon />
+                      <p className="ml-2">Pikespeak...</p>
+                      <div className="ml-3 arrow" style={{ display: 'none' }}>
+                        <TxLeftArrow />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </span>
+          </td>
+        </tr>
+      );
     }
-
-    const AmountIn = toReadableNumber(swapIn.decimals, tx.amount);
-    const displayInAmount =
-      Number(AmountIn) < 0.01
-        ? '<0.01'
-        : numberWithCommas(toPrecision(AmountIn, 3));
-
-    const price = pointToPrice({
-      tokenA: swapIn,
-      tokenB: swapOut,
-      point:
-        swapIn.id === pool_id.split('|')[0]
-          ? Number(tx.point)
-          : -Number(tx.point),
-    });
-    const AmountOut = new Big(AmountIn).mul(price).toFixed();
-
-    const displayOutAmount =
-      Number(AmountOut) < 0.01
-        ? '<0.01'
-        : numberWithCommas(toPrecision(AmountOut, 3));
-
-    const txLink = (
-      <a
-        rel="noopener  noreferrer nofollow "
-        className="  hover:underline ml-2 "
-        target="_blank"
-      >
-        <HiOutlineExternalLink className="relative "></HiOutlineExternalLink>
-      </a>
-    );
-    const display_price = reverse ? reverse_price(price) : price;
-    return (
-      <tr className="hover:text-white lg:grid lg:grid-cols-5 lg:overflow-hidden hover:bg-poolRecentHover text-sm text-primaryText">
-        <td className=" gap-1 p-4 lg:flex items-center text-white">
-          {tx.method_name.toLowerCase().indexOf('cancelled') > -1 && 'Cancel'}
-
-          {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Place'}
-        </td>
-
-        <td className="text-white lg:flex items-center">
-          <div className="frcs flex-wrap">
-            <span className="text-white mr-1" title={AmountIn}>
-              {displayInAmount}
-            </span>
-
-            <span className="text-primaryText">
-              {toRealSymbol(swapIn.symbol)}
-            </span>
-          </div>
-        </td>
-
-        <td className="lg:flex items-center">
-          <div className="frcs flex-wrap">
-            <span className="text-white mr-1" title={AmountOut}>
-              {displayOutAmount}
-            </span>
-
-            <span className="text-primaryText">
-              {toRealSymbol(swapOut.symbol)}
-            </span>
-          </div>
-        </td>
-
-        <td className="lg:flex items-center">
-          <div className="frcs flex-wrap">
-            <span className="text-white mr-1" title={price}>
-              {numberWithCommas(toPrecision(display_price, 4))}
-            </span>
-
-            <span className="text-primaryText">
-              {toRealSymbol(sort_tokens?.[1]?.symbol)}/
-              {toRealSymbol(sort_tokens?.[0]?.symbol)}
-            </span>
-          </div>
-        </td>
-
-        <td className="relative py-4 lg:flex items-center justify-end pr-2">
-          <span
-            key={tx.receipt_id}
-            className="inline-flex items-center cursor-pointer xsm:whitespace-nowrap"
-            onClick={() =>
-              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
-            }
-          >
-            {loadingStates[tx.receipt_id] ? (
-              <>
-                <span className="hover:underline cursor-pointer text-right">
-                  {tx.timestamp}
-                </span>
-                <span className="loading-dots"></span>
-              </>
-            ) : (
-              <>
-                <span className="hover:underline cursor-pointer text-right">
-                  {tx.timestamp}
-                </span>
-                {txLink}
-              </>
-            )}
-          </span>
-        </td>
-      </tr>
-    );
-  });
+  );
 
   const renderTransactions =
     tab === 'swap'

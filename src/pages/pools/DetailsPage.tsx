@@ -1,17 +1,14 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from 'src/components/card/Card';
-import { ActionModel } from 'src/pages/AccountPage';
 import {
   useMonthTVL,
   useMonthVolume,
   usePool,
   useRemoveLiquidity,
   volumeDataType,
-  volumeType,
   TVLDataType,
-  TVLType,
   useDayVolume,
   useClassicPoolTransaction,
   useIndexerStatus,
@@ -21,27 +18,14 @@ import {
   addPoolToWatchList,
   getWatchListFromDb,
   Pool,
-  PoolDetails,
   removePoolFromWatchList,
 } from 'src/services/pool';
-import {
-  useTokenBalances,
-  useTokens,
-  getDepositableBalance,
-} from 'src/state/token';
+import { useTokens, getDepositableBalance } from 'src/state/token';
 import Loading from 'src/components/layout/Loading';
-import { FarmMiningIcon } from 'src/components/icon/FarmMining';
-import { FarmStamp, FarmStampNew } from 'src/components/icon/FarmStamp';
+import { FarmStampNew } from 'src/components/icon/FarmStamp';
 import { ChartLoading } from 'src/components/icon/Loading';
-import {
-  REF_FARM_CONTRACT_ID,
-  REF_FI_CONTRACT_ID,
-  STABLE_POOL_ID,
-  REF_FARM_BOOST_CONTRACT_ID,
-} from 'src/services/near';
 import { PoolSlippageSelector } from 'src/components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
-import { canFarm } from 'src/services/pool';
 import {
   calculateFairShare,
   calculateFeePercent,
@@ -51,21 +35,15 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
   toRoundedReadableNumber,
-  percentOf,
 } from '../../utils/numbers';
-import { ftGetTokenMetadata, TokenMetadata } from 'src/services/ft-contract';
+import { TokenMetadata } from 'src/services/ft-contract';
 import Alert from 'src/components/alert/Alert';
 import InputAmount from 'src/components/forms/InputAmount';
 import { isMobile } from 'src/utils/device';
 import ReactModal from 'react-modal';
 import { toRealSymbol } from 'src/utils/token';
 
-import {
-  BackArrowWhite,
-  BackArrowGray,
-  ModalClose,
-  Near,
-} from 'src/components/icon';
+import { ModalClose } from 'src/components/icon';
 import { useHistory } from 'react-router';
 import { getPool, getTxId } from 'src/services/indexer';
 import { BigNumber } from 'bignumber.js';
@@ -75,13 +53,10 @@ import {
   WatchListStartFullMobile,
 } from 'src/components/icon/WatchListStar';
 import {
-  OutlineButton,
   SolidButton,
-  FarmButton,
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from 'src/components/button/Button';
-import { wallet } from 'src/services/near';
 import { BreadCrumb } from 'src/components/layout/BreadCrumb';
 import { LP_TOKEN_DECIMALS } from '../../services/m-token';
 import {
@@ -116,7 +91,7 @@ import {
   scientificNotationToString,
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
-import { isNotStablePool, canFarmV2, canFarmV1 } from '../../services/pool';
+import { canFarmV2, canFarmV1 } from '../../services/pool';
 import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
@@ -134,7 +109,7 @@ import { getPoolFeeApr, getPoolListFarmAprTip } from './utils';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { useTokenPriceList } from '../../state/token';
 import { ExchangeArrow } from '../../components/icon/Arrows';
-import { multiply, divide, calculateFeeCharge } from '../../utils/numbers';
+import { multiply, divide } from '../../utils/numbers';
 
 import {
   useSeedFarms,
@@ -147,12 +122,14 @@ import {
   WatchListStartEmpty,
   WatchListStartEmptyMobile,
 } from '../../components/icon/WatchListStar';
-import {
-  ExclamationTip,
-  QuestionTip,
-} from '../../components/layout/TipWrapper';
+import { ExclamationTip } from '../../components/layout/TipWrapper';
 
-import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
+import {
+  NearblocksIcon,
+  NoLiquidityDetailPageIcon,
+  PikespeakIcon,
+  TxLeftArrow,
+} from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import BLACKTip from '../../components/pool/BLACKTip';
@@ -167,6 +144,8 @@ import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
 const { BLACK_TOKEN_LIST } = getConfig();
 import { PoolRefreshModal } from './PoolRefreshModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import LockLP from 'src/components/pool/LockLP';
+import { FeeTipV1 } from 'src/components/pool/FeeTip';
 
 interface ParamTypes {
   id: string;
@@ -886,7 +865,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           </label>
         </div>
       ) : null}
-
+      <FeeTipV1 />
       <ButtonRender />
     </div>
   );
@@ -1409,17 +1388,27 @@ export function RecentTransactions({
   };
 
   const [loadingStates, setLoadingStates] = useState({});
-  async function handleTxClick(receipt_id) {
+  const [hoveredTx, setHoveredTx] = useState(null);
+  const closeTimeoutRef = useRef(null);
+  const handleMouseEnter = (receipt_id) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setHoveredTx(receipt_id);
+  };
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredTx(null);
+    }, 200);
+  };
+  async function handleTxClick(receipt_id, url) {
     setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
     try {
       const data = await getTxId(receipt_id);
       if (data && data.receipts && data.receipts.length > 0) {
         const txHash = data.receipts[0].originated_from_transaction_hash;
-        window.open(
-          `${getConfig().explorerUrl}/txns/${txHash}`,
-          '_blank',
-          'noopener,noreferrer'
-        );
+        window.open(`${url}/${txHash}`, '_blank', 'noopener,noreferrer');
       }
     } catch (error) {
       console.error(
@@ -1492,9 +1481,8 @@ export function RecentTransactions({
           <span
             key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer"
-            onClick={() =>
-              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
-            }
+            onMouseEnter={() => handleMouseEnter(tx.receipt_id)}
+            onMouseLeave={handleMouseLeave}
           >
             {loadingStates[tx.receipt_id] ? (
               <>
@@ -1510,6 +1498,74 @@ export function RecentTransactions({
                 </span>
                 {txLink}
               </>
+            )}
+            {hoveredTx === tx.receipt_id && (
+              <div className="w-44 absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+                <div className="flex flex-col">
+                  <div
+                    className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().explorerUrl}/txns`
+                      )
+                    }
+                  >
+                    <NearblocksIcon />
+                    <p className="ml-2">nearblocks</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                  <div
+                    className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().pikespeakUrl}/transaction-viewer`
+                      )
+                    }
+                  >
+                    <PikespeakIcon />
+                    <p className="ml-2">Pikespeak...</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </span>
         </td>
@@ -1541,7 +1597,7 @@ export function RecentTransactions({
     return (
       <tr
         key={tx.receipt_id + index}
-        className={`text-sm lg:grid  overflow-hidden lg:grid-cols-${
+        className={`text-sm lg:grid lg:grid-cols-${
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
@@ -1583,10 +1639,9 @@ export function RecentTransactions({
         >
           <span
             key={tx.receipt_id}
-            className="inline-flex cursor-pointer"
-            onClick={() =>
-              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
-            }
+            className="inline-flex items-center cursor-pointer"
+            onMouseEnter={() => handleMouseEnter(tx.receipt_id)}
+            onMouseLeave={handleMouseLeave}
           >
             {loadingStates[tx.receipt_id] ? (
               <>
@@ -1602,6 +1657,74 @@ export function RecentTransactions({
                 </span>
                 {txLink}
               </>
+            )}
+            {hoveredTx === tx.receipt_id && (
+              <div className="w-44 absolute top-12 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg rounded z-50">
+                <div className="flex flex-col">
+                  <div
+                    className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().explorerUrl}/txns`
+                      )
+                    }
+                  >
+                    <NearblocksIcon />
+                    <p className="ml-2">nearblocks</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                  <div
+                    className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        tx.receipt_id,
+                        `${getConfig().pikespeakUrl}/transaction-viewer`
+                      )
+                    }
+                  >
+                    <PikespeakIcon />
+                    <p className="ml-2">Pikespeak...</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </span>
         </td>
@@ -2729,13 +2852,6 @@ export default function PoolDetailsPage() {
                   <>
                     <FormattedMessage id="apr" defaultMessage="APR" />
                     &nbsp;
-                    {/* {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
-                      <>
-                        (
-                        <FormattedMessage id="pool" defaultMessage={'Pool'} /> +
-                        <FormattedMessage id="farm" defaultMessage={'Farm'} />)
-                      </>
-                    )} */}
                   </>
                 }
                 id="apr"
@@ -2776,6 +2892,11 @@ export default function PoolDetailsPage() {
                 }
               />
             </div>
+            {pool?.id && (
+              <div className="mt-2.5 mb-10">
+                <LockLP userShares={shares} pool={pool} tokens={tokens} />
+              </div>
+            )}
 
             <div className="text-white text-base mb-3 font-gothamBold w-full">
               <FormattedMessage
