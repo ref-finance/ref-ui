@@ -443,6 +443,8 @@ module.exports = {
         poolDetaileTxBorderColor: '#2D343D',
         poolDetaileTxHoverColor: '#2C3842',
         memeStakingBorderColor: '#20323E',
+        memeUserStackeBgColor: '#213441',
+        memeUserStackeMobileBgColor: '#44525D',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -17,6 +17,17 @@ import { Seed } from '~src/services/farm';
 import { formatPercentage } from '../../utils/uiNumber';
 import { Intro } from './Intro';
 import { useScrollToTopOnFirstPage } from '../../state/pool';
+import UserRankingModal from './UserRankingModal';
+import MemeAirdropListForPc from './memeAirdropListForPc';
+import {
+  CoinMobile,
+  CoinPc,
+  MemeRightArrow,
+  UserRankingMobile,
+  UserRankingPC,
+} from './icons';
+import { isMobile } from '../../utils/device';
+const is_mobile = isMobile();
 export interface ITxParams {
   action: 'stake' | 'unstake';
   params: any;
@@ -33,7 +44,8 @@ const SeedsBox = () => {
   const { seeds } = useContext(MemeContext);
   const memeDataConfig = getMemeDataConfig();
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
-
+  const [isUserRanking, setUserRanking] = useState(false);
+  const [isShowAirdropModal, setShowAirdropModal] = useState<boolean>(false);
   const getURLInfo = () => {
     const search = window.location.search;
     const pathname = window.location.pathname;
@@ -142,36 +154,114 @@ const SeedsBox = () => {
           <Intro top={positionInfo.top} left={positionInfo.left}></Intro>
         </div>
       )}
-      <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
-        <div
-          className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
-            tab === 'market'
-              ? `text-white border-b-4 ${
-                  isSignedIn ? 'border-white' : 'border-transparent'
-                }`
-              : 'border-b-4 text-primaryText border-transparent'
-          }`}
-          onClick={() => {
-            setTab('market');
-          }}
-        >
-          Feed Meme
+      <div className="lg:flex lg:items-center lg:justify-between">
+        <div className="flex items-center justify-between text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
+          <div
+            className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
+              tab === 'market'
+                ? `text-white border-b-4 ${
+                    isSignedIn ? 'border-white' : 'border-transparent'
+                  }`
+                : 'border-b-4 text-primaryText border-transparent'
+            }`}
+            onClick={() => {
+              setTab('market');
+            }}
+          >
+            Feed Meme
+          </div>
+          <div
+            className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
+              isSignedIn ? '' : 'hidden'
+            } ${
+              tab === 'your'
+                ? 'text-white border-white'
+                : 'text-primaryText border-transparent'
+            }`}
+            onClick={() => {
+              setTab('your');
+            }}
+          >
+            Yours
+          </div>
         </div>
-        <div
-          className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
-            isSignedIn ? '' : 'hidden'
-          } ${
-            tab === 'your'
-              ? 'text-white border-white'
-              : 'text-primaryText border-transparent'
-          }`}
-          onClick={() => {
-            setTab('your');
+        {!is_mobile && (
+          <div className="flex -mr-3">
+            <div
+              className="ml-auto flex justify-between items-center w-40 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-8 border border-memeBorderColor"
+              style={{
+                borderRadius: '3.375rem',
+                top: '-.8rem',
+                right: '1rem',
+              }}
+              onClick={() => setUserRanking(true)}
+            >
+              <div className="absolute top-0" style={{ left: '-1.3rem' }}>
+                <UserRankingPC />
+              </div>
+              <span className="text-white text-base mr-4 ml-auto gotham_bold">
+                User ranking
+              </span>
+            </div>
+            <div
+              className="ml-auto flex justify-between items-center w-36 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
+              style={{
+                borderRadius: '3.375rem',
+                top: '-.8rem',
+                right: '1rem',
+              }}
+              onClick={() => setShowAirdropModal(true)}
+            >
+              <div className="absolute top-0" style={{ left: '-1.3rem' }}>
+                <CoinPc />
+              </div>
+              <span className="text-white text-base mr-8 ml-auto gotham_bold">
+                Airdrop
+              </span>
+            </div>
+            <MemeAirdropListForPc
+              isOpen={isShowAirdropModal}
+              onRequestClose={() => {
+                setShowAirdropModal(false);
+              }}
+            />
+          </div>
+        )}
+        <UserRankingModal
+          isOpen={isUserRanking}
+          onRequestClose={() => {
+            setUserRanking(false);
           }}
-        >
-          Yours
-        </div>
+        />
       </div>
+      {is_mobile && (
+        <div className="flex items-center mt-3.5 mb-6 justify-between mx-3">
+          <div
+            className="h-10 flex justify-center flex-1 rounded-3xl items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-2 border border-memeBorderColor"
+            onClick={() => setUserRanking(true)}
+          >
+            <div className="mr-2">
+              <UserRankingMobile />
+            </div>
+            <span className="text-white text-sm gotham_bold mr-1.5">
+              User ranking
+            </span>
+            {/* <MemeRightArrow /> */}
+          </div>
+          <div
+            className="h-10 flex rounded-3xl justify-center flex-1 items-center bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer border border-memeBorderColor"
+            onClick={() => history.push('/airdop')}
+          >
+            <div className="mr-2">
+              <CoinMobile />
+            </div>
+            <span className="text-white text-sm gotham_bold mr-1.5">
+              Airdrop
+            </span>
+            <MemeRightArrow />
+          </div>
+        </div>
+      )}
       <MarketSeedsBox
         hidden={tab === 'market' ? false : true}
         displaySeedsPercent={displaySeedsPercent}

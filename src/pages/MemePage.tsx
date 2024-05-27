@@ -28,7 +28,7 @@ export default function MemePage() {
             <Countdown onCountdownFinish={handleCountdownFinish} />
           )} */}
           <Staking />
-          <VoteXREF />
+          {/* <VoteXREF /> */}
           <SeedsBox />
           <WithdrawList />
         </div>
