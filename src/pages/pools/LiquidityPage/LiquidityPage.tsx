@@ -1907,6 +1907,9 @@ export default function LiquidityPage() {
     v2: 'dcl',
     stable: 'stable',
   };
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [farmOnly, hideLowTVL]);
 
   const { pools, hasMore, nextPage, loading, volumes, cardLoading } = usePools({
     tokenName,
