@@ -40,7 +40,10 @@ const Staking = () => {
         </div>
         {!hasGuided && (currentPage === 1 || currentPage === 2) && (
           <div className="relative" ref={introRef}>
-            <Intro top={currentPage === 1 ? -264 : -240} left={180}></Intro>
+            <Intro
+              top={currentPage === 1 ? -264 : -240}
+              left={currentPage === 1 ? 180 : 140}
+            ></Intro>
           </div>
         )}
         <div className="grid grid-cols-3 gap-4">
