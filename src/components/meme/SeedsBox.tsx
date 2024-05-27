@@ -120,12 +120,26 @@ const SeedsBox = () => {
     return displaySeedsPercent;
   }, [displaySeeds]);
 
+  const positionArray = new Set([3, 4, 5]);
   const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(1);
+  const [positionInfo, setPositionInfo] = useState({ top: -140, left: 200 });
+  const pagePositions = {
+    3: { top: -140, left: 200 },
+    4: { top: -170, left: 50 },
+    5: { top: -220, left: 250 },
+  };
+
+  useEffect(() => {
+    if (pagePositions[currentPage]) {
+      setPositionInfo(pagePositions[currentPage]);
+    }
+  }, [currentPage]);
+
   return (
     <div className="mt-14" ref={introRef}>
-      {!hasGuided && currentPage === 3 && (
+      {!hasGuided && positionArray.has(currentPage) && (
         <div className="relative">
-          <Intro top={-140} left={200}></Intro>
+          <Intro top={positionInfo.top} left={positionInfo.left}></Intro>
         </div>
       )}
       <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
