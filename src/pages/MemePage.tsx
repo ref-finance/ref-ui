@@ -8,6 +8,7 @@ import VoteXREF from '../components/meme/VoteXREF';
 import SeedsBox from '../components/meme/SeedsBox';
 import WithdrawList from '../components/meme/WithdrawList';
 import Countdown from '../components/meme/countdown';
+import Staking from '../components/meme/Staking';
 
 export default function MemePage() {
   const is_mobile = isMobile();
@@ -21,10 +22,11 @@ export default function MemePage() {
         {is_mobile ? <MobileBanner /> : <Banner />}
         <div className="m-auto lg:w-5/6" style={{ maxWidth: '1100px' }}>
           <Overview />
-          {showCountdown && (
+          {/* {showCountdown && (
             <Countdown onCountdownFinish={handleCountdownFinish} />
-          )}
-          <VoteXREF />
+          )} */}
+          <Staking />
+          {/* <VoteXREF /> */}
           <SeedsBox />
           <WithdrawList />
         </div>

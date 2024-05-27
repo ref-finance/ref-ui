@@ -442,6 +442,7 @@ module.exports = {
         poolDetaileTxBgColor: '#1D2833',
         poolDetaileTxBorderColor: '#2D343D',
         poolDetaileTxHoverColor: '#2C3842',
+        memeStakingBorderColor: '#20323E',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -520,7 +521,8 @@ module.exports = {
       fontSize: {
         '13px': '13px',
         '10px': '10px',
-        '14px':'14px',
+        '14px': '14px',
+        '26px': '26px',
       },
 
       maxHeight: {
