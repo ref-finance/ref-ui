@@ -133,7 +133,7 @@ const SeedsBox = () => {
   }, [displaySeeds]);
 
   const positionArray = new Set([3, 4, 5]);
-  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(1);
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage();
   const [positionInfo, setPositionInfo] = useState({ top: -140, left: 200 });
   const pagePositions = {
     3: { top: -130, left: 200 },
@@ -148,10 +148,10 @@ const SeedsBox = () => {
   }, [currentPage]);
 
   return (
-    <div className="mt-14" ref={introRef}>
+    <div className="mt-14">
       {/* gudie start */}
       {!hasGuided && positionArray.has(currentPage) && (
-        <div className="relative">
+        <div className="relative" ref={introRef}>
           <Intro top={positionInfo.top} left={positionInfo.left}>
             {currentPage == 3 && (
               <div style={{ marginTop: '72px' }}>
@@ -165,9 +165,7 @@ const SeedsBox = () => {
             {currentPage == 4 && (
               <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
                 <div
-                  className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${`text-white border-b-4 ${
-                    isSignedIn ? 'border-white' : 'border-transparent'
-                  }`}`}
+                  className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${`text-white border-b-4 border-white`}`}
                 >
                   Feed Meme
                 </div>

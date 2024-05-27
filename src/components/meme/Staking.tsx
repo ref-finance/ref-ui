@@ -19,7 +19,7 @@ const Staking = () => {
   const [isUserRanking, setUserRanking] = useState(false);
   const [isShowAirdropModal, setShowAirdropModal] = useState(false);
   const [isShowVoteDetailsModal, setVoteDetailsModal] = useState(false);
-  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(1);
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage();
   return (
     <div className="mt-16 flex text-white pl-8 pr-2">
       <div className="flex-1 text-center border-r border-memeStakingBorderColor pb-10 pr-24">
