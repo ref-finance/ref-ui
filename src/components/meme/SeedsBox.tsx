@@ -15,9 +15,8 @@ import { emptyObject, getSeedsTotalStaked } from './tool';
 import { MemeContext } from './context';
 import { Seed } from '~src/services/farm';
 import { formatPercentage } from '../../utils/uiNumber';
-import { GuidedTourContext } from '../../components/meme/BeginerGuideModal';
 import { Intro } from './Intro';
-import { introCurrentPageStore } from '../../stores/introCurrentPage';
+import { useScrollToTopOnFirstPage } from '../../state/pool';
 export interface ITxParams {
   action: 'stake' | 'unstake';
   params: any;
@@ -34,7 +33,7 @@ const SeedsBox = () => {
   const { seeds } = useContext(MemeContext);
   const memeDataConfig = getMemeDataConfig();
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
-  const { currentPage } = introCurrentPageStore() as any;
+
   const getURLInfo = () => {
     const search = window.location.search;
     const pathname = window.location.pathname;
@@ -121,62 +120,16 @@ const SeedsBox = () => {
     return displaySeedsPercent;
   }, [displaySeeds]);
 
-  const modalUseRef2 = useRef(null);
-  // const { onDataLoaded } = useContext(GuidedTourContext);
-  // useEffect(() => {
-  //   onDataLoaded(modalUseRef2.current, 2);
-  // }, []);
-  const [pageChange, setPageChange] = useState(2);
-  const tellIntro = (key) => {
-    // setPageChange(key);
-  };
-  // useEffect(() => {
-  //   // if (pageChange === 2) {
-  //   //   console.log(pageChange);
-  //   // }
-  //   // console.log(localStorage.getItem('IntroPage'));
-  //   console.log(localStorage.getItem('IntroPage'));
-  //   setPageChange(Number(localStorage.getItem('IntroPage')));
-  // }, [localStorage.getItem('IntroPage')]);
-  const c1Ref = useRef(null);
-  useEffect(() => {
-    if (currentPage === 2) {
-      // console.log(c1Ref.current.getBoundingClientRect());
-      // c1Ref.current.scrollIntoView({
-      //   behavior: 'smooth',
-      // });
-      const rect = c1Ref.current.getBoundingClientRect();
-      //
-      const offset = window.innerHeight / 2; //
-      const scrollTop = rect.top + window.pageYOffset - offset;
-      //
-      window.scrollTo({
-        top: scrollTop,
-        behavior: 'smooth', //
-      });
-
-      // console.log(c1Ref.current.offsetHeight);
-      // window.scrollTo({
-      //   top: c1Ref.current.getBoundingClientRect().top - window.scrollY,
-      //   behavior: 'smooth', //
-      // });
-    }
-  }, [currentPage]);
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(2);
   return (
-    <div className="mt-14" ref={c1Ref}>
+    <div className="mt-14" ref={introRef}>
       <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
-        {currentPage === 2 && (
+        {!hasGuided && currentPage === 2 && (
           <div className="relative">
-            <Intro
-              top={-280}
-              left={-10}
-              page={2}
-              pageChangeToParent={(key) => tellIntro(key)}
-            ></Intro>
+            <Intro top={-280} left={-10}></Intro>
           </div>
         )}
         <div
-          ref={modalUseRef2}
           className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
             tab === 'market'
               ? `text-white border-b-4 ${

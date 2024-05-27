@@ -3,45 +3,17 @@ import VoteSheet from './VoteSheet';
 import VotersSheet from './VotersSheet';
 import { isMobile } from '../../utils/device';
 import { Intro } from './Intro';
-import { introCurrentPageStore } from '../../stores/introCurrentPage';
+import { useScrollToTopOnFirstPage } from '../../state/pool';
 const VoteXREF = () => {
   const [activeTab, setActiveTab] = useState('vote');
   const is_mobile = isMobile();
-  // const [pageChange, setPageChange] = useState(1);
-  const { currentPage } = introCurrentPageStore() as any;
-  const c1Ref = useRef(null);
-  const tellIntro = (key) => {
-    // setPageChange(key);
-  };
-  useEffect(() => {
-    if (currentPage === 1) {
-      console.log(c1Ref);
-      // console.log(c1Ref.current.getBoundingClientRect());
-      // c1Ref.current.scrollIntoView({
-      //   behavior: 'smooth',
-      // });
-      const rect = c1Ref.current.getBoundingClientRect();
-      //
-      const offset = window.innerHeight / 2; //
-      const scrollTop = rect.top + window.pageYOffset - offset;
-      //
-      window.scrollTo({
-        top: scrollTop,
-        behavior: 'smooth', //
-      });
-    }
-  }, [currentPage]);
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(1);
   return (
     <div className="mt-12 rounded-2xl border border-memeBorderColor xsm:mx-3">
       <div className="border-b border-memeBorderColor pt-8 bg-memeVoteBgColor rounded-t-2xl pl-14 text-primaryText flex item-center text-2xl gotham_bold xsm:text-lg xsm:flex xsm:justify-center xsm:items-center xsm:px-4 xsm:gap-4 xsm:pt-6">
-        {currentPage === 1 && (
-          <div className="relative" ref={c1Ref}>
-            <Intro
-              top={-280}
-              left={-10}
-              page={1}
-              pageChangeToParent={(key) => tellIntro(key)}
-            ></Intro>
+        {!hasGuided && currentPage === 1 && (
+          <div className="relative" ref={introRef}>
+            <Intro top={-280} left={-10}></Intro>
           </div>
         )}
         <div

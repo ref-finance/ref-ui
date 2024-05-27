@@ -2,17 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { CloseIconWithCircle } from '../../components/icon/Actions';
 import { introCurrentPageStore } from '../../stores/introCurrentPage';
 
-function Intro({
-  top,
-  left,
-  page,
-  pageChangeToParent,
-}: {
-  top: number | string;
-  left: number | string;
-  page: number;
-  pageChangeToParent: (e) => void;
-}) {
+function Intro({ top, left }: { top: number | string; left: number | string }) {
   const { setCurrentPage, currentPage } = introCurrentPageStore() as any;
   const modalContentArray = [
     {
@@ -67,17 +57,11 @@ function Intro({
 
   const total = modalContentArray.length;
 
-  //   const [currentPage, setCurrentPage] = useState(page);
-
   const pageChange = (key) => {
     if (key == 'minus' && currentPage > 1) {
       setCurrentPage(currentPage - 1);
-      pageChangeToParent(currentPage - 1);
-      //   localStorage.setItem('IntroPage', String(currentPage - 1));
     } else if (key == 'add' && currentPage < total) {
       setCurrentPage(currentPage + 1);
-      pageChangeToParent(currentPage + 1);
-      //   localStorage.setItem('IntroPage', String(currentPage + 1));
     }
   };
 
@@ -179,7 +163,13 @@ function Intro({
             </div>
           </div>
           {/* close */}
-          <div className="flex justify-end items-center mt-2 mx-3 cursor-pointer text-white text-sm hover:opacity-80">
+          <div
+            onClick={() => {
+              localStorage.setItem('hasGuided', 'true');
+              setCurrentPage(0);
+            }}
+            className="flex justify-end items-center mt-2 mx-3 cursor-pointer text-white text-sm hover:opacity-80"
+          >
             <span className="mr-2">Close</span>
             <CloseIconWithCircle></CloseIconWithCircle>
           </div>

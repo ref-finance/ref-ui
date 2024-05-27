@@ -5,7 +5,6 @@ import { ArrowRightTopIcon } from './icons';
 import MyPieChart from './VoteChart';
 import VoteModal from './VoteModal';
 import { MemeContext } from './context';
-import { GuidedTourContext } from '../../components/meme/BeginerGuideModal';
 import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { Seed } from '../../services/farm';
 import { toReadableNumber } from '../../utils/numbers';
@@ -46,16 +45,6 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
     }, new Big(0));
   }, [xrefSeeds]);
 
-  const modalUseRef1 = useRef(null);
-  // const { onDataLoaded } = useContext(GuidedTourContext);
-  // useEffect(() => {
-  //   // if (modalUseRef1.current) {
-  //   //   const rect = modalUseRef1.current.getBoundingClientRect();
-  //   //   localStorage.setItem('modalUseRef1', JSON.stringify(rect));
-  //   // }
-  //   onDataLoaded(modalUseRef1.current, 1);
-  // }, []);
-
   return (
     <div className={`text-primaryText ${hidden ? 'hidden' : ''}`}>
       <div className="text-base mb-7 xsm:text-center xsm:px-6">
@@ -82,7 +71,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
             <MyPieChart />
           </div>
         </div>
-        <div className="w-2/5 xsm:w-full" ref={modalUseRef1}>
+        <div className="w-2/5 xsm:w-full">
           <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-6 xsm:bg-transparent xsm:border-transparent">
             <div className="flex justify-between pt-5 pb-4 px-5 text-white text-base items-center gotham_bold">
               <div>Total xREF</div>
