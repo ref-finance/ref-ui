@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import React, { useState, useContext, useEffect, useMemo, useRef } from 'react';
 import { useHistory } from 'react-router';
 import Big from 'big.js';
 import { WalletContext } from '../../utils/wallets-integration';
@@ -15,6 +15,8 @@ import { emptyObject, getSeedsTotalStaked } from './tool';
 import { MemeContext } from './context';
 import { Seed } from '~src/services/farm';
 import { formatPercentage } from '../../utils/uiNumber';
+import { Intro } from './Intro';
+import { useScrollToTopOnFirstPage } from '../../state/pool';
 export interface ITxParams {
   action: 'stake' | 'unstake';
   params: any;
@@ -31,6 +33,7 @@ const SeedsBox = () => {
   const { seeds } = useContext(MemeContext);
   const memeDataConfig = getMemeDataConfig();
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
+
   const getURLInfo = () => {
     const search = window.location.search;
     const pathname = window.location.pathname;
@@ -116,9 +119,16 @@ const SeedsBox = () => {
     }
     return displaySeedsPercent;
   }, [displaySeeds]);
+
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(2);
   return (
-    <div className="mt-14">
+    <div className="mt-14" ref={introRef}>
       <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
+        {!hasGuided && currentPage === 2 && (
+          <div className="relative">
+            <Intro top={-280} left={-10}></Intro>
+          </div>
+        )}
         <div
           className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
             tab === 'market'

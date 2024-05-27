@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import VoteSheet from './VoteSheet';
 import VotersSheet from './VotersSheet';
 import { isMobile } from '../../utils/device';
-
+import { Intro } from './Intro';
+import { useScrollToTopOnFirstPage } from '../../state/pool';
 const VoteXREF = () => {
   const [activeTab, setActiveTab] = useState('vote');
   const is_mobile = isMobile();
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(1);
   return (
     <div className="mt-12 rounded-2xl border border-memeBorderColor xsm:mx-3">
       <div className="border-b border-memeBorderColor pt-8 bg-memeVoteBgColor rounded-t-2xl pl-14 text-primaryText flex item-center text-2xl gotham_bold xsm:text-lg xsm:flex xsm:justify-center xsm:items-center xsm:px-4 xsm:gap-4 xsm:pt-6">
+        {!hasGuided && currentPage === 1 && (
+          <div className="relative" ref={introRef}>
+            <Intro top={-280} left={-10}></Intro>
+          </div>
+        )}
         <div
           className={`pb-3.5 mr-24 cursor-pointer xsm:mr-0 xsm:px-4 whitespace-nowrap ${
             activeTab === 'vote' ? 'text-white border-b-4 border-white' : ''

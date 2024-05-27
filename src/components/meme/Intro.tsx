@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Modal from 'react-modal';
 import { CloseIconWithCircle } from '../../components/icon/Actions';
-import { translate } from '@near-wallet-selector/core';
-const GuidedTourContext = React.createContext(null);
+import { introCurrentPageStore } from '../../stores/introCurrentPage';
 
-function BeginerGuideProvider({ children }: { children: any }) {
+function Intro({ top, left }: { top: number | string; left: number | string }) {
+  const { setCurrentPage, currentPage } = introCurrentPageStore() as any;
   const modalContentArray = [
     {
       content: (
@@ -57,12 +56,6 @@ function BeginerGuideProvider({ children }: { children: any }) {
   ];
 
   const total = modalContentArray.length;
-  const [currentStepRefDetail, setCurrentStepRefDetail] = useState(
-    new Array(5)
-  );
-  const [getRef, setGetRef] = useState(false);
-
-  const [currentPage, setCurrentPage] = useState(1);
 
   const pageChange = (key) => {
     if (key == 'minus' && currentPage > 1) {
@@ -72,78 +65,38 @@ function BeginerGuideProvider({ children }: { children: any }) {
     }
   };
 
-  useEffect(() => {
-    // currentStepRefDetail[currentPage - 1].ref.scrollIntoView({
-    //   behavior: 'smooth',
-    // });
-    window.scrollTo({
-      top: currentStepRefDetail[currentPage - 1].y,
-      behavior: 'smooth', //
-    });
-  }, [currentPage]);
-
-  // provider
-  const onDataLoaded = (stepRef, index) => {
-    const obj = {
-      x: stepRef.getBoundingClientRect().left + window.scrollX,
-      y: stepRef.getBoundingClientRect().top + window.scrollY,
-      ref: stepRef,
-    };
-    console.log(
-      stepRef.getBoundingClientRect().left,
-      stepRef.getBoundingClientRect().top,
-      window.scrollX,
-      window.screenY
-    );
-    // 如果当前步骤不是刚刚加载完数据的步骤，则更新当前步骤
-    // setCurrentPage(index);
-    const shadowCloneCurrentStepRefDetail = currentStepRefDetail;
-    shadowCloneCurrentStepRefDetail[index - 1] = obj;
-    setCurrentStepRefDetail(shadowCloneCurrentStepRefDetail);
-    setGetRef(true);
-
-    window.scrollTo({
-      top: currentStepRefDetail[currentPage - 1].y,
-      behavior: 'smooth', //
-    });
-    // window.scrollTo(
-    //   currentStepRefDetail[currentPage - 1].x,
-    //   currentStepRefDetail[currentPage - 1].y
-    // );
-  };
-
-  const intervalRef = useRef(null);
-  // useEffect(() => {
-  //   //
-  //   intervalRef.current = setInterval(updateModalHeight, 100); // 每200毫秒检查一次
-
-  //   return () => clearInterval(intervalRef.current);
-  // }, []);
-
-  // const [modalHeight, setModalHeight] = useState('100vh'); // 初始设置为视口高度
-
-  // const updateModalHeight = () => {
-  //   const docHeight = Math.max(
-  //     document.body.scrollHeight,
-  //     document.documentElement.scrollHeight,
-  //     document.body.offsetHeight,
-  //     document.documentElement.offsetHeight,
-  //     document.body.clientHeight,
-  //     document.documentElement.clientHeight
-  //   );
-  //   setModalHeight(`${docHeight}px`);
-  // };
-
   const renderTourContent = () => {
-    if (!getRef) return null;
     return (
       <>
         <div
           style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            height: '100vh',
+            width: '100vw',
+            background: 'rgba(0,0,0,.75)',
+            zIndex: 100,
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              zIndex: 101,
+              background: 'rgba(0,0,0,.3)',
+            }}
+          ></div>
+        </div>
+        <div
+          style={{
             position: 'absolute',
-            zIndex: 101,
-            top: `${currentStepRefDetail[currentPage - 1]?.y + 'px'}`,
-            left: ` ${currentStepRefDetail[currentPage - 1]?.x + 'px'}`,
+            zIndex: 102,
+            top: `${top + 'px'}`,
+            left: ` ${left + 'px'}`,
           }}
         >
           {/* title */}
@@ -210,7 +163,13 @@ function BeginerGuideProvider({ children }: { children: any }) {
             </div>
           </div>
           {/* close */}
-          <div className="flex justify-end items-center mt-2 mx-3 cursor-pointer text-white text-sm hover:opacity-80">
+          <div
+            onClick={() => {
+              localStorage.setItem('hasGuided', 'true');
+              setCurrentPage(0);
+            }}
+            className="flex justify-end items-center mt-2 mx-3 cursor-pointer text-white text-sm hover:opacity-80"
+          >
             <span className="mr-2">Close</span>
             <CloseIconWithCircle></CloseIconWithCircle>
           </div>
@@ -219,22 +178,7 @@ function BeginerGuideProvider({ children }: { children: any }) {
       // </Modal>
     );
   };
-  return (
-    <GuidedTourContext.Provider value={{ pageChange, onDataLoaded }}>
-      {getRef ? (
-        <div
-          style={{
-            filter: 'blur(6px)',
-          }}
-        >
-          {children}
-        </div>
-      ) : (
-        children
-      )}
-      {renderTourContent()}
-    </GuidedTourContext.Provider>
-  );
+  return renderTourContent();
 }
 
-export { BeginerGuideProvider, GuidedTourContext };
+export { Intro };
