@@ -230,7 +230,7 @@ const SeedsBox = () => {
             Yours
           </div>
         </div>
-        {!is_mobile && (
+        {/* {!is_mobile && (
           <div className="flex -mr-3">
             <div
               className="ml-auto flex justify-between items-center w-40 h-12 bg-memeModelgreyColor relative hover:bg-gray-700 cursor-pointer mr-8 border border-memeBorderColor"
@@ -277,7 +277,7 @@ const SeedsBox = () => {
           onRequestClose={() => {
             setUserRanking(false);
           }}
-        />
+        /> */}
       </div>
       {is_mobile && (
         <div className="flex items-center mt-3.5 mb-6 justify-between mx-3">
