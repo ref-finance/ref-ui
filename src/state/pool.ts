@@ -288,21 +288,26 @@ interface LoadPoolsOpts {
   order?: string;
 }
 
-export function useScrollToTopOnFirstPage(page) {
+export function useScrollToTopOnFirstPage() {
   const hasGuided = JSON.parse(localStorage.getItem('hasGuided'));
 
   const introRef = useRef(null);
   const { currentPage } = introCurrentPageStore() as any;
 
   useEffect(() => {
-    if (currentPage === page && introRef.current) {
+    if (introRef.current) {
       const rect = introRef.current.getBoundingClientRect();
       const offset = window.innerHeight / 2;
       const scrollTop = rect.top + window.pageYOffset - offset;
-      window.scrollTo({
+
+      window.scroll({
         top: scrollTop,
         behavior: 'smooth',
       });
+
+      // introRef.current.scrollIntoView({
+      //   behavior: 'smooth',
+      // });
     }
   }, [currentPage]); //
   //

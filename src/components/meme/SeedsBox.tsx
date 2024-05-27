@@ -133,10 +133,10 @@ const SeedsBox = () => {
   }, [displaySeeds]);
 
   const positionArray = new Set([3, 4, 5]);
-  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(1);
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage();
   const [positionInfo, setPositionInfo] = useState({ top: -140, left: 200 });
   const pagePositions = {
-    3: { top: -140, left: 200 },
+    3: { top: -130, left: 200 },
     4: { top: -180, left: 250 },
     5: { top: 150, left: 100 },
   };
@@ -148,10 +148,51 @@ const SeedsBox = () => {
   }, [currentPage]);
 
   return (
-    <div className="mt-14" ref={introRef}>
+    <div className="mt-14">
+      {/* gudie start */}
       {!hasGuided && positionArray.has(currentPage) && (
-        <div className="relative">
-          <Intro top={positionInfo.top} left={positionInfo.left}></Intro>
+        <div className="relative" ref={introRef}>
+          <Intro top={positionInfo.top} left={positionInfo.left}>
+            {currentPage == 3 && (
+              <div style={{ marginTop: '72px' }}>
+                <MarketSeedsBox
+                  hidden={tab === 'market' ? false : true}
+                  displaySeedsPercent={displaySeedsPercent}
+                  origin={'intro'}
+                />
+              </div>
+            )}
+            {currentPage == 4 && (
+              <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
+                <div
+                  className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${`text-white border-b-4 border-white`}`}
+                >
+                  Feed Meme
+                </div>
+                <div
+                  className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center text-primaryText border-transparent`}
+                >
+                  Yours
+                </div>
+              </div>
+            )}
+            {currentPage == 5 && (
+              <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
+                <div
+                  className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center text-primaryText border-transparent`}
+                >
+                  Feed Meme
+                </div>
+                <div
+                  className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${`text-white border-b-4 ${
+                    isSignedIn ? 'border-white' : 'border-transparent'
+                  }`}`}
+                >
+                  Yours
+                </div>
+              </div>
+            )}
+          </Intro>
         </div>
       )}
       <div className="lg:flex lg:items-center lg:justify-between">
@@ -159,7 +200,7 @@ const SeedsBox = () => {
           <div
             className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
               tab === 'market'
-                ? `text-white border-b-4 ${
+                ? `text-white ${currentPage != 5 ? 'border-b-4' : ''} ${
                     isSignedIn ? 'border-white' : 'border-transparent'
                   }`
                 : 'border-b-4 text-primaryText border-transparent'
@@ -171,7 +212,9 @@ const SeedsBox = () => {
             Feed Meme
           </div>
           <div
-            className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
+            className={`py-2 ${
+              currentPage != 4 ? 'border-b-4' : ''
+            }  px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${
               isSignedIn ? '' : 'hidden'
             } ${
               tab === 'your'

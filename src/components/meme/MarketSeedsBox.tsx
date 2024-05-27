@@ -22,9 +22,11 @@ const is_mobile = isMobile();
 const MarketSeedsBox = ({
   hidden,
   displaySeedsPercent,
+  origin,
 }: {
   hidden: boolean;
   displaySeedsPercent: Record<string, string>;
+  origin?: string;
 }) => {
   const { seeds, user_balances, lpSeeds, xrefSeeds, xrefTokenId } =
     useContext(MemeContext);
@@ -33,10 +35,15 @@ const MarketSeedsBox = ({
   const [isStakeOpen, setIsStakeOpen] = useState(false);
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
   const memeDataConfig = getMemeDataConfig();
-  const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
+  // if parent components is intro
+  const meme_winner_tokens =
+    origin == 'intro'
+      ? [memeDataConfig.meme_winner_tokens[0]]
+      : memeDataConfig.meme_winner_tokens;
   const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};
+
     return meme_winner_tokens.reduce(
       (acc, memeTokenId) => ({
         ...acc,
