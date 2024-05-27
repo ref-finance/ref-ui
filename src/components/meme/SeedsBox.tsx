@@ -125,8 +125,8 @@ const SeedsBox = () => {
   const [positionInfo, setPositionInfo] = useState({ top: -140, left: 200 });
   const pagePositions = {
     3: { top: -140, left: 200 },
-    4: { top: -170, left: 50 },
-    5: { top: -220, left: 250 },
+    4: { top: -180, left: 250 },
+    5: { top: 150, left: 100 },
   };
 
   useEffect(() => {

@@ -131,6 +131,17 @@ function Intro({
                     Next &gt;
                   </span>
                 )}
+              {currentPage == modalContentArray.length && (
+                <span
+                  className="mx-2 hover:opacity-50"
+                  onClick={() => {
+                    localStorage.setItem('hasGuided', 'true');
+                    setCurrentPage(0);
+                  }}
+                >
+                  got it!
+                </span>
+              )}
             </div>
 
             {/*dashed line */}
