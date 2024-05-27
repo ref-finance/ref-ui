@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import VoteSheet from './VoteSheet';
 import VotersSheet from './VotersSheet';
 import { isMobile } from '../../utils/device';
+import { Intro } from './Intro';
+import { useScrollToTopOnFirstPage } from '../../state/pool';
 
 const Staking = () => {
   const is_mobile = isMobile();
+  const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage(1);
   return (
     <div className="mt-16 flex text-white pl-8 pr-2">
       <div className="flex-1 text-center border-r border-memeStakingBorderColor pb-10 pr-24">
@@ -35,6 +38,11 @@ const Staking = () => {
             <div className="text-sm ">2024/03/18-2024/03/31</div>
           </div>
         </div>
+        {!hasGuided && (currentPage === 1 || currentPage === 2) && (
+          <div className="relative" ref={introRef}>
+            <Intro top={currentPage === 1 ? -264 : -240} left={180}></Intro>
+          </div>
+        )}
         <div className="grid grid-cols-3 gap-4">
           <div className="border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
             Detail
