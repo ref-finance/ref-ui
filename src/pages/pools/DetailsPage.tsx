@@ -2888,7 +2888,7 @@ export default function PoolDetailsPage() {
                       {Number(allData.apy).toFixed(2)}%
                       {Number(allData.farm_apy) > 0 && (
                         <span className="text-xs text-gradientFrom">
-                          {` +` + formatNumber2(allData.farm_apy) + '%'}
+                          {` +` + formatNumber(allData.farm_apy, 2) + '%'}
                         </span>
                       )}
                     </div>
@@ -3403,25 +3403,14 @@ export default function PoolDetailsPage() {
   );
 }
 
-export const formatNumber = (v: string | number) => {
+export const formatNumber = (v: string | number, decimal?: number) => {
   const big = Big(v || 0);
   if (big.eq(0)) {
     return '0';
   } else if (big.lt(0.001)) {
     return '<0.001';
   } else {
-    return big.toFixed(3, 1);
-  }
-};
-
-export const formatNumber2 = (v: string | number) => {
-  const big = Big(v || 0);
-  if (big.eq(0)) {
-    return '0';
-  } else if (big.lt(0.001)) {
-    return '<0.001';
-  } else {
-    return big.toFixed(2, 1);
+    return big.toFixed(decimal || 3, 1);
   }
 };
 
