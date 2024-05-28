@@ -104,31 +104,33 @@ const Staking = () => {
               <div className="text-sm ">2024/06/06-2024/07/05</div>
             </div>
           </div>
-          {!hasGuided && (currentPage === 1 || currentPage === 2) && (
-            <div className="relative" ref={introRef}>
-              <Intro
-                top={currentPage === 1 ? -264 : -240}
-                left={currentPage === 1 ? 180 : 140}
-              >
-                <div
-                  className="grid grid-cols-3 gap-4"
-                  style={{
-                    width: '28.3rem',
-                  }}
+          {!hasGuided &&
+            (currentPage === 1 || currentPage === 2) &&
+            !is_mobile && (
+              <div className="relative" ref={introRef}>
+                <Intro
+                  top={currentPage === 1 ? -264 : -240}
+                  left={currentPage === 1 ? 180 : 140}
                 >
-                  <div className="border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
-                    Detail
+                  <div
+                    className="grid grid-cols-3 gap-4"
+                    style={{
+                      width: '28.3rem',
+                    }}
+                  >
+                    <div className="border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
+                      Detail
+                    </div>
+                    <div className=" bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base">
+                      Vote
+                    </div>
+                    <div className="border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base">
+                      Donate
+                    </div>
                   </div>
-                  <div className=" bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base">
-                    Vote
-                  </div>
-                  <div className="border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base">
-                    Donate
-                  </div>
-                </div>
-              </Intro>
-            </div>
-          )}
+                </Intro>
+              </div>
+            )}
           <div className="grid grid-cols-3 gap-4 xsm:grid-cols-1 xsm:-mx-5 xsm:gap-5">
             <div
               className="xsm:hidden border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center cursor-pointer justify-center text-white text-base gotham_bold"

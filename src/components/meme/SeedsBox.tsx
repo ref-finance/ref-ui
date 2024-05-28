@@ -150,7 +150,7 @@ const SeedsBox = () => {
   return (
     <div className="mt-14">
       {/* gudie start */}
-      {!hasGuided && positionArray.has(currentPage) && (
+      {!hasGuided && positionArray.has(currentPage) && !is_mobile && (
         <div className="relative" ref={introRef}>
           <Intro top={positionInfo.top} left={positionInfo.left}>
             {currentPage == 3 && (
