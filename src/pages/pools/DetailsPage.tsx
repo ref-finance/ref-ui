@@ -2867,7 +2867,6 @@ export default function PoolDetailsPage() {
                           {` +` + BaseApr().displayApr}
                         </span>
                       ) : null}
-
                       {!!seedFarms &&
                         !isMobile() &&
                         seedFarms &&
@@ -3284,7 +3283,7 @@ export const formatNumber = (v: string | number) => {
   } else if (big.lt(0.001)) {
     return '<0.001';
   } else {
-    return big.toFixed(3, 1);
+    return big.toFixed(2, 1);
   }
 };
 function setIsLoading(arg0: boolean) {
