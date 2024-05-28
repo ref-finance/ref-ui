@@ -376,6 +376,7 @@ export const getTopPoolsByNewUI = async ({
         method: 'GET',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/list-pools'),
         },
       }
     ).then((res) => res.json());
@@ -444,6 +445,7 @@ export const getSearchResult = async ({
       method: 'GET',
       headers: {
         'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/pool/search'),
       },
     }).then((res) => res.json());
     localStorage.setItem('poolsTotal', pools.data.total);
@@ -776,6 +778,7 @@ export const getPoolsDetailByIds = async ({
           method: 'GET',
           headers: {
             'Content-type': 'application/json; charset=UTF-8',
+            ...getAuthenticationHeaders('/pool/detail'),
           },
         }
       )
@@ -795,6 +798,7 @@ export const getPoolsDetailById = async ({ pool_id }: { pool_id: string }) => {
     method: 'GET',
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/pool/detail'),
     },
   })
     .then((res) => res.json())
@@ -1008,6 +1012,9 @@ export const getAllVolume24h = async () => {
 export const getAllPoolData = async () => {
   return await fetch(config.newPoolsIndexerUrl + '/all-pool-data', {
     method: 'GET',
+    headers: {
+      ...getAuthenticationHeaders('/all-pool-data'),
+    },
   })
     .then((res) => res.json())
     .then((res) => {
