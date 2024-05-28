@@ -3013,3 +3013,40 @@ export function AcquireXREFIcon() {
     </svg>
   );
 }
+
+export function AirdropMobileArrowIcon() {
+  return (
+    <svg
+      width="17"
+      height="12"
+      viewBox="0 0 17 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0.928931 5.98513L15.0711 5.98513M15.0711 5.98513L10.357 1.27109M15.0711 5.98513L10.357 10.6992"
+        stroke="#00FFD1"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}
+
+export function XREFStakingDetails() {
+  return (
+    <svg
+      width="11"
+      height="12"
+      viewBox="0 0 11 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M9 11.5H2C1.17157 11.5 0.5 10.8284 0.5 10V2C0.5 1.17157 1.17157 0.5 2 0.5H9C9.82843 0.5 10.5 1.17157 10.5 2V6.85714V10C10.5 10.8284 9.82843 11.5 9 11.5Z"
+        stroke="white"
+      />
+      <line x1="2.5" y1="4.5" x2="7.5" y2="4.5" stroke="white" />
+      <line x1="2.5" y1="7.5" x2="5.5" y2="7.5" stroke="white" />
+    </svg>
+  );
+}
