@@ -67,7 +67,7 @@ const Staking = () => {
             <div className="text-sm ">2024/06/06-2024/07/05</div>
           </div>
         </div>
-        {!hasGuided && (currentPage === 1 || currentPage === 2) && (
+        {!hasGuided && (currentPage === 1 || currentPage === 2) && !is_mobile && (
           <div className="relative" ref={introRef}>
             <Intro
               top={currentPage === 1 ? -264 : -240}
