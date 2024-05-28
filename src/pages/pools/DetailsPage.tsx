@@ -3005,7 +3005,11 @@ export default function PoolDetailsPage() {
                 />
               </div>
             )}
-
+            {pool?.id && (
+              <div className="mt-2.5 mb-10">
+                <LockLP userShares={shares} pool={pool} tokens={tokens} />
+              </div>
+            )}
             <div className="text-white text-base mb-3 font-gothamBold w-full">
               <FormattedMessage
                 id="pool_composition"
