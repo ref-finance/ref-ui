@@ -2576,7 +2576,12 @@ function UserStakeBlock(props: {
       </div>
       <div
         className={`stakeEntryArea ${
-          !isSignedIn || (isEnded && Number(freeAmount) == 0) ? 'hidden' : ''
+          !isSignedIn ||
+          (isEnded &&
+            Number(freeAmount) + Number(lockAmount) + Number(shadow_amount) ==
+              0)
+            ? 'hidden'
+            : ''
         }`}
       >
         <div className="pt-5 mt-5  border-t  border-borderGreyColor border-opacity-20">
