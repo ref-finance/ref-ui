@@ -370,7 +370,7 @@ export const getTopPoolsByNewUI = async ({
     let pools: any;
 
     pools = await fetch(
-      config.newPoolsIndexerUrl +
+      config.indexerUrl +
         `/list-pools?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}`,
       {
         method: 'GET',
@@ -441,7 +441,7 @@ export const getSearchResult = async ({
     const url = !onlyUseId
       ? `/pool/search?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}&token_list=${token_list}&pool_id_list=${pool_id_list}`
       : `/pool/search?pool_id_list=${pool_id_list}`;
-    pools = await fetch(config.newPoolsIndexerUrl + url, {
+    pools = await fetch(config.indexerUrl + url, {
       method: 'GET',
       headers: {
         'Content-type': 'application/json; charset=UTF-8',
@@ -772,16 +772,13 @@ export const getPoolsDetailByIds = async ({
 
   return Promise.all(
     pool_ids.map((pool_id) => {
-      return fetch(
-        config.newPoolsIndexerUrl + '/pool/detail?pool_id=' + pool_id,
-        {
-          method: 'GET',
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-            ...getAuthenticationHeaders('/pool/detail'),
-          },
-        }
-      )
+      return fetch(config.indexerUrl + '/pool/detail?pool_id=' + pool_id, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/pool/detail'),
+        },
+      })
         .then((res) => res.json())
         .then((pools) => {
           return pools.data;
@@ -794,7 +791,7 @@ export const getPoolsDetailByIds = async ({
 };
 
 export const getPoolsDetailById = async ({ pool_id }: { pool_id: string }) => {
-  return fetch(config.newPoolsIndexerUrl + '/pool/detail?pool_id=' + pool_id, {
+  return fetch(config.indexerUrl + '/pool/detail?pool_id=' + pool_id, {
     method: 'GET',
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
@@ -1010,7 +1007,7 @@ export const getAllVolume24h = async () => {
 };
 
 export const getAllPoolData = async () => {
-  return await fetch(config.newPoolsIndexerUrl + '/all-pool-data', {
+  return await fetch(config.indexerUrl + '/all-pool-data', {
     method: 'GET',
     headers: {
       ...getAuthenticationHeaders('/all-pool-data'),
