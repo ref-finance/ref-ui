@@ -90,7 +90,13 @@ const Staking = () => {
             </p>
           </div>
         </div>
-        <div className="xsm:bg-memeStakingBgColor xsm:border xsm:border-memeBorderColor xsm:rounded-2xl xsm:pt-12 xsm:pb-8 xsm:px-11">
+        <div className="xsm:bg-memeStakingBgColor xsm:border xsm:border-memeBorderColor xsm:rounded-2xl xsm:pt-8 xsm:pb-8 xsm:px-11">
+          <div className="lg:hidden mb-3 flex flex-col items-center">
+            <div className="text-base text-primaryText">Current Round:</div>
+            <div className="text-lg mb-4">2024/05/04-2024/06/03</div>
+            <div className="text-base text-primaryText">Next Round:</div>
+            <div className="text-lg mb-6">2024/06/06-2024/07/05</div>
+          </div>
           <div className="mb-6" style={{ height: '285px' }}>
             <StakingChart chartType="xref" />
           </div>
