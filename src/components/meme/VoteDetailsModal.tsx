@@ -103,11 +103,11 @@ function VoteDetailsModal(props: any) {
           background: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
         }}
       >
-        <div className="title flex items-center justify-between pr-3 mb-8">
+        <div className="title flex items-center justify-between pr-3 mb-8 xsm:mb-2">
           <div className="text-white text-xl gotham_bold">Detail</div>
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
         </div>
-        <div style={{ height: '60vh', overflow: 'auto' }}>
+        <div style={{ height: isMobile ? '68vh' : '60vh', overflow: 'auto' }}>
           <DonateList donateList={donateList} />
         </div>
       </div>
@@ -203,7 +203,7 @@ function DonateListMobile({ donateList }: { donateList: IDonate[] }) {
   const [open, setOpen] = useState(true);
   return (
     <div>
-      <div className="flex items-center justify-between mx-3 mt-7">
+      {/* <div className="flex items-center justify-between mx-3 mt-7">
         <span className="text-base gotham_bold text-white">Meme Project</span>
         <span
           onClick={() => {
@@ -215,13 +215,13 @@ function DonateListMobile({ donateList }: { donateList: IDonate[] }) {
         >
           <ArrowTopIcon />
         </span>
-      </div>
-      <div className={`mx-3 ${open ? '' : 'hidden'}`}>
+      </div> */}
+      <div className={`${open ? '' : 'hidden'}`}>
         {donateList.map((donateData: IDonate) => {
           return (
             <div
               key={donateData.memeTokenId}
-              className="flex flex-col gap-5 rounded-2xl border-opacity-20 bg-black bg-opacity-20 p-4 mt-4 border border-memeBorderColor"
+              className="flex flex-col gap-3 rounded-2xl border-opacity-20 bg-black bg-opacity-20 p-4 mt-4 border border-memeBorderColor"
             >
               <div className="flex items-center gap-2">
                 <img
