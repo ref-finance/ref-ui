@@ -31,7 +31,7 @@ function Intro({
           stake their xRef into that MemeToken.
         </p>
       ),
-      title: 'How show love for voters?',
+      title: 'Show Love For Voters',
     },
     {
       content: (
@@ -55,7 +55,7 @@ function Intro({
       content: (
         <p className="font-normal">
           Unstaking requires a 5-day wait.Click
-          <span className="font-gothamBold px-1">{'withdraw'}</span> at the
+          <span className="font-gothamBold px-1">{`'withdraw'`}</span> at the
           bottom of the page after this period to reclaim your MemeToken.
         </p>
       ),
