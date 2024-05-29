@@ -27,7 +27,7 @@ function Intro({
       content: (
         <p className="font-normal">
           <span className="font-gothamBold pr-1">Donate </span>
-          your meme token to stakers of xRef, attracting more xRef holders to
+          your MemeToken to stakers of xRef, attracting more xRef holders to
           stake their xRef into that MemeToken.
         </p>
       ),
@@ -37,7 +37,7 @@ function Intro({
       content: (
         <p className="font-normal">
           <span className="font-gothamBold pr-1">Stake</span>
-          your meme token to help your favorite MemeToken earn higher farming
+          your MemeToken to help your favorite MemeToken earn higher farming
           yields.
         </p>
       ),
@@ -55,8 +55,8 @@ function Intro({
       content: (
         <p className="font-normal">
           Unstaking requires a 5-day wait.Click
-          <span className="font-gothamBold px-1">Withdraw</span> at the bottom
-          of the page after this period to reclaim your MemeToken.
+          <span className="font-gothamBold px-1">{'withdraw'}</span> at the
+          bottom of the page after this period to reclaim your MemeToken.
         </p>
       ),
       title: '',

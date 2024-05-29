@@ -150,51 +150,68 @@ const SeedsBox = () => {
   return (
     <div className="mt-14">
       {/* gudie start */}
-      {!hasGuided && positionArray.has(currentPage) && !is_mobile && (
-        <div className="relative" ref={introRef}>
-          <Intro top={positionInfo.top} left={positionInfo.left}>
-            {currentPage == 3 && (
-              <div style={{ marginTop: '72px' }}>
-                <MarketSeedsBox
-                  hidden={tab === 'market' ? false : true}
-                  displaySeedsPercent={displaySeedsPercent}
-                  origin={'intro'}
-                />
-              </div>
-            )}
-            {currentPage == 4 && (
-              <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
-                <div
-                  className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${`text-white border-b-4 border-white`}`}
-                >
-                  Feed Meme
+      {!hasGuided &&
+        positionArray.has(currentPage) &&
+        !is_mobile &&
+        isSignedIn && (
+          <div className="relative" ref={introRef}>
+            <Intro top={positionInfo.top} left={positionInfo.left}>
+              {currentPage == 3 && (
+                <div style={{ marginTop: '72px' }}>
+                  <MarketSeedsBox
+                    hidden={tab === 'market' ? false : true}
+                    displaySeedsPercent={displaySeedsPercent}
+                    origin={'intro'}
+                  />
                 </div>
-                <div
-                  className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center text-primaryText border-transparent`}
-                >
-                  Yours
+              )}
+              {currentPage == 4 && (
+                <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
+                  <div
+                    className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${`text-white border-b-4 border-white`}`}
+                  >
+                    Feed Meme
+                  </div>
+                  <div
+                    className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center text-primaryText border-transparent`}
+                  >
+                    Yours
+                  </div>
                 </div>
-              </div>
-            )}
-            {currentPage == 5 && (
-              <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
-                <div
-                  className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center text-primaryText border-transparent`}
-                >
-                  Feed Meme
-                </div>
-                <div
-                  className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${`text-white border-b-4 ${
-                    isSignedIn ? 'border-white' : 'border-transparent'
-                  }`}`}
-                >
-                  Yours
-                </div>
-              </div>
-            )}
-          </Intro>
-        </div>
-      )}
+              )}
+              {currentPage == 5 && (
+                <>
+                  <div className="flex items-center text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
+                    <div
+                      className={`py-2 border-b-4  px-5 cursor-pointer xsm:w-1/2 xsm:text-center text-primaryText border-transparent`}
+                    >
+                      Feed Meme
+                    </div>
+                    <div
+                      className={` py-2 px-5 cursor-pointer xsm:w-1/2 xsm:text-center ${`text-white border-b-4 ${
+                        isSignedIn ? 'border-white' : 'border-transparent'
+                      }`}`}
+                    >
+                      Yours
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '-360px',
+                      left: '20px',
+                      width: '244px',
+                    }}
+                    className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none w-1/2 xsm:w-full 'opacity-30'`}
+                  >
+                    Unstake
+                  </div>
+                </>
+              )}
+            </Intro>
+          </div>
+        )}
       <div className="lg:flex lg:items-center lg:justify-between">
         <div className="flex items-center justify-between text-2xl gotham_bold gap-12 mb-5 ml-2 xsm:text-xl xsm:mx-3 xsm:gap-0 xsm:border-b xsm:border-memeVoteBorderColor">
           <div

@@ -16,6 +16,7 @@ import YourRewards from './YourRewards';
 import Feeders from './Feeders';
 import APY from './APY';
 import { emptyObject, getSeedApr, isPending, emptyNumber } from './tool';
+import { useScrollToTopOnFirstPage } from '../../state/pool';
 
 const is_mobile = isMobile();
 
@@ -28,6 +29,7 @@ const MarketSeedsBox = ({
   displaySeedsPercent: Record<string, string>;
   origin?: string;
 }) => {
+  const { currentPage, hasGuided } = useScrollToTopOnFirstPage();
   const { seeds, user_balances, lpSeeds, xrefSeeds, xrefTokenId } =
     useContext(MemeContext);
   const { globalState } = useContext(WalletContext);
@@ -180,20 +182,35 @@ const MarketSeedsBox = ({
                 isSignedIn ? '' : 'hidden'
               }`}
             >
-              <OprationButton
-                disabled={stakeButtonDisabled}
-                onClick={() => {
-                  set_modal_action_seed_id(seed.seed_id);
-                  setIsStakeOpen(true);
-                }}
-                className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
-                  stakeButtonDisabled
-                    ? 'bg-memePoolBoxBorderColor'
-                    : 'bg-greenLight'
-                }`}
-              >
-                Feed {seed.token_meta_data.symbol}
-              </OprationButton>
+              {currentPage != 5 ? (
+                <OprationButton
+                  disabled={stakeButtonDisabled}
+                  onClick={() => {
+                    set_modal_action_seed_id(seed.seed_id);
+                    setIsStakeOpen(true);
+                  }}
+                  className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
+                    stakeButtonDisabled
+                      ? 'bg-memePoolBoxBorderColor'
+                      : 'bg-greenLight'
+                  }`}
+                >
+                  Feed {seed.token_meta_data.symbol}
+                </OprationButton>
+              ) : (
+                <>
+                  <OprationButton
+                    className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none w-1/2 xsm:w-full ${'opacity-30'}`}
+                  >
+                    Unstake
+                  </OprationButton>
+                  <OprationButton
+                    className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none w-1/2 xsm:w-full ${'bg-greenLight'}`}
+                  >
+                    Claim
+                  </OprationButton>
+                </>
+              )}
             </div>
           </div>
         );

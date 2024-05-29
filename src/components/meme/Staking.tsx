@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { isMobile } from '../../utils/device';
 import {
   AcquireXREFIcon,
@@ -16,6 +16,7 @@ import MemeAirdropListForPc from './memeAirdropListForPc';
 import VoteDetailsModal from './VoteDetailsModal';
 import StakingChart from './StakingChart';
 import { useHistory } from 'react-router-dom';
+import { WalletContext } from '../../utils/wallets-integration';
 
 const Staking = () => {
   const is_mobile = isMobile();
@@ -26,6 +27,8 @@ const Staking = () => {
   const [isShowAirdropModal, setShowAirdropModal] = useState(false);
   const [isShowVoteDetailsModal, setVoteDetailsModal] = useState(false);
   const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   return (
     <div className="mt-16 flex text-white pl-8 pr-2 xsm:block xsm:pl-0 xsm:pr-0">
       <div className="flex-1 text-center border-r border-memeStakingBorderColor pb-10 pr-24 xsm:pr-0 xsm:pb-0 xsm:text-left xsm:mb-14">
@@ -112,7 +115,8 @@ const Staking = () => {
           </div>
           {!hasGuided &&
             (currentPage === 1 || currentPage === 2) &&
-            !is_mobile && (
+            !is_mobile &&
+            isSignedIn && (
               <div className="relative" ref={introRef}>
                 <Intro
                   top={currentPage === 1 ? -264 : -240}
