@@ -371,6 +371,7 @@ function UserRankingModal(props: any) {
                       </div>
                       <div
                         className="truncate overflow-hidden text-ellipsis pr-6"
+                        title={item.wallet}
                         style={{ width: '30%' }}
                       >
                         {item.wallet}
@@ -625,7 +626,10 @@ function UserRankingModal(props: any) {
                           )}
                         </div>
                       </div>
-                      <div className="truncate w-11/12 overflow-hidden text-ellipsis">
+                      <div
+                        className="truncate w-11/12 overflow-hidden text-ellipsis"
+                        title={item.wallet}
+                      >
                         {item.wallet}
                       </div>
                     </div>
