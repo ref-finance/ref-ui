@@ -50,7 +50,7 @@ const Staking = () => {
             <div className="relative">
               <div
                 className="opacity-30 lg:w-52 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor 
-            rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
+            rounded-lg h-12 flex items-center cursor-not-allowed justify-center text-greenLight text-base gotham_bold"
                 onMouseEnter={() => setShowRank(true)}
                 onMouseLeave={() => setShowRank(false)}
               >
@@ -58,8 +58,9 @@ const Staking = () => {
               </div>
               {showRank && (
                 <div
-                  className="absolute -top-4 right-0 flex items-center justify-center 
+                  className="absolute -top-4 right-6 flex items-center justify-center 
                 bg-cardBg border border-primaryText text-farmText rounded-md py-1.5 px-2 text-xs z-50"
+                  onMouseLeave={() => setShowRank(false)}
                 >
                   <p>Coming soon</p>
                 </div>
