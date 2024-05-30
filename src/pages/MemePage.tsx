@@ -24,9 +24,9 @@ export default function MemePage() {
         {is_mobile ? <MobileBanner /> : <Banner />}
         <div className="m-auto lg:w-5/6" style={{ maxWidth: '1100px' }}>
           <Overview />
-          {/* {showCountdown && (
+          {showCountdown && (
             <Countdown onCountdownFinish={handleCountdownFinish} />
-          )} */}
+          )}
           <Staking />
           {/* <VoteXREF /> */}
           <SeedsBox />
