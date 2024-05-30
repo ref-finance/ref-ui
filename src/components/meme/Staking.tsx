@@ -48,7 +48,7 @@ const Staking = () => {
             </div>
             <div
               className="lg:w-52  border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
-              items-center justify-center text-primaryText text-base gotham_bold xsm:hidden"
+              items-center justify-center text-white text-base gotham_bold xsm:hidden"
               onClick={() => setShowAirdropModal(true)}
             >
               <CoinPc />
@@ -56,7 +56,7 @@ const Staking = () => {
             </div>
             <div
               className="lg:hidden border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
-              items-center justify-center text-primaryText text-base gotham_bold xsm:border-none xsm:bg-transparent xsm:h-auto"
+              items-center justify-center text-white text-base gotham_bold xsm:border-none xsm:bg-transparent xsm:h-auto"
               onClick={() => history.push('/airdop')}
             >
               <CoinPc />
