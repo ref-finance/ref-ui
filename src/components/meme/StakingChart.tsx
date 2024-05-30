@@ -200,7 +200,7 @@ const StakingChart = ({ chartType }) => {
 
   return (
     <div className="flex justify-center">
-      <PieChart width={is_mobile ? 275 : 285} height={is_mobile ? 275 : 285}>
+      <PieChart width={is_mobile ? 275 : 275} height={is_mobile ? 275 : 275}>
         <Pie
           activeIndex={activeIndex}
           activeShape={customActiveShape}
@@ -209,8 +209,8 @@ const StakingChart = ({ chartType }) => {
           nameKey="symbol"
           cx="50%"
           cy="50%"
-          innerRadius={is_mobile ? 120 : 130}
-          outerRadius={is_mobile ? 146 : 156}
+          innerRadius={is_mobile ? 120 : 120}
+          outerRadius={is_mobile ? 146 : 146}
           onMouseEnter={onPieEnter}
           onMouseLeave={onPieLeave}
           stroke={is_mobile ? '#192a35' : '#00121f'}
