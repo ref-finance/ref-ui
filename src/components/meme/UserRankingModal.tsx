@@ -336,10 +336,12 @@ function UserRankingModal(props: any) {
           </div>
         </div>
         {isLoading ? (
-          <Loading />
+          <div style={{ minHeight: is_mobile ? '400px' : '468px' }}>
+            <Loading />
+          </div>
         ) : (
           <>
-            <div className="xsm:hidden" style={{ height: '79%' }}>
+            <div className="xsm:hidden" style={{ minHeight: '468px' }}>
               <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white border border-memeBorderColor ">
                 {tableDate &&
                   tableDate.map((item, index) => (
