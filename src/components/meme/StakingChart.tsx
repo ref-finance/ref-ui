@@ -74,6 +74,7 @@ const StakingChart = ({ chartType }) => {
 
     const { pie_color } = getMemeDataConfig();
     let totalTvl = Big(0);
+    let totalTvlForCalculation = chartType === 'meme' ? Big(0) : Big(0);
     const dataItems = [];
 
     Object.keys(displaySeeds).forEach((seed_id) => {
@@ -90,10 +91,13 @@ const StakingChart = ({ chartType }) => {
           xrefSeed.seed_decimal,
           xrefSeed.total_seed_amount
         );
+
         if (chartType === 'meme') {
           totalTvl = totalTvl.plus(seedTvl);
+          totalTvlForCalculation = totalTvl;
         } else if (chartType === 'xref') {
           totalTvl = totalTvl.plus(xrefSeedTvl);
+          totalTvlForCalculation = totalTvl;
         }
 
         dataItems.push({
@@ -107,12 +111,13 @@ const StakingChart = ({ chartType }) => {
         });
       }
     });
+
     return dataItems
       .map((item) => {
         const value =
           chartType === 'meme' ? Big(item.seedTvl) : Big(item.xrefSeedTvl);
-        const percent = totalTvl.gt(0)
-          ? value.div(totalTvl).mul(100).toFixed(2)
+        const percent = totalTvlForCalculation.gt(0)
+          ? value.div(totalTvlForCalculation).mul(100).toFixed(2)
           : 0;
         return {
           ...item,
