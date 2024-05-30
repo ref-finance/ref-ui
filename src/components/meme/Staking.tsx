@@ -28,6 +28,7 @@ const Staking = () => {
   const [isShowVoteDetailsModal, setVoteDetailsModal] = useState(false);
   const { currentPage, introRef, hasGuided } = useScrollToTopOnFirstPage();
   const { globalState } = useContext(WalletContext);
+  const [showRank, setShowRank] = useState(false);
   const isSignedIn = globalState.isSignedIn;
   return (
     <div className="mt-16 flex text-white xsm:block xsm:pl-0 xsm:pr-0">
@@ -40,11 +41,29 @@ const Staking = () => {
             <StakingChart chartType="meme" />
           </div>
           <div className="lg:flex lg:justify-center xsm:-mx-5">
-            <div
+            {/* <div
               className="lg:w-52 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
               onClick={() => setUserRanking(true)}
             >
               Rank
+            </div> */}
+            <div className="relative">
+              <div
+                className="opacity-30 lg:w-52 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor 
+            rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
+                onMouseEnter={() => setShowRank(true)}
+                onMouseLeave={() => setShowRank(false)}
+              >
+                Rank
+              </div>
+              {showRank && (
+                <div
+                  className="absolute -top-4 right-0 flex items-center justify-center 
+                bg-cardBg border border-primaryText text-farmText rounded-md py-1.5 px-2 text-xs z-50"
+                >
+                  <p>Coming soon</p>
+                </div>
+              )}
             </div>
             <div
               className="lg:w-52  border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
