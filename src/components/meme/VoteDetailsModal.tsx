@@ -107,7 +107,7 @@ function VoteDetailsModal(props: any) {
           <div className="text-white text-xl gotham_bold">Detail</div>
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
         </div>
-        <div style={{ height: isMobile ? '68vh' : '60vh', overflow: 'auto' }}>
+        <div style={{ height: is_mobile ? '94%' : '60vh', overflow: 'auto' }}>
           <DonateList donateList={donateList} />
         </div>
       </div>

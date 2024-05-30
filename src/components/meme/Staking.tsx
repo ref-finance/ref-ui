@@ -31,7 +31,7 @@ const Staking = () => {
   const isSignedIn = globalState.isSignedIn;
   return (
     <div className="mt-16 flex text-white xsm:block xsm:pl-0 xsm:pr-0">
-      <div className="flex-1 text-center pb-4 mr-4 xsm:pr-0 xsm:pb-0 xsm:text-left xsm:mb-14">
+      <div className="flex-1 text-center pb-4 mr-4 xsm:pr-0 xsm:pb-0 xsm:text-left xsm:mb-14 xsm:mr-0">
         <div className="text-26px mb-10 gotham_bold xsm:text-xl xsm:ml-8 xsm:mb-5">
           Meme staking
         </div>
