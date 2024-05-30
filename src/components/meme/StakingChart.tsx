@@ -171,7 +171,9 @@ const StakingChart = ({ chartType }) => {
           dominantBaseline="central"
           style={{ fill: 'white', fontSize: '16px' }}
         >
-          {toInternationalCurrencySystem_number(activeEntry.amount)}
+          {chartType === 'xref'
+            ? toInternationalCurrencySystem_number(activeEntry.amount) + ' xREF'
+            : toInternationalCurrencySystem_number(activeEntry.amount)}
         </text>
       </>
     );

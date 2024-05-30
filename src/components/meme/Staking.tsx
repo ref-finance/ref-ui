@@ -31,7 +31,7 @@ const Staking = () => {
   const isSignedIn = globalState.isSignedIn;
   return (
     <div className="mt-16 flex text-white pl-8 pr-2 xsm:block xsm:pl-0 xsm:pr-0">
-      <div className="flex-1 text-center border-r border-memeStakingBorderColor pb-10 pr-24 xsm:pr-0 xsm:pb-0 xsm:text-left xsm:mb-14">
+      <div className="flex-1 text-center pb-10 pr-24 xsm:pr-0 xsm:pb-0 xsm:text-left xsm:mb-14">
         <div className="text-26px mb-10 gotham_bold xsm:text-xl xsm:ml-8 xsm:mb-5">
           Meme staking
         </div>
@@ -109,7 +109,7 @@ const Staking = () => {
               <div className="text-sm ">2024/05/04-2024/06/03</div>
             </div>
             <div className="flex-1 text-left">
-              <p className="text-sm text-primaryText mb-2">Current Round:</p>
+              <p className="text-sm text-primaryText mb-2">Next Round:</p>
               <div className="text-sm ">2024/06/06-2024/07/05</div>
             </div>
           </div>

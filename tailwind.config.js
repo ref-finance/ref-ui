@@ -446,6 +446,7 @@ module.exports = {
         memeStakingBorderColor: '#20323E',
         memeUserStackeBgColor: '#213441',
         memeUserStackeMobileBgColor: '#44525D',
+        memePaginationComponentColor: '#6A7279',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

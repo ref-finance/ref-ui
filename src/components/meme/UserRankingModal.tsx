@@ -42,6 +42,7 @@ function UserRankingModal(props: any) {
   const rowRefs = useRef([]);
   const [hoveredRow, setHoveredRow] = useState(null);
   const [sorted, setSorted] = useState(false);
+  const [currentPageInput, setCurrentPageInput] = useState('');
   useEffect(() => {
     if (isOpen) {
       getMemeFarmingTokens()
@@ -128,18 +129,11 @@ function UserRankingModal(props: any) {
       if (total <= 3) {
         return Array.from({ length: total }, (_, index) => index + 1);
       } else if (current === 1) {
-        pages.push(1, 2, '...', total);
-      } else if (current === total - 2) {
-        pages.push(total - 2, total - 1, total);
-      } else if (current === total - 1) {
-        pages.push(total - 2, total - 1, total);
+        pages.push(`${current}/${total}`);
       } else if (current === total) {
-        pages.push(total - 2, total - 1, total);
+        pages.push(`${total}`);
       } else {
-        pages.push(current, current + 1);
-        if (current + 1 < total) {
-          pages.push('...', total);
-        }
+        pages.push(`${current}/${total}`);
       }
       return pages;
     } else {
@@ -150,9 +144,9 @@ function UserRankingModal(props: any) {
         return Array.from({ length: total }, (_, index) => index + 1);
       }
       if (current === 1) {
-        pages = [1, 2, 3, '...', secondLastPage, lastPage];
+        pages = [1, 2, 3, 4, '...', lastPage];
       } else if (current === 2) {
-        pages = [1, 2, 3, '...', secondLastPage, lastPage];
+        pages = [1, 2, 3, 4, '...', lastPage];
       } else if (current === lastPage - 3) {
         pages = [current - 1, current, lastPage - 2, lastPage - 1, lastPage];
       } else if (current === lastPage - 2) {
@@ -172,8 +166,8 @@ function UserRankingModal(props: any) {
           current - 1,
           current,
           current + 1,
+          current + 2,
           '...',
-          secondLastPage,
           lastPage,
         ];
       }
@@ -228,6 +222,13 @@ function UserRankingModal(props: any) {
       }
     }
     return null;
+  };
+  const handlePageJump = () => {
+    const pageNumber = parseInt(currentPageInput);
+    if (!isNaN(pageNumber) && pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+      setCurrentPageInput('');
+    }
   };
   return (
     <Modal
@@ -312,23 +313,24 @@ function UserRankingModal(props: any) {
                 >
                   <div className="flex items-center">All</div>
                 </div>
-                {memeFarmingTokens.map((token, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor
+                {memeFarmingTokens &&
+                  memeFarmingTokens.map((token, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor
                    ${selectedToken === token ? 'border border-borderC' : ''}`}
-                    onClick={() => handleSelectToken(token)}
-                  >
-                    <div className="flex items-center">
-                      <img
-                        src={allTokenMetadatas[token]?.icon || ''}
-                        alt=""
-                        className="h-5 w-5 mr-1.5"
-                      />
-                      {allTokenMetadatas[token]?.symbol}
+                      onClick={() => handleSelectToken(token)}
+                    >
+                      <div className="flex items-center">
+                        <img
+                          src={allTokenMetadatas[token]?.icon || ''}
+                          alt=""
+                          className="h-5 w-5 mr-1.5"
+                        />
+                        {allTokenMetadatas[token]?.symbol}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>
@@ -339,243 +341,79 @@ function UserRankingModal(props: any) {
           <>
             <div className="xsm:hidden" style={{ height: '79%' }}>
               <div className="bg-memeModelgreyColor rounded-2xl mb-6 text-white border border-memeBorderColor ">
-                {tableDate.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`text-base py-4 px-6 h-16 flex items-center ${
-                      index === tableDate.length - 1
-                        ? ''
-                        : 'border-b border-memePoolBoxBorderColor'
-                    }`}
-                  >
+                {tableDate &&
+                  tableDate.map((item, index) => (
                     <div
-                      className="flex justify-center items-center pr-10"
-                      style={{ width: '10%' }}
+                      key={index}
+                      className={`text-base py-4 px-6 h-16 flex items-center ${
+                        index === tableDate.length - 1
+                          ? ''
+                          : 'border-b border-memePoolBoxBorderColor'
+                      }`}
                     >
-                      {(() => {
-                        const globalIndex =
-                          index + 1 + (currentPage - 1) * itemsPerPage;
-                        return globalIndex === 1 ? (
-                          <UserStakeRankingMobileTab1 />
-                        ) : globalIndex === 2 ? (
-                          <UserStakeRankingMobileTab2 />
-                        ) : globalIndex === 3 ? (
-                          <UserStakeRankingMobileTab3 />
-                        ) : (
-                          globalIndex
-                        );
-                      })()}
-                    </div>
-                    <div
-                      className="truncate overflow-hidden text-ellipsis pr-6"
-                      style={{ width: '30%' }}
-                    >
-                      {item.wallet}
-                    </div>
-                    <div
-                      className="truncate overflow-hidden text-ellipsis"
-                      style={{ width: '30%' }}
-                    >
-                      {item.total_value < 0.01
-                        ? '$<0.01'
-                        : `$${abbreviateNumber(item.total_value)}`}
-                    </div>
-                    <div className="" style={{ width: '30%' }}>
-                      {selectedToken === 'All' &&
-                      Array.isArray(item.token_list) ? (
-                        <div
-                          className="flex justify-end relative cursor-pointer"
-                          onMouseEnter={() => handleMouseEnterRow(index)}
-                          onMouseLeave={handleMouseLeaveRow}
-                        >
-                          {item.token_list.map((token, tokenIndex) => (
-                            <div
-                              className="relative"
-                              key={tokenIndex}
-                              style={{
-                                width: '22px',
-                                height: '22px',
-                                marginLeft: tokenIndex === 0 ? '0' : '-5px',
-                              }}
-                            >
-                              <img
-                                className="absolute size-full block left-0 top-0"
-                                src={allTokenMetadatas[token.token]?.icon || ''}
-                                alt=""
-                              />
-                            </div>
-                          ))}
-                          {hoveredRow === index && (
-                            <div
-                              className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
-                              style={{
-                                backdropFilter: 'blur(4px)',
-                              }}
-                            >
-                              {item.token_list.map((token) => (
-                                <div
-                                  className="flex items-center justify-between mb-4"
-                                  key={token.token}
-                                >
-                                  <div className="flex items-center mr-10">
-                                    <img
-                                      className="w-5 h-5"
-                                      src={
-                                        allTokenMetadatas[token.token]?.icon ||
-                                        ''
-                                      }
-                                      alt=""
-                                    />
-                                    <p className="text-gray2 text-sm ml-1.5">
-                                      {allTokenMetadatas[token.token]?.symbol ||
-                                        ''}
-                                    </p>
-                                  </div>
-                                  <div className="text-sm">
-                                    {token.total < 0.01
-                                      ? '<0.01'
-                                      : `${abbreviateNumber(token.total)}`}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex justify-end">
-                          {item.total < 0.01
-                            ? '<0.01'
-                            : `${abbreviateNumber(item.total)}`}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div
-              className="lg:hidden overflow-x-hidden"
-              style={{ height: '72%' }}
-            >
-              {tableDate.map((item, index) => (
-                <div
-                  key={item.wallet}
-                  className="py-3.5 pl-3.5 flex items-center border-b border-memeBorderColor xsm:pl-0"
-                >
-                  <div className="text-white w-10 mr-2 flex justify-center">
-                    {(() => {
-                      const globalIndex =
-                        index + 1 + (currentPage - 1) * itemsPerPage;
-                      return globalIndex === 1 ? (
-                        <UserStakeRankingMobileTab1 />
-                      ) : globalIndex === 2 ? (
-                        <UserStakeRankingMobileTab2 />
-                      ) : globalIndex === 3 ? (
-                        <UserStakeRankingMobileTab3 />
-                      ) : (
-                        globalIndex
-                      );
-                    })()}
-                  </div>
-                  <div style={{ width: '86%' }}>
-                    <div className="flex items-center justify-between text-white">
-                      <div>
+                      <div
+                        className="flex justify-center items-center pr-10"
+                        style={{ width: '10%' }}
+                      >
+                        {(() => {
+                          const globalIndex =
+                            index + 1 + (currentPage - 1) * itemsPerPage;
+                          return globalIndex === 1 ? (
+                            <UserStakeRankingMobileTab1 />
+                          ) : globalIndex === 2 ? (
+                            <UserStakeRankingMobileTab2 />
+                          ) : globalIndex === 3 ? (
+                            <UserStakeRankingMobileTab3 />
+                          ) : (
+                            globalIndex
+                          );
+                        })()}
+                      </div>
+                      <div
+                        className="truncate overflow-hidden text-ellipsis pr-6"
+                        style={{ width: '30%' }}
+                      >
+                        {item.wallet}
+                      </div>
+                      <div
+                        className="truncate overflow-hidden text-ellipsis"
+                        style={{ width: '30%' }}
+                      >
                         {item.total_value < 0.01
                           ? '$<0.01'
                           : `$${abbreviateNumber(item.total_value)}`}
                       </div>
-                      <div>
+                      <div className="" style={{ width: '30%' }}>
                         {selectedToken === 'All' &&
                         Array.isArray(item.token_list) ? (
                           <div
                             className="flex justify-end relative cursor-pointer"
-                            ref={(el) => (rowRefs.current[index] = el)}
                             onMouseEnter={() => handleMouseEnterRow(index)}
                             onMouseLeave={handleMouseLeaveRow}
                           >
-                            {item.token_list.length >= 4 ? (
-                              <>
-                                {item.token_list
-                                  .slice(0, 2)
-                                  .map((token, tokenIndex) => (
-                                    <div
-                                      className="relative"
-                                      key={tokenIndex}
-                                      style={{
-                                        width: '20px',
-                                        height: '20px',
-                                        marginLeft:
-                                          tokenIndex === 0 ? '0' : '-5px',
-                                      }}
-                                    >
-                                      <img
-                                        className="absolute size-full block left-0 top-0"
-                                        src={
-                                          allTokenMetadatas[token.token]
-                                            ?.icon || ''
-                                        }
-                                        alt=""
-                                      />
-                                    </div>
-                                  ))}
-                                <div
-                                  className="relative"
-                                  style={{
-                                    width: '20px',
-                                    height: '20px',
-                                    marginLeft: '-5px',
-                                  }}
-                                >
-                                  <MemeEllipsis />
-                                </div>
-                                <div
-                                  className="relative"
-                                  style={{
-                                    width: '20px',
-                                    height: '20px',
-                                    marginLeft: '-5px',
-                                  }}
-                                >
-                                  <img
-                                    className="absolute size-full block left-0 top-0"
-                                    src={
-                                      allTokenMetadatas[
-                                        item.token_list[
-                                          item.token_list.length - 1
-                                        ].token
-                                      ]?.icon || ''
-                                    }
-                                    alt=""
-                                  />
-                                </div>
-                              </>
-                            ) : (
-                              item.token_list.map((token, tokenIndex) => (
-                                <div
-                                  className="relative"
-                                  key={tokenIndex}
-                                  style={{
-                                    width: '20px',
-                                    height: '20px',
-                                    marginLeft: tokenIndex === 0 ? '0' : '-5px',
-                                  }}
-                                >
-                                  <img
-                                    className="absolute size-full block left-0 top-0"
-                                    src={
-                                      allTokenMetadatas[token.token]?.icon || ''
-                                    }
-                                    alt=""
-                                  />
-                                </div>
-                              ))
-                            )}
-
+                            {item.token_list.map((token, tokenIndex) => (
+                              <div
+                                className="relative"
+                                key={tokenIndex}
+                                style={{
+                                  width: '22px',
+                                  height: '22px',
+                                  marginLeft: tokenIndex === 0 ? '0' : '-5px',
+                                }}
+                              >
+                                <img
+                                  className="absolute size-full block left-0 top-0"
+                                  src={
+                                    allTokenMetadatas[token.token]?.icon || ''
+                                  }
+                                  alt=""
+                                />
+                              </div>
+                            ))}
                             {hoveredRow === index && (
                               <div
-                                className="absolute top-8 right-0 bg-boxBorder px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
+                                className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
                                 style={{
-                                  ...getPopupPosition(rowRefs.current[index]),
                                   backdropFilter: 'blur(4px)',
                                 }}
                               >
@@ -617,17 +455,187 @@ function UserRankingModal(props: any) {
                         )}
                       </div>
                     </div>
-                    <div className="truncate w-11/12 overflow-hidden text-ellipsis">
-                      {item.wallet}
+                  ))}
+              </div>
+            </div>
+            <div
+              className="lg:hidden overflow-x-hidden"
+              style={{ height: '72%' }}
+            >
+              {tableDate &&
+                tableDate.map((item, index) => (
+                  <div
+                    key={item.wallet}
+                    className="py-3.5 pl-3.5 flex items-center border-b border-memeBorderColor xsm:pl-0"
+                  >
+                    <div className="text-white w-10 mr-2 flex justify-center">
+                      {(() => {
+                        const globalIndex =
+                          index + 1 + (currentPage - 1) * itemsPerPage;
+                        return globalIndex === 1 ? (
+                          <UserStakeRankingMobileTab1 />
+                        ) : globalIndex === 2 ? (
+                          <UserStakeRankingMobileTab2 />
+                        ) : globalIndex === 3 ? (
+                          <UserStakeRankingMobileTab3 />
+                        ) : (
+                          globalIndex
+                        );
+                      })()}
+                    </div>
+                    <div style={{ width: '86%' }}>
+                      <div className="flex items-center justify-between text-white">
+                        <div>
+                          {item.total_value < 0.01
+                            ? '$<0.01'
+                            : `$${abbreviateNumber(item.total_value)}`}
+                        </div>
+                        <div>
+                          {selectedToken === 'All' &&
+                          Array.isArray(item.token_list) ? (
+                            <div
+                              className="flex justify-end relative cursor-pointer"
+                              ref={(el) => (rowRefs.current[index] = el)}
+                              onMouseEnter={() => handleMouseEnterRow(index)}
+                              onMouseLeave={handleMouseLeaveRow}
+                            >
+                              {item.token_list.length >= 4 ? (
+                                <>
+                                  {item.token_list
+                                    .slice(0, 2)
+                                    .map((token, tokenIndex) => (
+                                      <div
+                                        className="relative"
+                                        key={tokenIndex}
+                                        style={{
+                                          width: '20px',
+                                          height: '20px',
+                                          marginLeft:
+                                            tokenIndex === 0 ? '0' : '-5px',
+                                        }}
+                                      >
+                                        <img
+                                          className="absolute size-full block left-0 top-0"
+                                          src={
+                                            allTokenMetadatas[token.token]
+                                              ?.icon || ''
+                                          }
+                                          alt=""
+                                        />
+                                      </div>
+                                    ))}
+                                  <div
+                                    className="relative"
+                                    style={{
+                                      width: '20px',
+                                      height: '20px',
+                                      marginLeft: '-5px',
+                                    }}
+                                  >
+                                    <MemeEllipsis />
+                                  </div>
+                                  <div
+                                    className="relative"
+                                    style={{
+                                      width: '20px',
+                                      height: '20px',
+                                      marginLeft: '-5px',
+                                    }}
+                                  >
+                                    <img
+                                      className="absolute size-full block left-0 top-0"
+                                      src={
+                                        allTokenMetadatas[
+                                          item.token_list[
+                                            item.token_list.length - 1
+                                          ].token
+                                        ]?.icon || ''
+                                      }
+                                      alt=""
+                                    />
+                                  </div>
+                                </>
+                              ) : (
+                                item.token_list.map((token, tokenIndex) => (
+                                  <div
+                                    className="relative"
+                                    key={tokenIndex}
+                                    style={{
+                                      width: '20px',
+                                      height: '20px',
+                                      marginLeft:
+                                        tokenIndex === 0 ? '0' : '-5px',
+                                    }}
+                                  >
+                                    <img
+                                      className="absolute size-full block left-0 top-0"
+                                      src={
+                                        allTokenMetadatas[token.token]?.icon ||
+                                        ''
+                                      }
+                                      alt=""
+                                    />
+                                  </div>
+                                ))
+                              )}
+
+                              {hoveredRow === index && (
+                                <div
+                                  className="absolute top-8 right-0 bg-boxBorder px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
+                                  style={{
+                                    ...getPopupPosition(rowRefs.current[index]),
+                                    backdropFilter: 'blur(4px)',
+                                  }}
+                                >
+                                  {item.token_list.map((token) => (
+                                    <div
+                                      className="flex items-center justify-between mb-4"
+                                      key={token.token}
+                                    >
+                                      <div className="flex items-center mr-10">
+                                        <img
+                                          className="w-5 h-5"
+                                          src={
+                                            allTokenMetadatas[token.token]
+                                              ?.icon || ''
+                                          }
+                                          alt=""
+                                        />
+                                        <p className="text-gray2 text-sm ml-1.5">
+                                          {allTokenMetadatas[token.token]
+                                            ?.symbol || ''}
+                                        </p>
+                                      </div>
+                                      <div className="text-sm">
+                                        {token.total < 0.01
+                                          ? '<0.01'
+                                          : `${abbreviateNumber(token.total)}`}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex justify-end">
+                              {item.total < 0.01
+                                ? '<0.01'
+                                : `${abbreviateNumber(item.total)}`}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="truncate w-11/12 overflow-hidden text-ellipsis">
+                        {item.wallet}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
             <div className="flex justify-between items-center text-sm xsm:mt-5">
               <div className="flex justify-center items-center">
                 <div
-                  className={`flex justify-center items-center mr-6 xsm:mr-3 cursor-pointer ${
+                  className={`flex justify-center items-center mr-6 xsm:mr-3 cursor-pointer lg:hidden ${
                     currentPage === 1 ? 'text-primaryText' : 'text-white'
                   }`}
                   onClick={() => {
@@ -690,13 +698,29 @@ function UserRankingModal(props: any) {
                   <p className={`${is_mobile ? 'hidden' : ''}`}>Previous</p>
                 </div>
               </div>
-              <div>
+              <div className="flex items-center">
                 <div>
                   <PaginationComponent
                     getCustomPaginationRange={getCustomPaginationRange}
                     currentPage={currentPage}
                     totalPages={totalPages}
                     paginate={paginate}
+                  />
+                </div>
+                <div className="xsm:hidden ml-4 flex items-center">
+                  <p className="text-memePaginationComponentColor mr-1.5 text-sm ">
+                    Go to
+                  </p>
+                  <input
+                    type="text"
+                    className="bg-black bg-opacity-40 border border-border2 w-11 h-6 rounded p-2"
+                    value={currentPageInput}
+                    onChange={(e) => setCurrentPageInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handlePageJump();
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -735,7 +759,7 @@ function UserRankingModal(props: any) {
                   </div>
                 </div>
                 <div
-                  className={`flex justify-center items-center ml-6 xsm:ml-3 cursor-pointer ${
+                  className={`flex justify-center items-center ml-6 xsm:ml-3 cursor-pointer lg:hidden ${
                     currentPage === totalPages
                       ? 'text-primaryText'
                       : 'text-white'
@@ -794,32 +818,33 @@ const PaginationComponent: React.FC<PaginationComponentProps> = ({
   const paginationRange = getCustomPaginationRange(currentPage, totalPages);
   return (
     <>
-      {paginationRange.map((page, index) => {
-        if (typeof page === 'number') {
-          return (
-            <button
-              key={index}
-              onClick={() => paginate(page)}
-              className={`mr-3.5 py-1 px-2 xsm:px-1.5 rounded-md xsm:h-7 ${
-                currentPage === page
-                  ? 'bg-limitOrderInputColor bg-opacity-30 text-white'
-                  : 'text-primaryText'
-              }`}
-            >
-              {page}
-            </button>
-          );
-        } else {
-          return (
-            <span
-              key={index}
-              className="mr-3.5 py-1 px-2 xsm:px-1.5 rounded-md text-primaryText cursor-default"
-            >
-              {page}
-            </span>
-          );
-        }
-      })}
+      {paginationRange &&
+        paginationRange.map((page, index) => {
+          if (typeof page === 'number') {
+            return (
+              <button
+                key={index}
+                onClick={() => paginate(page)}
+                className={`mr-3.5 py-1 px-2 xsm:px-1.5 rounded-md xsm:h-7 ${
+                  currentPage === page
+                    ? 'bg-limitOrderInputColor bg-opacity-30 text-white'
+                    : 'text-primaryText'
+                }`}
+              >
+                {page}
+              </button>
+            );
+          } else {
+            return (
+              <span
+                key={index}
+                className="mr-3.5 py-1 px-2 xsm:px-1.5 rounded-md text-primaryText cursor-default"
+              >
+                {page}
+              </span>
+            );
+          }
+        })}
     </>
   );
 };
