@@ -1,5 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
-import { ArrowRightIcon } from './icons';
+import { ArrowRightIcon, MemeFinalistToken } from './icons';
 import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
 import { MemeContext } from './context';
 import { getMemeDataConfig, getMemeContractConfig } from './memeConfig';
@@ -93,6 +93,9 @@ const MarketSeedsBox = ({
         const hasLpSeed =
           lpSeeds[seed_id]?.farmList[0]?.status &&
           lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
+        const addBorder =
+          seed_id === 'token.lonkingnearbackto2024.near' ||
+          seed_id === 'blackdragon.tkn.near';
         return (
           <div
             key={seed_id}
@@ -100,14 +103,31 @@ const MarketSeedsBox = ({
           >
             <div className="flex items-stretch gap-4">
               <div className="flex justify-center flex-shrink-0 relative">
-                <img
-                  src={seed.token_meta_data.icon}
-                  style={{
-                    width: is_mobile ? '62px' : '86px',
-                    height: is_mobile ? '62px' : '86px',
-                  }}
-                  className="rounded-full"
-                />
+                {addBorder ? (
+                  <>
+                    <div className="absolute -top-2">
+                      <MemeFinalistToken className="xsm:scale-90" />
+                    </div>
+                    <img
+                      src={seed.token_meta_data.icon}
+                      style={{
+                        width: is_mobile ? '62px' : '86px',
+                        height: is_mobile ? '62px' : '86px',
+                        border: '2px solid #C6FC2D',
+                      }}
+                      className="rounded-full"
+                    />
+                  </>
+                ) : (
+                  <img
+                    src={seed.token_meta_data.icon}
+                    style={{
+                      width: is_mobile ? '62px' : '86px',
+                      height: is_mobile ? '62px' : '86px',
+                    }}
+                    className="rounded-full"
+                  />
+                )}
                 <div className="flex items-center justify-center absolute top-16 xsm:top-12 bg-senderHot text-base text-cardBg px-3.5 xsm:px-1.5 xsm:py-0 xsm:text-sm py-1 rounded-lg xs:rounded-md gotham_bold border border-memeBorderBlackColor">
                   {displaySeedsPercent[seed_id]}
                 </div>
