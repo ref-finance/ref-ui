@@ -140,12 +140,12 @@ const Staking = () => {
               <div className="relative" ref={introRef}>
                 <Intro
                   top={currentPage === 1 ? -264 : -240}
-                  left={currentPage === 1 ? 180 : 140}
+                  left={currentPage === 1 ? 230 : 170}
                 >
                   <div
                     className="flex justify-center"
                     style={{
-                      width: '28.3rem',
+                      width: '33.875rem',
                     }}
                   >
                     <div className="w-32 mr-4 border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
