@@ -26,7 +26,6 @@ function MemeVoteModal(props: any) {
   const { isOpen, onRequestClose } = props;
   const [selectedTab, setSelectedTab] = useState('');
   const [amount, setAmount] = useState('');
-  const [stakeLoading, setStakeLoading] = useState(false);
   const [confirmIsOpen, setConfirmIsOpen] = useState<boolean>(false);
   const {
     allTokenMetadatas,
@@ -221,20 +220,15 @@ function MemeVoteModal(props: any) {
                 disabled={disabled}
                 onClick={openMemeVoteConfirmModal}
                 className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                  disabled || stakeLoading ? 'opacity-40' : ''
+                  disabled ? 'opacity-40' : ''
                 }`}
               >
-                <ButtonTextWrapper
-                  loading={stakeLoading}
-                  Text={() => (
-                    <div className="flex items-center gap-2">
-                      Feed{' '}
-                      {FeedIcon ? (
-                        <FeedIcon className="w-5 h-5 relative -top-0.5" />
-                      ) : null}
-                    </div>
-                  )}
-                />
+                <div className="flex items-center gap-2">
+                  Feed{' '}
+                  {FeedIcon ? (
+                    <FeedIcon className="w-5 h-5 relative -top-0.5" />
+                  ) : null}
+                </div>
               </OprationButton>
             ) : (
               <ConnectToNearBtn />

@@ -1,13 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import { isMobile } from '../../utils/device';
-import { ArrowTopIcon, ModalCloseIcon } from './icons';
+import { ModalCloseIcon } from './icons';
 import { getMemeContractConfig, getMemeDataConfig } from './memeConfig';
 import { TokenMetadata } from '../../services/ft-contract';
 import { MemeContext } from './context';
 import { WalletContext } from '../../utils/wallets-integration';
 import { toReadableNumber } from '../../utils/numbers';
 import { emptyObject, getTotalRewardBalance } from './tool';
+import { Seed } from '../../services/farm';
+const memeContractConfig = getMemeContractConfig();
+const { MEME_TOKEN_XREF_MAP } = memeContractConfig;
 import Big from 'big.js';
 import {
   toInternationalCurrencySystem_number,
@@ -28,7 +31,6 @@ function VoteDetailsModal(props: any) {
   const cardWidth = isMobile() ? '90vw' : '52vw';
   const cardHeight = isMobile() ? '588px' : 'auto';
   const [donateList, setDonateList] = useState([]);
-  const { globalState } = useContext(WalletContext);
   const {
     allTokenMetadatas,
     tokenPriceList,
@@ -126,16 +128,25 @@ function DonateList({ donateList }: { donateList: IDonate[] }) {
   );
 }
 function DonateListPc({ donateList }: { donateList: IDonate[] }) {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const { xrefSeeds, xrefTokenId, xrefFarmContractUserData } =
+    useContext(MemeContext);
   return (
     <div>
       <div className="bg-memeModelgreyColor rounded-2xl border border-memeBorderColor mb-4">
         <div className="overflow-x-auto">
           <div className="min-w-full divide-y divide-memeVoteBgColor">
-            <div className="grid grid-cols-5 pt-6 px-5 pb-2.5 text-sm">
+            <div
+              className={`${
+                isSignedIn ? 'grid grid-cols-6' : 'grid grid-cols-5'
+              } pt-6 px-5 pb-2.5 text-sm`}
+            >
               <div className="col-span-2">Meme Project</div>
               <div>xREF</div>
               <div>Voters</div>
               <div className="pl-1">Donation</div>
+              {isSignedIn ? <div className="pl-1">You Voted</div> : null}
             </div>
             {donateList
               .sort((b, a) => {
@@ -144,10 +155,21 @@ function DonateListPc({ donateList }: { donateList: IDonate[] }) {
                   .toNumber();
               })
               .map((donateData: IDonate) => {
+                const xrefContractId =
+                  MEME_TOKEN_XREF_MAP[donateData.memeTokenId];
+                const xrefSeed: Seed = xrefSeeds[xrefContractId];
+                const userStakedAmount = toReadableNumber(
+                  xrefSeed.seed_decimal,
+                  xrefFarmContractUserData?.[xrefContractId]?.join_seeds?.[
+                    xrefTokenId
+                  ]?.free_amount || '0'
+                );
                 return (
                   <div
                     key={donateData.memeTokenId}
-                    className="grid grid-cols-5 p-4 items-center text-base text-white"
+                    className={`${
+                      isSignedIn ? 'grid grid-cols-6' : 'grid grid-cols-5'
+                    } p-4 items-center text-base text-white`}
                   >
                     <div className="flex items-center col-span-2">
                       <div className="flex items-center gap-1.5">
@@ -190,6 +212,15 @@ function DonateListPc({ donateList }: { donateList: IDonate[] }) {
                         </span>
                       </div>
                     </div>
+                    {isSignedIn ? (
+                      <div className="gotham_bold pl-3">
+                        <div className="justify-self-end gotham_bold">
+                          {toInternationalCurrencySystem_number(
+                            userStakedAmount
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 );
               })}
@@ -200,78 +231,90 @@ function DonateListPc({ donateList }: { donateList: IDonate[] }) {
   );
 }
 function DonateListMobile({ donateList }: { donateList: IDonate[] }) {
-  const [open, setOpen] = useState(true);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const { xrefSeeds, xrefTokenId, xrefFarmContractUserData } =
+    useContext(MemeContext);
   return (
     <div>
-      {/* <div className="flex items-center justify-between mx-3 mt-7">
-        <span className="text-base gotham_bold text-white">Meme Project</span>
-        <span
-          onClick={() => {
-            setOpen(!open);
-          }}
-          className={`flex items-center justify-center w-5 h-5 ${
-            open ? '' : 'transform rotate-180'
-          }`}
-        >
-          <ArrowTopIcon />
-        </span>
-      </div> */}
-      <div className={`${open ? '' : 'hidden'}`}>
-        {donateList.map((donateData: IDonate) => {
-          return (
-            <div
-              key={donateData.memeTokenId}
-              className="flex flex-col gap-3 rounded-2xl border-opacity-20 bg-black bg-opacity-20 p-4 mt-4 border border-memeBorderColor"
-            >
-              <div className="flex items-center gap-2">
-                <img
-                  className="w-10 h-10 rounded-full"
-                  src={donateData.metadata?.icon}
-                />
-                <span className="text-base text-white gotham_bold">
-                  {donateData.metadata?.symbol}
-                </span>
-                {donateData.win ? (
-                  <div
-                    className="text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
-                    style={{ transform: 'skewX(-20deg)' }}
-                  >
-                    Listed
+      <div>
+        {donateList
+          .sort((b, a) => {
+            return Big(a.xrefStakedAmount).minus(b.xrefStakedAmount).toNumber();
+          })
+          .map((donateData: IDonate) => {
+            const xrefContractId = MEME_TOKEN_XREF_MAP[donateData.memeTokenId];
+            const xrefSeed: Seed = xrefSeeds[xrefContractId];
+            const userStakedAmount = toReadableNumber(
+              xrefSeed.seed_decimal,
+              xrefFarmContractUserData?.[xrefContractId]?.join_seeds?.[
+                xrefTokenId
+              ]?.free_amount || '0'
+            );
+            return (
+              <div
+                key={donateData.memeTokenId}
+                className="flex flex-col gap-3 rounded-2xl border-opacity-20 bg-black bg-opacity-20 p-4 mt-4 border border-memeBorderColor"
+              >
+                <div className="flex items-center gap-2">
+                  <img
+                    className="w-10 h-10 rounded-full"
+                    src={donateData.metadata?.icon}
+                  />
+                  <span className="text-base text-white gotham_bold">
+                    {donateData.metadata?.symbol}
+                  </span>
+                  {donateData.win ? (
+                    <div
+                      className="text-black text-xs gotham_bold rounded py-0.5 px-1 bg-senderHot transform"
+                      style={{ transform: 'skewX(-20deg)' }}
+                    >
+                      Listed
+                    </div>
+                  ) : null}
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-primaryText">xREF</span>
+                  <span className="text-sm text-white">
+                    {toInternationalCurrencySystem_number(
+                      donateData.xrefStakedAmount
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-primaryText">Voters</span>
+                  <span className="text-sm text-white">
+                    {donateData.xrefVoters}
+                  </span>
+                </div>
+                <div className="flex items-start justify-between">
+                  <span className="text-sm text-primaryText">Donation</span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-sm text-white">
+                      {' '}
+                      {toInternationalCurrencySystem_number(
+                        donateData.donateBalance
+                      )}
+                    </span>
+                    <span className="text-xs text-primaryText">
+                      {' '}
+                      {toInternationalCurrencySystem_usd(
+                        donateData.donateValue
+                      )}
+                    </span>
+                  </div>
+                </div>
+                {isSignedIn ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-primaryText">You Voted</span>
+                    <span className="text-sm text-white">
+                      {toInternationalCurrencySystem_number(userStakedAmount)}
+                    </span>
                   </div>
                 ) : null}
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-primaryText">xREF</span>
-                <span className="text-sm text-white">
-                  {toInternationalCurrencySystem_number(
-                    donateData.xrefStakedAmount
-                  )}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-primaryText">Voters</span>
-                <span className="text-sm text-white">
-                  {donateData.xrefVoters}
-                </span>
-              </div>
-              <div className="flex items-start justify-between">
-                <span className="text-sm text-primaryText">Donation</span>
-                <div className="flex flex-col items-end">
-                  <span className="text-sm text-white">
-                    {' '}
-                    {toInternationalCurrencySystem_number(
-                      donateData.donateBalance
-                    )}
-                  </span>
-                  <span className="text-xs text-primaryText">
-                    {' '}
-                    {toInternationalCurrencySystem_usd(donateData.donateValue)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   );

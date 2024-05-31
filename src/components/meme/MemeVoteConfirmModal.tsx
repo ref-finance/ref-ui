@@ -37,7 +37,7 @@ function MemeVoteConfirmModal(props: any) {
       >
         <div className="title flex items-center justify-between">
           <div className="text-white text-xl gotham_bold">
-            Donation Instructions
+            Feed Instructions
           </div>
           <ModalCloseIcon
             className="cursor-pointer text-black"
