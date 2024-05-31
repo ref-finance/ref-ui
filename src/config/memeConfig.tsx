@@ -6,9 +6,9 @@ export const memeComingSoonJson = [
     DragonWorld integrates the excellent elements of World of Warcraft and 
     Palworld, including dragon growth, dragon adventures, single and multiplayer 
     dungeons, dragon mining, dragon production farms, and a series of other interesting elements.`,
-    amount: '20000000',
+    amount: '10000000',
     airdropTime: 'June 30',
-    rules: `1-30: 300000 DGS\n30-100: 100000 DGS\n100-200: 40000 DGS`,
+    rules: `1-30: 150000 DGS\n31-100: 50000 DGS\n101-200: 20000 DGS`,
     isShow: false,
   },
   {
