@@ -121,7 +121,11 @@ function AccountEntry({
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
   const [keyModalShow, setKeyModalShow] = useState<boolean>(false);
   const [showGuider, setShowGuider] = useState<boolean>(
-    !!(localStorage.getItem('ACCESS_MODAL_GUIDER') !== '1' && accountId)
+    !!(
+      localStorage.getItem('ACCESS_MODAL_GUIDER') !== '1' &&
+      accountId &&
+      !window.location.pathname.includes('meme')
+    )
   );
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
