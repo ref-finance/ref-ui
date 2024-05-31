@@ -69,7 +69,7 @@ const Staking = () => {
               {showRank && (
                 <div
                   className="absolute -top-4 right-6 flex items-center justify-center 
-                bg-cardBg border border-primaryText text-farmText rounded-md py-1.5 px-2 text-xs z-50"
+                bg-cardBg border border-primaryText text-farmText rounded-md py-1.5 px-2 text-xs z-50 xsm:top-8"
                   onMouseLeave={() => setShowRank(false)}
                 >
                   <p>Coming soon</p>
