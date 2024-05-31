@@ -98,6 +98,7 @@ function AccountEntry({
   showWalletSelector: boolean;
   hasBalanceOnRefAccount: boolean;
 }) {
+  const isInMemePage = window.location.pathname.includes('meme');
   const history = useHistory();
   const [hover, setHover] = useState(false);
 
@@ -121,11 +122,7 @@ function AccountEntry({
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
   const [keyModalShow, setKeyModalShow] = useState<boolean>(false);
   const [showGuider, setShowGuider] = useState<boolean>(
-    !!(
-      localStorage.getItem('ACCESS_MODAL_GUIDER') !== '1' &&
-      accountId &&
-      !window.location.pathname.includes('meme')
-    )
+    !!(localStorage.getItem('ACCESS_MODAL_GUIDER') !== '1' && accountId)
   );
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
@@ -344,7 +341,7 @@ function AccountEntry({
             />
           </div>
         </div>
-        {(isSignedIn && hover) || showGuider ? (
+        {(isSignedIn && hover) || (showGuider && !isInMemePage) ? (
           <div
             className={`absolute top-14 pt-2 right-0 w-64`}
             style={{ zIndex: showGuider ? '1000' : '40' }}
@@ -534,7 +531,7 @@ function AccountEntry({
       {accountId && keyModalShow ? (
         <AccessKeyModal isOpen={keyModalShow} onRequestClose={closeKeyModal} />
       ) : null}
-      {showGuider && !isMobile ? (
+      {showGuider && !isMobile && !isInMemePage ? (
         <div>
           <Guider clearGuilder={clearGuilder} />
           <LinkLine
