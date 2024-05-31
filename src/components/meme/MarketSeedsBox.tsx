@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { ArrowRightIcon, MemeFinalistToken } from './icons';
 import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
 import { MemeContext } from './context';
@@ -17,6 +17,7 @@ import Feeders from './Feeders';
 import APY from './APY';
 import { emptyObject, getSeedApr, isPending, emptyNumber } from './tool';
 import { useScrollToTopOnFirstPage } from '../../state/pool';
+import { introCurrentPageStore } from '../../stores/introCurrentPage';
 
 const is_mobile = isMobile();
 
@@ -29,6 +30,7 @@ const MarketSeedsBox = ({
   displaySeedsPercent: Record<string, string>;
   origin?: string;
 }) => {
+  const { setHasLoaingOver, hasLoaingOver } = introCurrentPageStore() as any;
   const { currentPage, hasGuided } = useScrollToTopOnFirstPage();
   const { seeds, user_balances, lpSeeds, xrefSeeds, xrefTokenId } =
     useContext(MemeContext);
@@ -54,6 +56,13 @@ const MarketSeedsBox = ({
       {}
     ) as Record<string, Seed>;
   }, [meme_winner_tokens, seeds]);
+
+  useEffect(() => {
+    Object.entries(displaySeeds).length > 0 &&
+      !hasLoaingOver &&
+      setHasLoaingOver(true);
+  }, [displaySeeds]);
+
   function goFarmDetail(seed_id: string) {
     const lpSeed = lpSeeds[seed_id];
     if (lpSeed.farmList[0].status == 'Ended') {
