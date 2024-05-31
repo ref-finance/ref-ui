@@ -106,7 +106,7 @@ const MarketSeedsBox = ({
                 {addBorder ? (
                   <>
                     <div className="absolute -top-2">
-                      <MemeFinalistToken className="xsm:scale-90" />
+                      <MemeFinalistToken className="w-16 h-5 xsm:scale-90" />
                     </div>
                     <img
                       src={seed.token_meta_data.icon}
