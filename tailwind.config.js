@@ -136,6 +136,7 @@ module.exports = {
         pendingBgColor: 'linear-gradient(180deg, #2F3A39 0%, #1D2932 100%)',
         memeVoteBgColor: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
         bannerBtnBgColor: 'linear-gradient(180deg, #00FFD1 0%, #00997D 100%)',
+        memeStakingBgColor: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -442,6 +443,10 @@ module.exports = {
         poolDetaileTxBgColor: '#1D2833',
         poolDetaileTxBorderColor: '#2D343D',
         poolDetaileTxHoverColor: '#2C3842',
+        memeStakingBorderColor: '#20323E',
+        memeUserStackeBgColor: '#213441',
+        memeUserStackeMobileBgColor: '#44525D',
+        memePaginationComponentColor: '#6A7279',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -520,7 +525,8 @@ module.exports = {
       fontSize: {
         '13px': '13px',
         '10px': '10px',
-        '14px':'14px',
+        '14px': '14px',
+        '26px': '26px',
       },
 
       maxHeight: {

@@ -151,6 +151,7 @@ export default function getConfig(
         indexerUrl: 'https://api.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
+        memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -320,6 +321,7 @@ export default function getConfig(
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -419,6 +421,7 @@ export default function getConfig(
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -518,6 +521,7 @@ export default function getConfig(
         indexerUrl: 'https://api.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
+        memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',

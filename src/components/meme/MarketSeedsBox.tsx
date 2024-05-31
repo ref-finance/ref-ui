@@ -1,5 +1,5 @@
-import React, { useState, useContext, useMemo } from 'react';
-import { ArrowRightIcon } from './icons';
+import React, { useState, useContext, useMemo, useEffect } from 'react';
+import { ArrowRightIcon, MemeFinalistToken } from './icons';
 import { OprationButton, ConnectToNearBtn } from 'src/components/button/Button';
 import { MemeContext } from './context';
 import { getMemeDataConfig, getMemeContractConfig } from './memeConfig';
@@ -16,16 +16,22 @@ import YourRewards from './YourRewards';
 import Feeders from './Feeders';
 import APY from './APY';
 import { emptyObject, getSeedApr, isPending, emptyNumber } from './tool';
+import { useScrollToTopOnFirstPage } from '../../state/pool';
+import { introCurrentPageStore } from '../../stores/introCurrentPage';
 
 const is_mobile = isMobile();
 
 const MarketSeedsBox = ({
   hidden,
   displaySeedsPercent,
+  origin,
 }: {
   hidden: boolean;
   displaySeedsPercent: Record<string, string>;
+  origin?: string;
 }) => {
+  const { setHasLoaingOver, hasLoaingOver } = introCurrentPageStore() as any;
+  const { currentPage, hasGuided } = useScrollToTopOnFirstPage();
   const { seeds, user_balances, lpSeeds, xrefSeeds, xrefTokenId } =
     useContext(MemeContext);
   const { globalState } = useContext(WalletContext);
@@ -33,10 +39,15 @@ const MarketSeedsBox = ({
   const [isStakeOpen, setIsStakeOpen] = useState(false);
   const [modal_action_seed_id, set_modal_action_seed_id] = useState('');
   const memeDataConfig = getMemeDataConfig();
-  const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
+  // if parent components is intro
+  const meme_winner_tokens =
+    origin == 'intro'
+      ? [memeDataConfig.meme_winner_tokens[0]]
+      : memeDataConfig.meme_winner_tokens;
   const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};
+
     return meme_winner_tokens.reduce(
       (acc, memeTokenId) => ({
         ...acc,
@@ -45,6 +56,13 @@ const MarketSeedsBox = ({
       {}
     ) as Record<string, Seed>;
   }, [meme_winner_tokens, seeds]);
+
+  useEffect(() => {
+    Object.entries(displaySeeds).length > 0 &&
+      !hasLoaingOver &&
+      setHasLoaingOver(true);
+  }, [displaySeeds]);
+
   function goFarmDetail(seed_id: string) {
     const lpSeed = lpSeeds[seed_id];
     if (lpSeed.farmList[0].status == 'Ended') {
@@ -84,6 +102,9 @@ const MarketSeedsBox = ({
         const hasLpSeed =
           lpSeeds[seed_id]?.farmList[0]?.status &&
           lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
+        const addBorder =
+          seed_id === 'token.lonkingnearbackto2024.near' ||
+          seed_id === 'blackdragon.tkn.near';
         return (
           <div
             key={seed_id}
@@ -91,14 +112,31 @@ const MarketSeedsBox = ({
           >
             <div className="flex items-stretch gap-4">
               <div className="flex justify-center flex-shrink-0 relative">
-                <img
-                  src={seed.token_meta_data.icon}
-                  style={{
-                    width: is_mobile ? '62px' : '86px',
-                    height: is_mobile ? '62px' : '86px',
-                  }}
-                  className="rounded-full"
-                />
+                {addBorder ? (
+                  <>
+                    <div className="absolute -top-2">
+                      <MemeFinalistToken className="w-16 h-5 xsm:scale-90" />
+                    </div>
+                    <img
+                      src={seed.token_meta_data.icon}
+                      style={{
+                        width: is_mobile ? '62px' : '86px',
+                        height: is_mobile ? '62px' : '86px',
+                        border: '2px solid #C6FC2D',
+                      }}
+                      className="rounded-full"
+                    />
+                  </>
+                ) : (
+                  <img
+                    src={seed.token_meta_data.icon}
+                    style={{
+                      width: is_mobile ? '62px' : '86px',
+                      height: is_mobile ? '62px' : '86px',
+                    }}
+                    className="rounded-full"
+                  />
+                )}
                 <div className="flex items-center justify-center absolute top-16 xsm:top-12 bg-senderHot text-base text-cardBg px-3.5 xsm:px-1.5 xsm:py-0 xsm:text-sm py-1 rounded-lg xs:rounded-md gotham_bold border border-memeBorderBlackColor">
                   {displaySeedsPercent[seed_id]}
                 </div>
@@ -173,20 +211,35 @@ const MarketSeedsBox = ({
                 isSignedIn ? '' : 'hidden'
               }`}
             >
-              <OprationButton
-                disabled={stakeButtonDisabled}
-                onClick={() => {
-                  set_modal_action_seed_id(seed.seed_id);
-                  setIsStakeOpen(true);
-                }}
-                className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
-                  stakeButtonDisabled
-                    ? 'bg-memePoolBoxBorderColor'
-                    : 'bg-greenLight'
-                }`}
-              >
-                Feed {seed.token_meta_data.symbol}
-              </OprationButton>
+              {currentPage != 5 ? (
+                <OprationButton
+                  disabled={stakeButtonDisabled}
+                  onClick={() => {
+                    set_modal_action_seed_id(seed.seed_id);
+                    setIsStakeOpen(true);
+                  }}
+                  className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none xsm:w-full ${
+                    stakeButtonDisabled
+                      ? 'bg-memePoolBoxBorderColor'
+                      : 'bg-greenLight'
+                  }`}
+                >
+                  Feed {seed.token_meta_data.symbol}
+                </OprationButton>
+              ) : (
+                <>
+                  <OprationButton
+                    className={`flex flex-grow items-center justify-center border border-greenLight rounded-xl h-12 text-greenLight text-base gotham_bold focus:outline-none w-1/2 xsm:w-full ${'opacity-30'}`}
+                  >
+                    Unstake
+                  </OprationButton>
+                  <OprationButton
+                    className={`flex flex-grow items-center justify-center text-boxBorder rounded-xl h-12 text-base gotham_bold focus:outline-none w-1/2 xsm:w-full ${'bg-greenLight'}`}
+                  >
+                    Claim
+                  </OprationButton>
+                </>
+              )}
             </div>
           </div>
         );

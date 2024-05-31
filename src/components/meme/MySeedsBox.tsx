@@ -1,5 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
-import { ArrowRightIcon } from './icons';
+import { ArrowRightIcon, MemeFinalistToken } from './icons';
 import {
   OprationButton,
   ButtonTextWrapper,
@@ -163,6 +163,9 @@ const MySeedsBox = ({
               memeUnStakeButtonDisabled && xrefUnStakeButtonDisabled;
             const claimButtonDisabled =
               memeClaimButtonDisabled && xrefClaimButtonDisabled;
+            const addBorder =
+              seed_id === 'token.lonkingnearbackto2024.near' ||
+              seed_id === 'blackdragon.tkn.near';
             return (
               <div
                 key={seed_id}
@@ -170,14 +173,31 @@ const MySeedsBox = ({
               >
                 <div className="flex items-stretch gap-4">
                   <div className="flex justify-center flex-shrink-0 relative">
-                    <img
-                      src={seed.token_meta_data.icon}
-                      style={{
-                        width: is_mobile ? '62px' : '86px',
-                        height: is_mobile ? '62px' : '86px',
-                      }}
-                      className="rounded-full"
-                    />
+                    {addBorder ? (
+                      <>
+                        <div className="absolute -top-2">
+                          <MemeFinalistToken className="w-16 h-5 xsm:scale-90" />
+                        </div>
+                        <img
+                          src={seed.token_meta_data.icon}
+                          style={{
+                            width: is_mobile ? '62px' : '86px',
+                            height: is_mobile ? '62px' : '86px',
+                            border: '2px solid #C6FC2D',
+                          }}
+                          className="rounded-full"
+                        />
+                      </>
+                    ) : (
+                      <img
+                        src={seed.token_meta_data.icon}
+                        style={{
+                          width: is_mobile ? '62px' : '86px',
+                          height: is_mobile ? '62px' : '86px',
+                        }}
+                        className="rounded-full"
+                      />
+                    )}
                     {Object.keys(displaySeedsPercent).includes(seed_id) ? (
                       <div className="flex items-center justify-center absolute top-16 xsm:top-12 bg-senderHot text-base text-cardBg px-3.5 xsm:px-1.5 xsm:py-0 xsm:text-sm py-1 rounded-lg xs:rounded-md gotham_bold border border-memeBorderBlackColor">
                         {displaySeedsPercent[seed_id]}
