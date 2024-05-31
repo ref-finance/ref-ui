@@ -9,6 +9,7 @@ import {
 } from './icons';
 import VoteModal from './VoteModal';
 import DonateModal from './DonateModal';
+import MemeVoteModal from './MemeVoteModal';
 import { Intro } from './Intro';
 import { useScrollToTopOnFirstPage } from '../../state/pool';
 import UserRankingModal from './UserRankingModal';
@@ -22,6 +23,7 @@ const Staking = () => {
   const is_mobile = isMobile();
   const history = useHistory();
   const [isVoteOpen, setIsVoteOpen] = useState(false);
+  const [isMemeVoteOpen, setIsMemeVoteOpen] = useState(false);
   const [isDonateOpen, setIsDonateOpen] = useState(false);
   const [isUserRanking, setUserRanking] = useState(false);
   const [isShowAirdropModal, setShowAirdropModal] = useState(false);
@@ -41,15 +43,23 @@ const Staking = () => {
             <StakingChart chartType="meme" />
           </div>
           <div className="lg:flex lg:justify-center xsm:-mx-5">
+            <div
+              className="lg:w-32 lg:mr-4 xsm:mb-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base cursor-pointer gotham_bold"
+              onClick={() => {
+                setIsMemeVoteOpen(true);
+              }}
+            >
+              Vote
+            </div>
             {/* <div
-              className="lg:w-52 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
+              className="lg:w-32 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
               onClick={() => setUserRanking(true)}
             >
               Rank
             </div> */}
             <div className="relative">
               <div
-                className="opacity-30 lg:w-52 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor 
+                className="opacity-30 lg:w-32 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor 
             rounded-lg h-12 flex items-center cursor-not-allowed justify-center text-greenLight text-base gotham_bold"
                 onMouseEnter={() => setShowRank(true)}
                 onMouseLeave={() => setShowRank(false)}
@@ -67,7 +77,7 @@ const Staking = () => {
               )}
             </div>
             <div
-              className="lg:w-52  border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
+              className="lg:w-32  border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
               items-center justify-center text-white text-base gotham_bold xsm:hidden"
               onClick={() => setShowAirdropModal(true)}
             >
@@ -204,6 +214,14 @@ const Staking = () => {
           isOpen={isVoteOpen}
           onRequestClose={() => {
             setIsVoteOpen(false);
+          }}
+        />
+      ) : null}
+      {isMemeVoteOpen ? (
+        <MemeVoteModal
+          isOpen={isMemeVoteOpen}
+          onRequestClose={() => {
+            setIsMemeVoteOpen(false);
           }}
         />
       ) : null}
