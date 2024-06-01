@@ -14,30 +14,46 @@ const Countdown = () => {
   const [hours, setHours] = useState('0');
   const [minutes, setMinutes] = useState('0');
   const [countdownFinished, setCountdownFinished] = useState(false);
+
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
-      let year = now.getFullYear();
-      const targetDate = new Date(year, 5, 1);
-      if (now > targetDate) {
+      const nowUtc = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds()
+      );
+
+      let year = now.getUTCFullYear();
+      let targetDate = new Date(Date.UTC(year, 5, 1));
+
+      if (nowUtc > targetDate.getTime()) {
         year++;
-        targetDate.setFullYear(year);
+        targetDate = new Date(Date.UTC(year, 5, 1));
       }
-      const difference = targetDate.getTime() - now.getTime();
+
+      const difference = targetDate.getTime() - nowUtc;
+
       if (difference <= 0) {
         clearInterval(timer);
         setCountdownFinished(true);
         return;
       }
+
       const days = formatNumber(Math.floor(difference / (1000 * 60 * 60 * 24)));
       const hours = formatNumber(
         Math.floor((difference / (1000 * 60 * 60)) % 24)
       );
       const minutes = formatNumber(Math.floor((difference / 1000 / 60) % 60));
+
       setDays(days);
       setHours(hours);
       setMinutes(minutes);
     }, 1000);
+
     return () => clearInterval(timer);
   }, []);
 
