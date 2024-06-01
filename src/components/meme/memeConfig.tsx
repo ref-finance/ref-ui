@@ -178,6 +178,7 @@ export function getMemeContractConfig(
           'memefarm-xref-bean.ref-labs.near',
           'memefarm-xref-shitzu.ref-labs.near',
           'memefarm-xref-neko.ref-labs.near',
+          'memefarm-xref-marmaj.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -193,6 +194,7 @@ export function getMemeContractConfig(
           'bean.tkn.near': 'memefarm-xref-bean.ref-labs.near',
           'token.0xshitzu.near': 'memefarm-xref-shitzu.ref-labs.near',
           'ftv2.nekotoken.near': 'memefarm-xref-neko.ref-labs.near',
+          'marmaj.tkn.near': 'memefarm-xref-marmaj.ref-labs.near',
         },
       };
     case 'pub-testnet':
@@ -256,6 +258,7 @@ export function getMemeContractConfig(
           'memefarm-xref-bean.ref-labs.near',
           'memefarm-xref-shitzu.ref-labs.near',
           'memefarm-xref-neko.ref-labs.near',
+          'memefarm-xref-marmaj.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -271,6 +274,7 @@ export function getMemeContractConfig(
           'bean.tkn.near': 'memefarm-xref-bean.ref-labs.near',
           'token.0xshitzu.near': 'memefarm-xref-shitzu.ref-labs.near',
           'ftv2.nekotoken.near': 'memefarm-xref-neko.ref-labs.near',
+          'marmaj.tkn.near': 'memefarm-xref-marmaj.ref-labs.near',
         },
       };
   }
