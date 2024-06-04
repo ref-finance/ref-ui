@@ -10,7 +10,7 @@ import { getMemeContractConfig } from './memeConfig';
 import { InputAmount } from './InputBox';
 import { toReadableNumber, toNonDivisibleNumber } from '../../utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
-import { getMemeUiConfig } from './memeConfig';
+import { getMemeUiConfig, getMemeDataConfig } from './memeConfig';
 import { stake } from '../../services/meme';
 import MemeVoteConfirmModal from './MemeVoteConfirmModal';
 import { formatSeconds, sortByXrefStaked } from './tool';
@@ -21,12 +21,13 @@ import {
 } from 'src/components/button/Button';
 
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+const { meme_winner_tokens } = getMemeDataConfig();
 const progressConfig = getMemeUiConfig();
 function MemeVoteModal(props: any) {
   const { isOpen, onRequestClose } = props;
   const [selectedTab, setSelectedTab] = useState('');
   const [amount, setAmount] = useState('');
-  const [confirmIsOpen, setConfirmIsOpen] = useState<boolean>(false);
+  const [memeVoteLoading, setMemeVoteLoading] = useState(false);
   const {
     allTokenMetadatas,
     tokenPriceList,
@@ -62,6 +63,7 @@ function MemeVoteModal(props: any) {
   const cardHeight = isMobile() ? '90vh' : '80vh';
   const is_mobile = isMobile();
   function stakeToken() {
+    setMemeVoteLoading(true);
     stake({
       seed,
       amount: Big(toNonDivisibleNumber(seed.seed_decimal, amount)).toFixed(0),
@@ -86,12 +88,12 @@ function MemeVoteModal(props: any) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  function openMemeVoteConfirmModal() {
-    setConfirmIsOpen(true);
-  }
-  function closeMemeVoteConfirmModal() {
-    setConfirmIsOpen(false);
-  }
+  // function openMemeVoteConfirmModal() {
+  //   setConfirmIsOpen(true);
+  // }
+  // function closeMemeVoteConfirmModal() {
+  //   setConfirmIsOpen(false);
+  // }
   if (!selectedTab) return null;
   return (
     <Modal
@@ -143,7 +145,7 @@ function MemeVoteModal(props: any) {
               Select Meme you support
             </div>
             <div className="mt-5 flex flex-wrap mb-2 xsm:hidden">
-              {Object.keys(MEME_TOKEN_XREF_MAP)
+              {meme_winner_tokens
                 .sort(sortByXrefStaked(xrefSeeds))
                 .map((memeTokenId) => {
                   return (
@@ -214,21 +216,41 @@ function MemeVoteModal(props: any) {
                 />
               )}
             </div>
+            {/* <OprationButton
+            onClick={doVote}
+            className={`bg-senderHot px-3 py-1 gotham_bold cursor-pointer rounded-md mt-2 w-20 outline-none ${
+              memeVoteLoading ? 'opacity-40' : ''
+            }`}
+          >
+            <ButtonTextWrapper
+              loading={memeVoteLoading}
+              Text={() => (
+                <div className="flex items-center gap-2 text-base text-boxBorder">
+                  Got it!
+                </div>
+              )}
+            />
+          </OprationButton> */}
             {isSignedIn ? (
               <OprationButton
                 minWidth="7rem"
                 disabled={disabled}
-                onClick={openMemeVoteConfirmModal}
+                onClick={stakeToken}
                 className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
-                  disabled ? 'opacity-40' : ''
+                  disabled || memeVoteLoading ? 'opacity-40' : ''
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  Feed{' '}
-                  {FeedIcon ? (
-                    <FeedIcon className="w-5 h-5 relative -top-0.5" />
-                  ) : null}
-                </div>
+                <ButtonTextWrapper
+                  loading={memeVoteLoading}
+                  Text={() => (
+                    <div className="flex items-center gap-2">
+                      Feed{' '}
+                      {FeedIcon ? (
+                        <FeedIcon className="w-5 h-5 relative -top-0.5" />
+                      ) : null}
+                    </div>
+                  )}
+                />
               </OprationButton>
             ) : (
               <ConnectToNearBtn />
@@ -250,15 +272,14 @@ function MemeVoteModal(props: any) {
           </div>
         </div>
       </div>
-      <MemeVoteConfirmModal />
-      {confirmIsOpen && (
+      {/* {confirmIsOpen && (
         <MemeVoteConfirmModal
           isOpen={confirmIsOpen}
           onRequestClose={closeMemeVoteConfirmModal}
           onMemeVote={stakeToken}
           delay_withdraw_sec={delay_withdraw_sec}
         />
-      )}
+      )} */}
     </Modal>
   );
 }
