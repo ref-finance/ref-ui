@@ -317,6 +317,12 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet': '#FEF9D7',
         'shitzu.fakes.testnet': '#41A14C',
       },
+      meme_cap_tokens: [
+        'lonk.fakes.testnet',
+        'neko.fakes.testnet',
+        'blackdragon.fakes.testnet',
+        'shitzu.fakes.testnet',
+      ],
     };
   } else if (env == 'testnet') {
     return {
@@ -354,6 +360,12 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet': '#FEF9D7',
         'shitzu.fakes.testnet': '#41A14C',
       },
+      meme_cap_tokens: [
+        'lonk.fakes.testnet',
+        'neko.fakes.testnet',
+        'blackdragon.fakes.testnet',
+        'shitzu.fakes.testnet',
+      ],
     };
   } else {
     return {
@@ -385,8 +397,8 @@ export function getMemeDataConfig(): any {
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
         'nkok.tkn.near',
+        'touched.tkn.near',
         'token.0xshitzu.near',
-        '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',
@@ -402,6 +414,13 @@ export function getMemeDataConfig(): any {
         'token.0xshitzu.near': '#50ED99',
         'ftv2.nekotoken.near': '#FFFFFF',
       },
+      meme_cap_tokens: [
+        'token.lonkingnearbackto2024.near',
+        'blackdragon.tkn.near',
+        'nkok.tkn.near',
+        'touched.tkn.near',
+        'token.0xshitzu.near',
+      ],
     };
   }
 }

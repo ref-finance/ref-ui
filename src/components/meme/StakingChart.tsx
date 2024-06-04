@@ -197,7 +197,6 @@ const StakingChart = ({ chartType }) => {
   };
 
   if (chartData.length === 0) return null;
-
   return (
     <div className="flex justify-center">
       <PieChart width={is_mobile ? 275 : 275} height={is_mobile ? 275 : 275}>

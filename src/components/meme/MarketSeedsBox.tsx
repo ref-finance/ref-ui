@@ -102,9 +102,7 @@ const MarketSeedsBox = ({
         const hasLpSeed =
           lpSeeds[seed_id]?.farmList[0]?.status &&
           lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
-        const addBorder =
-          seed_id === 'token.lonkingnearbackto2024.near' ||
-          seed_id === 'blackdragon.tkn.near';
+        const addBorder = memeDataConfig.meme_cap_tokens?.includes(seed_id);
         return (
           <div
             key={seed_id}

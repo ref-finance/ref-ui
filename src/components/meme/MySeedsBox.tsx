@@ -163,9 +163,7 @@ const MySeedsBox = ({
               memeUnStakeButtonDisabled && xrefUnStakeButtonDisabled;
             const claimButtonDisabled =
               memeClaimButtonDisabled && xrefClaimButtonDisabled;
-            const addBorder =
-              seed_id === 'token.lonkingnearbackto2024.near' ||
-              seed_id === 'blackdragon.tkn.near';
+            const addBorder = memeDataConfig.meme_cap_tokens?.includes(seed_id);
             return (
               <div
                 key={seed_id}
