@@ -1728,6 +1728,7 @@ export function getFarmClassification(): any {
         '4276',
         '4369',
         '4514',
+        '4771',
         '4479',
         '4820',
       ],
@@ -1766,7 +1767,7 @@ export function getFarmClassification(): any {
         '4179',
         '4514',
       ],
-      meme: ['4314', '3807', '4276', '4369'],
+      meme: ['4314', '3807', '4276', '4369', '4771', '4820'],
     };
   }
 }
