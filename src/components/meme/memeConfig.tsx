@@ -386,6 +386,7 @@ export function getMemeDataConfig(): any {
         'token.0xshitzu.near': '4369',
         'nkok.tkn.near': '4820',
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near': '4528',
+        'touched.tkn.near': '4771',
       },
       token_icon: {
         'ftv2.nekotoken.near':
