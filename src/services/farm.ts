@@ -1729,6 +1729,7 @@ export function getFarmClassification(): any {
         '4369',
         '4514',
         '4479',
+        '4820',
       ],
       eth: [
         '605',
