@@ -173,7 +173,7 @@ const Staking = () => {
             )}
           <div className="lg:flex lg:justify-center xsm:-mx-5">
             <div
-              className="w-32 flex-grow lg:mr-4 xsm:hidden border border-swapCardBorder bg-memeModelgreyColor 
+              className="w-48 lg:mr-4 xsm:hidden border border-swapCardBorder bg-memeModelgreyColor 
               rounded-lg h-12 flex items-center cursor-pointer justify-center text-white text-base gotham_bold"
               onClick={() => {
                 setVoteDetailsModal(true);
@@ -190,7 +190,7 @@ const Staking = () => {
               Vote
             </div> */}
             <div
-              className="w-32 flex-grow xsm:w-full xsm:mb-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base cursor-pointer gotham_bold"
+              className="w-48 xsm:w-full xsm:mb-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base cursor-pointer gotham_bold"
               onClick={() => {
                 setIsDonateOpen(true);
               }}

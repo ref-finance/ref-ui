@@ -287,7 +287,7 @@ function UserRankingModal(props: any) {
                   <img
                     src={allTokenMetadatas[selectedToken]?.icon}
                     alt=""
-                    className="h-5 w-5 mr-1.5"
+                    className="h-5 w-5 mr-1.5 rounded-3xl"
                   />
                 ) : (
                   <span className="lg:hidden">All</span>
@@ -325,7 +325,7 @@ function UserRankingModal(props: any) {
                         <img
                           src={allTokenMetadatas[token]?.icon || ''}
                           alt=""
-                          className="h-5 w-5 mr-1.5"
+                          className="h-5 w-5 mr-1.5 rounded-3xl"
                         />
                         {allTokenMetadatas[token]?.symbol}
                       </div>
@@ -405,7 +405,7 @@ function UserRankingModal(props: any) {
                                 }}
                               >
                                 <img
-                                  className="absolute size-full block left-0 top-0"
+                                  className="absolute size-full block left-0 top-0 rounded-3xl"
                                   src={
                                     allTokenMetadatas[token.token]?.icon || ''
                                   }
@@ -427,7 +427,7 @@ function UserRankingModal(props: any) {
                                   >
                                     <div className="flex items-center mr-10">
                                       <img
-                                        className="w-5 h-5"
+                                        className="w-5 h-5 rounded-3xl"
                                         src={
                                           allTokenMetadatas[token.token]
                                             ?.icon || ''
@@ -518,7 +518,7 @@ function UserRankingModal(props: any) {
                                         }}
                                       >
                                         <img
-                                          className="absolute size-full block left-0 top-0"
+                                          className="absolute size-full block left-0 top-0 rounded-3xl"
                                           src={
                                             allTokenMetadatas[token.token]
                                               ?.icon || ''
@@ -546,7 +546,7 @@ function UserRankingModal(props: any) {
                                     }}
                                   >
                                     <img
-                                      className="absolute size-full block left-0 top-0"
+                                      className="absolute size-full block left-0 top-0 rounded-3xl"
                                       src={
                                         allTokenMetadatas[
                                           item.token_list[
@@ -571,7 +571,7 @@ function UserRankingModal(props: any) {
                                     }}
                                   >
                                     <img
-                                      className="absolute size-full block left-0 top-0"
+                                      className="absolute size-full block left-0 top-0 rounded-3xl"
                                       src={
                                         allTokenMetadatas[token.token]?.icon ||
                                         ''
@@ -597,7 +597,7 @@ function UserRankingModal(props: any) {
                                     >
                                       <div className="flex items-center mr-10">
                                         <img
-                                          className="w-5 h-5"
+                                          className="w-5 h-5  rounded-3xl"
                                           src={
                                             allTokenMetadatas[token.token]
                                               ?.icon || ''
