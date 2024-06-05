@@ -51,13 +51,13 @@ const Staking = () => {
             >
               Vote
             </div>
-            {/* <div
+            <div
               className="lg:w-32 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
               onClick={() => setUserRanking(true)}
             >
               Rank
-            </div> */}
-            <div className="relative">
+            </div>
+            {/* <div className="relative">
               <div
                 className="opacity-30 lg:w-32 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor 
             rounded-lg h-12 flex items-center cursor-not-allowed justify-center text-greenLight text-base gotham_bold"
@@ -75,7 +75,7 @@ const Staking = () => {
                   <p>Coming soon</p>
                 </div>
               )}
-            </div>
+            </div> */}
             <div
               className="lg:w-32  border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
               items-center justify-center text-white text-base gotham_bold xsm:hidden"
