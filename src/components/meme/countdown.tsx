@@ -2,105 +2,101 @@ import React, { useState, useEffect } from 'react';
 import { isMobile } from '../../utils/device';
 import {
   CountdownFinish,
+  CountdownFinishMobile,
   CountdownLeftBg,
   CountdownLeftMobileBg,
+  CountdownMobileTitle,
   CountdownRightBottomBg,
+  CountdownRightBottomMobileBg,
   CountdownTitle,
 } from './icons';
+import PropTypes from 'prop-types';
 
 const formatNumber = (number) => (number < 10 ? `0${number}` : number);
-const Countdown = () => {
-  const [days, setDays] = useState('0');
-  const [hours, setHours] = useState('0');
-  const [minutes, setMinutes] = useState('0');
+const Countdown = ({ onCountdownFinish }) => {
+  const [days, setDays] = useState('00');
+  const [hours, setHours] = useState('00');
+  const [minutes, setMinutes] = useState('00');
   const [countdownFinished, setCountdownFinished] = useState(false);
-
   useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      const nowUtc = Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        now.getUTCHours(),
-        now.getUTCMinutes(),
-        now.getUTCSeconds()
-      );
-
-      let year = now.getUTCFullYear();
-      let targetDate = new Date(Date.UTC(year, 5, 1));
-
-      if (nowUtc > targetDate.getTime()) {
-        year++;
-        targetDate = new Date(Date.UTC(year, 5, 1));
-      }
-
-      const difference = targetDate.getTime() - nowUtc;
-
-      if (difference <= 0) {
-        clearInterval(timer);
+    const targetDate = new Date(Date.UTC(new Date().getUTCFullYear(), 5, 1));
+    const endDate = new Date(Date.UTC(new Date().getUTCFullYear(), 5, 6));
+    const updateCountdown = () => {
+      const nowUtc = Date.now();
+      if (nowUtc >= endDate.getTime()) {
+        onCountdownFinish();
+      } else if (nowUtc >= targetDate.getTime()) {
         setCountdownFinished(true);
-        return;
+      } else {
+        const difference = targetDate.getTime() - nowUtc;
+        const daysCalc = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hoursCalc = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        let minutesCalc = Math.floor((difference / 1000 / 60) % 60);
+        if (daysCalc === 0 && hoursCalc === 0 && minutesCalc === 0) {
+          minutesCalc = 1;
+        }
+        setDays(formatNumber(daysCalc));
+        setHours(formatNumber(hoursCalc));
+        setMinutes(formatNumber(minutesCalc));
       }
-
-      const days = formatNumber(Math.floor(difference / (1000 * 60 * 60 * 24)));
-      const hours = formatNumber(
-        Math.floor((difference / (1000 * 60 * 60)) % 24)
-      );
-      const minutes = formatNumber(Math.floor((difference / 1000 / 60) % 60));
-
-      setDays(days);
-      setHours(hours);
-      setMinutes(minutes);
-    }, 1000);
-
+    };
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
-  }, []);
-
+  }, [onCountdownFinish]);
   return (
     <>
       {countdownFinished ? (
         <div className="mt-12 xsm:mx-4">
-          <CountdownFinish />
+          <CountdownFinish className="xsm:hidden" />
+          <CountdownFinishMobile className="lg:hidden" />
         </div>
       ) : (
-        <div className="mt-12 bg-memeVoteBgColor border border-memeBorderColor rounded-2xl h-72 relative xsm:mx-4 xsm:h-full xsm:p-4">
-          <div className="absolute left-0 bottom-0">
+        <div className="mt-12 bg-memeVoteBgColor border border-memeBorderColor rounded-2xl h-72 relative xsm:mx-4 xsm:h-full xsm:p-4 xsm:pb-10">
+          <div className="absolute left-0 bottom-0 xsm:hidden">
             <CountdownRightBottomBg />
           </div>
-          <div className="absolute -right-1 top-0 xsm:hidden">
-            <CountdownLeftBg />
+          <div className="absolute left-0 bottom-0 lg:hidden">
+            <CountdownRightBottomMobileBg />
           </div>
-          <div className="lg:absolute left-24 top-14 flex flex-col justify-center items-center xsm:left-1 xsm:mt-8">
-            <CountdownTitle className="xsm:transform xsm:scale-90" />
-            <div className="flex justify-center items-center xsm:-mt-8">
+          <div className="absolute -right-1 top-0 xsm:hidden">
+            <CountdownLeftBg style={{ height: '240px' }} />
+          </div>
+          <div className="lg:absolute left-24 top-14 flex flex-col justify-center items-center xsm:left-1 xsm:mt-4 xsm:mb-10">
+            <CountdownTitle className="xsm:hidden" />
+            <CountdownMobileTitle className="lg:hidden" />
+            <div className="flex justify-center items-center xsm:-mt-7">
               <div className="mt-4 gradient-text flex flex-col justify-center items-center">
                 <h1>{days}</h1>
-                <p className="text-primaryText text-sm xsm:-mt-4">Days</p>
+                <p className="text-primaryText text-sm xsm:-mt-7">Days</p>
               </div>
-              <div className="text-white -mr-8 text-7xl xsm:text-6xl xsm:-mr-6 xsm:mt-5">
+              <div className="text-white -mr-8 text-7xl xsm:text-4xl xsm:-mr-3 xsm:mt-8">
                 ：
               </div>
               <div className="mt-4 gradient-text flex flex-col justify-center items-center">
                 <h1>{hours}</h1>
-                <p className="text-primaryText text-sm xsm:-mt-4">Hours</p>
+                <p className="text-primaryText text-sm xsm:-mt-7">Hours</p>
               </div>
-              <div className="text-white -mr-6 text-7xl xsm:text-6xl xsm:-mr-6 xsm:mt-5">
+              <div className="text-white -mr-6 text-7xl xsm:text-4xl xsm:-mr-3 xsm:mt-8">
                 ：
               </div>
               <div className="mt-4 gradient-text flex flex-col justify-center items-center">
                 <h1>{minutes}</h1>
-                <p className="text-primaryText text-sm xsm:-mt-4">Mins</p>
+                <p className="text-primaryText text-sm xsm:-mt-7">Mins</p>
               </div>
             </div>
           </div>
-          <div className="lg:hidden md:hidden ml-8">
-            <CountdownLeftMobileBg className="transform scale-75" />
+          <div className="lg:hidden">
+            <CountdownLeftMobileBg />
           </div>
         </div>
       )}
     </>
   );
+};
+
+Countdown.propTypes = {
+  onCountdownFinish: PropTypes.func.isRequired,
 };
 
 export default Countdown;
