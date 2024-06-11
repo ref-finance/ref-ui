@@ -28,6 +28,7 @@ const renderActiveShape = (props) => {
         endAngle={endAngle}
         fill={fill}
         stroke="transparent"
+        strokeWidth={0}
       />
     </g>
   );
@@ -85,28 +86,27 @@ const MyPieChart = () => {
 
     return (
       <>
-        <image x="45%" y="25%" width={40} height={40} href={activeEntry.icon} />
+        <image x="43%" y="24%" width={44} height={44} href={activeEntry.icon} />
         <text
           x="50%"
-          y="42%"
+          y="46%"
           textAnchor="middle"
           dominantBaseline="central"
           style={{
             fill: 'white',
-            fontSize: '20px',
-            fontWeight: '700',
+            fontSize: '16px',
           }}
         >
           {activeEntry.symbol}
         </text>
         <text
           x="50%"
-          y="55%"
+          y="64%"
           textAnchor="middle"
           dominantBaseline="central"
           style={{
             fill: 'white',
-            fontSize: '42px',
+            fontSize: '38px',
             fontWeight: '700',
           }}
         >
@@ -114,10 +114,10 @@ const MyPieChart = () => {
         </text>
         <text
           x="50%"
-          y="68%"
+          y="76%"
           textAnchor="middle"
           dominantBaseline="central"
-          style={{ fill: 'white', fontSize: '20px' }}
+          style={{ fill: 'white', fontSize: '16px' }}
         >
           {toInternationalCurrencySystem_number(activeEntry.value)} xREF
         </text>
@@ -137,12 +137,12 @@ const MyPieChart = () => {
     return renderActiveShape(props);
   };
 
-  const sectorStrokeWidth = 3;
-  const sectorStrokeColor = '#21232F';
+  const sectorStrokeWidth = 2;
+  const sectorStrokeColor = '#00121f';
   if (!chartData) return null;
   return (
     <div className="flex justify-center">
-      <PieChart width={is_mobile ? 300 : 345} height={is_mobile ? 300 : 345}>
+      <PieChart width={is_mobile ? 285 : 285} height={is_mobile ? 285 : 285}>
         <Pie
           activeIndex={activeIndex}
           activeShape={customActiveShape}
@@ -151,12 +151,13 @@ const MyPieChart = () => {
           nameKey="name"
           cx="50%"
           cy="50%"
-          innerRadius={is_mobile ? 115 : 130}
-          outerRadius={is_mobile ? 150 : 172.5}
+          innerRadius={is_mobile ? 130 : 130}
+          outerRadius={is_mobile ? 156 : 156}
           onMouseEnter={onPieEnter}
           onMouseLeave={onPieLeave}
           stroke={sectorStrokeColor}
           strokeWidth={sectorStrokeWidth}
+          paddingAngle={1}
         >
           {chartData.map((entry, index) => (
             <Cell

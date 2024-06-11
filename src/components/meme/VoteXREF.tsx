@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import VoteSheet from './VoteSheet';
 import VotersSheet from './VotersSheet';
 import { isMobile } from '../../utils/device';
-
 const VoteXREF = () => {
   const [activeTab, setActiveTab] = useState('vote');
   const is_mobile = isMobile();
