@@ -417,6 +417,8 @@ function UserRankingModal(props: any) {
                               <div
                                 className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
                                 style={{
+                                  maxHeight: '220px',
+                                  overflow: 'auto',
                                   backdropFilter: 'blur(4px)',
                                 }}
                               >
