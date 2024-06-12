@@ -188,12 +188,16 @@ function UserRankingModal(props: any) {
       return number.toFixed(2);
     }
   }
+  let timeoutId;
   const handleMouseEnterRow = (itemIndex) => {
     setHoveredRow(itemIndex);
+    clearTimeout(timeoutId);
   };
 
   const handleMouseLeaveRow = () => {
-    setHoveredRow(null);
+    timeoutId = setTimeout(() => {
+      setHoveredRow(null);
+    }, 300);
   };
   const sortTableData = () => {
     const sortedData = [...tableDate];
