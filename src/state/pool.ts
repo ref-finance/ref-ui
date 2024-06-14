@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useContext } from 'react';
+import { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import {
   calculateFairShare,
   percentLess,
@@ -114,6 +114,7 @@ import {
 import { getPointByPrice, getPriceByPoint } from '../services/commonV3';
 import { formatPercentage } from '../components/d3Chart/utils';
 import { get_account, ILock } from '../services/lp-locker';
+import { introCurrentPageStore } from '../stores/introCurrentPage';
 
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
@@ -291,6 +292,32 @@ interface LoadPoolsOpts {
   sortBy?: string;
   order?: string;
   getTopPoolsProps?: any;
+}
+
+export function useScrollToTopOnFirstPage() {
+  const hasGuided = JSON.parse(localStorage.getItem('hasGuided'));
+
+  const introRef = useRef(null);
+  const { currentPage, hasLoaingOver } = introCurrentPageStore() as any;
+
+  useEffect(() => {
+    if (introRef.current && hasLoaingOver) {
+      const rect = introRef.current.getBoundingClientRect();
+      const offset = window.innerHeight / 2;
+      const scrollTop = rect.top + window.pageYOffset - offset;
+
+      window.scroll({
+        top: scrollTop,
+        behavior: 'smooth',
+      });
+
+      // introRef.current.scrollIntoView({
+      //   behavior: 'smooth',
+      // });
+    }
+  }, [currentPage, hasLoaingOver]); //
+  //
+  return { introRef, currentPage, hasGuided };
 }
 
 export const usePools = (props: {

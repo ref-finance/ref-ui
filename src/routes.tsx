@@ -245,6 +245,15 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
+    path: '/airdop',
+    element: lazy(() => {
+      return import(
+        /* webpackChunkName: "memepage" */ 'src/pages/MemeAirdropListForMobile'
+      );
+    }),
+    wrapper: 'AutoHeight',
+  },
+  {
     path: '/',
     element: lazy(() => {
       if (isNewHostName) {

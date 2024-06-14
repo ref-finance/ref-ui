@@ -1728,6 +1728,9 @@ export function getFarmClassification(): any {
         '4276',
         '4369',
         '4514',
+        '4771',
+        '4479',
+        '4820',
       ],
       eth: [
         '605',
@@ -1750,6 +1753,7 @@ export function getFarmClassification(): any {
         '3815',
         '3804',
         '3471',
+        '4479',
       ],
       stable: [
         '1910',
@@ -1763,7 +1767,7 @@ export function getFarmClassification(): any {
         '4179',
         '4514',
       ],
-      meme: ['4314', '3807', '4276', '4369'],
+      meme: ['4314', '3807', '4276', '4369', '4771', '4820'],
     };
   }
 }

@@ -18,7 +18,7 @@ export default function AdSwiper() {
     }
   }, []);
   const closePop = (e: any) => {
-    localStorage.setItem('ad-announcement', '12');
+    localStorage.setItem('ad-announcement', '13');
     e.stopPropagation();
     setCloseStatus(true);
   };
@@ -67,6 +67,26 @@ export default function AdSwiper() {
                 }}
               >
                 {is_mobile ? <FRAXUSDCFARMMobile /> : <FRAXUSDCFARM />}
+              </div>
+            </SwiperSlide>
+            <SwiperSlide>
+              <div
+                onClick={closePop}
+                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
+              >
+                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
+              </div>
+              <div
+                className="relative cursor-pointer"
+                onClick={() => {
+                  window.open('https://airdrop.orderly.network/');
+                }}
+              >
+                {is_mobile ? (
+                  <img src="https://assets.ref.finance/images/swipeOrderlyMobile.jpg" />
+                ) : (
+                  <img src="https://assets.ref.finance/images/swipeOrderlyPc.jpg" />
+                )}
               </div>
             </SwiperSlide>
           </Swiper>

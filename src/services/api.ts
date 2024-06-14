@@ -158,3 +158,72 @@ export const currentTokensPrice = async (ids: string): Promise<any> => {
       return [];
     });
 };
+
+export const getMemeFarmingTokens = async (): Promise<any> => {
+  return await fetch(config.memeRankApiUrl + '/meme-farming/tokens', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getMemeFarmingTotalAssetsList = async (
+  limit: number,
+  offset: number,
+  orderBy: string
+): Promise<any> => {
+  const queryParams = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+    order_by: orderBy,
+  });
+  const url = `${
+    config.memeRankApiUrl
+  }/meme-farming/total?${queryParams.toString()}`;
+
+  return await fetch(url, {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getMemeFarmingAssetsList = async (
+  token: string,
+  sort: string,
+  limit: number,
+  offset: number,
+  orderBy: string
+): Promise<any> => {
+  const queryParams = new URLSearchParams({
+    token,
+    sort,
+    limit: limit.toString(),
+    offset: offset.toString(),
+    order_by: orderBy,
+  });
+  const url = `${
+    config.memeRankApiUrl
+  }/meme-farming/list?${queryParams.toString()}`;
+
+  return await fetch(url, {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};

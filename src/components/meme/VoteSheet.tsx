@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useRef, useEffect } from 'react';
 import Big from 'big.js';
 import { isMobile } from '../../utils/device';
 import { ArrowRightTopIcon } from './icons';
@@ -44,6 +44,7 @@ function VoteSheet({ hidden }: { hidden: boolean }) {
       return sum.plus(seedTotalStakedAmount);
     }, new Big(0));
   }, [xrefSeeds]);
+
   return (
     <div className={`text-primaryText ${hidden ? 'hidden' : ''}`}>
       <div className="text-base mb-7 xsm:text-center xsm:px-6">
