@@ -11,7 +11,7 @@ export default function AdSwiper() {
   const [closeStatus, setCloseStatus] = useState(true);
   useEffect(() => {
     const popupSwiper = localStorage.getItem('ad-announcement');
-    if (popupSwiper == '12') {
+    if (popupSwiper == '13') {
       setCloseStatus(true);
     } else {
       setCloseStatus(false);
