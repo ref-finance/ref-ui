@@ -81,7 +81,7 @@ export const Carousel = ({
 
   return (
     <div
-      className="relative frcc p-5 overflow-hidden rounded-2xl mb-3"
+      className="relative frcc p-5 overflow-hidden rounded-2xl mb-12"
       ref={carouselRef}
       style={{
         zIndex: 999999999999,
@@ -149,10 +149,10 @@ export const Carousel = ({
             className="underline cursor-pointer hover:text-greenLight"
             onClick={() => {
               closePop();
-              window.open('https://t.co/I5rh4TcNYa', '_blank');
+              window.open('https://app.orderly.network', '_blank');
             }}
           >
-            https://t.co/I5rh4TcNYa
+            https://app.orderly.network
           </span>
         </p>
       </div>
