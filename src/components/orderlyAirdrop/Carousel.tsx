@@ -28,7 +28,7 @@ export const Carousel = ({
   };
 
   const blank = () => {
-    window.open('https://app.orderly.network/', '_blank');
+    window.open('https://airdrop.orderly.network/', '_blank');
   };
 
   useEffect(() => {
@@ -149,10 +149,10 @@ export const Carousel = ({
             className="underline cursor-pointer hover:text-greenLight"
             onClick={() => {
               closePop();
-              window.open('https://t.co/I5rh4TcNYa', '_blank');
+              window.open('https://airdrop.orderly.network/', '_blank');
             }}
           >
-            https://t.co/I5rh4TcNYa
+            https://airdrop.orderly.network/
           </span>
         </p>
       </div>
