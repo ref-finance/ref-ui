@@ -18,7 +18,7 @@ export default function AdSwiper() {
     }
   }, []);
   const closePop = (e: any) => {
-    localStorage.setItem('ad-announcement', '12');
+    localStorage.setItem('ad-announcement', '13');
     e.stopPropagation();
     setCloseStatus(true);
   };
