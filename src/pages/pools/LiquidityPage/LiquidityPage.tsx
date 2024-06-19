@@ -28,6 +28,7 @@ import {
   useIndexerStatus,
 } from '../../../state/pool';
 import Loading from '../../../components/layout/Loading';
+import { LoadingSmall } from '../../../../src/components/icon/Loading';
 
 import {
   useTokens,
@@ -1576,15 +1577,15 @@ function PcLiquidityPage({
                 </div>
               </header>
 
-              <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-                {pools.map((pool, i) => {
+              <div className="h-96 overflow-y-auto  pool-list-container-pc">
+                {pools?.map((pool, i) => {
                   return (
                     <div key={'v1-pc' + pool.id + i}>
                       <PoolRow
                         tokens={poolTokenMetas[pool.id]}
                         farmApr={farmAprById ? farmAprById[pool.id] : null}
                         pool={pool}
-                        index={i + 1}
+                        index={pool.id + i + Math.random()}
                         selectCoinClass={selectCoinClass}
                         supportFarm={!!farmCounts[pool.id]}
                         farmCount={farmCounts[pool.id]}
@@ -1596,7 +1597,7 @@ function PcLiquidityPage({
                   );
                 })}
               </div>
-              {cardLoading && <Loading></Loading>}
+              {cardLoading && <LoadingSmall></LoadingSmall>}
             </section>
           </Card>
         )}
@@ -1911,7 +1912,7 @@ export default function LiquidityPage() {
     setCurrentPage(1);
   }, [farmOnly, hideLowTVL]);
 
-  const { pools, hasMore, nextPage, loading, volumes, cardLoading } = usePools({
+  const { pools, hasMore, nextPage, volumes, cardLoading } = usePools({
     tokenName,
     activeTab,
     sortBy,
@@ -2075,13 +2076,7 @@ export default function LiquidityPage() {
 
   const allVolumes = { ...watchPoolVolumes, ...volumes, ...v3PoolVolumes };
 
-  if (
-    !displayPools ||
-    loading ||
-    !watchPools ||
-    !poolTokenMetas ||
-    !farmAprById
-  )
+  if (!displayPools || !watchPools || !poolTokenMetas || !farmAprById)
     return <Loading />;
 
   return (
