@@ -19,6 +19,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 import getConfig from '../services/config';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
+import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
@@ -186,6 +187,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
             url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
           },
         }),
+        setupOKXWallet({}),
       ],
     });
     const _modal = setupModal(_selector, {

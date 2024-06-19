@@ -2973,6 +2973,16 @@
     js-sha256 "0.9.0"
     rxjs "7.8.1"
 
+"@near-wallet-selector/core@8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.9.10.tgz#0e19b22bbe69208c9e82b149682be37f6f9b76c5"
+  integrity sha512-do+DDahRHPzr5VKiFS7NWKyNbspXu64/w7CuSBi8IUDsDsclmV7Os6Hp5HcVAq+X3Whi//NxKGX6mPMb+SRPqw==
+  dependencies:
+    borsh "0.7.0"
+    events "3.3.0"
+    js-sha256 "0.9.0"
+    rxjs "7.8.1"
+
 "@near-wallet-selector/core@8.9.7", "@near-wallet-selector/core@^8.9.7":
   version "8.9.7"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.9.7.tgz#d55cb97b8d4932f1bd786805c3365205cd084b61"
@@ -3079,6 +3089,14 @@
   dependencies:
     "@near-wallet-selector/core" "8.9.7"
     "@near-wallet-selector/wallet-utils" "8.9.7"
+    is-mobile "4.0.0"
+
+"@near-wallet-selector/okx-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/okx-wallet/-/okx-wallet-8.9.10.tgz#cc16b829cc61bf13da48463d75fbaa4614fff415"
+  integrity sha512-kklbIdQdsAl0CYvlrwdiXlUtEeriWnTQUiBo0XCUBFdjhoK98tNA0OarRnt/wXjM3IxQNMOuqoCFO03YAg0niQ==
+  dependencies:
+    "@near-wallet-selector/core" "8.9.10"
     is-mobile "4.0.0"
 
 "@near-wallet-selector/sender@^8.9.7":
