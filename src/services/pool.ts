@@ -1,3 +1,4 @@
+import Big from 'big.js';
 import {
   executeMultipleTransactions,
   LP_STORAGE_AMOUNT,
@@ -13,6 +14,7 @@ import {
   ftGetStorageBalance,
   TokenMetadata,
   native_usdc_has_upgrated,
+  tokenFtMetadata,
 } from './ft-contract';
 import {
   toNonDivisibleNumber,
@@ -752,9 +754,8 @@ export const addLiquidityToPool = async ({
   id,
   tokenAmounts,
 }: AddLiquidityToPoolOptions) => {
-  // const transactions:Transaction[] = []
-
-  const amounts = tokenAmounts.map(({ token, amount }) =>
+  const deflation_mark = 'tknx';
+  let amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
 
@@ -762,7 +763,30 @@ export const addLiquidityToPool = async ({
     tokens: tokenAmounts.map(({ token, amount }) => token),
     amounts: tokenAmounts.map(({ token, amount }) => amount),
   });
-
+  // add deflation calc logic
+  const tknx_tokens = tokenAmounts
+    .map((item) => item.token)
+    .filter((token) => token.id.includes(deflation_mark));
+  if (tknx_tokens.length > 0) {
+    const pending = tknx_tokens.map((token) => tokenFtMetadata(token.id));
+    const tokenFtMetadatas = await Promise.all(pending);
+    const rate = tokenFtMetadatas.reduce((acc, cur, index) => {
+      return {
+        ...acc,
+        [tknx_tokens[index].id]: cur.sell_burn_rate + cur.sell_fee_rate,
+      };
+    }, {});
+    amounts = tokenAmounts.map(({ token, amount }) => {
+      const reforeAmount = toNonDivisibleNumber(token.decimals, amount);
+      let afterAmount = reforeAmount;
+      if (rate[token.id]) {
+        afterAmount = Big(1 - rate[token.id] / 1000000)
+          .mul(reforeAmount)
+          .toFixed(0);
+      }
+      return afterAmount;
+    });
+  }
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'add_liquidity',

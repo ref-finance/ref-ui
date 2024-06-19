@@ -244,3 +244,10 @@ export const unWrapToken = (token: TokenMetadata, keepId?: boolean) => {
     return { ...nearMetadata, id: keepId ? token.id : nearMetadata.id };
   else return token;
 };
+
+export const tokenFtMetadata = async (tokenId: string) => {
+  const metadata = await ftViewFunction(tokenId, {
+    methodName: 'ft_metadata',
+  });
+  return metadata;
+};
