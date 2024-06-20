@@ -40,8 +40,7 @@ import {
 } from '../../utils/wallets-integration';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
-import { checkAccountTip, getURLInfo } from '../layout/transactionTipPopUp';
-import { checkTransaction } from '../../services/swap';
+import { FeeTipV1 } from '../../components/pool/FeeTip';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
 export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
@@ -591,6 +590,7 @@ export default function AddFourLiquidityComponent(props: {
               </div>
             </div>
           ) : null}
+          <FeeTipV1 />
           {isSignedIn ? (
             <SolidButton
               disabled={!canSubmit || buttonLoading}

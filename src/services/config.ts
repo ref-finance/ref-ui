@@ -146,10 +146,14 @@ export default function getConfig(
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://api.ref.finance',
+        // indexerUrl: 'https://apiself.cclp.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
+        memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -304,6 +308,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -313,10 +318,13 @@ export default function getConfig(
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -401,6 +409,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
       };
     case 'testnet':
       return {
@@ -410,10 +419,13 @@ export default function getConfig(
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -498,6 +510,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.testnet',
       };
     default:
       return {
@@ -507,10 +520,14 @@ export default function getConfig(
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://api.ref.finance',
+        // indexerUrl: 'https://apiself.cclp.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
+        memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -665,6 +682,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
       };
   }
 }
