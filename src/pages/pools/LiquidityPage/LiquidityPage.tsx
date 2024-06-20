@@ -1577,27 +1577,33 @@ function PcLiquidityPage({
                 </div>
               </header>
 
-              <div className="h-96 overflow-y-auto  pool-list-container-pc">
-                {pools?.map((pool, i) => {
-                  return (
-                    <div key={'v1-pc' + pool.id + i}>
-                      <PoolRow
-                        tokens={poolTokenMetas[pool.id]}
-                        farmApr={farmAprById ? farmAprById[pool.id] : null}
-                        pool={pool}
-                        index={pool.id + i + Math.random()}
-                        selectCoinClass={selectCoinClass}
-                        supportFarm={!!farmCounts[pool.id]}
-                        farmCount={farmCounts[pool.id]}
-                        h24volume={volumes[pool.id]}
-                        watched={!!find(watchPools, { id: pool.id })}
-                        activeTab="v1"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-              {cardLoading && <LoadingSmall></LoadingSmall>}
+              {!cardLoading && (
+                <div className="h-96 overflow-y-auto  pool-list-container-pc">
+                  {pools?.map((pool, i) => {
+                    return (
+                      <div key={'v1-pc' + pool.id + i}>
+                        <PoolRow
+                          tokens={poolTokenMetas[pool.id]}
+                          farmApr={farmAprById ? farmAprById[pool.id] : null}
+                          pool={pool}
+                          index={pool.id + i + Math.random()}
+                          selectCoinClass={selectCoinClass}
+                          supportFarm={!!farmCounts[pool.id]}
+                          farmCount={farmCounts[pool.id]}
+                          h24volume={volumes[pool.id]}
+                          watched={!!find(watchPools, { id: pool.id })}
+                          activeTab="v1"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {cardLoading && (
+                <div className="h-96 overflow-y-auto  pool-list-container-pc">
+                  <LoadingSmall></LoadingSmall>
+                </div>
+              )}
             </section>
           </Card>
         )}
