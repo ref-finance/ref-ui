@@ -282,13 +282,15 @@ input[type='number'] {
 }
 
 .loadingScreen.active,
-.slick-loader.active, .slick-loader-new.active {
+.slick-loader.active,
+.slick-loader-new.active {
   z-index: 10000;
   opacity: 1;
 }
 
 .loadingScreen svg,
-.slick-loader svg, .slick-loader-new svg {
+.slick-loader svg,
+.slick-loader-new svg {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -299,7 +301,8 @@ input[type='number'] {
 }
 
 .loadingScreen svg path,
-.slick-loader svg path, .slick-loader-new svg path {
+.slick-loader svg path,
+.slick-loader-new svg path {
   animation: spin 1s linear infinite;
   transform-origin: center;
 }
@@ -310,7 +313,8 @@ input[type='number'] {
 }
 
 .loadingScreen.slick-loader-inner,
-.slick-loader.slick-loader-inner, .slick-loader-new.slick-loader-inner {
+.slick-loader.slick-loader-inner,
+.slick-loader-new.slick-loader-inner {
   position: absolute;
 }
 
