@@ -1821,7 +1821,7 @@ function PcLiquidityPage({
           </div>
         )}
       </div>
-      {isSignedIn && activeTab != 'v1' && (
+      {isSignedIn && selectTokens && selectBalances && (
         <AddPoolModal
           isOpen={showAddPoolModal}
           onRequestClose={(e) => {
