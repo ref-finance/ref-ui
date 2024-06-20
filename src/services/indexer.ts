@@ -168,7 +168,7 @@ export const getHistoryOrderSwapInfo = async (
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
-    config.sodakiApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
+    config.newSodakiApiUrl + `/poollist/${pool_id}/24hvolume/sum`,
     {
       method: 'GET',
     }
@@ -192,8 +192,7 @@ export const get24hVolumes = async (
   for (let i = 0; i < numBatches; i++) {
     const batchIds = pool_ids.slice(i * batchSize, (i + 1) * batchSize);
     const promise = fetch(
-      config.sodakiApiUrl +
-        `/poollist/${batchIds.join('|')}/rolling24hvolume/sum`,
+      config.newSodakiApiUrl + `/poollist/${batchIds.join('|')}/24hvolume/sum`,
       {
         method: 'GET',
       }
@@ -230,20 +229,6 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     .then((res) => res.json())
     .then((pools) => {
       return pools;
-    });
-};
-
-export const getTopPoolsIndexer = async () => {
-  return await fetch(config.indexerUrl + '/list-top-pools', {
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json; charset=UTF-8',
-      ...getAuthenticationHeaders('/list-top-pools'),
-    },
-  })
-    .then((res) => res.json())
-    .then((poolList) => {
-      return poolList.map((p: any) => parsePool(p));
     });
 };
 
@@ -349,6 +334,138 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
   }
 };
 
+export const getTopPoolsByNewUI = async ({
+  type = 'classic',
+  sort = 'tvl',
+  limit = '100',
+  offset = '0',
+  farm = 'false',
+  hide_low_pool = 'false',
+  order = 'desc',
+  token_type = '',
+}: {
+  type?: string;
+  sort?: string;
+  limit?: string;
+  offset?: string;
+  farm?: string | boolean;
+  hide_low_pool?: string | boolean;
+  order: string;
+  token_type: string;
+}): Promise<PoolRPCView[]> => {
+  let tktype = token_type;
+  if (token_type == 'all') {
+    tktype = '';
+  } else if (token_type == 'stablecoin') {
+    tktype = 'stable_coin';
+  }
+  if (sort == 'apr') {
+    sort = 'apy';
+  }
+  if (sort == 'volume_24h') {
+    sort = '24h';
+  }
+
+  try {
+    let pools: any;
+
+    pools = await fetch(
+      config.indexerUrl +
+        `/list-pools?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/list-pools'),
+        },
+      }
+    ).then((res) => res.json());
+
+    if (pools?.data?.list.length > 0) {
+      localStorage.setItem('poolsTotal', pools.data.total);
+      pools = pools.data.list;
+      return pools
+        .filter((pool: { token_account_ids: string | any[]; id: any }) => {
+          return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
+        })
+        .filter(filterBlackListPools);
+    } else {
+      pools = [];
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
+export const getSearchResult = async ({
+  type = 'classic',
+  sort = 'tvl',
+  limit = '100',
+  offset = '0',
+  farm = 'false',
+  hide_low_pool = 'false',
+  order = 'desc',
+  token_type = '',
+  token_list = '',
+  pool_id_list = '',
+  onlyUseId = false,
+}: {
+  type?: string;
+  sort?: string;
+  limit?: string;
+  offset?: string;
+  farm?: string | boolean;
+  hide_low_pool?: string | boolean;
+  order?: string;
+  token_list?: string;
+  token_type?: string;
+  pool_id_list?: string;
+  onlyUseId?: boolean;
+}): Promise<PoolRPCView[]> => {
+  let tktype = token_type;
+  if (token_type == 'all') {
+    tktype = '';
+  } else if (token_type == 'stablecoin') {
+    tktype = 'stable_coin';
+  }
+  if (sort == 'apr') {
+    sort = 'apy';
+  }
+  if (sort == 'volume_24h') {
+    sort = '24h';
+  }
+
+  try {
+    let pools: any;
+    const url = !onlyUseId
+      ? `/pool/search?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}&token_list=${token_list}&pool_id_list=${pool_id_list}`
+      : `/pool/search?pool_id_list=${pool_id_list}`;
+    pools = await fetch(config.indexerUrl + url, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/pool/search'),
+      },
+    }).then((res) => res.json());
+    localStorage.setItem('poolsTotal', pools.data.total);
+
+    if (pools?.data?.list.length > 0) {
+      pools = pools.data.list;
+      return pools
+        .filter((pool: { token_account_ids: string | any[]; id: any }) => {
+          return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
+        })
+        .filter(filterBlackListPools);
+    } else {
+      pools = [];
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
 export const getAllPoolsIndexer = async (amountThresh?: string) => {
   const rawRes = await fetch(
     config.indexerUrl +
@@ -358,7 +475,7 @@ export const getAllPoolsIndexer = async (amountThresh?: string) => {
       headers: getAuthenticationHeaders('/list-pools'),
     }
   ).then((res) => res.json());
-
+  console.log(rawRes, 'rawRes315>>>>>');
   return rawRes.map((r: any) => parsePool(r));
 };
 
@@ -645,6 +762,52 @@ export const getPoolsByIds = async ({
     });
 };
 
+export const getPoolsDetailByIds = async ({
+  pool_ids,
+}: {
+  pool_ids: string[];
+}): Promise<PoolRPCView[]> => {
+  const ids = pool_ids.join('|');
+  if (!ids) return [];
+
+  return Promise.all(
+    pool_ids.map((pool_id) => {
+      return fetch(config.indexerUrl + '/pool/detail?pool_id=' + pool_id, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/pool/detail'),
+        },
+      })
+        .then((res) => res.json())
+        .then((pools) => {
+          return pools.data;
+        })
+        .catch(() => {
+          return [];
+        });
+    })
+  );
+};
+
+export const getPoolsDetailById = async ({ pool_id }: { pool_id: string }) => {
+  return fetch(config.indexerUrl + '/pool/detail?pool_id=' + pool_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/pool/detail'),
+    },
+  })
+    .then((res) => res.json())
+    .then((pools) => {
+      console.log(pools);
+      return pools.data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
 export const getTokenPriceList = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/list-token-price', {
     method: 'GET',
@@ -687,7 +850,7 @@ export const _search = (args: any, pools: PoolRPCView[]) => {
 
 export const _order = (args: any, pools: PoolRPCView[]) => {
   let column = args.column || 'tvl';
-  let order = args.order || 'desc';
+  const order = args.order || 'desc';
   column = args.column === 'fee' ? 'total_fee' : column;
   return _.orderBy(pools, [column], [order]);
 };
@@ -840,6 +1003,19 @@ export const getAllVolume24h = async () => {
     .then((res) => res.json())
     .then((res) => {
       return res?.lastVolumeUSD;
+    });
+};
+
+export const getAllPoolData = async () => {
+  return await fetch(config.indexerUrl + '/all-pool-data', {
+    method: 'GET',
+    headers: {
+      ...getAuthenticationHeaders('/all-pool-data'),
+    },
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res.data;
     });
 };
 

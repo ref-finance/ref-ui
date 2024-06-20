@@ -76,8 +76,15 @@ import LiquidityV1PoolsMobile from 'src/pages/pools/LiquidityPage/MobileLiquidit
 import { PoolsTip } from '../../poolsComponents/poolsTip';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from 'src/components/icon/Common';
+import Pagination from '../../../../components/poolsPagination/Pagination';
 
 function MobileLiquidityPage({
+  h24VolumeV2,
+  totalItems,
+  pageSize,
+  handlePageChange,
+  handleSizeChange,
+  cardLoading,
   pools,
   tokenName,
   order,
@@ -92,7 +99,6 @@ function MobileLiquidityPage({
   hideLowTVL,
   allPools,
   poolTokenMetas,
-  poolsMorePoolsIds,
   farmCounts,
   farmOnly,
   setFarmOnly,
@@ -103,7 +109,15 @@ function MobileLiquidityPage({
   watchList,
   do_farms_v2_poos,
   farmAprById,
+  setTknType,
 }: {
+  cardLoading: boolean;
+  totalItems: number;
+  pageSize: number;
+  handlePageChange: (key: any, size: any) => void;
+  handleSizeChange: (key: number) => void;
+  h24VolumeV2: string;
+  farmAprById: Record<string, number>;
   pools: Pool[];
   poolTokenMetas: any;
   farmOnly: boolean;
@@ -120,7 +134,6 @@ function MobileLiquidityPage({
   onSearch: (name: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
-  poolsMorePoolsIds: Record<string, string[]>;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   switchActiveTab: (tab: string) => void;
@@ -128,7 +141,7 @@ function MobileLiquidityPage({
   watchV2Pools: PoolInfo[];
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
-  farmAprById: Record<string, number>;
+  setTknType: (key: string) => void;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -229,6 +242,10 @@ function MobileLiquidityPage({
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
   const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
 
+  useEffect(() => {
+    setTknType(selectCoinClass);
+  }, [selectCoinClass]);
+
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
 
@@ -303,7 +320,6 @@ function MobileLiquidityPage({
           watchV2Pools={watchV2Pools}
           farmCounts={farmCounts}
           volumes={volumes}
-          poolsMorePoolsIds={poolsMorePoolsIds}
           watchList={watchList}
           do_farms_v2_poos={do_farms_v2_poos}
           farmAprById={farmAprById}
@@ -524,7 +540,6 @@ function MobileLiquidityPage({
               selectCoinClass,
               poolTokenMetas,
               watchPools,
-              poolsMorePoolsIds,
               farmCounts,
               farmAprById,
               filterList,
@@ -535,7 +550,6 @@ function MobileLiquidityPage({
               onHide,
               pools,
               volumes,
-              poolFilterFunc,
             }}
           />
         )}
@@ -657,6 +671,16 @@ function MobileLiquidityPage({
             farmAprById={farmAprById}
           />
         )}
+        {activeTab == 'v1' && (
+          <div className="mt-10">
+            <Pagination
+              totalItems={totalItems}
+              itemsPerPage={pageSize}
+              onChangePage={handlePageChange}
+              onPageSizeChange={handleSizeChange}
+            ></Pagination>
+          </div>
+        )}
       </div>
       {isSignedIn && (
         <AddPoolModal
@@ -678,7 +702,6 @@ function MobileWatchListCard({
   farmCounts,
   volumes,
   watchV2Pools,
-  poolsMorePoolsIds,
   watchList,
   do_farms_v2_poos,
   farmAprById,
@@ -688,7 +711,6 @@ function MobileWatchListCard({
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
-  poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
   do_farms_v2_poos: Record<string, Seed>;
   farmAprById: Record<string, number>;
@@ -788,7 +810,6 @@ function MobileWatchListCard({
                     sortBy={sortBy}
                     pool={pool}
                     watched={!!find(watchPools, { id: pool.id })}
-                    morePoolIds={poolsMorePoolsIds[pool.id]}
                     supportFarm={!!farmCounts[pool.id]}
                     h24volume={volumes[pool.id]}
                     watchPool

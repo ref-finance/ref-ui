@@ -1,7 +1,6 @@
 import crypto from 'crypto-browserify';
 
-// const key = process.env.NEXT_PUBLIC_CRYPTO_KEY;
-const key = '8309c61008a5f5ba6c51bbf977781c55';
+const key = process.env.REACT_APP_NEAR_ENV;
 
 export const getSignature = (plaintext: string) => {
   if (!key) return;

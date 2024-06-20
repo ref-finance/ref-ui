@@ -20,6 +20,7 @@ import {
   getSharesInPool,
   getTotalPools,
   parsePool,
+  parsePoolNew,
   Pool,
   PoolDetails,
   removeLiquidityFromPool,
@@ -41,6 +42,8 @@ import {
   _order,
   _search,
   getTopPools,
+  getTopPoolsByNewUI,
+  getSearchResult,
   getPool,
   get24hVolumes,
   getV3PoolVolumeById,
@@ -60,6 +63,7 @@ import {
   getDCLTopBinFee,
   getTokenPriceList,
   getIndexerStatus,
+  getPoolsDetailByIds,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import {
@@ -283,10 +287,11 @@ export const usePool = (id: number | string) => {
 };
 
 interface LoadPoolsOpts {
-  accumulate: boolean;
+  accumulate?: boolean;
   tokenName?: string;
   sortBy?: string;
   order?: string;
+  getTopPoolsProps?: any;
 }
 
 export function useScrollToTopOnFirstPage() {
@@ -320,17 +325,25 @@ export const usePools = (props: {
   tokenName?: string;
   sortBy?: string;
   order?: string;
+  getTopPoolsProps?: any;
+  activeTab?: any;
 }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pools, setPools] = useState<Pool[]>([]);
-  const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
+  const [rawPools, setRawPools] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [cardLoading, setCardLoding] = useState(true);
   const [requestPoolList, setRequestPoolList] = useState<string[]>();
 
+  const [shortSavePools, setShortSavePools] = useState([]);
   useEffect(() => {
-    if (!loading) {
+    setPools([]);
+    if (props.activeTab == 'v1') setLoading(true);
+  }, [props.activeTab]);
+
+  useEffect(() => {
+    if (!loading && rawPools.length) {
       setRequestPoolList(
         rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
       );
@@ -341,7 +354,25 @@ export const usePools = (props: {
 
   const nextPage = () => setPage((page) => page + 1);
 
-  function _loadPools({
+  function _loadPools({ getTopPoolsProps }: LoadPoolsOpts) {
+    getSearchResult({ ...getTopPoolsProps, token_list: props.tokenName })
+      .then(async (res) => {
+        const pools =
+          res.length > 0 ? res.map((item) => parsePoolNew(item)) : [];
+
+        setShortSavePools(pools);
+
+        // setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
+
+        setPools(pools);
+      })
+      .finally(() => {
+        setLoading(false);
+        setCardLoding(false);
+      });
+  }
+
+  function _loadPoolsOri({
     accumulate = true,
     tokenName,
     sortBy,
@@ -362,6 +393,7 @@ export const usePools = (props: {
         setRawPools(rawPools);
 
         setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
+
         setPools((currentPools) =>
           pools.reduce<Pool[]>(
             (acc: Pool[], pool) => {
@@ -382,42 +414,93 @@ export const usePools = (props: {
           )
         );
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setCardLoding(false);
+      });
   }
-
-  const loadPools = useCallback(debounce(_loadPools, 500), []);
-
+  const loadPools = props.activeTab == 'v1' ? _loadPools : _loadPoolsOri;
   useEffect(() => {
-    const args = {
-      page,
-      perPage: DEFAULT_PAGE_LIMIT,
-      tokenName: trim(props.tokenName),
-      column: props.sortBy,
-      order: props.order,
-    };
+    if (props.activeTab != 'v1') {
+      const args = {
+        page,
+        perPage: DEFAULT_PAGE_LIMIT,
+        tokenName: trim(props.tokenName),
+        column: props.sortBy,
+        order: props.order,
+      };
 
-    const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
-      parsePool(rawPool)
-    );
-    setPools(newPools);
+      const newPools = _order(args, _search(args, rawPools)).map((rawPool) =>
+        parsePool(rawPool)
+      );
+      setPools(newPools);
+    }
   }, [props.sortBy, props.order, props.tokenName, rawPools]);
 
   useEffect(() => {
-    setLoading(true);
-    loadPools({
-      accumulate: true,
-      tokenName: props.tokenName,
-      sortBy: props.sortBy,
-      order: props.order,
-    });
-  }, [page]);
+    if (props.activeTab == 'v1') {
+      if (props.tokenName) {
+        setCardLoding(true);
+        getSearchResult({
+          ...props.getTopPoolsProps,
+          token_list: props.tokenName,
+        })
+          .then(async (res) => {
+            const pools =
+              res.length > 0 ? res.map((item) => parsePoolNew(item)) : [];
+            setShortSavePools(pools);
+            setHasMore(pools.length === DEFAULT_PAGE_LIMIT);
+            setPools(pools);
+          })
+          .finally(() => {
+            setLoading(false);
+            setCardLoding(false);
+          });
+      } else {
+        setCardLoding(true);
+        loadPools({
+          getTopPoolsProps: props.getTopPoolsProps,
+        });
+      }
+    }
+  }, [props.tokenName]);
 
+  useEffect(() => {
+    if (props.activeTab != 'v1') {
+      setLoading(true);
+      loadPools({
+        accumulate: true,
+        tokenName: props.tokenName,
+        sortBy: props.sortBy,
+        order: props.order,
+      });
+    }
+  }, [page, props.activeTab]);
+
+  useEffect(() => {
+    if (props.activeTab == 'v1') {
+      setCardLoding(true);
+      loadPools({
+        getTopPoolsProps: props.getTopPoolsProps,
+      });
+    }
+  }, [
+    props.getTopPoolsProps.farm,
+    props.getTopPoolsProps.hide_low_pool,
+    props.getTopPoolsProps.type,
+    props.getTopPoolsProps.sort,
+    props.getTopPoolsProps.order,
+    props.getTopPoolsProps.order_by,
+    props.getTopPoolsProps.offset,
+    props.getTopPoolsProps.token_type,
+  ]);
   return {
     pools,
     hasMore,
     nextPage,
     loading,
     volumes,
+    cardLoading,
   };
 };
 
@@ -442,48 +525,48 @@ export const useMorePoolIds = ({
   return ids;
 };
 
-export const usePoolsMorePoolIds = () => {
-  // top pool id to more pool ids:Array
-  const [poolsMorePoolIds, setMorePoolIds] = useState<Record<string, string[]>>(
-    {}
-  );
+// export const usePoolsMorePoolIds = () => {
+//   // top pool id to more pool ids:Array
+//   const [poolsMorePoolIds, setMorePoolIds] = useState<Record<string, string[]>>(
+//     {}
+//   );
 
-  const getAllPoolsTokens = async () => {
-    return (await getAllPoolsIndexer()).filter(
-      (p: Pool) => p.pool_kind && p.pool_kind === 'SIMPLE_POOL'
-    );
-  };
+//   const getAllPoolsTokens = async () => {
+//     return (await getAllPoolsIndexer()).filter(
+//       (p: Pool) => p.pool_kind && p.pool_kind === 'SIMPLE_POOL'
+//     );
+//   };
 
-  useEffect(() => {
-    getAllPoolsTokens().then((res) => {
-      const poolsMorePoolIds = res.map((p: any) => {
-        const id1 = p.tokenIds[0];
-        const id2 = p.tokenIds[1];
+//   useEffect(() => {
+//     getAllPoolsTokens().then((res) => {
+//       const poolsMorePoolIds = res.map((p: any) => {
+//         const id1 = p.tokenIds[0];
+//         const id2 = p.tokenIds[1];
 
-        return res
-          .filter(
-            (resP: any) =>
-              resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
-          )
-          .map((a: any) => a.id.toString());
-      });
+//         return res
+//           .filter(
+//             (resP: any) =>
+//               resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
+//           )
+//           .map((a: any) => a.id.toString());
+//       });
 
-      const parsedIds = poolsMorePoolIds.reduce(
-        (acc: any, cur: any, i: number) => {
-          return {
-            ...acc,
-            [res[i].id.toString()]: cur,
-          };
-        },
-        {}
-      );
+//       const parsedIds = poolsMorePoolIds.reduce(
+//         (acc: any, cur: any, i: number) => {
+//           return {
+//             ...acc,
+//             [res[i].id.toString()]: cur,
+//           };
+//         },
+//         {}
+//       );
 
-      setMorePoolIds(parsedIds);
-    });
-  }, []);
+//       setMorePoolIds(parsedIds);
+//     });
+//   }, []);
 
-  return poolsMorePoolIds;
-};
+//   return poolsMorePoolIds;
+// };
 
 export const useMorePools = ({
   tokenIds,
@@ -694,26 +777,54 @@ export const useWatchPools = () => {
       }
     });
     if (ids_v1.length > 0) {
-      getPoolsByIds({ pool_ids: ids_v1 })
-        .then((res) => {
-          const resPools = res.map((pool) => parsePool(pool));
+      //
+      const knownPoolIds = new Set(ALL_STABLE_POOL_IDS);
+      const knownIds_v1 = ids_v1.filter((id) => knownPoolIds.has(id));
+      const unknownIds_v1 = ids_v1.filter((id) => !knownPoolIds.has(id));
 
-          return resPools;
+      Promise.all([
+        getPoolsByIds({ pool_ids: knownIds_v1 })
+          .then((res) => {
+            const resPools = res.map((pool) => parsePool(pool));
+
+            return resPools;
+          })
+          .then((resPools) => {
+            return Promise.all(
+              resPools.map(async (p) => {
+                return {
+                  ...p,
+                  metas: await ftGetTokensMetadata(p.tokenIds),
+                };
+              })
+            );
+          }),
+        getSearchResult({
+          onlyUseId: true,
+          pool_id_list: unknownIds_v1.join(','),
         })
-        .then((resPools) => {
-          return Promise.all(
-            resPools.map(async (p) => {
-              return {
-                ...p,
-                metas: await ftGetTokensMetadata(p.tokenIds),
-              };
-            })
-          );
-        })
-        .then((res) => {
-          setWatchPools(res);
-        });
+          .then((res) => {
+            const resPools = res.map((pool) => parsePoolNew(pool));
+
+            return resPools;
+          })
+          .then((resPools) => {
+            return Promise.all(
+              resPools.map(async (p) => {
+                return {
+                  ...p,
+                  metas: await ftGetTokensMetadata(p.tokenIds),
+                };
+              })
+            );
+          }),
+      ]).then(([res1, res2]) => {
+        const allPools = [...res1, ...res2];
+        setWatchPools(allPools);
+      });
     }
+
+    //
     if (ids_v2.length > 0) {
       getV2PoolsByIds(ids_v2).then((res: PoolInfo[]) => {
         setWatchV2Pools(
