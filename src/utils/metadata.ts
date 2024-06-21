@@ -65,6 +65,8 @@ const icons: { [tokenId: string]: string } = {
     'https://assets.ref.finance/images/blackdragon-icon.png',
   '22.contract.portalbridge.near':
     'https://assets.ref.finance/images/SOLWormhole.svg',
+  'babyblackdragon.tkn.near':
+    'https://assets.ref.finance/images/babyblackdragon.png',
 };
 
 export default icons;
