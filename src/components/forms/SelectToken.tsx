@@ -50,6 +50,7 @@ import {
   USDCe_TOKEN_ID,
   USDT_TOKEN_ID,
   USDTe_TOKEN_ID,
+  BRRR_TOKEN_ID,
   USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 import {
@@ -82,7 +83,7 @@ import SelectTokenTable from './SelectTokenTable';
 import CustomTooltip from '../customTooltip/customTooltip';
 const configV2 = getConfigV2();
 
-export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
+export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST2';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -643,6 +644,7 @@ export default function SelectToken({
       const init = [
         'near',
         REF_TOKEN_ID,
+        BRRR_TOKEN_ID,
         USDC_TOKEN_ID,
         USDT_TOKEN_ID,
         USDCe_TOKEN_ID,

@@ -170,6 +170,7 @@ export default function getConfig(
         USDTe_TOKEN_ID:
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
         XREF_TOKEN_ID: 'xtoken.ref-finance.near',
+        BRRR_TOKEN_ID: 'token.burrow.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
@@ -339,6 +340,7 @@ export default function getConfig(
         USDT_TOKEN_ID: 'usdtt.fakes.testnet',
         USDCe_TOKEN_ID: 'usdc.fakes.testnet',
         USDTe_TOKEN_ID: 'usdt.fakes.testnet',
+        BRRR_TOKEN_ID: 'brrr.ft.ref-labs.testnet',
         XREF_TOKEN_ID: 'xref.ref-finance.testnet',
         REF_VE_CONTRACT_ID: 'v010.refve.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
@@ -441,6 +443,7 @@ export default function getConfig(
         USDT_TOKEN_ID: 'usdtt.fakes.testnet',
         USDCe_TOKEN_ID: 'usdc.fakes.testnet',
         USDTe_TOKEN_ID: 'usdt.fakes.testnet',
+        BRRR_TOKEN_ID: '',
         XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
@@ -543,6 +546,7 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         USDTe_TOKEN_ID:
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+        BRRR_TOKEN_ID: 'token.burrow.near',
         XREF_TOKEN_ID: 'xtoken.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
