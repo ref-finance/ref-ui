@@ -119,6 +119,7 @@ function UserRankingModal(props: any) {
     setSelectedToken(token);
     setIsOpenToken(false);
     setSorted(false);
+    setCurrentPage(1);
   };
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
