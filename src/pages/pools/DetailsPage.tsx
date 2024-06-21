@@ -45,7 +45,7 @@ import { toRealSymbol } from 'src/utils/token';
 
 import { ModalClose } from 'src/components/icon';
 import { useHistory } from 'react-router';
-import { getPool, getTxId } from 'src/services/indexer';
+import { getPool, getTxId, getPoolsDetailById } from 'src/services/indexer';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
@@ -91,8 +91,13 @@ import {
   scientificNotationToString,
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
+import {
+  isStablePool,
+  BLACKLIST_POOL_IDS,
+  AllStableTokenIds,
+  ALL_STABLE_POOL_IDS,
+} from '../../services/near';
 import { canFarmV2, canFarmV1 } from '../../services/pool';
-import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
@@ -1316,7 +1321,7 @@ function MyShares({
     farmStake,
     Number(poolId) === Number(getVEPoolId()) ? lptAmount || '0' : '0'
   );
-  let sharePercent = percent(userTotalShare.valueOf(), totalShares);
+  const sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
@@ -2338,6 +2343,8 @@ export default function PoolDetailsPage() {
   const [showFunding, setShowFunding] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [poolTVL, setPoolTVL] = useState<number>();
+  const [allData, setAllData] = useState(null);
+
   const [backToFarmsButton, setBackToFarmsButton] = useState<Boolean>(false);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
   const [chartDisplay, setChartDisplay] = useState<'volume' | 'tvl'>('volume');
@@ -2398,6 +2405,12 @@ export default function PoolDetailsPage() {
     getWatchListFromDb({ pool_id: id }).then((watchlist) => {
       setShowFullStar(watchlist.length > 0);
     });
+    const knownPoolIds = new Set(ALL_STABLE_POOL_IDS);
+    if (!knownPoolIds.has(id)) {
+      getPoolsDetailById({ pool_id: id }).then((pool) => {
+        setAllData(pool);
+      });
+    }
   }, []);
 
   const tokenAmountShareRaw = (
@@ -2581,19 +2594,19 @@ export default function PoolDetailsPage() {
   }
   function valueOfNearTokenTip() {
     const tip = intl.formatMessage({ id: 'awesomeNear_verified_token' });
-    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
 
   function add_to_watchlist_tip() {
     const tip = intl.formatMessage({ id: 'add_to_watchlist' });
-    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
 
   function remove_from_watchlist_tip() {
     const tip = intl.formatMessage({ id: 'remove_from_watchlist' });
-    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
 
@@ -2790,114 +2803,213 @@ export default function PoolDetailsPage() {
               )}
             </Card>
 
-            <div className="flex items-center justify-between xs:gap-2 md:gap-2 xs:grid md:grid xs:grid-rows-2 xs:grid-cols-2 md:grid-cols-2 md:grid-rows-2 mb-8 w-full ">
-              <InfoCard
-                title={
-                  <FormattedMessage
-                    id="TVL"
-                    defaultMessage={'TVL'}
-                  ></FormattedMessage>
-                }
-                id="tvl"
-                value={
-                  !poolTVL
-                    ? '-'
-                    : `$${
-                        Number(poolTVL) < 0.01 && Number(poolTVL) > 0
-                          ? '< 0.01'
-                          : toInternationalCurrencySystem(
-                              poolTVL?.toString() || '0',
-                              2
-                            )
-                      }`
-                }
-                valueTitle={poolTVL?.toString()}
-              />
-
-              <InfoCard
-                title={
-                  <FormattedMessage
-                    id="h24_volume_bracket"
-                    defaultMessage="Volume(24h)"
-                  />
-                }
-                id="volume"
-                value={
-                  dayVolume
-                    ? '$' + toInternationalCurrencySystem(dayVolume)
-                    : '-'
-                }
-                valueTitle={dayVolume}
-              />
-
-              <InfoCard
-                title={
-                  <FormattedMessage id="fee_24h" defaultMessage="Fee(24h)" />
-                }
-                id="fee_24h"
-                value={
-                  dayVolume
-                    ? `$${toInternationalCurrencySystemLongString(
-                        getPoolFee24h(dayVolume, pool).toString(),
-                        2
-                      )}`
-                    : '-'
-                }
-                valueTitle={
-                  dayVolume ? `$${getPoolFee24h(dayVolume, pool)}` : '-'
-                }
-              />
-              <InfoCard
-                title={
-                  <>
-                    <FormattedMessage id="apr" defaultMessage="APR" />
-                    &nbsp;
-                  </>
-                }
-                id="apr"
-                value={
-                  <div
-                    data-type="info"
-                    data-place="left"
-                    data-multiline={true}
-                    data-class={'reactTip'}
-                    data-tooltip-html={getPoolListFarmAprTip()}
-                    data-tooltip-id={'pool_list_pc_apr' + pool.id}
-                  >
-                    {!poolTVL
+            {allData?.id ? (
+              <div className="flex items-center justify-between xs:gap-2 md:gap-2 xs:grid md:grid xs:grid-rows-2 xs:grid-cols-2 md:grid-cols-2 md:grid-rows-2 mb-8 w-full ">
+                <InfoCard
+                  title={
+                    <FormattedMessage
+                      id="TVL"
+                      defaultMessage={'TVL'}
+                    ></FormattedMessage>
+                  }
+                  id="tvl"
+                  value={
+                    !allData.tvl
                       ? '-'
-                      : dayVolume
-                      ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
-                      : '-'}
-                    {poolTVL &&
-                    dayVolume &&
-                    seedFarms &&
-                    BaseApr().rawApr > 0 ? (
-                      <span className="text-xs text-gradientFrom">
-                        {` +` + BaseApr().displayApr}
-                      </span>
-                    ) : null}
+                      : `$${
+                          Number(allData.tvl) < 0.01 && Number(allData.tvl) > 0
+                            ? '< 0.01'
+                            : toInternationalCurrencySystem(
+                                allData.tvl?.toString() || '0',
+                                2
+                              )
+                        }`
+                  }
+                  valueTitle={allData.tvl?.toString()}
+                />
 
-                    {!!seedFarms &&
-                      !isMobile() &&
-                      seedFarms &&
-                      BaseApr().rawApr > 0 && (
-                        <CustomTooltip
-                          className="w-20"
-                          id={'pool_list_pc_apr' + pool.id}
-                          place="right"
-                        />
+                <InfoCard
+                  title={
+                    <FormattedMessage
+                      id="h24_volume_bracket"
+                      defaultMessage="Volume(24h)"
+                    />
+                  }
+                  id="volume"
+                  value={
+                    allData.volume_24h
+                      ? '$' + toInternationalCurrencySystem(allData.volume_24h)
+                      : '-'
+                  }
+                  valueTitle={allData.volume_24h}
+                />
+
+                <InfoCard
+                  title={
+                    <FormattedMessage id="fee_24h" defaultMessage="Fee(24h)" />
+                  }
+                  id="fee_24h"
+                  value={
+                    allData.fee_volume_24h
+                      ? `$${toInternationalCurrencySystemLongString(
+                          allData.fee_volume_24h,
+                          2
+                        )}`
+                      : '-'
+                  }
+                  valueTitle={
+                    allData.fee_volume_24h ? `$${allData.fee_volume_24h}` : '-'
+                  }
+                />
+                <InfoCard
+                  title={
+                    <>
+                      <FormattedMessage id="apr" defaultMessage="APR" />
+                      &nbsp;
+                      {/* {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
+                    <>
+                      (
+                      <FormattedMessage id="pool" defaultMessage={'Pool'} /> +
+                      <FormattedMessage id="farm" defaultMessage={'Farm'} />)
+                    </>
+                  )} */}
+                    </>
+                  }
+                  id="apr"
+                  value={
+                    <div
+                      data-type="info"
+                      data-place="left"
+                      data-multiline={true}
+                      data-class={'reactTip'}
+                      data-tooltip-html={getPoolListFarmAprTip()}
+                      data-tooltip-id={'pool_list_pc_apr' + pool.id}
+                    >
+                      {Number(allData.apy).toFixed(2)}%
+                      {Number(allData.farm_apy) > 0 && (
+                        <span className="text-xs text-gradientFrom">
+                          {` +` + formatNumber(allData.farm_apy, 2) + '%'}
+                        </span>
                       )}
-                  </div>
-                }
-              />
-            </div>
+                    </div>
+                  }
+                />
+              </div>
+            ) : (
+              <div className="flex items-center justify-between xs:gap-2 md:gap-2 xs:grid md:grid xs:grid-rows-2 xs:grid-cols-2 md:grid-cols-2 md:grid-rows-2 mb-8 w-full ">
+                <InfoCard
+                  title={
+                    <FormattedMessage
+                      id="TVL"
+                      defaultMessage={'TVL'}
+                    ></FormattedMessage>
+                  }
+                  id="tvl"
+                  value={
+                    !poolTVL
+                      ? '-'
+                      : `$${
+                          Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                            ? '< 0.01'
+                            : toInternationalCurrencySystem(
+                                poolTVL?.toString() || '0',
+                                2
+                              )
+                        }`
+                  }
+                  valueTitle={poolTVL?.toString()}
+                />
+
+                <InfoCard
+                  title={
+                    <FormattedMessage
+                      id="h24_volume_bracket"
+                      defaultMessage="Volume(24h)"
+                    />
+                  }
+                  id="volume"
+                  value={
+                    dayVolume
+                      ? '$' + toInternationalCurrencySystem(dayVolume)
+                      : '-'
+                  }
+                  valueTitle={dayVolume}
+                />
+
+                <InfoCard
+                  title={
+                    <FormattedMessage id="fee_24h" defaultMessage="Fee(24h)" />
+                  }
+                  id="fee_24h"
+                  value={
+                    dayVolume
+                      ? `$${toInternationalCurrencySystemLongString(
+                          getPoolFee24h(dayVolume, pool).toString(),
+                          2
+                        )}`
+                      : '-'
+                  }
+                  valueTitle={
+                    dayVolume ? `$${getPoolFee24h(dayVolume, pool)}` : '-'
+                  }
+                />
+                <InfoCard
+                  title={
+                    <>
+                      <FormattedMessage id="apr" defaultMessage="APR" />
+                      &nbsp;
+                      {/* {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
+                      <>
+                        (
+                        <FormattedMessage id="pool" defaultMessage={'Pool'} /> +
+                        <FormattedMessage id="farm" defaultMessage={'Farm'} />)
+                      </>
+                    )} */}
+                    </>
+                  }
+                  id="apr"
+                  value={
+                    <div
+                      data-type="info"
+                      data-place="left"
+                      data-multiline={true}
+                      data-class={'reactTip'}
+                      data-tooltip-html={getPoolListFarmAprTip()}
+                      data-tooltip-id={'pool_list_pc_apr' + pool.id}
+                    >
+                      {!poolTVL
+                        ? '-'
+                        : dayVolume
+                        ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
+                        : '-'}
+                      {poolTVL &&
+                      dayVolume &&
+                      seedFarms &&
+                      BaseApr().rawApr > 0 ? (
+                        <span className="text-xs text-gradientFrom">
+                          {` +` + BaseApr().displayApr}
+                        </span>
+                      ) : null}
+                      {!!seedFarms &&
+                        !isMobile() &&
+                        seedFarms &&
+                        BaseApr().rawApr > 0 && (
+                          <CustomTooltip
+                            className="w-20"
+                            id={'pool_list_pc_apr' + pool.id}
+                            place="right"
+                          />
+                        )}
+                    </div>
+                  }
+                />
+              </div>
+            )}
             {pool?.id && (
               <div className="mt-2.5 mb-10">
                 <LockLP userShares={shares} pool={pool} tokens={tokens} />
               </div>
             )}
-
             <div className="text-white text-base mb-3 font-gothamBold w-full">
               <FormattedMessage
                 id="pool_composition"
@@ -3291,16 +3403,17 @@ export default function PoolDetailsPage() {
   );
 }
 
-export const formatNumber = (v: string | number) => {
+export const formatNumber = (v: string | number, decimal?: number) => {
   const big = Big(v || 0);
   if (big.eq(0)) {
     return '0';
   } else if (big.lt(0.001)) {
     return '<0.001';
   } else {
-    return big.toFixed(3, 1);
+    return big.toFixed(decimal || 3, 1);
   }
 };
+
 function setIsLoading(arg0: boolean) {
   throw new Error('Function not implemented.');
 }

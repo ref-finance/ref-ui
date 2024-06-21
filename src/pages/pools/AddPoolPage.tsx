@@ -93,7 +93,7 @@ export function AddPoolModal(
   const isMobile = useClientMobile();
   const cardWidth = isMobile ? '98vw' : '450px';
 
-  if (!tokens || !balances) return <Loading />;
+  // if (!tokens || !balances) return <Loading />;
   if (!props.isOpen) return null;
 
   const render = (token: TokenMetadata) => {
