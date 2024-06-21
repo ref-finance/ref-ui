@@ -324,7 +324,7 @@ export default function getConfig(
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
-        memeRankApiUrl: 'https://test.api.cclp.finance/v3',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -425,7 +425,7 @@ export default function getConfig(
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
-        memeRankApiUrl: 'https://test.api.cclp.finance/v3',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
