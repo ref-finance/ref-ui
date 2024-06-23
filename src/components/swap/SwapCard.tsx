@@ -12,7 +12,7 @@ import React, {
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { CountdownTimer } from '../../components/icon';
+import { DEFLATION_MARK } from '../../utils/token';
 import { RateExchangeMobile } from '../../components/icon/Common';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { TextWrapper } from '../../pages/Orderly/components/UserBoard';
@@ -28,6 +28,7 @@ import {
   ftGetBalance,
   REF_META_DATA,
   TokenMetadata,
+  tokenFtMetadata,
 } from '../../services/ft-contract';
 import { USD_CLASS_STABLE_TOKEN_IDS } from '../../services/near';
 import {
@@ -731,6 +732,8 @@ export default function SwapCard(props: {
 
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
+  const [tokenDeflationRateData, setTokenDeflationRateData] =
+    useState<Record<string, any>>();
 
   const intl = useIntl();
   const location = useLocation();
@@ -910,7 +913,29 @@ export default function SwapCard(props: {
       setWrapOperation(false);
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
-
+  useEffect(() => {
+    if (tokenIn?.id) {
+      if (tokenIn?.id.includes(DEFLATION_MARK)) {
+        getTokenDeflationRate();
+      } else {
+        setTokenDeflationRateData({
+          rate: '0',
+          done: true,
+        });
+      }
+    } else {
+      setTokenDeflationRateData(undefined);
+    }
+  }, [tokenIn?.id]);
+  async function getTokenDeflationRate() {
+    setTokenDeflationRateData(undefined);
+    const tokenMeta = await tokenFtMetadata(tokenIn.id);
+    const rate = (tokenMeta.sell_burn_rate + tokenMeta.sell_fee_rate) / 1000000;
+    setTokenDeflationRateData({
+      rate,
+      done: true,
+    });
+  }
   function getStorageTokenId() {
     const in_key = localStorage.getItem(SWAP_IN_KEY);
     const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
@@ -959,10 +984,11 @@ export default function SwapCard(props: {
   useSwapPopUp();
 
   useCrossSwapPopUp();
-
   useRefSwapPro({
     tokenIn,
-    tokenInAmount,
+    tokenInAmount: Big(1 - (tokenDeflationRateData?.rate || 0))
+      .mul(tokenInAmount || 0)
+      .toFixed(),
     tokenOut,
     slippageTolerance,
     setLoadingData,
@@ -977,6 +1003,7 @@ export default function SwapCard(props: {
     setQuoting,
     setReEstimateTrigger,
     quoting,
+    tokenDeflationRateData,
   });
 
   useEffect(() => {

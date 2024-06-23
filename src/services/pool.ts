@@ -63,6 +63,7 @@ import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { cacheAllDCLPools } from './swapV3';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 import getConfigV2 from '../services/configV2';
+import { DEFLATION_MARK } from '../utils/token';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 
 const explorerType = getExplorer();
@@ -754,7 +755,6 @@ export const addLiquidityToPool = async ({
   id,
   tokenAmounts,
 }: AddLiquidityToPoolOptions) => {
-  const deflation_mark = 'tknx';
   let amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
@@ -766,7 +766,7 @@ export const addLiquidityToPool = async ({
   // add deflation calc logic
   const tknx_tokens = tokenAmounts
     .map((item) => item.token)
-    .filter((token) => token.id.includes(deflation_mark));
+    .filter((token) => token.id.includes(DEFLATION_MARK));
   if (tknx_tokens.length > 0) {
     const pending = tknx_tokens.map((token) => tokenFtMetadata(token.id));
     const tokenFtMetadatas = await Promise.all(pending);
@@ -828,7 +828,7 @@ export const predictLiquidityShares = async (
 ): Promise<string> => {
   return refFiViewFunction({
     methodName: 'predict_add_stable_liquidity',
-    args: { pool_id: pool_id, amounts },
+    args: { pool_id, amounts },
   });
 };
 
