@@ -32,6 +32,7 @@ import { PerpOrSpot } from './utiles';
 import { FormattedMessage } from 'react-intl';
 import { NewUserTip } from './components/Common/NewUserTip';
 import BlockOrderBookTip from './BlockOrderBookTip';
+import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -265,13 +266,13 @@ function OrderlyTradingBoard() {
     <>
       <div className="mx-auto relative xs:bottom-6 bottom-9">
         {/* todo  */}
-        {!isMobile && <PerpOrderlyTip />}
+        {/* {!isMobile && <PerpOrderlyTip />} */}
         {!isMobile && <TradingBoard></TradingBoard>}
 
         {isMobile && <MobileTradingBoard></MobileTradingBoard>}
       </div>
       {/* todo  */}
-      {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
+      {/* {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>} */}
     </>
   );
 }
