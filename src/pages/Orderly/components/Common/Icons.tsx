@@ -612,6 +612,7 @@ export function MobileIconCloseUp({ transform }: { transform?: boolean }) {
 export function OrderlyUnderMaintainIcon(props: any) {
   return (
     <svg
+      {...props}
       width="156"
       height="145"
       viewBox="0 0 156 145"

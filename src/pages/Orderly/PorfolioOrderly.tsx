@@ -58,6 +58,7 @@ const configV2 = getConfigV2();
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { constOrderlyPageSize } from 'src/pages/Orderly/orderly/constant';
 import { MobileView, PCView } from 'src/components/deviceView/deviceView';
+import BlockOrderBookTip from './BlockOrderBookTip';
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
 
@@ -822,5 +823,27 @@ function PortfolioOrderly() {
     </PortfolioOrderlyData.Provider>
   );
 }
-
-export default PortfolioOrderly;
+export default function OrderBookPortfolio() {
+  const disbaledWallet = ['okx-wallet'];
+  const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
+  const isBlock = disbaledWallet.includes(selectedWalletId);
+  if (isBlock)
+    return (
+      <div className="flex items-stretch  pb-20 md:pb-0 lg:pb-0 w-full h-full lg:-mt-12">
+        {/* Navigation */}
+        <div
+          style={{ width: '280px' }}
+          className="pl-5 py-4 pr-4 flex-shrink-0 hidden md:block lg:block"
+        >
+          <Navigation />
+        </div>
+        <div
+          className="flex justify-center "
+          style={{ width: isMobile() ? '100%' : 'calc(100% - 280px)' }}
+        >
+          <BlockOrderBookTip />
+        </div>
+      </div>
+    );
+  return <PortfolioOrderly />;
+}

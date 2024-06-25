@@ -45,7 +45,8 @@ import {
   useOrderlyPortfolioAssets,
 } from '../../pages/Orderly/components/AssetModal/state';
 import { usePerpData } from '../../pages/Orderly/components/UserBoardPerp/state';
-export default function OrderlyPanel() {
+import { OrderlyUnderMaintainIcon } from '../../pages/Orderly/components/Common/Icons';
+function OrderlyPanel() {
   const {
     tokenPriceList,
     isSignedIn,
@@ -246,4 +247,30 @@ function validContract() {
 
     return true;
   }
+}
+export default function OrderBookPortfolio() {
+  const { is_mobile } = useContext(OverviewData);
+  const disbaledWallet = ['okx-wallet'];
+  const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
+  const isBlock = disbaledWallet.includes(selectedWalletId);
+  if (isBlock)
+    return (
+      <div
+        className={`flex flex-col justify-between bg-swapCardGradient rounded-2xl px-5 py-4 w-1 xsm:w-full flex-grow overflow-hidden relative xsm:mb-3`}
+        style={{ height: is_mobile ? '115px' : '176px' }}
+      >
+        <span className="text-base text-overviewPurpleColor gotham_bold">
+          Orderly
+        </span>
+        <div className="flex flex-col items-center justify-center relative -top-5 xsm:-top-14">
+          <div className="transform scale-75 xsm:scale-50">
+            <OrderlyUnderMaintainIcon removeText={true} />
+          </div>
+          <div className="text-white text-xs gotham_bold text-center -mt-6 xsm:-mt-12">
+            This wallet doesn't support Orderbook.
+          </div>
+        </div>
+      </div>
+    );
+  return <OrderlyPanel />;
 }
