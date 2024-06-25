@@ -158,13 +158,13 @@ const Staking = () => {
                       width: '33.875rem',
                     }}
                   >
-                    <div className="w-32 flex-grow mr-4 border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
+                    <div className="w-32 mr-4 border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
                       Detail
                     </div>
-                    {/* <div className="w-32 mr-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base">
+                    <div className="w-32 mr-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base">
                       Vote
-                    </div> */}
-                    <div className="w-32 flex-grow border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base">
+                    </div>
+                    <div className="w-32 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base">
                       Donate
                     </div>
                   </div>
@@ -173,7 +173,7 @@ const Staking = () => {
             )}
           <div className="lg:flex lg:justify-center xsm:-mx-5">
             <div
-              className="w-32 flex-grow lg:mr-4 xsm:hidden border border-swapCardBorder bg-memeModelgreyColor 
+              className="lg:w-32 lg:mr-4 xsm:hidden border border-swapCardBorder bg-memeModelgreyColor 
               rounded-lg h-12 flex items-center cursor-pointer justify-center text-white text-base gotham_bold"
               onClick={() => {
                 setVoteDetailsModal(true);
@@ -181,16 +181,17 @@ const Staking = () => {
             >
               Detail
             </div>
-            {/* <div
+            <div
               className="lg:w-32 lg:mr-4 xsm:mb-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base cursor-pointer gotham_bold"
               onClick={() => {
                 setIsVoteOpen(true);
               }}
             >
               Vote
-            </div> */}
+            </div>
             <div
-              className="w-32 flex-grow xsm:w-full xsm:mb-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base cursor-pointer gotham_bold"
+              className="lg:w-32 xsm:w-full xsm:mb-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center 
+              justify-center text-greenLight text-base cursor-pointer gotham_bold"
               onClick={() => {
                 setIsDonateOpen(true);
               }}
