@@ -5,7 +5,7 @@ export default function BlockOrderBookTip() {
   return (
     <div
       className="flex flex-col items-center justify-center"
-      // style={{ marginTop: 'calc(100% - 90%)' }}
+      style={{ marginTop: 'calc(100% - 90%)' }}
     >
       <OrderlyUnderMaintainIcon removeText={true}></OrderlyUnderMaintainIcon>
       <div className="text-white text-base gotham_bold text-center">
