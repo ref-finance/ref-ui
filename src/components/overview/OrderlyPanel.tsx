@@ -248,7 +248,7 @@ function validContract() {
     return true;
   }
 }
-export default function OrderBookPortfolio() {
+export default function OrderlyPanelContainer() {
   const { is_mobile } = useContext(OverviewData);
   const disbaledWallet = ['okx-wallet'];
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
