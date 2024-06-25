@@ -15,4 +15,4 @@ export const toRealSymbol = (symbol: string) => {
 export const getMftTokenId = (id: string) => {
   return ':' + id;
 };
-export const DEFLATION_MARK = 'tknx';
+export const DEFLATION_MARK = 'tkns';

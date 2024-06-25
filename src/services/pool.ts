@@ -773,7 +773,9 @@ export const addLiquidityToPool = async ({
     const rate = tokenFtMetadatas.reduce((acc, cur, index) => {
       return {
         ...acc,
-        [tknx_tokens[index].id]: cur.sell_burn_rate + cur.sell_fee_rate,
+        [tknx_tokens[index].id]:
+          (cur?.deflation_strategy?.fee_strategy?.SellFee?.fee_rate ?? 0) +
+          (cur?.deflation_strategy?.burn_strategy?.SellBurn?.burn_rate ?? 0),
       };
     }, {});
     amounts = tokenAmounts.map(({ token, amount }) => {

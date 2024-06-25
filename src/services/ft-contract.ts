@@ -247,7 +247,7 @@ export const unWrapToken = (token: TokenMetadata, keepId?: boolean) => {
 
 export const tokenFtMetadata = async (tokenId: string) => {
   const metadata = await ftViewFunction(tokenId, {
-    methodName: 'ft_metadata',
+    methodName: 'tknx_metadata',
   });
   return metadata;
 };

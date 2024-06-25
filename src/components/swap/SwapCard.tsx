@@ -930,7 +930,11 @@ export default function SwapCard(props: {
   async function getTokenDeflationRate() {
     setTokenDeflationRateData(undefined);
     const tokenMeta = await tokenFtMetadata(tokenIn.id);
-    const rate = (tokenMeta.sell_burn_rate + tokenMeta.sell_fee_rate) / 1000000;
+    const rate =
+      ((tokenMeta?.deflation_strategy?.fee_strategy?.SellFee?.fee_rate ?? 0) +
+        (tokenMeta?.deflation_strategy?.burn_strategy?.SellBurn?.burn_rate ??
+          0)) /
+      1000000;
     setTokenDeflationRateData({
       rate,
       done: true,
