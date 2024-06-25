@@ -499,7 +499,7 @@ export default function getConfig(
         BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
-        DEGEN_POOL_ID: process.env.EXCHANGE_DEGEN_POOL_ID || 736,
+        DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 736,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
           'usdtt.fakes.testnet',
           'usdcc.fakes.testnet',

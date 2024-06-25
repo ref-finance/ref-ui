@@ -322,7 +322,11 @@ const fetchPoolsRPC = async () => {
   )
     .flat()
     .map((p) => ({ ...p, Dex: 'ref' }));
-
+  res.map(
+    (item) =>
+      item.tokenIds.includes('meta-v2.pool.testnet') &&
+      console.log(item.tokenIds)
+  );
   return res;
 };
 
