@@ -31,6 +31,7 @@ import { useOrderlyContext } from './orderly/OrderlyContext';
 import { PerpOrSpot } from './utiles';
 import { FormattedMessage } from 'react-intl';
 import { NewUserTip } from './components/Common/NewUserTip';
+import BlockOrderBookTip from './BlockOrderBookTip';
 import { PerpOrderlyTip, PerpOrderlyTipMobile } from './components/PerpHeader';
 
 function TradingBoard() {
@@ -265,15 +266,20 @@ function OrderlyTradingBoard() {
     <>
       <div className="mx-auto relative xs:bottom-6 bottom-9">
         {/* todo  */}
-        {!isMobile && <PerpOrderlyTip />}
+        {/* {!isMobile && <PerpOrderlyTip />} */}
         {!isMobile && <TradingBoard></TradingBoard>}
 
         {isMobile && <MobileTradingBoard></MobileTradingBoard>}
       </div>
       {/* todo  */}
-      {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
+      {/* {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>} */}
     </>
   );
 }
-
-export default OrderlyTradingBoard;
+export default function OrderBookSpot() {
+  const disbaledWallet = ['okx-wallet'];
+  const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
+  const isBlock = disbaledWallet.includes(selectedWalletId);
+  if (isBlock) return <BlockOrderBookTip />;
+  return <OrderlyTradingBoard />;
+}
