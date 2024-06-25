@@ -145,7 +145,7 @@ function AuthorizedApps({
   const [clear_loading, set_clear_loading] = useState<boolean>(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set([]));
   const { allKeys } = useWalletSelector();
-  const disbaledWallet = ['sender', 'neth', 'okx-wallet'];
+  const disbaledWallet = ['sender', 'neth', 'keypom', 'okx-wallet'];
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
   const functionCallKeys = useMemo(() => {
     return allKeys.filter((key) => key.access_key.permission !== 'FullAccess');

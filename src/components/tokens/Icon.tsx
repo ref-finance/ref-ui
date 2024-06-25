@@ -66,7 +66,7 @@ export function IconLeft({
     >
       <img
         key={token.id}
-        className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-greenLight`}
+        className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 flex-shrink-0 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-greenLight`}
         src={token.icon}
       />
       {label && (
@@ -103,10 +103,10 @@ export function IconLeftV3({
       }`}
       style={{ lineHeight: 'unset' }}
     >
-      <div className="relative">
+      <div className="relative flex-shrink-0">
         <img
           key={token.id}
-          className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-black`}
+          className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 flex-shrink-0 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-black`}
           src={token.icon}
         />
         {token.isRisk && (
