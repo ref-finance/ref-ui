@@ -499,12 +499,14 @@ export default function getConfig(
         BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 711,
+        DEGEN_POOL_ID: process.env.EXCHANGE_DEGEN_POOL_ID || 736,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
           'usdtt.fakes.testnet',
           'usdcc.fakes.testnet',
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
         ],
+        DEGEN_TOKEN_IDS: ['wrap.testnet', 'usdcc.fakes.testnet'],
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
         FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID,
         USDT_USDC_TOKEN_IDS: [],
@@ -757,11 +759,16 @@ export function getExtraStablePoolConfig(
           '4513',
           '4514',
         ],
+        DEGEN_POOLS_IDS: ['736'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
+        },
+        DEGEN_POOL_INDEX: {
+          'wrap.testnet': 0,
+          'usdcc.fakes.testnet': 1,
         },
         USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -819,6 +826,7 @@ export function getExtraStablePoolConfig(
           'usdtt.fakes.testnet': 1,
         },
         RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1843'],
+        DEGEN_POOLS_IDS: ['736'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdtt.fakes.testnet': 0,
           '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 1,
@@ -874,6 +882,7 @@ export function getExtraStablePoolConfig(
         },
 
         RATED_POOLS_IDS: ['621', '622', '666', '685', '686', '711'],
+        DEGEN_POOLS_IDS: ['736'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdtt.fakes.testnet': 0,
           'usdcc.fakes.testnet': 1,
@@ -944,6 +953,7 @@ export function getExtraStablePoolConfig(
           '4513',
           '4514',
         ],
+        DEGEN_POOLS_IDS: ['736'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,

@@ -7,6 +7,7 @@ import {
   Transaction,
   RefFiFunctionCallOptions,
   BLACKLIST_POOL_IDS,
+  isDegenPool,
 } from './near';
 import db from '../store/RefDatabase';
 import {
@@ -1364,7 +1365,16 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
       methodName: 'get_rated_pool',
       args: { pool_id },
     });
+      ...pool_info,
+      id: pool_id,
+    };
+  }
 
+  if (isDegenPool(pool_id)) {
+    const pool_info = await refFiViewFunction({
+      methodName: 'get_degen_pool',
+      args: { pool_id },
+    });
     return {
       ...pool_info,
       id: pool_id,
@@ -1375,7 +1385,6 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
     methodName: 'get_stable_pool',
     args: { pool_id },
   });
-
   return {
     ...pool_info,
     id: pool_id,
@@ -1435,7 +1444,9 @@ export const getStablePoolFromCache = async (
       ...acc,
       [cur]: toReadableNumber(
         getStablePoolDecimal(stablePool.id),
-        stablePoolInfo.rates[i]
+        Reflect.has(stablePoolInfo, 'degens')
+          ? stablePoolInfo?.degens[i]
+          : stablePoolInfo?.rates[i]
       ),
     }),
     {}
