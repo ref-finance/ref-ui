@@ -70,7 +70,7 @@ export const toPrecision = (
     precision
   )}`.replace(/\.$/, '');
   if (atLeastOne && Number(str) === 0 && str.length > 1) {
-    var n = str.lastIndexOf('0');
+    const n = str.lastIndexOf('0');
     str = str.slice(0, n) + str.slice(n).replace('0', '1');
   }
 
@@ -167,15 +167,31 @@ export const calculateSmartRoutingPriceImpact = (
 
   const marketPrice1 = isPool1StablePool
     ? (
-        Number(swapTodos[0].pool.rates[tokenMid.id]) /
-        Number(swapTodos[0].pool.rates[tokenIn.id])
+        Number(
+          Reflect.has(swapTodos[0].pool, 'degens')
+            ? swapTodos[0].pool.degens[tokenMid.id]
+            : swapTodos[0].pool.rates[tokenMid.id]
+        ) /
+        Number(
+          Reflect.has(swapTodos[0].pool, 'degens')
+            ? swapTodos[0].pool.degens[tokenIn.id]
+            : swapTodos[0].pool.rates[tokenIn.id]
+        )
       ).toString()
     : calculateMarketPrice(swapTodos[0].pool, tokenIn, tokenMid);
 
   const marketPrice2 = isPool2StablePool
     ? (
-        Number(swapTodos[1].pool.rates[tokenOut.id]) /
-        Number(swapTodos[1].pool.rates[tokenMid.id])
+        Number(
+          Reflect.has(swapTodos[1].pool, 'degens')
+            ? swapTodos[1].pool.degens[tokenOut.id]
+            : swapTodos[1].pool.rates[tokenOut.id]
+        ) /
+        Number(
+          Reflect.has(swapTodos[1].pool, 'degens')
+            ? swapTodos[1].pool.degens[tokenMid.id]
+            : swapTodos[1].pool.rates[tokenMid.id]
+        )
       ).toString()
     : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
 
@@ -425,7 +441,7 @@ export const toInternationalCurrencySystemNature = (
 };
 
 export function scientificNotationToString(strParam: string) {
-  let flag = /e/.test(strParam);
+  const flag = /e/.test(strParam);
   if (!flag) return strParam;
 
   let sysbol = true;
@@ -435,9 +451,9 @@ export function scientificNotationToString(strParam: string) {
 
   const negative = Number(strParam) < 0 ? '-' : '';
 
-  let index = Number(strParam.match(/\d+$/)[0]);
+  const index = Number(strParam.match(/\d+$/)[0]);
 
-  let basis = strParam.match(/[\d\.]+/)[0];
+  const basis = strParam.match(/[\d\.]+/)[0];
 
   const ifFraction = basis.includes('.');
 
@@ -536,7 +552,7 @@ export function separateRoutes(
   const res = [];
   let curRoute = [];
 
-  for (let i in actions) {
+  for (const i in actions) {
     curRoute.push(actions[i]);
     if (actions[i].outputToken === outputToken) {
       res.push(curRoute);
@@ -580,8 +596,16 @@ export function calculateSmartRoutesV2PriceImpact(
             readablePartialAmountIn,
             r[0].noFeeAmountOut,
             (
-              Number(r[0].pool.rates[outputToken]) /
-              Number(r[0].pool.rates[tokenIn.id])
+              Number(
+                Reflect.has(r[0].pool, 'degens')
+                  ? r[0].pool.degens[outputToken]
+                  : r[0].pool.rates[outputToken]
+              ) /
+              Number(
+                Reflect.has(r[0].pool, 'degens')
+                  ? r[0].pool.degens[tokenIn.id]
+                  : r[0].pool.rates[tokenIn.id]
+              )
             ).toString()
           )
         : calculatePriceImpact(
@@ -625,7 +649,7 @@ export function getPoolAllocationPercents(pools: Pool[]) {
 
     const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
 
-    let minIndexes: number[] = [];
+    const minIndexes: number[] = [];
 
     for (let k = 0; k < sortedAmount.length - 1; k++) {
       let minIndex = -1;
@@ -680,7 +704,7 @@ export function getAllocationsLeastOne(arr: string[]) {
 
     const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
 
-    let minIndexes: number[] = [];
+    const minIndexes: number[] = [];
 
     for (let k = 0; k < sortedAmount.length - 1; k++) {
       let minIndex = -1;

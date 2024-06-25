@@ -37,6 +37,7 @@ import {
   STABLE_POOL_TYPE,
   isStablePool,
   isRatedPool,
+  isDegenPool,
 } from '../../services/near';
 import {
   STABLE_TOKEN_IDS,
@@ -55,7 +56,7 @@ import {
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export const getStablePoolDecimal = (id: string | number) => {
-  if (isRatedPool(id)) return RATED_POOL_LP_TOKEN_DECIMALS;
+  if (isRatedPool(id) || isDegenPool(id)) return RATED_POOL_LP_TOKEN_DECIMALS;
   else if (isStablePool(id)) return STABLE_LP_TOKEN_DECIMALS;
 };
 
@@ -218,7 +219,7 @@ function StablePoolCard({
       id: 'pool_stop_tip',
       defaultMessage: 'This pool has been stopped.',
     });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
 

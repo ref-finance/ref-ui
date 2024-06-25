@@ -1442,8 +1442,16 @@ export const getPriceImpact = ({
 
       oldPrice = pools.reduce((acc, pool, i) => {
         const curRate = isStablePool(pool.id)
-          ? new Big(pool.rates[swapsToDo[i].outputToken]).div(
-              new Big(pool.rates[swapsToDo[i].inputToken])
+          ? new Big(
+              Reflect.has(pool, 'degens')
+                ? pool.degens[swapsToDo[i].outputToken]
+                : pool.rates[swapsToDo[i].outputToken]
+            ).div(
+              new Big(
+                Reflect.has(pool, 'degens')
+                  ? pool.degens[swapsToDo[i].inputToken]
+                  : pool.rates[swapsToDo[i].inputToken]
+              )
             )
           : new Big(
               scientificNotationToString(

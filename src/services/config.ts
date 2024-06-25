@@ -856,6 +856,10 @@ export function getExtraStablePoolConfig(
         STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
         LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
         NEARXIDS: ['nearx.staderlabs.testnet', 'wrap.testnet'],
+        USDC3E2: [
+          'wrap.testnet',
+          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
+        ],
         STNEAR_POOL_INDEX: {
           'meta-v2.pool.testnet': 0,
           'wrap.testnet': 1,

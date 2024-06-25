@@ -80,12 +80,14 @@ export const {
   USDT_USDC_POOL_INDEX,
   FRAX_USDC_POOL_INDEX,
   DEGEN_POOL_INDEX,
+  USDC3E2,
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(USDTIDS)
   .concat(STNEARIDS)
   .concat(NEARXIDS)
+  .concat(USDC3E2)
   .concat(CUSDIDS)
   .concat(NEW_NEARXIDS)
   .concat(USDTIDS)
@@ -211,7 +213,7 @@ export const USD_CLASS_STABLE_POOL_IDS = [
 export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;
 
 export const NEAR_CLASS_STABLE_TOKEN_IDS = new Array(
-  ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEW_NEARXIDS))
+  ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEW_NEARXIDS).concat(USDC3E2))
 ).map((id) => id);
 
 export const USD_CLASS_STABLE_TOKEN_IDS = new Array(

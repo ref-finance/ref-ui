@@ -461,7 +461,7 @@ export const calc_d = (amp: number, c_amounts: number[]) => {
   let d = sum_amounts;
   for (let i = 0; i < 256; i++) {
     let d_prod = d;
-    for (let c_amount of c_amounts) {
+    for (const c_amount of c_amounts) {
       d_prod = (d_prod * d) / (c_amount * token_num);
     }
     d_prev = d;
@@ -521,7 +521,7 @@ export const calc_add_liquidity = (
 
   const token_num = old_c_amounts.length;
   const d_0 = calc_d(amp, old_c_amounts);
-  let c_amounts = [];
+  const c_amounts = [];
   for (let i = 0; i < old_c_amounts.length; i++) {
     c_amounts[i] = old_c_amounts[i] + deposit_c_amounts[i];
   }
@@ -553,7 +553,7 @@ export const calc_remove_liquidity = (
   c_amounts: number[],
   pool_token_supply: number
 ) => {
-  let amounts = [];
+  const amounts = [];
   for (let i = 0; i < c_amounts.length; i++) {
     amounts[i] = (c_amounts[i] * shares) / pool_token_supply;
   }
@@ -569,7 +569,7 @@ export const calc_remove_liquidity_by_tokens = (
 ) => {
   const token_num = old_c_amounts.length;
   const d_0 = calc_d(amp, old_c_amounts);
-  let c_amounts = [];
+  const c_amounts = [];
   for (let i = 0; i < old_c_amounts.length; i++) {
     c_amounts[i] = old_c_amounts[i] - removed_c_amounts[i];
   }
@@ -615,7 +615,7 @@ export const getSwappedAmount = (
   tokenInId: string,
   tokenOutId: string,
   amountIn: string,
-  stablePool: StablePool
+  stablePool: StablePool & { degens?: any }
 ) => {
   const amp = stablePool.amp;
   const trade_fee = stablePool.total_fee;
@@ -627,9 +627,13 @@ export const getSwappedAmount = (
 
   const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(stablePool.id);
 
-  const rates = stablePool.rates.map((r) =>
-    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
-  );
+  const rates = Reflect.has(stablePool, 'degens')
+    ? stablePool.degens.map((r) =>
+        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
+      )
+    : stablePool.rates.map((r) =>
+        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
+      );
 
   const base_old_c_amounts = stablePool.c_amounts.map((amount) =>
     toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amount)
@@ -681,19 +685,22 @@ export const getSwappedAmount = (
 export const getAddLiquidityShares = async (
   pool_id: number,
   amounts: string[],
-  stablePool: StablePool
+  stablePool: any
 ) => {
   const amp = stablePool.amp;
   const trade_fee = stablePool.total_fee;
 
   const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(pool_id);
-
   const base_old_c_amounts = stablePool.c_amounts.map((amount) =>
     toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amount)
   );
-  const rates = stablePool.rates.map((r) =>
-    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
-  );
+  const rates = Reflect.has(stablePool, 'degens')
+    ? stablePool.degens.map((r) =>
+        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
+      )
+    : stablePool.rates.map((r) =>
+        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
+      );
   const old_c_amounts = base_old_c_amounts
     .map((amount, i) =>
       toNonDivisibleNumber(
@@ -757,7 +764,7 @@ export const getRemoveLiquidityByShare = (
 
 export const getRemoveLiquidityByTokens = (
   amounts: string[],
-  stablePool: StablePool
+  stablePool: StablePool & { degens?: any }
 ) => {
   const amp = stablePool.amp;
   // const removed_c_amounts = amounts.map((amount) =>
@@ -771,9 +778,13 @@ export const getRemoveLiquidityByTokens = (
   const base_old_c_amounts = stablePool.c_amounts.map((amount) =>
     toReadableNumber(STABLE_LP_TOKEN_DECIMALS, amount)
   );
-  const rates = stablePool.rates.map((r) =>
-    toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
-  );
+  const rates = Reflect.has(stablePool, 'degens')
+    ? stablePool.degens.map((r) =>
+        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
+      )
+    : stablePool.rates.map((r) =>
+        toReadableNumber(STABLE_LP_TOKEN_DECIMALS, r)
+      );
   const old_c_amounts = base_old_c_amounts
     .map((amount, i) =>
       toNonDivisibleNumber(

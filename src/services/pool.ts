@@ -1379,6 +1379,9 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
     return {
       ...pool_info,
       id: pool_id,
+      // degens: pool_info.c_amounts.map((i: any, index: any) =>
+      //   toNonDivisibleNumber(pool_info.decimals[index], pool_info.degens[index])
+      // ),
     };
   }
 
