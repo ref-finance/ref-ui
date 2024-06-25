@@ -1365,6 +1365,7 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
       methodName: 'get_rated_pool',
       args: { pool_id },
     });
+    return {
       ...pool_info,
       id: pool_id,
     };
