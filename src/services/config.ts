@@ -766,10 +766,6 @@ export function getExtraStablePoolConfig(
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
         },
-        DEGEN_POOL_INDEX: {
-          'wrap.testnet': 0,
-          'usdcc.fakes.testnet': 1,
-        },
         USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
@@ -895,6 +891,10 @@ export function getExtraStablePoolConfig(
         },
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
+        DEGEN_POOL_INDEX: {
+          'wrap.testnet': 0,
+          'usdcc.fakes.testnet': 1,
+        },
       };
     default:
       return {

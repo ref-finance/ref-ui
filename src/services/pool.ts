@@ -373,7 +373,6 @@ export const getPoolsByTokens = async ({
   let pools;
 
   let pool_protocol = 'indexer';
-
   const cachePools = async (pools: any) => {
     await db.cachePoolsByTokens(
       pools.filter(filterBlackListPools).filter((p: any) => isNotStablePool(p))
@@ -1383,9 +1382,9 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
     return {
       ...pool_info,
       id: pool_id,
-      // degens: pool_info.c_amounts.map((i: any, index: any) =>
-      //   toNonDivisibleNumber(pool_info.decimals[index], pool_info.degens[index])
-      // ),
+      rates: pool_info.c_amounts.map((i: any) =>
+        toNonDivisibleNumber(STABLE_LP_TOKEN_DECIMALS, '1')
+      ),
     };
   }
 
