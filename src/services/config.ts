@@ -520,7 +520,7 @@ export default function getConfig(
       };
     default:
       return {
-        classicTestUrl: 'https://test.api.cclp.finance/',
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
