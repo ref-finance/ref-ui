@@ -21,7 +21,9 @@ const Countdown = ({ onCountdownFinish }) => {
   useEffect(() => {
     // targetDate 7.1 endDate 7.4
     const targetDate = new Date(Date.UTC(new Date().getUTCFullYear(), 6, 1));
-    const endDate = new Date(Date.UTC(new Date().getUTCFullYear(), 6, 4, 12, 0, 0));
+    const endDate = new Date(
+      Date.UTC(new Date().getUTCFullYear(), 6, 4, 12, 0, 0)
+    );
     const updateCountdown = () => {
       const nowUtc = Date.now();
       if (nowUtc >= endDate.getTime()) {

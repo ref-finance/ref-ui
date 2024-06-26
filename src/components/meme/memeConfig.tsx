@@ -311,6 +311,7 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet',
         'shitzu.fakes.testnet',
       ],
+      meme_nonListed_tokens: ['uwon.fakes.testnet', 'sgpt.fakes.testnet'],
       pie_color: {
         'lonk.fakes.testnet': '#38D999',
         'neko.fakes.testnet': '#EBB200',
@@ -354,6 +355,7 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet',
         'shitzu.fakes.testnet',
       ],
+      meme_nonListed_tokens: ['uwon.fakes.testnet', 'sgpt.fakes.testnet'],
       pie_color: {
         'lonk.fakes.testnet': '#38D999',
         'neko.fakes.testnet': '#EBB200',
@@ -400,6 +402,15 @@ export function getMemeDataConfig(): any {
         'nkok.tkn.near',
         'touched.tkn.near',
         'token.0xshitzu.near',
+      ],
+      meme_nonListed_tokens: [
+        'gear.enleap.near',
+        'usmeme.tg',
+        '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
+        'nearnvidia.near',
+        'bean.tkn.near',
+        'ftv2.nekotoken.near',
+        'marmaj.tkn.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',
