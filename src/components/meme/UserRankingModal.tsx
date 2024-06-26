@@ -119,6 +119,7 @@ function UserRankingModal(props: any) {
     setSelectedToken(token);
     setIsOpenToken(false);
     setSorted(false);
+    setCurrentPage(1);
   };
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -188,12 +189,16 @@ function UserRankingModal(props: any) {
       return number.toFixed(2);
     }
   }
+  let timeoutId;
   const handleMouseEnterRow = (itemIndex) => {
     setHoveredRow(itemIndex);
+    clearTimeout(timeoutId);
   };
 
   const handleMouseLeaveRow = () => {
-    setHoveredRow(null);
+    timeoutId = setTimeout(() => {
+      setHoveredRow(null);
+    }, 300);
   };
   const sortTableData = () => {
     const sortedData = [...tableDate];
@@ -287,7 +292,7 @@ function UserRankingModal(props: any) {
                   <img
                     src={allTokenMetadatas[selectedToken]?.icon}
                     alt=""
-                    className="h-5 w-5 mr-1.5"
+                    className="h-5 w-5 mr-1.5 rounded-3xl"
                   />
                 ) : (
                   <span className="lg:hidden">All</span>
@@ -325,7 +330,7 @@ function UserRankingModal(props: any) {
                         <img
                           src={allTokenMetadatas[token]?.icon || ''}
                           alt=""
-                          className="h-5 w-5 mr-1.5"
+                          className="h-5 w-5 mr-1.5 rounded-3xl"
                         />
                         {allTokenMetadatas[token]?.symbol}
                       </div>
@@ -405,7 +410,7 @@ function UserRankingModal(props: any) {
                                 }}
                               >
                                 <img
-                                  className="absolute size-full block left-0 top-0"
+                                  className="absolute size-full block left-0 top-0 rounded-3xl"
                                   src={
                                     allTokenMetadatas[token.token]?.icon || ''
                                   }
@@ -417,6 +422,8 @@ function UserRankingModal(props: any) {
                               <div
                                 className="absolute top-8 right-0 bg-boxBorder bg-opacity-80 px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
                                 style={{
+                                  maxHeight: '220px',
+                                  overflow: 'auto',
                                   backdropFilter: 'blur(4px)',
                                 }}
                               >
@@ -427,7 +434,7 @@ function UserRankingModal(props: any) {
                                   >
                                     <div className="flex items-center mr-10">
                                       <img
-                                        className="w-5 h-5"
+                                        className="w-5 h-5 rounded-3xl"
                                         src={
                                           allTokenMetadatas[token.token]
                                             ?.icon || ''
@@ -518,7 +525,7 @@ function UserRankingModal(props: any) {
                                         }}
                                       >
                                         <img
-                                          className="absolute size-full block left-0 top-0"
+                                          className="absolute size-full block left-0 top-0 rounded-3xl"
                                           src={
                                             allTokenMetadatas[token.token]
                                               ?.icon || ''
@@ -546,7 +553,7 @@ function UserRankingModal(props: any) {
                                     }}
                                   >
                                     <img
-                                      className="absolute size-full block left-0 top-0"
+                                      className="absolute size-full block left-0 top-0 rounded-3xl"
                                       src={
                                         allTokenMetadatas[
                                           item.token_list[
@@ -571,7 +578,7 @@ function UserRankingModal(props: any) {
                                     }}
                                   >
                                     <img
-                                      className="absolute size-full block left-0 top-0"
+                                      className="absolute size-full block left-0 top-0 rounded-3xl"
                                       src={
                                         allTokenMetadatas[token.token]?.icon ||
                                         ''
@@ -584,7 +591,7 @@ function UserRankingModal(props: any) {
 
                               {hoveredRow === index && (
                                 <div
-                                  className="absolute top-8 right-0 bg-boxBorder px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor"
+                                  className="absolute top-8 right-0 bg-boxBorder px-3 pt-3 z-50 rounded-md border border-toolTipBoxBorderColor max-h-64 overflow-auto"
                                   style={{
                                     ...getPopupPosition(rowRefs.current[index]),
                                     backdropFilter: 'blur(4px)',
@@ -597,7 +604,7 @@ function UserRankingModal(props: any) {
                                     >
                                       <div className="flex items-center mr-10">
                                         <img
-                                          className="w-5 h-5"
+                                          className="w-5 h-5  rounded-3xl"
                                           src={
                                             allTokenMetadatas[token.token]
                                               ?.icon || ''
