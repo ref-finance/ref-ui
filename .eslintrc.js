@@ -34,7 +34,7 @@ module.exports = {
     'simple-import-sort/imports': 'off',
     'simple-import-sort/exports': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
-    'prettier/prettier': 'warn',
+    'prettier/prettier': ['warn', { endOfLine: 'auto' }],
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/ban-ts-ignore': 'off',
@@ -44,5 +44,7 @@ module.exports = {
     'object-shorthand': ['error', 'always'],
     'dot-notation': 'error',
     '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/ban-types': 'off',
+    'react-hooks/exhaustive-deps': 'off',
   },
 };

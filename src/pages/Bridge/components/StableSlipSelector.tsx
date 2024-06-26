@@ -47,7 +47,15 @@ function SlippageSelector({
 
   return (
     <div className="relative z-50 font-normal">
-      <div onClick={() => setShow(true)}>{children}</div>
+      <div
+        className="cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShow(true);
+        }}
+      >
+        {children}
+      </div>
       {show && (
         <div
           className={`xs:fixed xs:z-50 xs:top-0 xs:left-0 xs:backdrop-filter xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-60`}

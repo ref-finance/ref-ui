@@ -145,6 +145,34 @@ export interface IAccount {
   has_non_farmed_assets: boolean;
 }
 
+export interface IAccountAllPositionsDetailed {
+  account_id: string;
+  supplied: IAsset[];
+  farms: IFarm[];
+  booster_staking: IBoosterStaking;
+  has_non_farmed_assets: boolean;
+  is_locked: boolean;
+  positions: IPositionsOrigin;
+}
+
+export interface IPositionsOrigin {
+  [shadow_id: string]: {
+    collateral: IPortfolioAssetOrigin[];
+    borrowed: IPortfolioAssetOrigin[];
+  };
+}
+export interface IPortfolioAssetOrigin {
+  token_id: string;
+  apr: string;
+  balance: string;
+  shares: string;
+}
+export interface IBoosterStaking {
+  staked_booster_amount: string;
+  unlock_timestamp: string;
+  x_booster_amount: string;
+}
+
 export interface IAssetRewardDetail {
   token_id: string;
   symbol: string;

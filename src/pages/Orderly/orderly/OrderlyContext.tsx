@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { useHistory } from 'react-router-dom';
-
+import _, { orderBy, sortBy, filter } from 'lodash';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { isNewHostName } from '../../../services/config';
 import {
@@ -22,7 +22,7 @@ import {
   useAllPositions,
   useOrderlySystemAvailable,
 } from './state';
-import { useAllOrdersSymbol, useStorageEnough, useTokenInfo } from './state';
+import { useStorageEnough, useTokenInfo } from './state';
 import {
   ClientInfo,
   EstFundingrate,
@@ -96,6 +96,10 @@ interface OrderlyContextValue {
   needRefresh: boolean;
   setPositionTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   positionPushReceiver: boolean;
+  orderPageNum: number;
+  setOrderPageNum: (num: number) => void;
+  orderTotalPage: number;
+  setOrderTotalPage: (num: number) => void;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -150,7 +154,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   };
 
   const [bridgePrice, setBridgePrice] = useState<string>('');
-
+  const [orderPageNum, setOrderPageNum] = useState(1);
+  const [orderTotalPage, setOrderTotalPage] = useState(0);
   const privateValue = useOrderlyPrivateData({
     validAccountSig,
   });
@@ -160,12 +165,20 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const availableSymbols = useAllSymbolInfo();
 
+  // TODOX
   const allOrders = useAllOrders({
-    refreshingTag: myPendingOrdersRefreshing,
+    refreshingTag:
+      privateValue.balanceTimeStamp + privateValue.positionTimeStamp,
     type: symbolType,
     validAccountSig,
+    orderPageNum,
+    setOrderTotalPage,
+  })?.map((order) => {
+    if (order.status == 'NEW' && !order.price) {
+      order.price = 0;
+    }
+    return order;
   });
-
   const isPerp = isNewHostName
     ? pathname.includes('perp') || pathname == '/'
     : pathname.includes('perp');
@@ -322,6 +335,10 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         userInfo,
         setUserInfo,
         setPositionTrigger,
+        orderPageNum,
+        setOrderPageNum,
+        orderTotalPage,
+        setOrderTotalPage,
       }}
     >
       {children}

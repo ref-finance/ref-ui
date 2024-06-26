@@ -170,9 +170,10 @@ export function AccountModel(props: any) {
   const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
 
   const handleClick = (e: any) => {
-    if (!accountWrapRef.current.contains(e.target)) {
-      props.closeAccount();
-    }
+    // this not working anymore
+    // if (!accountWrapRef.current.contains(e.target)) {
+    //   props.closeAccount();
+    // }
   };
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -191,6 +192,9 @@ export function AccountModel(props: any) {
       setCopyButtonDisabled(false);
     }, 1000);
   }
+  const isDisableChangeWallet = ['keypom', 'Keypom Account'].includes(
+    currentWalletName
+  );
   return (
     <div
       className="fixed left-0 bottom-0 w-screen bg-black bg-opacity-70"
@@ -205,17 +209,15 @@ export function AccountModel(props: any) {
     >
       <div className="w-full bg-cardBg" ref={accountWrapRef}>
         <div className="mx-7 pt-4 flex justify-between items-start">
-          <div className="text-white text-lg text-left flex-col flex">
+          <div className="mb-accountId text-white text-lg text-left flex-col flex">
             <span>{getAccountName(wallet.getAccountId())}</span>
 
             <span className="flex items-center ">
-              <span className="mr-1">
-                {!currentWalletIcon ? (
-                  <div className="w-3 h-3"></div>
-                ) : (
+              {currentWalletIcon && (
+                <span className="mr-1">
                   <img src={currentWalletIcon} className="w-3 h-3" alt="" />
-                )}
-              </span>
+                </span>
+              )}
               <span className="text-xs text-primaryText">
                 {currentWalletName || '-'}
               </span>
@@ -263,7 +265,12 @@ export function AccountModel(props: any) {
 
         <div className="flex mx-7 my-3 items-center text-xs justify-center">
           <button
-            className="text-BTCColor mr-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-BTCColor hover:bg-opacity-20 border-BTCColor border-opacity-30"
+            className={`mr-2 w-1/2 py-2.5 border rounded-lg border-opacity-30 ${
+              isDisableChangeWallet
+                ? 'border-gray-500 text-gray-500 cursor-default'
+                : 'text-BTCColor hover:border-transparent hover:bg-opacity-20 hover:bg-BTCColor border-BTCColor'
+            }`}
+            disabled={isDisableChangeWallet}
             onClick={() => {
               signOut();
             }}
@@ -272,10 +279,15 @@ export function AccountModel(props: any) {
           </button>
 
           <button
-            className="text-gradientFrom ml-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20 border-gradientFrom border-opacity-30"
+            className={`ml-2 w-1/2 py-2.5 border rounded-lg border-opacity-30 ${
+              isDisableChangeWallet
+                ? 'border-gray-500 text-gray-500 cursor-default'
+                : 'text-gradientFrom border-gradientFrom hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20'
+            }`}
             onClick={async () => {
               modal.show();
             }}
+            disabled={isDisableChangeWallet}
           >
             <FormattedMessage id="change" defaultMessage={'Change'} />
           </button>
@@ -649,7 +661,7 @@ export function MobileNavBar(props: any) {
                       setShowTip(false);
                     }}
                   >
-                    <div>{getAccountName(wallet.getAccountId())}</div>
+                    <span>{getAccountName(wallet.getAccountId())}</span>
 
                     {hasBalanceOnRefAccount ? (
                       <span className="ml-1.5">
@@ -931,6 +943,7 @@ export function MobileNavBar(props: any) {
 }
 
 function MobileBridgeModal(props: Modal.Props) {
+  const { accountId } = useWalletSelector();
   return (
     <Modal
       {...props}
@@ -972,35 +985,56 @@ function MobileBridgeModal(props: Modal.Props) {
           ></FormattedMessage>
         </div>
         {bridgeData.map((item) => {
-          return (
-            <div
-              key={item.id}
-              className="flex flex-col gap-2 pl-1 text-primaryText "
-            >
-              <div className="frcs gap-2 pl-3">
-                <item.icon></item.icon>
-
-                {item.name}
+          if (!item.children) {
+            return (
+              <div
+                key={item.id}
+                className="flex flex-col gap-2 pl-1 text-white cursor-pointer frcs hover:bg-opacity-20 hover:rounded-xl"
+                onClick={() => {
+                  let targetUrl = item.link;
+                  if (item.needAccountId && accountId) {
+                    targetUrl = `${targetUrl}&address=${accountId}`;
+                  }
+                  openUrl(targetUrl);
+                }}
+              >
+                <div className="frcs gap-2 pl-3">
+                  <item.icon></item.icon>
+                  {item.name}
+                </div>
               </div>
+            );
+          } else {
+            return (
+              <div
+                key={item.id}
+                className="flex flex-col gap-2 pl-1 text-primaryText "
+              >
+                <div className="frcs gap-2 pl-3">
+                  <item.icon></item.icon>
 
-              {item.children.map((sub) => {
-                return (
-                  <div
-                    key={sub.id}
-                    className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
-                    onClick={() => {
-                      openUrl(sub.link);
-                    }}
-                  >
-                    <div className="frcs pl-3 gap-2">
-                      <sub.icon></sub.icon>
-                      {sub.name}
+                  {item.name}
+                </div>
+
+                {item.children.map((sub) => {
+                  return (
+                    <div
+                      key={sub.id}
+                      className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
+                      onClick={() => {
+                        openUrl(sub.link);
+                      }}
+                    >
+                      <div className="frcs pl-3 gap-2">
+                        <sub.icon></sub.icon>
+                        {sub.name}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          );
+                  );
+                })}
+              </div>
+            );
+          }
         })}
       </div>
     </Modal>

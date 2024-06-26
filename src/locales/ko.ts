@@ -903,6 +903,8 @@ const ko = {
   state: '상태',
   partially: '부분적으로',
   near_validation_error: '가스비를 예비해서 0.5N 이상이 지갑에 있어야합니다.',
+  near_min_validation_error:
+    '가스비를 예비해서 0.2N 이상이 지갑에 있어야합니다.',
   no_positons_in_this_pool_yet: '이 풀에는 아직 포지션이 없습니다',
   no_claimed_rewards_yet: '수령된 보상이 없습니다',
   out_of: 'out of',

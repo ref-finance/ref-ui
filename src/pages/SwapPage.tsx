@@ -10,7 +10,7 @@ import {
 } from '../state/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useTriTokenIdsOnRef } from '../services/aurora/aurora';
-import { TokenMetadata } from '../services/ft-contract';
+import { TokenMetadata, ftGetBalance } from '../services/ft-contract';
 
 import {
   nearMetadata,
@@ -29,6 +29,9 @@ import MyOrderComponent from './Orderly/components/MyOrder';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { useClientMobile } from '../utils/device';
 import { useDclPoolIdByCondition } from '../state/swapV3';
+import { useUserBlackAssetStore } from '../stores/userBlackAsset';
+import getConfig from '../services/config';
+import BLACKTip from '../components/pool/BLACKTip';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -183,6 +186,7 @@ const ChangeSwapMode = ({
                   e.stopPropagation();
                   changeSwapType(type as SWAP_TYPE);
                 }}
+                key={type}
               >
                 {type}
               </div>
@@ -215,6 +219,8 @@ function SwapPage() {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
 
   const [trades, setTrades] = useState<TradeEstimates>();
+  const [blackTokensHasBalance, setBlackTokensHasBalance] =
+    useState<boolean>(false);
 
   const [enableTri, setEnableTri] = useState<boolean>(
     sessionStorage.getItem(SWAP_ENABLE_TRI) === 'true' || false
@@ -231,12 +237,16 @@ function SwapPage() {
 
   const [forceEstimatePro, setForceEstimatePro] = useState<boolean>(false);
   const [proTab, setProTab] = useState<IProTab>('PRICE');
-
+  const { BLACK_TOKEN_LIST } = getConfig();
   const changeSwapType = (type: SWAP_TYPE) => {
     setSwapType(type);
     sessionStorage.setItem(SWAP_TYPE_KEY, type);
     setForceEstimatePro(true);
   };
+  const userBlackAssetStore: any = useUserBlackAssetStore();
+  useEffect(() => {
+    get_black_tokens_balances(BLACK_TOKEN_LIST);
+  }, []);
   useEffect(() => {
     const changeWindowCommonMenuCollapsed = (e: any) => {
       if (e?.[SWAP_TYPE_KEY]) {
@@ -252,7 +262,19 @@ function SwapPage() {
       );
     };
   }, []);
-
+  useEffect(() => {
+    if (BLACK_TOKEN_LIST.includes(tokenOut?.id) || blackTokensHasBalance) {
+      userBlackAssetStore.setHasBlackAsset(true);
+    } else {
+      userBlackAssetStore.setHasBlackAsset(false);
+    }
+  }, [tokenOut, blackTokensHasBalance]);
+  async function get_black_tokens_balances(tokenIds: string[]) {
+    if (tokenIds.length) {
+      const res = await Promise.all(tokenIds.map((id) => ftGetBalance(id)));
+      setBlackTokensHasBalance(!!res.find((b) => +b > 0));
+    }
+  }
   const changeEnableTri = (e: boolean) => {
     setEnableTri(e);
     sessionStorage.setItem(SWAP_ENABLE_TRI, e.toString());
@@ -409,6 +431,11 @@ function SwapPage() {
             {isSignedIn && swapMode === SWAP_MODE.LIMIT && <MyOrderComponent />}
           </div>
         )}
+        {isMobile && swapMode === SWAP_MODE.NORMAL && (
+          <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
+            <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
+          </div>
+        )}
         <div className="swapContainer xsm:w-95vw xsm:mx-auto">
           <section className={`lg:w-480px  relative`}>
             {swapMode === SWAP_MODE.NORMAL && (
@@ -443,19 +470,24 @@ function SwapPage() {
               />
             )}
           </section>
-          {/* {!isMobile && (
+          {!isMobile && (
             <div className="lg:w-480px  text-white mt-5">
               <AdSwiper />
             </div>
-          )} */}
+          )}
+          {!isMobile && swapMode === SWAP_MODE.NORMAL && (
+            <div className="lg:w-480px  text-white mt-5">
+              <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* {isMobile && (
+      {isMobile && (
         <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
           <AdSwiper />
         </div>
-      )} */}
+      )}
     </SwapProContext.Provider>
   );
 }

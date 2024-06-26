@@ -1,7 +1,7 @@
 import Big from 'big.js';
 import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 import { isMobile } from '../../../../../utils/device';
 import { useClientMobile } from '../../../../../utils/device';
@@ -11,6 +11,7 @@ import { CollatteralTokenIcon, QuestionMark } from '../../Common';
 import { parseSymbol } from '../../RecentTrade/index';
 import { useTokensBalances } from '../../UserBoard/state';
 import { usePerpData } from '../../UserBoardPerp/state';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export function MarginRatioText() {
   const [hover, setHover] = useState(false);
@@ -182,23 +183,14 @@ export function LiquidationPriceText() {
         />
         <span
           data-class="reactTip"
-          data-for={'user_lq_price'}
-          data-html={true}
+          data-tooltip-id={'user_lq_price'}
           data-place={'top'}
-          data-tip={getLqPriceTip()}
+          data-tooltip-html={getLqPriceTip()}
           className="inline-block pl-1 relative top-0.5"
         >
           <QuestionMark />
 
-          <ReactTooltip
-            id={'user_lq_price'}
-            backgroundColor="#1D2932"
-            place="right"
-            border
-            borderColor="#7e8a93"
-            textColor="#C6D1DA"
-            effect="solid"
-          />
+          <CustomTooltip id={'user_lq_price'} place="right" />
         </span>
       </span>
     </div>
@@ -404,7 +396,7 @@ export function CollatteralTokenAvailableCell({
         {finalBalance}
 
         {collateralTokenTip && (
-          <div className="absolute bg-cardBg z-50 transform translate-y-1/2 right-full -translate-x-2 bottom-3  px-4 py-2 rounded-lg text-xs text-primaryText border border-primaryText whitespace-nowrap">
+          <div className="absolute bg-cardBg z-50 transform translate-y-3/4 right-full -translate-x-2 bottom-3  px-4 py-2 rounded-lg text-xs text-primaryText border border-primaryText whitespace-nowrap">
             <div className="flex items-center gap-2  justify-between text-xs text-farmText">
               <span>Balance</span>
               <span>{balance === '-' ? '-' : Big(balance).toFixed(2)}</span>

@@ -17,6 +17,8 @@ import { list_pools } from '../services/swapV3';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { getStorageTokenId } from '../components/swap/swap';
 import { wrapTokenId } from '../components/swap/LimitOrderCard';
+import getConfigV2 from '../services/configV2';
+const configV2 = getConfigV2();
 
 export const useMyOrders = () => {
   const [activeOrder, setActiveOrder] = useState<UserOrderInfo[]>();
@@ -43,7 +45,8 @@ export const useMyOrders = () => {
   };
 };
 
-export const useAllPoolsV2 = () => {
+export const useAllPoolsV2 = (forPool?: boolean) => {
+  // todo
   const [allPools, setAllPools] = useState<PoolInfo[]>();
 
   const tokenPriceList = useTokenPriceList();
@@ -53,8 +56,19 @@ export const useAllPoolsV2 = () => {
 
     listPools()
       .then((list: PoolInfo[]) => {
+        let final = list;
+        if (forPool) {
+          final = list.filter(
+            (p) =>
+              !configV2.BLACK_LIST_DCL_POOL_IDS_IN_POOLS.includes(p.pool_id)
+          );
+        } else {
+          final = list.filter((p) =>
+            configV2.WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS.includes(p.pool_id)
+          );
+        }
         return Promise.all(
-          list.map(async (p) => {
+          final.map(async (p) => {
             const token_x = p.token_x;
             const token_y = p.token_y;
 

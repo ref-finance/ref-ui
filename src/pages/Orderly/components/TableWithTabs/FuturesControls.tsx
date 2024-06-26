@@ -14,12 +14,16 @@ import {
   orderEditPopUpSuccess,
   usePortfolioFailure,
 } from '../Common';
-import { cancelOrder } from '../../orderly/off-chain-api';
+import {
+  cancelOrder,
+  getPortfolioAllOrders,
+} from '../../orderly/off-chain-api';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { formatDecimalToTwoOrMore } from '../../orderly/utils';
 import { MarkPrice, MyOrder, SymbolInfo } from '../../orderly/type';
 import { useLeverage } from '../../orderly/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
+import { constOrderlyPageSize } from '~src/pages/Orderly/orderly/constant';
 
 const priceValidator = (
   price: string,
@@ -487,7 +491,8 @@ export const FutureTableFormHeaders: React.FC = () => {
 
 const PendingOrderRow: React.FC<{
   order: any;
-}> = ({ order }) => {
+  onUpdateData: any;
+}> = ({ order, onUpdateData }) => {
   const intl = useIntl();
   const { accountId } = useWalletSelector();
   const { handlePendingOrderRefreshing } = useOrderlyContext();
@@ -527,15 +532,13 @@ const PendingOrderRow: React.FC<{
               const res = await cancelOrder({
                 accountId,
                 DeleteParams: {
-                  order_id: order_id,
-                  symbol: symbol,
+                  order_id,
+                  symbol,
                 },
               });
 
               if (res.success === true) {
-                handlePendingOrderRefreshing();
                 setLoading(false);
-
                 return orderEditPopUpSuccess({
                   side: side == 'BUY' ? 'Buy' : 'Sell',
                   size: quantity,
@@ -549,6 +552,12 @@ const PendingOrderRow: React.FC<{
               return orderEditPopUpFailure({
                 tip: err.message,
               });
+            } finally {
+              // Orderly API does not instantly update with the latest result
+              setTimeout(() => {
+                handlePendingOrderRefreshing();
+                onUpdateData();
+              }, 500);
             }
           }}
         >
@@ -625,6 +634,7 @@ export const FutureTableFormCells: React.FC<{
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
   const referenceMark = markPrices?.find((m) => m.symbol === row.symbol);
   const portfolioFailure = usePortfolioFailure();
+  const { accountId } = useWalletSelector();
 
   // get close price from everyTickers for this symbol
 
@@ -642,7 +652,7 @@ export const FutureTableFormCells: React.FC<{
 
   useEffect(() => {
     getPendingOrders();
-  }, [futureOrders]);
+  }, []);
 
   useEffect(() => {
     setClosingQuantity(Math.abs(position_qty));
@@ -656,7 +666,19 @@ export const FutureTableFormCells: React.FC<{
   }, [open]);
 
   const getPendingOrders = async () => {
-    const data = futureOrders.filter(
+    const res = await getPortfolioAllOrders({
+      accountId,
+      OrderProps: {
+        page: 1,
+        size: 500,
+        status: 'INCOMPLETE',
+      },
+    });
+    const filterOrders: MyOrder[] = res?.data?.rows?.filter((order: MyOrder) =>
+      order.symbol.includes('PERP')
+    );
+
+    const data = filterOrders.filter(
       (order) =>
         order.symbol === row.symbol &&
         order.side === (position_qty > 0 ? 'SELL' : 'BUY')
@@ -742,7 +764,7 @@ export const FutureTableFormCells: React.FC<{
                     );
                   }
 
-                  let value: string = target.value;
+                  const value: string = target.value;
                   if (
                     value &&
                     value !== 'Market' &&
@@ -865,7 +887,11 @@ export const FutureTableFormCells: React.FC<{
                 </div>
                 <div>
                   {orders.map((order: any) => (
-                    <PendingOrderRow key={order.order_id} order={order} />
+                    <PendingOrderRow
+                      key={order.order_id}
+                      order={order}
+                      onUpdateData={getPendingOrders}
+                    />
                   ))}
                 </div>
               </div>
@@ -1131,9 +1157,9 @@ function FuturePriceModal(
                         <path
                           d="M1 4L4 7L10 1"
                           stroke="black"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         />
                       </svg>
                     </div>
@@ -1197,7 +1223,8 @@ function FuturePriceModal(
 
 const PendingOrderMobileRow: React.FC<{
   order: any;
-}> = ({ order }) => {
+  onUpdateData: any;
+}> = ({ order, onUpdateData }) => {
   const intl = useIntl();
   const { accountId } = useWalletSelector();
   const { handlePendingOrderRefreshing } = useOrderlyContext();
@@ -1239,13 +1266,12 @@ const PendingOrderMobileRow: React.FC<{
               const res = await cancelOrder({
                 accountId,
                 DeleteParams: {
-                  order_id: order_id,
-                  symbol: symbol,
+                  order_id,
+                  symbol,
                 },
               });
 
               if (res.success === true) {
-                handlePendingOrderRefreshing();
                 setLoading(false);
 
                 return orderEditPopUpSuccess({
@@ -1261,6 +1287,12 @@ const PendingOrderMobileRow: React.FC<{
               return orderEditPopUpFailure({
                 tip: err.message,
               });
+            } finally {
+              // Orderly API does not instantly update with the latest result
+              setTimeout(() => {
+                handlePendingOrderRefreshing();
+                onUpdateData();
+              }, 500);
             }
           }}
         >
@@ -1298,10 +1330,11 @@ function PendingOrdersModal(
   props: Modal.Props & {
     onClose: () => void;
     rows: any;
+    onUpdateData: any;
   }
 ) {
   const intl = useIntl();
-  const { onClose, rows } = props;
+  const { onClose, rows, onUpdateData } = props;
 
   useEffect(() => {
     rows.length < 1 && onClose();
@@ -1333,7 +1366,7 @@ function PendingOrdersModal(
             <span className="text-white text-base gotham_bold">
               {intl.formatMessage({
                 id: 'pending_orders_title',
-                defaultMessage: 'Pending Close Orders',
+                defaultMessage: 'Pending Close Orders 2',
               })}
             </span>
 
@@ -1348,7 +1381,11 @@ function PendingOrdersModal(
           </div>
           <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
             {rows.map((order: any) => (
-              <PendingOrderMobileRow key={order.order_id} order={order} />
+              <PendingOrderMobileRow
+                key={order.order_id}
+                order={order}
+                onUpdateData={onUpdateData}
+              />
             ))}
           </div>
         </div>
@@ -1584,6 +1621,7 @@ const FutureMobileRow: React.FC<{
   const symbolInfo = availableSymbols?.find((s) => s.symbol === row.symbol);
   const referenceMark = markPrices?.find((m) => m.symbol === row.symbol);
   const portfolioFailure = usePortfolioFailure();
+  const { accountId } = useWalletSelector();
 
   useEffect(() => {
     const price =
@@ -1621,10 +1659,6 @@ const FutureMobileRow: React.FC<{
   }, []);
 
   useEffect(() => {
-    getPendingOrders();
-  }, [futureOrders]);
-
-  useEffect(() => {
     if (showPnlSelector)
       document.addEventListener('click', () => {
         setShowPnlSelector(false);
@@ -1632,7 +1666,19 @@ const FutureMobileRow: React.FC<{
   }, [showPnlSelector]);
 
   const getPendingOrders = async () => {
-    const data = futureOrders.filter(
+    const res = await getPortfolioAllOrders({
+      accountId,
+      OrderProps: {
+        page: 1,
+        size: 500,
+        status: 'INCOMPLETE',
+      },
+    });
+    const filterOrders: MyOrder[] = res?.data?.rows?.filter((order: MyOrder) =>
+      order.symbol.includes('PERP')
+    );
+
+    const data = filterOrders.filter(
       (order) =>
         order.symbol === row.symbol &&
         order.side === (position_qty > 0 ? 'SELL' : 'BUY')
@@ -1933,6 +1979,7 @@ const FutureMobileRow: React.FC<{
           setPendingOpen(false);
         }}
         rows={orders}
+        onUpdateData={getPendingOrders}
       />
     </>
   );

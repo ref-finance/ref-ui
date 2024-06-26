@@ -6,11 +6,10 @@ import React, {
   useMemo,
 } from 'react';
 import Big from 'big.js';
-import ReactTooltip from 'react-tooltip';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { isMobile } from 'src/utils/device';
+import { isClientMobie, isMobile } from 'src/utils/device';
 import { executeMultipleTransactions } from 'src/services/near';
 import { numberWithCommas } from './utiles';
 import { toPrecision } from './near';
@@ -56,6 +55,9 @@ import { WalletContext } from '../../utils/wallets-integration';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import getConfigV2 from '../../services/configV2';
 const configV2 = getConfigV2();
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { constOrderlyPageSize } from 'src/pages/Orderly/orderly/constant';
+import { MobileView, PCView } from 'src/components/deviceView/deviceView';
 export const PortfolioOrderlyData = createContext(null);
 const is_mobile = isMobile();
 
@@ -74,6 +76,9 @@ function PortfolioOrderly() {
     myPendingOrdersRefreshing,
     needRefresh,
     maintenance,
+    orderPageNum,
+    setOrderTotalPage,
+    setOrderPageNum,
   } = useOrderlyContext();
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
   const curHoldingOut = holdings?.find((h) => h.token === symbolTo);
@@ -277,7 +282,7 @@ function PortfolioOrderly() {
       accountId,
       OrderProps: {
         page: 1,
-        size: 500,
+        size: constOrderlyPageSize,
         status: 'INCOMPLETE',
       },
     });
@@ -294,13 +299,13 @@ function PortfolioOrderly() {
     setTotalEstFinal(numberWithCommas(totalEstimate.toFixed(2)));
   };
 
-  /* useEffect(() => {
-    getFutureOrders();
-  }, [myPendingOrdersRefreshing]); */
-
   useEffect(() => {
     getFutureOrders();
-  }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
+  }, [myPendingOrdersRefreshing]);
+
+  // useEffect(() => {
+  //   getFutureOrders();
+  // }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
 
   useEffect(() => {
     getTotalEst();
@@ -342,10 +347,9 @@ function PortfolioOrderly() {
                     <div
                       className="text-white text-right ml-1"
                       data-class="reactTip"
-                      data-for="selectAllId"
+                      data-tooltip-id="selectAllId"
                       data-place="top"
-                      data-html={true}
-                      data-tip={`
+                      data-tooltip-html={`
                         <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
                           ${intl.formatMessage({
                             id: 'portfolio_total_est_tip',
@@ -355,14 +359,7 @@ function PortfolioOrderly() {
                       `}
                     >
                       <QuestionMark />
-                      <ReactTooltip
-                        id="selectAllId"
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                        place="top"
-                      />
+                      <CustomTooltip id="selectAllId" place="top" />
                     </div>
                   </span>
                 </div>
@@ -423,7 +420,7 @@ function PortfolioOrderly() {
               </div>
             </div>
 
-            <div className="hidden md:block lg:block">
+            <PCView>
               <TableWithTabs
                 table={ordersTable}
                 maintenance={maintenance}
@@ -443,6 +440,8 @@ function PortfolioOrderly() {
                 setTradingKeySet={setTradingKeySet}
                 keyAnnounced={keyAnnounced}
                 setKeyAnnounced={setKeyAnnounced}
+                orderPageNum={orderPageNum}
+                setOrderPageNum={setOrderPageNum}
               />
               <TableWithTabs
                 table={assetsTables}
@@ -482,9 +481,9 @@ function PortfolioOrderly() {
                     'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
                 })}
               </span>
-            </div>
+            </PCView>
 
-            <div className="md:hidden lg:hidden">
+            <MobileView>
               <div className="w-full frcs border-b gotham_bold text-primaryText border-white border-opacity-20">
                 {mobileTables.map((table, index) => (
                   <div
@@ -549,6 +548,8 @@ function PortfolioOrderly() {
                   setTradingKeySet={setTradingKeySet}
                   keyAnnounced={keyAnnounced}
                   setKeyAnnounced={setKeyAnnounced}
+                  orderPageNum={orderPageNum}
+                  setOrderPageNum={setOrderPageNum}
                 />
               )}
               {tab === 2 && (
@@ -565,7 +566,7 @@ function PortfolioOrderly() {
                   setKeyAnnounced={setKeyAnnounced}
                 />
               )}
-            </div>
+            </MobileView>
           </div>
         </div>
       </div>

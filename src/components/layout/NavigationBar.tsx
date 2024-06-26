@@ -10,7 +10,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
 import { matchPath } from 'react-router';
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import ReactTooltip from 'react-tooltip';
 import { Card } from 'src/components/card/Card';
 import {
   IconAirDropGreenTip,
@@ -286,6 +285,9 @@ function AccountEntry({
   }
 
   const isMobile = useClientMobile();
+  const isDisableChangeWallet = ['keypom', 'Keypom Account'].includes(
+    currentWalletName
+  );
 
   return (
     <div
@@ -396,17 +398,15 @@ function AccountEntry({
                   <span>{getAccountName(wallet.getAccountId())}</span>
 
                   <span className="flex items-center ">
-                    <span className="mr-1">
-                      {!currentWalletIcon ? (
-                        <div className="w-3 h-3"></div>
-                      ) : (
+                    {currentWalletIcon && (
+                      <span className="mr-1">
                         <img
                           src={currentWalletIcon}
-                          className="w-3 h-3"
+                          className="w-3 h-3 mr-1"
                           alt=""
                         />
-                      )}
-                    </span>
+                      </span>
+                    )}
                     <span className="text-xs text-primaryText">
                       {currentWalletName || '-'}
                     </span>
@@ -466,10 +466,15 @@ function AccountEntry({
 
               <div className="flex mx-7 my-3 items-center text-xs justify-center">
                 <button
-                  className="text-BTCColor mr-2 w-1/2 py-1.5 border rounded-lg hover:border-transparent hover:bg-BTCColor hover:bg-opacity-20 border-BTCColor border-opacity-30"
+                  className={`mr-2 w-1/2 py-1.5 border rounded-lg border-opacity-30 ${
+                    isDisableChangeWallet
+                      ? 'border-gray-500 text-gray-500 cursor-default'
+                      : 'text-BTCColor hover:border-transparent hover:bg-opacity-20 hover:bg-BTCColor border-BTCColor'
+                  }`}
                   onClick={() => {
                     signOut();
                   }}
+                  disabled={isDisableChangeWallet}
                 >
                   <FormattedMessage
                     id="disconnect"
@@ -478,10 +483,15 @@ function AccountEntry({
                 </button>
 
                 <button
-                  className="text-gradientFrom ml-2 w-1/2 py-1.5 border rounded-lg hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20 border-gradientFrom border-opacity-30"
+                  className={`ml-2 w-1/2 py-1.5 border rounded-lg border-opacity-30 ${
+                    isDisableChangeWallet
+                      ? 'border-gray-500 text-gray-500 cursor-default'
+                      : 'text-gradientFrom border-gradientFrom hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20'
+                  }`}
                   onClick={async () => {
                     modal.show();
                   }}
+                  disabled={isDisableChangeWallet}
                 >
                   <FormattedMessage id="change" defaultMessage={'Change'} />
                 </button>
@@ -496,7 +506,7 @@ function AccountEntry({
 
               {accountList.map((item, index) => {
                 return (
-                  <>
+                  <React.Fragment key={item.textId + index}>
                     <div
                       onClick={item.click}
                       key={item.textId + index}
@@ -536,7 +546,7 @@ function AccountEntry({
                         />
                       </div>
                     ) : null}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </Card>

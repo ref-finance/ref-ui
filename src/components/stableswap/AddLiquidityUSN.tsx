@@ -60,7 +60,12 @@ export function myShares({
   userTotalShare: BigNumber;
   pool: Pool;
 }) {
-  const sharePercent = percent(userTotalShare.valueOf(), totalShares);
+  let sharePercent;
+  try {
+    sharePercent = percent(userTotalShare.valueOf(), totalShares);
+  } catch (error) {
+    sharePercent = 0;
+  }
 
   const displayUserTotalShare = userTotalShare
     .toNumber()

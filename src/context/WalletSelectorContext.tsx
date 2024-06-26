@@ -5,7 +5,6 @@ import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';
 import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
-import { setupNearWallet } from '@near-wallet-selector/near-wallet';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupSender } from '@near-wallet-selector/sender';
 import { setupLedger } from '@near-wallet-selector/ledger';
@@ -18,10 +17,11 @@ import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { setupNightly } from '@near-wallet-selector/nightly';
 
 import getConfig from '../services/config';
+import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
+import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
-import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
 import {
@@ -33,6 +33,7 @@ import {
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
+import { setupKeypom } from '@keypom/selector';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -92,6 +93,24 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     setAccounts(newAccounts);
   };
 
+  const KEYPOM_OPTIONS = {
+    beginTrial: {
+      landing: {
+        title: 'Welcome!',
+      },
+    },
+    wallets: [
+      {
+        name: 'MyNEARWallet',
+        description: 'Secure your account with a Seed Phrase',
+        redirectUrl: `https://${
+          getConfig().networkId
+        }.mynearwallet.com/linkdrop/ACCOUNT_ID/SECRET_KEY`,
+        iconUrl: 'INSERT_ICON_URL_HERE',
+      },
+    ],
+  };
+
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
       network: getConfig().networkId as NetworkId,
@@ -102,15 +121,19 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         // @ts-ignore
         setupHereWallet(),
-        setupNearWallet({
-          // iconUrl: walletIcons['near-wallet'],
-        }),
         setupSender({
           // iconUrl: walletIcons['sender'],
         }),
         // @ts-ignore
         setupMeteorWallet({
           // iconUrl: walletIcons['meteor-wallet'],
+        }),
+        setupNearMobileWallet({
+          dAppMetadata: {
+            name: 'ref finance',
+            logoUrl: 'https://assets.ref.finance/images/REF-black-logo.png',
+            url: 'https://app.ref.finance',
+          },
         }),
         setupNeth({
           // iconUrl: walletIcons['neth'],
@@ -123,6 +146,29 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         setupLedger({
           // iconUrl: walletIcons['ledger'],
+        }),
+        setupWalletConnect({
+          projectId: '87e549918631f833447b56c15354e450',
+
+          metadata: {
+            name: 'ref finance',
+            description: 'Example dApp used by NEAR Wallet Selector',
+            url: 'https://github.com/ref-finance/ref-ui',
+            icons: ['https://avatars.githubusercontent.com/u/37784886'],
+          },
+          chainId: `near:${getConfig().networkId}`,
+          // iconUrl: walletIcons['wallet-connect'],
+        }),
+        setupKeypom({
+          networkId: getConfig().networkId as NetworkId,
+          signInContractId: CONTRACT_ID,
+          trialAccountSpecs: {
+            url: '/trial-accounts/ACCOUNT_ID#SECRET_KEY',
+            modalOptions: KEYPOM_OPTIONS,
+          },
+          instantSignInSpecs: {
+            url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
+          },
         }),
       ],
     });
@@ -228,8 +274,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
       if (
         keyStoreSender &&
-        !!keyStoreSender?.['accountId'] &&
-        !!keyStoreSender?.['accessKey']
+        !!keyStoreSender?.accountId &&
+        !!keyStoreSender?.accessKey
       ) {
         localStorage.setItem(
           REF_FI_SENDER_WALLET_ACCESS_KEY,

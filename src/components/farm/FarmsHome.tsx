@@ -25,6 +25,7 @@ import {
   NewIcon,
   ForbiddonIcon,
   StableOption,
+  MemeOptIcon,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -38,7 +39,6 @@ import {
   SortIcon,
 } from '../../components/icon';
 import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
 import CalcModelBooster from '../../components/farm/CalcModelBooster';
 import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import {
@@ -109,6 +109,7 @@ import {
   get_pool_name,
   openUrl,
 } from '../../services/commonV3';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const {
   REF_VE_CONTRACT_ID,
@@ -196,6 +197,7 @@ export default function FarmsHome(props: any) {
     { id: 'near', name: 'NEAR', icon: <NearOptIcon></NearOptIcon> },
     { id: 'stable', name: 'Stable', icon: <StableOption></StableOption> },
     { id: 'eth', name: 'ETH', icon: <EthOptIcon></EthOptIcon> },
+    { id: 'meme', name: 'Meme', icon: <MemeOptIcon></MemeOptIcon> },
     { id: 'new', name: 'New', icon: <NewIcon></NewIcon> },
     { id: 'others', name: 'Others', icon: <OthersOptIcon></OthersOptIcon> },
   ]);
@@ -776,25 +778,27 @@ export default function FarmsHome(props: any) {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'near') {
-        if (
-          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
-        ) {
+        if (farmClassification.near.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'eth') {
-        if (
-          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
-        ) {
+        if (farmClassification.eth.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition3 = false;
         }
       } else if (filter_type_selectedId == 'stable') {
         if (
-          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
+          condition1 = true;
+        } else {
+          condition3 = false;
+        }
+      } else if (filter_type_selectedId == 'meme') {
+        if (farmClassification.meme.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition3 = false;
@@ -802,13 +806,14 @@ export default function FarmsHome(props: any) {
       } else if (filter_type_selectedId == 'others') {
         // others
         const isNotNear =
-          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification.near.indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
-          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification.eth.indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotStable =
-          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) ==
-          -1;
-        if (isNotNear && isNotEth && isNotStable) {
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        const isNotMeme =
+          farmClassification.meme.indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        if (isNotNear && isNotEth && isNotStable && isNotMeme) {
           condition1 = true;
         } else {
           condition1 = false;
@@ -906,38 +911,41 @@ export default function FarmsHome(props: any) {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'near') {
-        if (
-          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
-        ) {
+        if (farmClassification.near.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'eth') {
-        if (
-          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
-        ) {
+        if (farmClassification.eth.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'stable') {
         if (
-          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+      } else if (filter_type_selectedId == 'meme') {
+        if (farmClassification.meme.indexOf(getPoolIdBySeedId(seed_id)) > -1) {
           condition1 = true;
         } else {
           condition1 = false;
         }
       } else if (filter_type_selectedId == 'others') {
         const isNotNear =
-          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification.near.indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
-          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification.eth.indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotStable =
-          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) ==
-          -1;
-        if (isNotNear && isNotEth && isNotStable) {
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        const isNotMeme =
+          farmClassification.stable.indexOf(getPoolIdBySeedId(seed_id)) == -1;
+        if (isNotNear && isNotEth && isNotStable && isNotMeme) {
           condition1 = true;
         } else {
           condition1 = false;
@@ -2812,22 +2820,15 @@ function FarmView(props: {
           <div
             className="text-white text-right"
             data-class="reactTip"
-            data-for="boostFarmTipId"
+            data-tooltip-id="boostFarmTipId"
             data-place="top"
-            data-html={true}
-            data-tip={result}
+            data-tooltip-html={result}
           >
             <div className="flex items-center justify-center">
               <BoostOptIcon></BoostOptIcon>
               <FormattedMessage id="boost"></FormattedMessage>
             </div>
-            <ReactTooltip
-              id="boostFarmTipId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            <CustomTooltip id="boostFarmTipId" />
           </div>
         </div>
       );
@@ -3077,10 +3078,9 @@ function FarmView(props: {
             <div
               className={`text-white text-right my-4`}
               data-class="reactTip"
-              data-for={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
+              data-tooltip-id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
               data-place="top"
-              data-html={true}
-              data-tip={getRewardsPerWeekTip()}
+              data-tooltip-html={getRewardsPerWeekTip()}
             >
               <div className="flex items-center bg-black bg-opacity-20 rounded-full p-0.5">
                 <span className="flex hover:bg-black hover:bg-opacity-20 rounded-full">
@@ -3102,14 +3102,8 @@ function FarmView(props: {
                   {totalTvlPerWeekDisplay()}/<FormattedMessage id="week" />
                 </span>
               </div>
-              <ReactTooltip
-                id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
             </div>
+
             <div className="flex items-center justify-between">
               {error ? <Alert level="warn" message={error.message} /> : null}
             </div>
@@ -3139,16 +3133,12 @@ function FarmView(props: {
                   data-multiline={true}
                   data-tip={getForbiddenTip()}
                   data-html={true}
-                  data-for={'forbiddenTip' + seed.farmList[0].farm_id}
+                  data-tooltip-id={'forbiddenTip' + seed.farmList[0].farm_id}
                   data-class="reactTip"
                 >
                   <ForbiddonIcon></ForbiddonIcon>
-                  <ReactTooltip
+                  <CustomTooltip
                     id={'forbiddenTip' + seed.farmList[0].farm_id}
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
                   />
                 </div>
               </div>
@@ -3173,7 +3163,7 @@ function FarmView(props: {
                     data-multiline={true}
                     data-tip={getAprTip()}
                     data-html={true}
-                    data-for={'aprId_dcl' + seed.farmList[0].farm_id}
+                    data-tooltip-id={'aprId_dcl' + seed.farmList[0].farm_id}
                     data-class="reactTip"
                   >
                     <div
@@ -3185,12 +3175,8 @@ function FarmView(props: {
                     >
                       {getTotalApr()}
                     </div>
-                    <ReactTooltip
+                    <CustomTooltip
                       id={'aprId_dcl' + seed.farmList[0].farm_id}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
                     />
                   </div>
                   <CalcIcon
@@ -3215,7 +3201,7 @@ function FarmView(props: {
                       data-multiline={true}
                       data-tip={getUnClaimTip()}
                       data-html={true}
-                      data-for={'unclaimedId' + seed.farmList[0].farm_id}
+                      data-tooltip-id={'unclaimedId' + seed.farmList[0].farm_id}
                       data-class="reactTip"
                     >
                       <div
@@ -3231,12 +3217,8 @@ function FarmView(props: {
                           Text={() => <>{getTotalUnclaimedRewards()}</>}
                         />
                       </div>
-                      <ReactTooltip
+                      <CustomTooltip
                         id={'unclaimedId' + seed.farmList[0].farm_id}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
                       />
                     </div>
                   </div>
@@ -3268,7 +3250,7 @@ function FarmView(props: {
                       // data-tip={isMobile() ? '': getRangeAprTip()}
                       data-tip={''}
                       data-html={true}
-                      data-for={'aprRangeId' + seed.farmList[0].farm_id}
+                      data-tooltip-id={'aprRangeId' + seed.farmList[0].farm_id}
                       data-class="reactTip"
                     >
                       <label
@@ -3288,12 +3270,8 @@ function FarmView(props: {
                       >
                         <FormattedMessage id="max_apr" />
                       </label>
-                      <ReactTooltip
+                      <CustomTooltip
                         id={'aprRangeId' + seed.farmList[0].farm_id}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
                       />
                     </div>
                   ) : (
@@ -3310,7 +3288,7 @@ function FarmView(props: {
                     data-multiline={true}
                     data-tip={getAprTip()}
                     data-html={true}
-                    data-for={'aprId' + seed.farmList[0].farm_id}
+                    data-tooltip-id={'aprId' + seed.farmList[0].farm_id}
                     data-class="reactTip"
                   >
                     <span
@@ -3331,13 +3309,7 @@ function FarmView(props: {
                         </>
                       )}
                     </span>
-                    <ReactTooltip
-                      id={'aprId' + seed.farmList[0].farm_id}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'aprId' + seed.farmList[0].farm_id} />
                   </div>
                   <CalcIcon
                     onClick={(e: any) => {
@@ -3361,7 +3333,7 @@ function FarmView(props: {
                       data-multiline={true}
                       data-tip={getUnClaimTip()}
                       data-html={true}
-                      data-for={'unclaimedId' + seed.farmList[0].farm_id}
+                      data-tooltip-id={'unclaimedId' + seed.farmList[0].farm_id}
                       data-class="reactTip"
                     >
                       <div
@@ -3377,12 +3349,8 @@ function FarmView(props: {
                           Text={() => <>{getTotalUnclaimedRewards()}</>}
                         />
                       </div>
-                      <ReactTooltip
+                      <CustomTooltip
                         id={'unclaimedId' + seed.farmList[0].farm_id}
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
                       />
                     </div>
                   </div>
@@ -3393,6 +3361,7 @@ function FarmView(props: {
             </div>
           ) : null}
         </div>
+        <CustomTooltip id={'rewardPerWeekId' + seed?.farmList[0]?.farm_id} />
       </div>
       {calcVisible ? (
         <CalcModelBooster
@@ -3876,19 +3845,12 @@ function WithDrawb(props: {
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
-                data-for="selectAllId"
+                data-tooltip-id="selectAllId"
                 data-place="top"
-                data-html={true}
-                data-tip={valueOfWithDrawLimitTip()}
+                data-tooltip-html={valueOfWithDrawLimitTip()}
               >
                 <QuestionMark></QuestionMark>
-                <ReactTooltip
-                  id="selectAllId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <CustomTooltip id="selectAllId" />
               </div>
             </div>
           ) : (
@@ -4256,19 +4218,13 @@ function WithDrawModal(props: {
                       <div
                         className="text-white text-right ml-1"
                         data-class="reactTip"
-                        data-for="selectAllId"
+                        data-tooltip-id="selectAllId"
                         data-place="top"
                         data-html={true}
                         data-tip={valueOfWithDrawLimitTip()}
                       >
                         <QuestionMark></QuestionMark>
-                        <ReactTooltip
-                          id="selectAllId"
-                          backgroundColor="#1D2932"
-                          border
-                          borderColor="#7e8a93"
-                          effect="solid"
-                        />
+                        <CustomTooltip id="selectAllId" />
                       </div>
                     </div>
                   ) : (
@@ -4364,19 +4320,12 @@ function LoveMask() {
     <div
       className="ml-2"
       data-class="reactTip"
-      data-for="loveTipId"
+      data-tooltip-id="loveTipId"
       data-place="top"
-      data-html={true}
-      data-tip={loveTip()}
+      data-tooltip-html={loveTip()}
     >
       <QuestionMark></QuestionMark>
-      <ReactTooltip
-        id="loveTipId"
-        backgroundColor="#1D2932"
-        border
-        borderColor="#7e8a93"
-        effect="solid"
-      />
+      <CustomTooltip id="loveTipId" />
     </div>
   );
 }

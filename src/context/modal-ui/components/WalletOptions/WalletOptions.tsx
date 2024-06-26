@@ -18,11 +18,12 @@ import {
   CheckboxSelected,
   AuthenticationIcon,
 } from '../../../../components/icon';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { REF_FI_SENDER_WALLET_ACCESS_KEY } from '../../../../pages/Orderly/orderly/utils';
 import { ORDERLY_ASSET_MANAGER } from '../../../../pages/Orderly/near';
 import { openUrl } from '../../../../services/commonV3';
 import { WalletRiskCheckBox } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -347,10 +348,9 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                           <div
                             className="text-white text-right ml-1"
                             data-class="reactTip"
-                            data-for={`walletOptionId_${module.id}`}
+                            data-tooltip-id={`walletOptionId_${module.id}`}
                             data-place="top"
-                            data-html={true}
-                            data-tip={
+                            data-tooltip-html={
                               walletOfficialMark[name]?.link ? getTip() : ''
                             }
                           >
@@ -365,13 +365,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                                 }
                               }}
                             ></AuthenticationIcon>
-                            <ReactTooltip
-                              id={`walletOptionId_${module.id}`}
-                              backgroundColor="#1D2932"
-                              border
-                              borderColor="#7e8a93"
-                              effect="solid"
-                            />
+                            <CustomTooltip id={`walletOptionId_${module.id}`} />
                           </div>
                         ) : null}
                       </div>

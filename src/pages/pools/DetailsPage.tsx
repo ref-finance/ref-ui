@@ -67,7 +67,7 @@ import {
   Near,
 } from 'src/components/icon';
 import { useHistory } from 'react-router';
-import { getPool } from 'src/services/indexer';
+import { getPool, getTxId } from 'src/services/indexer';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
@@ -121,7 +121,6 @@ import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 
 export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 
-import ReactTooltip from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from 'src/services/wrap-near';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
@@ -156,6 +155,7 @@ import {
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
+import BLACKTip from '../../components/pool/BLACKTip';
 import Big from 'big.js';
 import {
   getEffectiveFarmList,
@@ -164,8 +164,9 @@ import {
 import { openUrl } from '../../services/commonV3';
 import { numberWithCommas } from '../Orderly/utiles';
 import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
-const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
+const { BLACK_TOKEN_LIST } = getConfig();
 import { PoolRefreshModal } from './PoolRefreshModal';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface ParamTypes {
   id: string;
@@ -291,7 +292,7 @@ function DetailSymbol({
   id: string | number;
 }) {
   return (
-    <div className="text-sm text-white flex items-center">
+    <div className="text-xs text-white flex items-center">
       <span className="pl-2">
         {tokens.map((token) => toRealSymbol(token.symbol)).join('-')}
       </span>
@@ -352,7 +353,7 @@ function PoolDetailCard({
   };
 
   return (
-    <div className="bg-cardBg mt-4 rounded-2xl p-6 text-xs w-full right-0">
+    <div className="bg-cardBg mt-4 rounded-2xl p-6 xsm:p-3 text-xs w-full right-0">
       <div className="detail-header flex items-center justify-between">
         <div className="flex items-center">
           <DetailIcons tokens={tokens} />
@@ -1400,7 +1401,6 @@ export function RecentTransactions({
   const storedTab = sessionStorage.getItem(
     REF_FI_RECENT_TRANSACTION_TAB_KEY
   ) as RencentTabKey;
-
   const [tab, setTab] = useState<RencentTabKey>(storedTab || 'swap');
 
   const onChangeTab = (tab: RencentTabKey) => {
@@ -1408,7 +1408,33 @@ export function RecentTransactions({
     setTab(tab);
   };
 
-  const renderSwapTransactions = swapTransaction.map((tx) => {
+  const [loadingStates, setLoadingStates] = useState({});
+  async function handleTxClick(receipt_id) {
+    setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
+    try {
+      const data = await getTxId(receipt_id);
+      if (data && data.receipts && data.receipts.length > 0) {
+        const txHash = data.receipts[0].originated_from_transaction_hash;
+        window.open(
+          `${getConfig().explorerUrl}/txns/${txHash}`,
+          '_blank',
+          'noopener,noreferrer'
+        );
+      }
+    } catch (error) {
+      console.error(
+        'An error occurred while fetching transaction data:',
+        error
+      );
+    } finally {
+      setLoadingStates((prevStates) => ({
+        ...prevStates,
+        [receipt_id]: false,
+      }));
+    }
+  }
+
+  const renderSwapTransactions = swapTransaction.map((tx, index) => {
     const swapIn = tokens.find((t) => t.id === tx.token_in);
 
     const swapOut = tokens.find((t) => t.id === tx.token_out);
@@ -1437,17 +1463,17 @@ export function RecentTransactions({
         <HiOutlineExternalLink className=""></HiOutlineExternalLink>
       </a>
     );
-
     return (
       <tr
+        key={tx.receipt_id + index}
         className={`text-sm lg:grid lg:grid-cols-3 text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
-        <td className="gap-1 p-4 lg:flex items-center">
-          <span className="col-span-1 text-white" title={swapInAmount}>
+        <td className="gap-1 p-4 lg:flex lg:flex-wrap items-center">
+          <span className="col-span-1 text-white mr-1" title={swapInAmount}>
             {displayInAmount}
           </span>
 
-          <span className="ml-1 text-primaryText">
+          <span className="text-primaryText">
             {toRealSymbol(swapIn.symbol)}
           </span>
         </td>
@@ -1464,22 +1490,34 @@ export function RecentTransactions({
 
         <td className="col-span-1 relative flex items-center justify-end py-4 pr-4">
           <span
+            key={tx.receipt_id}
             className="inline-flex items-center cursor-pointer"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
     );
   });
 
-  const renderLiquidityTransactions = liquidityTransactions.map((tx) => {
+  const renderLiquidityTransactions = liquidityTransactions.map((tx, index) => {
     const { amounts } = tx;
     const renderTokens: any[] = [];
     const amountsObj: any[] = JSON.parse(amounts.replace(/\'/g, '"'));
@@ -1502,11 +1540,12 @@ export function RecentTransactions({
 
     return (
       <tr
-        className={`text-sm lg:grid  overflow-hidden py-3 lg:grid-cols-${
+        key={tx.receipt_id + index}
+        className={`text-sm lg:grid  overflow-hidden lg:grid-cols-${
           tab == 'swap' ? 3 : 5
         } text-primaryText hover:text-white hover:bg-poolRecentHover`}
       >
-        <td className="col-span-1 gap-1 px-4">
+        <td className="col-span-1 gap-1 p-4">
           <span className="text-white">
             {tx.method_name.toLowerCase().indexOf('add') > -1 && 'Add'}
 
@@ -1540,18 +1579,30 @@ export function RecentTransactions({
         <td
           className={`col-span-${
             tab == 'swap' ? 1 : 2
-          } relative pr-4 lg:flex justify-end`}
+          } relative py-4 pr-4 lg:flex justify-end`}
         >
           <span
+            key={tx.receipt_id}
             className="inline-flex cursor-pointer"
-            onClick={() => {
-              openUrl(`${getConfig().explorerUrl}/txns/${tx.tx_id}`);
-            }}
+            onClick={() =>
+              !loadingStates[tx.receipt_id] && handleTxClick(tx.receipt_id)
+            }
           >
-            <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
-              {tx.timestamp}
-            </span>
-            {txLink}
+            {loadingStates[tx.receipt_id] ? (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                <span className="hover:underline cursor-pointer xsm:whitespace-nowrap">
+                  {tx.timestamp}
+                </span>
+                {txLink}
+              </>
+            )}
           </span>
         </td>
       </tr>
@@ -2396,6 +2447,10 @@ export default function PoolDetailsPage() {
     }
   }, [poolTVL, userTotalShareToString, pool]);
 
+  const disable_add: boolean = useMemo(() => {
+    const tokenIds = tokens?.map((t) => t.id) || [];
+    return !!tokenIds.find((tokenId) => BLACK_TOKEN_LIST.includes(tokenId));
+  }, [tokens]);
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
   if (isStablePool(pool.id)) {
@@ -2422,6 +2477,7 @@ export default function PoolDetailsPage() {
   const haveLiquidity = Number(pool.shareSupply) > 0;
 
   const haveShare = Number(userTotalShareToString) > 0;
+
   return (
     <>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
@@ -2493,9 +2549,10 @@ export default function PoolDetailsPage() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={remove_from_watchlist_tip()}
-                    data-for="fullstar-tip"
+                    data-tooltip-html={
+                      !!isClientMobie() ? '' : remove_from_watchlist_tip()
+                    }
+                    data-tooltip-id="fullstar-tip"
                   >
                     {isClientMobie() ? (
                       <WatchListStartFullMobile />
@@ -2503,14 +2560,7 @@ export default function PoolDetailsPage() {
                       <WatchListStartFull />
                     )}
 
-                    <ReactTooltip
-                      id="fullstar-tip"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                      disable={!!isClientMobie()}
-                    />
+                    <CustomTooltip id="fullstar-tip" />
                   </div>
                 ) : (
                   <div
@@ -2519,9 +2569,10 @@ export default function PoolDetailsPage() {
                     data-place="right"
                     data-multiline={true}
                     data-class="reactTip"
-                    data-html={true}
-                    data-tip={add_to_watchlist_tip()}
-                    data-for="emptystar-tip"
+                    data-tooltip-html={
+                      !!isClientMobie() ? '' : add_to_watchlist_tip()
+                    }
+                    data-tooltip-id="emptystar-tip"
                   >
                     {isClientMobie() ? (
                       <WatchListStartEmptyMobile />
@@ -2529,14 +2580,7 @@ export default function PoolDetailsPage() {
                       <WatchListStartEmpty />
                     )}
 
-                    <ReactTooltip
-                      disable={!!isClientMobie()}
-                      id="emptystar-tip"
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
+                    <CustomTooltip id="emptystar-tip" />
                   </div>
                 )}
               </div>
@@ -2685,13 +2729,13 @@ export default function PoolDetailsPage() {
                   <>
                     <FormattedMessage id="apr" defaultMessage="APR" />
                     &nbsp;
-                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
+                    {/* {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
                       <>
                         (
                         <FormattedMessage id="pool" defaultMessage={'Pool'} /> +
                         <FormattedMessage id="farm" defaultMessage={'Farm'} />)
                       </>
-                    )}
+                    )} */}
                   </>
                 }
                 id="apr"
@@ -2701,9 +2745,8 @@ export default function PoolDetailsPage() {
                     data-place="left"
                     data-multiline={true}
                     data-class={'reactTip'}
-                    data-html={true}
-                    data-tip={getPoolListFarmAprTip()}
-                    data-for={'pool_list_pc_apr' + pool.id}
+                    data-tooltip-html={getPoolListFarmAprTip()}
+                    data-tooltip-id={'pool_list_pc_apr' + pool.id}
                   >
                     {!poolTVL
                       ? '-'
@@ -2723,15 +2766,10 @@ export default function PoolDetailsPage() {
                       !isMobile() &&
                       seedFarms &&
                       BaseApr().rawApr > 0 && (
-                        <ReactTooltip
+                        <CustomTooltip
                           className="w-20"
                           id={'pool_list_pc_apr' + pool.id}
-                          backgroundColor="#1D2932"
                           place="right"
-                          border
-                          borderColor="#7e8a93"
-                          textColor="#C6D1DA"
-                          effect="solid"
                         />
                       )}
                   </div>
@@ -2780,9 +2818,12 @@ export default function PoolDetailsPage() {
                     className="grid grid-cols-10 px-5 py-3 items-center hover:bg-chartBg hover:bg-opacity-30 justify-items-start text-base text-white"
                   >
                     <div className="flex items-center col-span-5 xs:col-span-4 md:col-span-4">
-                      <Icon icon={token.icon} className="h-7 w-7 mr-2" />
+                      <Icon
+                        icon={token.icon}
+                        className="h-7 w-7 xsm:h-6 xsm:w-6 mr-2"
+                      />
                       <div className="flex items-start flex-col">
-                        <div className="flex items-center text-white text-base">
+                        <div className="flex items-center text-white text-base xsm:text-sm break-all">
                           {toRealSymbol(token.symbol)}
 
                           {
@@ -2816,7 +2857,7 @@ export default function PoolDetailsPage() {
                     </div>
 
                     <div
-                      className="col-span-3 xs:justify-self-center md:justify-self-center"
+                      className="col-span-3 xs:justify-self-center md:justify-self-center xsm:text-sm"
                       title={
                         Number(tokenAmount) > 0 && Number(tokenAmount) < 0.01
                           ? '< 0.01'
@@ -2829,7 +2870,7 @@ export default function PoolDetailsPage() {
                     </div>
 
                     <div
-                      className="col-span-3 lg:col-span-2 xs:justify-self-center md:justify-self-center"
+                      className="col-span-3 lg:col-span-2 xs:justify-self-center md:justify-self-center xsm:text-sm"
                       title={
                         !!price ? `$${multiply(price, tokenAmount)}` : null
                       }
@@ -2859,7 +2900,7 @@ export default function PoolDetailsPage() {
             }}
           >
             <Card
-              className="rounded-2xl  w-full text-base text-white"
+              className="rounded-2xl  w-full text-base text-white mb-4"
               bgcolor="bg-cardBg"
             >
               {haveShare && (
@@ -2986,6 +3027,7 @@ export default function PoolDetailsPage() {
                     onClick={() => {
                       setShowFunding(true);
                     }}
+                    disabled={disable_add}
                   >
                     {!haveShare ? (
                       <FormattedMessage
@@ -3018,7 +3060,7 @@ export default function PoolDetailsPage() {
                 )}
               </div>
             </Card>
-
+            <BLACKTip tokenIds={tokens?.map((t) => t.id) || []} />
             {!seedFarms ? null : (
               <div className="flex flex-col mt-4 relative z-30">
                 <FarmBoardInDetailPool
@@ -3138,3 +3180,6 @@ export const formatNumber = (v: string | number) => {
     return big.toFixed(3, 1);
   }
 };
+function setIsLoading(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}

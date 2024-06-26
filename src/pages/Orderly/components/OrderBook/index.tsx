@@ -21,7 +21,7 @@ import { MarkPriceFlag, OrderlyLoading } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
 
 import { FormattedMessage, useIntl } from 'react-intl';
-import ReactTooltip from 'react-tooltip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { tickToPrecision } from '../UserBoardPerp/math';
 
 function getMarkPrice() {
@@ -185,7 +185,9 @@ function groupOrdersByPrecision({
 
 export function getDecimalPlaceByNumber(precision: number) {
   const str = precision.toString();
-
+  if (str.indexOf('e-') > -1) {
+    return +str.split('e-')[1];
+  }
   if (str.indexOf('.') === -1) return 0;
   else return str.split('.')[1].length;
 }
@@ -777,22 +779,13 @@ function OrderBook({ maintenance }: { maintenance: boolean }) {
 
               <div
                 className="pl-1 text-white text-base"
-                data-for={'orderbook_mark_price'}
+                data-tooltip-id={'orderbook_mark_price'}
                 data-class="reactTip"
-                data-html={true}
-                data-tip={getMarkPrice()}
+                data-tooltip-html={getMarkPrice()}
                 data-multiline={true}
               >
                 {orders && curMarkPrice && displayMarkPrice}
-                <ReactTooltip
-                  id={'orderbook_mark_price'}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                  textColor="#C6D1DA"
-                  place="top"
-                />
+                <CustomTooltip id={'orderbook_mark_price'} place="top" />
               </div>
             </div>
           )}
@@ -1461,22 +1454,13 @@ export function OrderBookShrink({ maintenance }: { maintenance: boolean }) {
 
               <div
                 className="pl-1 text-white text-base"
-                data-for={'orderbook_mark_price'}
+                data-tooltip-id={'orderbook_mark_price'}
                 data-class="reactTip"
-                data-html={true}
-                data-tip={getMarkPrice()}
+                data-tooltip-html={getMarkPrice()}
                 data-multiline={true}
               >
                 {orders && curMarkPrice && displayMarkPrice}
-                <ReactTooltip
-                  id={'orderbook_mark_price'}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                  textColor="#C6D1DA"
-                  place="top"
-                />
+                <CustomTooltip id={'orderbook_mark_price'} place="top" />
               </div>
             </div>
           )}

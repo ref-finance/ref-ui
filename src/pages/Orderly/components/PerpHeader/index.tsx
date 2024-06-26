@@ -17,7 +17,7 @@ export function PerpOrderlyTip() {
 
   return (
     <div
-      className="w-screen px-10  xs:pb-7 h-12 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
+      className="w-screen px-10  xs:pb-7 h-10 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
       style={{
         fontSize: '13px',
         color: '#111F29',
@@ -29,6 +29,10 @@ export function PerpOrderlyTip() {
         defaultMessage={
           'Welcome to Perpetual Futures trading!{br} Please  read {perpTipLink} docs to get start!'
         }
+        // id="perpTipDown"
+        // defaultMessage={
+        //   'Order book system update will be conducted from 2024/2/5 07:00 AM to 2024/2/5 09:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
+        // }
         values={{
           perpTipLink: (
             <a
@@ -48,7 +52,7 @@ export function PerpOrderlyTip() {
       />
 
       <div
-        className="absolute right-3 cursor-pointer top-1 "
+        className="absolute right-3 cursor-pointer top-2 "
         onClick={() => {
           setShow(false);
           localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');
@@ -88,6 +92,10 @@ export function PerpOrderlyTipMobile() {
         defaultMessage={
           'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
         }
+        // id="perpTipDown"
+        // defaultMessage={
+        //   'Order book system update will be conducted from 2024/2/5 07:00 AM to 2024/2/5 09:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
+        // }
         values={{
           perpTipLink: (
             <a
@@ -108,7 +116,7 @@ export function PerpOrderlyTipMobile() {
       />
 
       <div
-        className="absolute right-3 top-1 "
+        className="absolute right-3 top-2 "
         onClick={() => {
           setShow(false);
           localStorage.setItem(REF_ORDERLY_PERP_TIP_SIG, '1');

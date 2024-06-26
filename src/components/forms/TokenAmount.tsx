@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useMemo, useState, useRef } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  createRef,
+} from 'react';
 import { wallet } from '../../services/near';
 import {
   toRoundedReadableNumber,
@@ -46,7 +53,7 @@ import {
 } from '../icon/swapV3';
 import BigNumber from 'bignumber.js';
 import { WalletContext } from '../../utils/wallets-integration';
-import ReactTooltip from 'react-tooltip';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 interface TokenAmountProps {
   amount?: string;
@@ -540,11 +547,11 @@ export function TokenAmountV3({
     selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
     selectedToken?.symbol === 'NEAR' &&
     !forWrap
-      ? Number(max) <= 0.5
+      ? Number(max) <= 0.2
         ? '0'
         : toPrecision(
             scientificNotationToString(
-              new BigNumber(max).minus(0.5).toString()
+              new BigNumber(max).minus(0.2).toString()
             ),
             12
           )
@@ -759,6 +766,7 @@ export function TokenAmountV3({
             selectedToken={selectedToken}
             selectTokenIn={onSelectPre}
             selectTokenOut={onSelectPost}
+            limitOrder={true}
           />
         ) : (
           showSelectToken && (
@@ -1299,21 +1307,20 @@ export function LimitOrderRateSetBox({
               className={`flex items-center justify-center w-5 h-5 rounded-md ml-0.5 cursor-pointer ${
                 isMobile ? '' : 'hover:bg-selectTokenV3BgColor'
               }`}
+              data-tooltip-id="lockratehint"
             >
-              <span data-tip={true} data-for="lockratehint">
-                {hasLockedRate ? <LockInIcon /> : <LockIcon />}
-              </span>
+              <span>{hasLockedRate ? <LockInIcon /> : <LockIcon />}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <ReactTooltip id={'lockratehint'}>
+      <CustomTooltip id={'lockratehint'}>
         <div style={{ maxWidth: 240 }}>
           Lock the rate field to get your buy amount automatically adjusted when
           changing your sell amount.
         </div>
-      </ReactTooltip>
+      </CustomTooltip>
     </>
   );
 }

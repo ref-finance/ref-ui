@@ -997,6 +997,8 @@ export interface Seed {
   hidden?: boolean;
   endedFarmsIsSplit?: boolean;
   base?: number;
+  token_meta_data?: TokenMetadata;
+  farmer_count: number;
 }
 export interface FarmBoostTerm {
   daily_reward: string;
@@ -1645,24 +1647,13 @@ export const frontConfig = {
   '3433': '99',
   '79': '98',
 };
-export const farmClassification: any = {
-  near: [
-    0, 1207, 1371, 1395, 2330, 2448, 2799, 3, 3019, 3097, 3474, 3514, 3515,
-    3519, 377, 4, 974, 1195, 1923, 3448, 553, 79, 2691, 2800, 3020, 3433, 3612,
-    2769, 2973, 3667, 3688, 3699, 3714, 3471, 3449, 3819, 3804, 3815,
-  ],
-  eth: [
-    605, 1207, 2734, 1395, 1910, 2330, 2657, 2691, 2799, 2800, 3, 3020, 3433, 4,
-    974, 3097, 3636, 3815, 3804, 3471,
-  ],
-  stable: [1910, 3020, 3433, 3514, 3515, 3688, 3689, 3699],
-};
 export const frontConfigBoost = {
+  '4514': 102,
+  '4179': 101,
   '79': '100',
   '3': '99',
   '4': '98',
   'phoenix-bonds.near|wrap.near|2000': '97',
-  '4179': '96',
 };
 
 export function getFarmClassification(): any {
@@ -1676,6 +1667,7 @@ export function getFarmClassification(): any {
       ],
       eth: ['phoenix-bonds.testnet|wrap.testnet|2000', '604'],
       stable: ['79'],
+      meme: [],
     };
   } else if (env == 'testnet') {
     return {
@@ -1686,6 +1678,7 @@ export function getFarmClassification(): any {
       ],
       eth: ['phoenix-bonds.testnet|wrap.testnet|2000', '604'],
       stable: ['79'],
+      meme: [],
     };
   } else {
     return {
@@ -1729,6 +1722,12 @@ export function getFarmClassification(): any {
         '3804',
         '3815',
         'phoenix-bonds.near|wrap.near|2000',
+        '4276',
+        '4314',
+        '3807',
+        '4276',
+        '4369',
+        '4514',
       ],
       eth: [
         '605',
@@ -1762,7 +1761,9 @@ export function getFarmClassification(): any {
         '3689',
         '3699',
         '4179',
+        '4514',
       ],
+      meme: ['4314', '3807', '4276', '4369'],
     };
   }
 }

@@ -6,7 +6,6 @@ import Footer from './components/layout/Footer';
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './app.css';
-import ExternalPopUp from 'src/components/layout/ExternalPopUp';
 import Guider from 'src/components/layout/Guider';
 
 import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
@@ -14,7 +13,9 @@ import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
 import { Content } from 'src/Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
 import { XmasActivityContextProvider } from './context/XmasActivity';
-
+import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
+import RpcList from 'src/components/rpc';
+console.log('333333333333', process?.env?.REACT_APP_NEAR_ENV);
 function App() {
   return (
     <Router>
@@ -28,9 +29,9 @@ function App() {
           </div>
         </XmasActivityContextProvider>
       </WalletSelectorContextProvider>
-
+      <RpcList></RpcList>
       <LedgerTransactionModal />
-      {/*<ModalGAPrivacy />*/}
+      <ModalGAPrivacy />
     </Router>
   );
 }

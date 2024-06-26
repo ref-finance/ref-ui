@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import ReactTooltip from 'react-tooltip';
 import {
   GrayBgBox,
   NearIcon,

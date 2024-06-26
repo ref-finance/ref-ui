@@ -80,6 +80,7 @@ export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
 export interface OrderTxType {
   order_id: string;
   tx_id: string | null;
+  receipt_id: string | null;
 }
 
 export const getHistoryOrder = async (
@@ -101,6 +102,7 @@ export interface HistoryOrderSwapInfo {
   amount_in: string;
   amount_out: string;
   timestamp: string;
+  receipt_id: string;
 }
 
 interface TokenFlow {
@@ -281,40 +283,40 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
       // include non-stable pools on top pool list
       // TODO:
 
-      await Promise.all(
-        ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
-          .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
-          .filter((_) => _)
-          .map(async (id) => {
-            const pool = await getPoolRPC(Number(id));
+      // await Promise.all(
+      //   ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
+      //     .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
+      //     .filter((_) => _)
+      //     .map(async (id) => {
+      //       const pool = await getPoolRPC(Number(id));
 
-            const ids = pool.tokenIds;
+      //       const ids = pool.tokenIds;
 
-            const twoTokenStablePoolIds = (
-              await getPoolsByTokensIndexer({
-                token0: ids[0],
-                token1: ids[1],
-              })
-            ).map((p: any) => p.id.toString());
+      //       const twoTokenStablePoolIds = (
+      //         await getPoolsByTokensIndexer({
+      //           token0: ids[0],
+      //           token1: ids[1],
+      //         })
+      //       ).map((p: any) => p.id.toString());
 
-            const twoTokenStablePools = await getPoolsByIds({
-              pool_ids: twoTokenStablePoolIds,
-            });
+      //       const twoTokenStablePools = await getPoolsByIds({
+      //         pool_ids: twoTokenStablePoolIds,
+      //       });
 
-            if (twoTokenStablePools.length > 0) {
-              const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
+      //       if (twoTokenStablePools.length > 0) {
+      //         const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
 
-              if (
-                pools.find(
-                  (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
-                )
-              )
-                return;
+      //         if (
+      //           pools.find(
+      //             (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
+      //           )
+      //         )
+      //           return;
 
-              pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
-            }
-          })
-      );
+      //         pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
+      //       }
+      //     })
+      // );
 
       await db.cacheTopPools(pools);
     }
@@ -364,6 +366,7 @@ export interface ClassicPoolSwapTransaction {
   swap_out: string;
   timestamp: string;
   tx_id: string;
+  receipt_id: string;
 }
 
 export const getClassicPoolSwapRecentTransaction = async (props: {
@@ -396,6 +399,7 @@ export interface DCLPoolSwapTransaction {
   amount_out: string;
   timestamp: string;
   tx_id: string;
+  receipt_id: string;
 }
 
 export const getDCLPoolSwapRecentTransaction = async (props: {
@@ -430,6 +434,7 @@ export interface ClassicPoolLiquidtyRecentTransaction {
   shares?: string;
   pool_id?: string;
   amounts?: string;
+  receipt_id: string;
 }
 
 export const getClassicPoolLiquidtyRecentTransaction = async (props: {
@@ -459,6 +464,7 @@ export interface DCLPoolLiquidtyRecentTransaction {
   amount_y: string;
   timestamp: string;
   tx_id: string;
+  receipt_id: string;
 }
 
 export const getDCLPoolLiquidtyRecentTransaction = async (props: {
@@ -489,6 +495,7 @@ export interface LimitOrderRecentTransaction {
   tx_id: string;
   point: string;
   sell_token: string;
+  receipt_id: string;
 }
 
 export const getLimitOrderRecentTransaction = async (props: {
@@ -694,7 +701,12 @@ export const getV3PoolVolumeById = async (pool_id: string): Promise<any[]> => {
   )
     .then((res) => res.json())
     .then((list) => {
-      return list.slice(0, 60);
+      (list || []).sort((v1, v2) => {
+        const b =
+          new Date(v1.dateString).getTime() - new Date(v2.dateString).getTime();
+        return b;
+      });
+      return list.slice(-60);
     })
     .catch(() => {
       return [];
@@ -878,6 +890,17 @@ export const getDclUserPoints = async (
     config.indexerUrl +
       `/get-dcl-points-by-account?pool_id=${pool_id}&slot_number=${bin}&account_id=${account_id}`
   )
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getTxId = async (receipt_id: string) => {
+  return await fetch(config.txIdApiUrl + `/v1/search/?keyword=${receipt_id}`)
     .then(async (res) => {
       const data = await res.json();
       return data;

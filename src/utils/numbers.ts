@@ -353,6 +353,9 @@ export function multiply(factor1: string, factor2: string) {
 }
 
 export const percent = (numerator: string, denominator: string) => {
+  if (new Big(denominator || '0').eq(0)) {
+    return 0;
+  }
   return math.evaluate(`(${numerator} / ${denominator}) * 100`);
 };
 
@@ -754,6 +757,27 @@ export const getMax = function (
     ? '0'
     : toPrecision(
         scientificNotationToString(new Big(max).minus(0.5).toString()),
+        24
+      );
+};
+
+export const getMaxMin = function (
+  id: string,
+  max: string,
+  token?: TokenMetadata
+) {
+  let condition;
+  if (token) {
+    condition = id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR';
+  } else {
+    condition = id == WRAP_NEAR_CONTRACT_ID;
+  }
+  return !condition
+    ? max
+    : Number(max) <= 0.2
+    ? '0'
+    : toPrecision(
+        scientificNotationToString(new Big(max).minus(0.2).toString()),
         24
       );
 };

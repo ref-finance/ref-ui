@@ -84,7 +84,7 @@ import {
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 
 import { MdOutlineRefresh } from '../reactIcons';
-import { getMax } from '../../utils/numbers';
+import { getMaxMin } from '../../utils/numbers';
 
 import { SelectedIcon } from '../icon/swapV3';
 
@@ -92,6 +92,8 @@ import { PoolInfo, get_pool_from_cache } from '../../services/swapV3';
 import { nearMetadata } from '../../services/wrap-near';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { InfoIcon } from 'src/components/icon/Common';
+import getConfigV2 from '../../services/configV2';
+const configV2 = getConfigV2();
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -259,6 +261,7 @@ function DetailViewLimit({
             </span>
             <div className={'flex items-center gap-1'}>
               <InfoIcon
+                id={'infoIcon'}
                 tooltipNode={
                   <div style={{ maxWidth: 220 }}>
                     <div>
@@ -927,7 +930,10 @@ export default function LimitOrderCard(props: {
     return (
       new Big(tokenInAmount || '0').gt('0') &&
       new Big(tokenInMax || '0').gt('0') &&
-      new Big(tokenInAmount || '0').lte(tokenInMax || '0')
+      new Big(tokenInAmount || '0').lte(tokenInMax || '0') &&
+      configV2.WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS.includes(
+        selectedV3LimitPool
+      )
     );
   }
 
@@ -943,7 +949,7 @@ export default function LimitOrderCard(props: {
     const condition1 = tokenIn && balanceInDone && balanceOutDone;
     return (
       condition1 &&
-      (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+      (Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
         Number(tokenInAmount || '0') <
         0 ||
         ONLY_ZEROS.test(tokenInMax))
@@ -1030,7 +1036,7 @@ export default function LimitOrderCard(props: {
             balanceInDone &&
             balanceOutDone &&
             tokenIn &&
-            Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+            Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
               Number(tokenInAmount || '0') <
               0 &&
             !ONLY_ZEROS.test(tokenInMax || '0') &&
@@ -1040,7 +1046,7 @@ export default function LimitOrderCard(props: {
               <Alert
                 level="warn"
                 message={`${intl.formatMessage({
-                  id: 'near_validation_error',
+                  id: 'near_min_validation_error',
                 })} `}
                 extraClass="px-0 pb-3"
               />

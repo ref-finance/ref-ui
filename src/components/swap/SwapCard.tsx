@@ -62,7 +62,7 @@ import {
 } from '../../utils/numbers';
 import { getPoolAllocationPercents } from '../../utils/numbers';
 import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
-import { getMax } from '../../utils/numbers';
+import { getMaxMin } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 import Alert from '../alert/Alert';
 import { ConnectToNearBtnSwap } from '../button/Button';
@@ -82,7 +82,12 @@ import {
   TradeRouteModal,
 } from '../layout/SwapRoutes';
 import { QuestionTip } from '../layout/TipWrapper';
-import { FaAngleDown, FaAngleUp, FaExchangeAlt } from '../reactIcons';
+import {
+  FaAngleDown,
+  FaAngleUp,
+  FaExchangeAlt,
+  MdOutlineRefresh,
+} from '../reactIcons';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1010,7 +1015,7 @@ export default function SwapCard(props: {
       return false;
     if (tokenIn?.symbol == 'NEAR') {
       if (
-        !new BigNumber(tokenInAmount).plus(0.5).isLessThanOrEqualTo(tokenInMax)
+        !new BigNumber(tokenInAmount).plus(0.2).isLessThanOrEqualTo(tokenInMax)
       )
         return false;
     }
@@ -1098,7 +1103,7 @@ export default function SwapCard(props: {
     const condition1 = tokenIn && balanceInDone && balanceOutDone;
     return (
       condition1 &&
-      (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+      (Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
         Number(tokenInAmount || '0') <
         0 ||
         ONLY_ZEROS.test(tokenInMax))
@@ -1113,6 +1118,8 @@ export default function SwapCard(props: {
   };
 
   const isInsufficientBalance = judgeBalance();
+  const isQuoteLoading =
+    quoting || (!canSubmit && !isInsufficientBalance && isSignedIn);
 
   const [tokenExchanging, setTokenExchanging] = useState(false);
   const toggleTokenExchanging = () => {
@@ -1126,7 +1133,7 @@ export default function SwapCard(props: {
       balanceInDone &&
       balanceOutDone &&
       tokenIn &&
-      Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+      Number(getMaxMin(tokenIn.id, tokenInMax || '0', tokenIn)) -
         Number(tokenInAmount || '0') <
         0 &&
       !ONLY_ZEROS.test(tokenInMax || '0') &&
@@ -1226,7 +1233,7 @@ export default function SwapCard(props: {
               <Alert
                 level="warn"
                 message={`${intl.formatMessage({
-                  id: 'near_validation_error',
+                  id: 'near_min_validation_error',
                 })} `}
                 extraClass="px-0 pb-3 trans"
               />
@@ -1284,22 +1291,32 @@ export default function SwapCard(props: {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  setLoadingTrigger(true);
+                  // setReEstimateTrigger(!reEstimateTrigger);
 
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
+                  // if (loadingPause) {
+                  //   setLoadingPause(false);
+                  //   setLoadingTrigger(true);
+                  //   setLoadingData(true);
+                  // } else {
+                  //   setLoadingPause(true);
+                  //   setLoadingTrigger(false);
+                  // }
                 }}
                 className="mr-2 cursor-pointer"
               >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
+                <MdOutlineRefresh
+                  size={18}
+                  className={`text-primaryText cursor-pointer  ${
+                    isQuoteLoading ? 'rotateInfinite' : ''
+                  } `}
+                  style={isQuoteLoading && { fill: '#00FFD1' }}
                 />
+
+                {/*<CountdownTimer*/}
+                {/*  loadingTrigger={loadingTrigger}*/}
+                {/*  loadingPause={loadingPause}*/}
+                {/*/>*/}
               </div>
               <SwapRate
                 from={tokenInAmount}

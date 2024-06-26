@@ -1,7 +1,4 @@
 import React, { createContext, useEffect, useContext, useState } from 'react';
-import Big from 'big.js';
-import ReactTooltip from 'react-tooltip';
-import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import { isMobile } from '../../../../utils/device';
 
@@ -46,9 +43,11 @@ const is_mobile = isMobile();
 function PositionsTable({
   hidden,
   showCurSymbol,
+  futureOrders,
 }: {
   hidden: boolean;
   showCurSymbol: boolean;
+  futureOrders: MyOrder[];
 }) {
   const intl = useIntl();
   const { marketList, allTokens } = useMarketlist();
@@ -233,27 +232,27 @@ function PositionsTable({
     });
   };
 
-  const getFutureOrders = async () => {
-    const { data } = await getPortfolioAllOrders({
-      accountId,
-      OrderProps: {
-        page: 1,
-        size: 500,
-        status: 'INCOMPLETE',
-      },
-    });
-    const filterOrders: MyOrder[] = data?.rows?.filter((order: MyOrder) =>
-      order.symbol.includes('PERP')
-    );
+  // const getFutureOrders = async () => {
+  //   const { data } = await getPortfolioAllOrders({
+  //     accountId,
+  //     OrderProps: {
+  //       page: 1,
+  //       size: 500,
+  //       status: 'INCOMPLETE',
+  //     },
+  //   });
+  //   const filterOrders: MyOrder[] = data?.rows?.filter((order: MyOrder) =>
+  //     order.symbol.includes('PERP')
+  //   );
 
-    setFutureOrders(filterOrders);
-  };
+  //   setFutureOrders(filterOrders);
+  // };
 
-  useEffect(() => {
-    getFutureOrders();
-  }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
+  // useEffect(() => {
+  //   getFutureOrders();
+  // }, [myPendingOrdersRefreshing, triggerPositionBasedData]);
 
-  const [futureOrders, setFutureOrders] = useState<MyOrder[]>([]);
+  // const [futureOrders, setFutureOrders] = useState<MyOrder[]>([]);
 
   if (hidden) return null;
 

@@ -62,8 +62,49 @@ module.exports = {
     configure: (webpackConfig) => {
       webpackConfig.devtool = 'source-map';
 
+      webpackConfig.optimization.splitChunks = {
+        cacheGroups: {
+          vendors: {
+            test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom|react-router|react-modal|react-tooltip|lodash|moment)[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 50,
+            reuseExistingChunk: true,
+          },
+          nearWallet: {
+            test: /[\\/]node_modules[\\/](@near-wallet-selector|near-api-js|@aurora-is-near)[\\/]/,
+            name: 'nw',
+            chunks: 'all',
+            priority: 40,
+            reuseExistingChunk: true,
+          },
+          echarts: {
+            test: /[\\/]node_modules[\\/](echarts|recharts)[\\/]/,
+            name: 'ec',
+            chunks: 'all',
+            priority: 30,
+            reuseExistingChunk: true,
+          },
+
+          // icons: {
+          //   test: /[\\/]src[\\/]components[\\/]icon[\\/].+\.tsx$/,
+          //   chunks: 'all',
+          //   priority: 20,
+          //   name(module) {
+          //     const moduleFileName = module
+          //       .identifier()
+          //       .split('/')
+          //       .reduceRight((item) => item);
+          //     const chunkName = moduleFileName.replace(/\.tsx$/, '');
+          //     // console.log('chunkName', chunkName);
+          //     return `icon-${chunkName}`;
+          //   },
+          // },
+        },
+      };
+
       webpackConfig.output = Object.assign(webpackConfig.output, {
-        filename: 'main.[contenthash:8].js',
+        filename: '[name].[contenthash:8].js',
         chunkFilename: '[name].[contenthash:8].chunk.js',
         publicPath: '/',
       });

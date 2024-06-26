@@ -64,7 +64,7 @@ export default function AssetChart() {
   function switchDimension(key: 'M' | 'W' | 'H') {
     setActiveDimension(key);
   }
-  const CustomTooltip = (params: any) => {
+  const CustomTooltipNode = (params: any) => {
     const { active, payload } = params;
     if (active && payload && payload.length) {
       const { assets, date_itme } = payload[0].payload;
@@ -175,7 +175,7 @@ export default function AssetChart() {
                 //   border:'10px solid orange'
                 // }}
                 // contentStyle={{border:'10px solid orange', backgroundColor:'red'}}
-                content={<CustomTooltip />}
+                content={<CustomTooltipNode />}
                 cursor={{ opacity: '0.3' }}
               />
               <Area

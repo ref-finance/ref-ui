@@ -93,7 +93,7 @@ import {
 import getConfig from '../../config';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { AssetModal } from '../AssetModal';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
@@ -136,6 +136,8 @@ import { useTokensBalances } from '../UserBoard/state';
 import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
+import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
 function getTipFOK() {
@@ -648,7 +650,8 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
     curSymbolMarkPrice,
     availableSymbols,
   ]);
-
+  const orderlyBalancesStore: any = useOrderlyBalancesStore();
+  const orderlyBalances = orderlyBalancesStore.getBalances();
   const storedLimitOrderAdvance =
     sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
 
@@ -681,26 +684,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
 
   const tokenToBalance = useTokenBalance(
     tokenOut?.id,
-    JSON.stringify(balances)
+    JSON.stringify(orderlyBalances)
   );
-  // const tokenOutHolding =
-  //   tokenOut?.symbol?.toLowerCase()?.includes('usdc') && freeCollateral !== '-'
-  //     ? freeCollateral
-  //     : curHoldingOut
-  //     ? toPrecision(
-  //         new Big(
-  //           curHoldingOut.holding + curHoldingOut.pending_short
-  //         ).toString(),
-  //         Math.min(8, tokenOut?.decimals || 8),
-  //         false
-  //       )
-  //     : balances && balances[symbolTo]?.holding;
-
   const usdcAvailableBalance = curHoldingOut
     ? new Big(curHoldingOut.holding + curHoldingOut.pending_short).toFixed(2)
     : '-';
@@ -836,10 +826,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
   const [errorTipMsg, setErrorTipMsg] = useState<string>('');
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
+  // TODO connect entry
   useEffect(() => {
     if (!accountId || !storageEnough) return;
-
+    console.log(
+      'storedValidstoredValidstoredValidstoredValidstoredValid',
+      storedValid
+    );
     if (!!storedValid) {
       setValidAccountSig(true);
       setKeyAnnounced(true);
@@ -850,10 +843,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
     is_orderly_key_announced(accountId, true)
       .then(async (key_announce) => {
+        console.log('search result key_announce', key_announce);
         setKeyAnnounced(key_announce);
         if (!key_announce) {
           const res = await announceKey(accountId)
             .then((res) => {
+              console.log('set key_announce as true');
               setKeyAnnounced(true);
             })
             .catch((e) => {
@@ -864,10 +859,12 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
       })
       .then(() => {
         is_trading_key_set(accountId).then(async (trading_key_set) => {
+          console.log('search result trading_announce', trading_key_set);
           setTradingKeySet(trading_key_set);
           if (!trading_key_set) {
             await setTradingKey(accountId)
               .then(() => {
+                console.log('set trading_key as true');
                 setTradingKeySet(true);
               })
               .catch((e) => {
@@ -2210,22 +2207,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_ioc'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_ioc'}
                     data-place={'top'}
-                    data-tip={getTipIoc()}
+                    data-tooltip-html={getTipIoc()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_ioc'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_ioc'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -2254,22 +2242,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_folk'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_folk'}
                     data-place={'top'}
-                    data-tip={getTipFOK()}
+                    data-tooltip-html={getTipFOK()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_folk'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_folk'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -2298,22 +2277,13 @@ export default function UserBoard({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_post_only'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_post_only'}
                     data-place={'top'}
-                    data-tip={getTipPostOnly()}
+                    data-tooltip-html={getTipPostOnly()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_post_only'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_post_only'} place="right" />
                   </div>
                 </div>
               </div>
@@ -2831,9 +2801,7 @@ export function AssetManagerModal(
                   }}
                   value={percentage}
                   type="range"
-                  className={`w-full cursor-pointer ${
-                    type + '-bar'
-                  } remove-by-share-bar`}
+                  className={`w-full cursor-pointer deposit-bar remove-by-share-bar`}
                   min="0"
                   max="100"
                   step="any"
@@ -2844,11 +2812,9 @@ export function AssetManagerModal(
                 />
 
                 <div
-                  className={`rangeText rounded-lg absolute py-0.5 text-xs ${
-                    type === 'withdraw' ? 'text-white' : 'text-black'
-                  }  font-bold text-center w-10`}
+                  className={`rangeText rounded-lg absolute py-0.5 text-xs text-black font-bold text-center w-10`}
                   style={{
-                    background: type === 'withdraw' ? '#4627FF' : '#00C6A2',
+                    background: '#00C6A2',
                     left: `calc(${percentage}% - 40px * ${percentage} / 100)`,
                     position: 'absolute',
                     top: '20px',
@@ -2864,7 +2830,7 @@ export function AssetManagerModal(
               </div>
             </div>
             {type === 'deposit' &&
-              !validation() &&
+              (!validation() || +percentage == 100) &&
               tokenId.toLowerCase() === 'near' && (
                 <div className="text-warn text-center mb-2 text-xs xs:-mt-2 lg:whitespace-nowrap">
                   <FormattedMessage
@@ -2881,9 +2847,7 @@ export function AssetManagerModal(
                 buttonLoading
                   ? 'opacity-70 cursor-not-allowed'
                   : ''
-              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg ${
-                type === 'deposit' ? 'bg-primaryGradient' : 'bg-withdrawPurple'
-              }`}
+              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg bg-primaryGradient`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2907,10 +2871,15 @@ export function AssetManagerModal(
                           defaultMessage: 'Deposit',
                         })
                       : type === 'withdraw'
-                      ? intl.formatMessage({
-                          id: 'withdraw',
-                          defaultMessage: 'Withdraw',
-                        })
+                      ? !validation()
+                        ? intl.formatMessage({
+                            id: 'insufficient_balance',
+                            defaultMessage: 'Insufficient Balance',
+                          })
+                        : intl.formatMessage({
+                            id: 'withdraw',
+                            defaultMessage: 'Withdraw',
+                          })
                       : ''}
                   </span>
                 )}
@@ -4713,22 +4682,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_ioc'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_ioc'}
                     data-place={'top'}
-                    data-tip={getTipIoc()}
+                    data-tooltip-html={getTipIoc()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_ioc'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_ioc'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -4757,22 +4717,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_folk'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_folk'}
                     data-place={'top'}
-                    data-tip={getTipFOK()}
+                    data-tooltip-html={getTipFOK()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_folk'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_folk'} place="right" />
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -4801,22 +4752,13 @@ export function UserBoardMobilePerp({ maintenance }: { maintenance: boolean }) {
 
                   <div
                     data-class="reactTip"
-                    data-for={'user_board_post_only'}
-                    data-html={true}
+                    data-tooltip-id={'user_board_post_only'}
                     data-place={'top'}
-                    data-tip={getTipPostOnly()}
+                    data-tooltip-html={getTipPostOnly()}
                   >
                     <QuestionMark></QuestionMark>
 
-                    <ReactTooltip
-                      id={'user_board_post_only'}
-                      backgroundColor="#1D2932"
-                      place="right"
-                      border
-                      borderColor="#7e8a93"
-                      textColor="#C6D1DA"
-                      effect="solid"
-                    />
+                    <CustomTooltip id={'user_board_post_only'} place="right" />
                   </div>
                 </div>
               </div>
