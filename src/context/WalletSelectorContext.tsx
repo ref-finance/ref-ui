@@ -134,6 +134,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       network: getConfig().networkId as NetworkId,
       debug: false,
       modules: [
+        setupOKXWallet({}),
         setupMyNearWallet({
           // iconUrl: walletIcons['my-near-wallet'],
         }),
@@ -193,7 +194,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           contractId: CONTRACT_ID,
           deprecated: false,
         }),
-        setupOKXWallet({}),
       ],
     });
     const _modal = setupModal(_selector, {
