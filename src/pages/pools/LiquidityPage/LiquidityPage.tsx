@@ -157,6 +157,7 @@ import {
   TokenPriceListContext,
 } from './constLiquidityPage';
 import { useRiskTokens } from '../../../state/token';
+import { format_apy } from '../../../utils/uiNumber';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -347,11 +348,12 @@ function PoolRow({
             data-tooltip-html={getPoolListFarmAprTip()}
             data-tooltip-id={'pool_list_pc_apr' + pool.id}
           >
-            {`${
+            {/* {`${
               Number(pool.apy).toFixed(0) != '0'
                 ? formatNumber(Number(pool.apy))
                 : '0'
-            }%`}
+            }%`} */}
+            {format_apy(pool.apy ?? 0)}
             <span className="text-xs text-gradientFrom">
               {`${
                 Number(pool.farm_apy).toFixed(0) != '0'
