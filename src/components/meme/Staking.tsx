@@ -128,7 +128,7 @@ const Staking = () => {
             {/* <div className="text-base text-primaryText">Current Round:</div>
             <div className="text-lg mb-4">2024/05/04-2024/06/03</div> */}
             <div className="text-base text-primaryText">Current Round:</div>
-            <div className="text-lg mb-6">2024/06/06-2024/07/05</div>
+            <div className="text-lg mb-6">2024/07/06-2024/08/05</div>
           </div>
           <div className="mb-6" style={{ height: '285px' }}>
             <StakingChart chartType="xref" />
@@ -140,7 +140,7 @@ const Staking = () => {
             </div> */}
             <div className="text-left">
               <p className="text-sm text-primaryText mb-2">Current Round:</p>
-              <div className="text-sm ">2024/06/06-2024/07/05</div>
+              <div className="text-sm ">2024/07/06-2024/08/05</div>
             </div>
           </div>
           {!hasGuided &&
