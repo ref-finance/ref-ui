@@ -435,12 +435,12 @@ export const getSearchResult = async ({
   if (sort == 'volume_24h') {
     sort = '24h';
   }
-
   try {
     let pools: any;
     const url = !onlyUseId
       ? `/pool/search?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}&token_list=${token_list}&pool_id_list=${pool_id_list}`
       : `/pool/search?pool_id_list=${pool_id_list}`;
+    // use classicTestUrl to replace indexerUrl
     pools = await fetch(config.indexerUrl + url, {
       method: 'GET',
       headers: {
@@ -462,6 +462,7 @@ export const getSearchResult = async ({
       return [];
     }
   } catch (error) {
+    console.log(error, 'usePools error');
     return [];
   }
 };

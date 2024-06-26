@@ -141,6 +141,7 @@ export const parsePoolNew = (pool: any, id?: number): any => {
     volume_24h: pool.volume_24h,
     token_symbols: pool.token_symbols,
     search_symbols: pool.token_symbols.join('-'),
+    top: pool.top,
   };
 };
 
