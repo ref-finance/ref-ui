@@ -317,6 +317,13 @@ function PoolRow({
                 </div>
               )}
               {supportFarm && <FarmStampNew multi={farmCount > 1} />}
+                <div
+                  className="w-9 h-5 bg-greenLight text-black font-bold text-xs frcc ml-2"
+                  style={{ borderRadius: ' 14px' }}
+                >
+                  Top
+                </div>
+              )}
             </div>
           </div>
         </div>
