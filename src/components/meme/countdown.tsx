@@ -19,10 +19,9 @@ const Countdown = ({ onCountdownFinish }) => {
   const [minutes, setMinutes] = useState('00');
   const [countdownFinished, setCountdownFinished] = useState(false);
   useEffect(() => {
-    // targetDate 7.1 endDate 7.4
     const targetDate = new Date(Date.UTC(new Date().getUTCFullYear(), 6, 1));
     const endDate = new Date(
-      Date.UTC(new Date().getUTCFullYear(), 6, 4, 12, 0, 0)
+      Date.UTC(new Date().getUTCFullYear(), 6, 5)
     );
     const updateCountdown = () => {
       const nowUtc = Date.now();
