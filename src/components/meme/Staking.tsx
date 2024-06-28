@@ -51,13 +51,13 @@ const Staking = () => {
             >
               Vote
             </div>
-            {/* <div
+            <div
               className="lg:w-32 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
               onClick={() => setUserRanking(true)}
             >
               Rank
-            </div> */}
-            <div className="relative">
+            </div>
+            {/* <div className="relative">
               <div
                 className="opacity-30 lg:w-32 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor 
             rounded-lg h-12 flex items-center cursor-not-allowed justify-center text-greenLight text-base gotham_bold"
@@ -75,7 +75,7 @@ const Staking = () => {
                   <p>Coming soon</p>
                 </div>
               )}
-            </div>
+            </div> */}
             <div
               className="lg:w-32  border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
               items-center justify-center text-white text-base gotham_bold xsm:hidden"
@@ -125,22 +125,22 @@ const Staking = () => {
         </div>
         <div className="xsm:bg-memeStakingBgColor xsm:border xsm:border-memeBorderColor xsm:rounded-2xl xsm:pt-8 xsm:pb-8 xsm:px-11">
           <div className="lg:hidden mb-3 flex flex-col items-center">
-            {/* <div className="text-base text-primaryText">Current Round:</div>
-            <div className="text-lg mb-4">2024/05/04-2024/06/03</div> */}
             <div className="text-base text-primaryText">Current Round:</div>
-            <div className="text-lg mb-6">2024/06/06-2024/07/05</div>
+            <div className="text-lg mb-4">2024/06/06-2024/07/05</div>
+            <div className="text-base text-primaryText">Next Round:</div>
+            <div className="text-lg mb-6">2024/07/06-2024/08/05</div>
           </div>
           <div className="mb-6" style={{ height: '285px' }}>
             <StakingChart chartType="xref" />
           </div>
           <div className="flex justify-between mb-6 px-16 xsm:hidden">
-            {/* <div className="text-left ">
-              <p className="text-sm text-primaryText mb-2">Current Round:</p>
-              <div className="text-sm ">2024/05/04-2024/06/03</div>
-            </div> */}
-            <div className="text-left">
+            <div className="text-left ">
               <p className="text-sm text-primaryText mb-2">Current Round:</p>
               <div className="text-sm ">2024/06/06-2024/07/05</div>
+            </div>
+            <div className="text-left">
+              <p className="text-sm text-primaryText mb-2">Next Round:</p>
+              <div className="text-sm ">2024/07/06-2024/08/05</div>
             </div>
           </div>
           {!hasGuided &&
@@ -158,13 +158,13 @@ const Staking = () => {
                       width: '33.875rem',
                     }}
                   >
-                    <div className="w-32 flex-grow mr-4 border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
+                    <div className="w-32 mr-4 border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex items-center justify-center text-white text-base">
                       Detail
                     </div>
-                    {/* <div className="w-32 mr-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base">
+                    <div className="w-32 mr-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base">
                       Vote
-                    </div> */}
-                    <div className="w-32 flex-grow border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base">
+                    </div>
+                    <div className="w-32 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base">
                       Donate
                     </div>
                   </div>
@@ -173,7 +173,7 @@ const Staking = () => {
             )}
           <div className="lg:flex lg:justify-center xsm:-mx-5">
             <div
-              className="w-32 flex-grow lg:mr-4 xsm:hidden border border-swapCardBorder bg-memeModelgreyColor 
+              className="lg:w-32 lg:mr-4 xsm:hidden border border-swapCardBorder bg-memeModelgreyColor 
               rounded-lg h-12 flex items-center cursor-pointer justify-center text-white text-base gotham_bold"
               onClick={() => {
                 setVoteDetailsModal(true);
@@ -181,16 +181,17 @@ const Staking = () => {
             >
               Detail
             </div>
-            {/* <div
+            <div
               className="lg:w-32 lg:mr-4 xsm:mb-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base cursor-pointer gotham_bold"
               onClick={() => {
                 setIsVoteOpen(true);
               }}
             >
               Vote
-            </div> */}
+            </div>
             <div
-              className="w-32 flex-grow xsm:w-full xsm:mb-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center justify-center text-greenLight text-base cursor-pointer gotham_bold"
+              className="lg:w-32 xsm:w-full xsm:mb-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center 
+              justify-center text-greenLight text-base cursor-pointer gotham_bold"
               onClick={() => {
                 setIsDonateOpen(true);
               }}
