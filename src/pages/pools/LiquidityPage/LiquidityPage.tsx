@@ -1997,7 +1997,7 @@ export default function LiquidityPage() {
     setHideLowTVL(JSON.parse(localStorage.getItem(HIDE_LOW_TVL)) || false);
 
     if (hideLowTVL) {
-      tempPools = _.filter(tempPools, (pool) => pool.tvl > 1000);
+      tempPools = _.filter(tempPools, (pool) => pool.tvl > 100);
     }
     if (farmOnly) {
       tempPools = _.filter(tempPools, (pool) => !!farmCounts[pool.id]);
@@ -2110,7 +2110,7 @@ export default function LiquidityPage() {
           h24VolumeV2={h24VolumeV2}
           switchActiveTab={switchActiveTab}
           tokenName={tokenName}
-          pools={displayPools}
+          pools={activeTab == 'v1' ? pools : displayPools}
           onHide={(isHide) => {
             localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
             setHideLowTVL(isHide);
@@ -2151,7 +2151,7 @@ export default function LiquidityPage() {
           poolTokenMetas={poolTokenMetas}
           hideLowTVL={hideLowTVL}
           tokenName={tokenName}
-          pools={displayPools}
+          pools={activeTab == 'v1' ? pools : displayPools}
           watchPools={watchPools}
           watchV2Pools={watchV2Pools}
           watchList={watchList}
