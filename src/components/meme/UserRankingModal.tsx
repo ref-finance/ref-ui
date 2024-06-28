@@ -318,24 +318,26 @@ function UserRankingModal(props: any) {
                 >
                   <div className="flex items-center">All</div>
                 </div>
-                {memeFarmingTokens &&
-                  memeFarmingTokens.map((token, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor
-                   ${selectedToken === token ? 'border border-borderC' : ''}`}
-                      onClick={() => handleSelectToken(token)}
-                    >
-                      <div className="flex items-center">
-                        <img
-                          src={allTokenMetadatas[token]?.icon || ''}
-                          alt=""
-                          className="h-5 w-5 mr-1.5 rounded-3xl"
-                        />
-                        {allTokenMetadatas[token]?.symbol}
+                <div className="overflow-auto" style={{ height: '300px' }}>
+                  {memeFarmingTokens &&
+                    memeFarmingTokens.map((token, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-center justify-between mb-1.5 p-1.5 cursor-pointer rounded-lg hover:bg-selectTokenV3BgColor
+                    ${selectedToken === token ? 'border border-borderC' : ''}`}
+                        onClick={() => handleSelectToken(token)}
+                      >
+                        <div className="flex items-center">
+                          <img
+                            src={allTokenMetadatas[token]?.icon || ''}
+                            alt=""
+                            className="h-5 w-5 mr-1.5 rounded-3xl"
+                          />
+                          {allTokenMetadatas[token]?.symbol}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                </div>
               </div>
             )}
           </div>

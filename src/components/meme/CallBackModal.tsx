@@ -132,19 +132,19 @@ function CallBackModal(props: any) {
               />
               <div className="flex flex-col items-center">
                 {txParams?.action == 'stake' ? (
-                  <span className="text-2xl text-white gotham_bold">
+                  <span className="text-2xl text-white gotham_bold text-center">
                     {isXrefAction
                       ? metadata?.symbol + ' Staked'
                       : progressConfig.progress[seed?.seed_id]?.stakeTip}
                   </span>
                 ) : (
-                  <span className="text-2xl text-white gotham_bold">
+                  <span className="text-2xl text-white gotham_bold text-center">
                     {metadata?.symbol} Unstaked
                   </span>
                 )}
               </div>
             </div>
-            <div className="flex justify-center text-sm text-white mt-6">
+            <div className="flex justify-center text-sm text-white mt-6 text-center">
               You have just {txParams.action == 'stake' ? 'feed' : 'unstake'}{' '}
               {formatWithCommas_number(amount)} {metadata?.symbol}{' '}
             </div>
