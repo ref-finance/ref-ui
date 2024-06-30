@@ -771,11 +771,14 @@ export const addLiquidityToPool = async ({
     const pending = tknx_tokens.map((token) => tokenFtMetadata(token.id));
     const tokenFtMetadatas = await Promise.all(pending);
     const rate = tokenFtMetadatas.reduce((acc, cur, index) => {
+      const is_owner =
+        cur.owner_account_id == getCurrentWallet()?.wallet?.getAccountId();
       return {
         ...acc,
-        [tknx_tokens[index].id]:
-          (cur?.deflation_strategy?.fee_strategy?.SellFee?.fee_rate ?? 0) +
-          (cur?.deflation_strategy?.burn_strategy?.SellBurn?.burn_rate ?? 0),
+        [tknx_tokens[index].id]: is_owner
+          ? 0
+          : (cur?.deflation_strategy?.fee_strategy?.SellFee?.fee_rate ?? 0) +
+            (cur?.deflation_strategy?.burn_strategy?.SellBurn?.burn_rate ?? 0),
       };
     }, {});
     amounts = tokenAmounts.map(({ token, amount }) => {
