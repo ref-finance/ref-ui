@@ -1,19 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import BridgeRoutes from '../components/BridgeRoutes';
 import Button from '../components/Button';
 import ConnectWallet from '../components/ConnectWallet';
 import InputToken from '../components/InputToken';
 import SlippageSelector from '../components/StableSlipSelector';
-import { SelectTokenButton } from '../components/TokenSelector';
+import { TokenSelector } from '../components/TokenSelector';
 import { useBridgeFormContext } from '../providers/bridgeForm';
-import { useTokenSelectorContext } from '../providers/selectToken';
 import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';
 import { isValidEthereumAddress, isValidNearAddress } from '../utils/validate';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 import { useAutoResetState } from '../hooks/useHooks';
 import { useWalletConnectContext } from '../providers/walletConcent';
+import { getTokenMeta } from '../utils/token';
+import { BridgeTokenList, BridgeTokenRoutes } from '../config';
 
 function FormHeader() {
   const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
@@ -51,9 +52,10 @@ function CustomAccountAddress() {
   function handleChangeAddress(value: string) {
     const isValid =
       !value ||
-      (bridgeToValue.chain === 'ETH'
-        ? isValidEthereumAddress(value)
-        : isValidNearAddress(value));
+      (bridgeToValue.chain === 'NEAR'
+        ? isValidNearAddress(value)
+        : isValidEthereumAddress(value));
+
     setCustomAccountAddress(value);
     setIsValidCustomAddress(isValid);
     if (isValid) {
@@ -138,6 +140,8 @@ function BridgeEntry() {
     bridgeToValue,
     setBridgeToValue,
     bridgeToBalance,
+    supportFromTokenSymbols,
+    supportToTokenSymbols,
     changeBridgeChain,
     exchangeChain,
     bridgeSubmitStatus,
@@ -146,30 +150,20 @@ function BridgeEntry() {
     gasWarning,
   } = useBridgeFormContext();
 
-  const { open: selectToken } = useTokenSelectorContext();
-
   const { unclaimedTransactions, openBridgeTransactionStatusModal } =
     useBridgeTransactionContext();
-
-  async function openTokenSelector(
-    params: Parameters<typeof selectToken>[number]
-  ) {
-    const tokenMeta = await selectToken(params);
-    setBridgeFromValue({ ...bridgeFromValue, tokenMeta });
-    setBridgeToValue({ ...bridgeToValue, tokenMeta });
-  }
 
   const router = useRouter();
   function handleOpenHistory() {
     router.push('/bridge/history');
   }
 
-  const walletCtx = useWalletConnectContext();
+  const { getWallet } = useWalletConnectContext();
   function handleConfirm() {
     if (bridgeSubmitStatus === 'unConnectForm')
-      return walletCtx?.[bridgeFromValue.chain]?.open();
+      return getWallet(bridgeFromValue.chain)?.open();
     else if (bridgeSubmitStatus === 'unConnectTo')
-      return walletCtx?.[bridgeToValue.chain]?.open();
+      return getWallet(bridgeToValue.chain)?.open();
     else openPreviewModal();
   }
 
@@ -191,14 +185,12 @@ function BridgeEntry() {
           isError={gasWarning}
           onChange={setBridgeFromValue}
         >
-          <SelectTokenButton
-            token={bridgeFromValue.tokenMeta}
-            onClick={() =>
-              openTokenSelector({
-                chain: bridgeFromValue.chain,
-                chains: [bridgeFromValue.chain, bridgeToValue.chain],
-                token: bridgeFromValue.tokenMeta,
-              })
+          <TokenSelector
+            value={bridgeFromValue.tokenMeta}
+            chain={bridgeFromValue.chain}
+            tokens={supportFromTokenSymbols.map(getTokenMeta)}
+            onChange={(tokenMeta) =>
+              setBridgeFromValue({ ...bridgeFromValue, tokenMeta })
             }
           />
         </InputToken>
@@ -223,14 +215,15 @@ function BridgeEntry() {
           inputReadonly
           onChange={setBridgeToValue}
         >
-          <SelectTokenButton
-            token={bridgeToValue.tokenMeta}
-            onClick={() =>
-              openTokenSelector({
-                chain: bridgeToValue.chain,
-                chains: [bridgeFromValue.chain, bridgeToValue.chain],
-                token: bridgeToValue.tokenMeta,
-              })
+          <TokenSelector
+            value={bridgeToValue.tokenMeta}
+            chain={bridgeToValue.chain}
+            tokens={supportToTokenSymbols.map(getTokenMeta)}
+            placeholder={
+              !supportToTokenSymbols.length ? 'No token available' : ''
+            }
+            onChange={(tokenMeta) =>
+              setBridgeToValue({ ...bridgeToValue, tokenMeta })
             }
           />
         </InputToken>

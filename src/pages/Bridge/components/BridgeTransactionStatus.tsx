@@ -4,9 +4,9 @@ import Modal from 'react-modal';
 import SvgIcon from './SvgIcon';
 import Button from './Button';
 import { useRouter } from '../hooks/useRouter';
-import useRainbowBridge from '../hooks/useRainbowBridge';
+import useBridge from '../hooks/useBridge';
 import { formatTxExplorerUrl } from '../utils/format';
-import rainbowBridgeService from '../services/rainbowBridge';
+import rainbowBridgeService from '../services/bridge/rainbow';
 import { BridgeConfig } from '../config';
 import moment from 'moment';
 
@@ -18,7 +18,7 @@ export default function BridgeTransactionStatusModal({
   transaction: BridgeModel.BridgeTransaction;
   toggleOpenModal: () => void;
 }) {
-  const { callAction, actionLoading } = useRainbowBridge();
+  const { callAction, actionLoading } = useBridge();
 
   const [transaction, setTransaction] =
     useState<BridgeModel.BridgeTransaction>(_transaction);

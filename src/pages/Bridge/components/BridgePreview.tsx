@@ -4,25 +4,26 @@ import ReactTooltip from 'react-tooltip';
 
 import SvgIcon from './SvgIcon';
 import Button from './Button';
-import useRainbowBridge from '../hooks/useRainbowBridge';
+import useBridge from '../hooks/useBridge';
 import { useBridgeFormContext } from '../providers/bridgeForm';
 import {
-  formatAmount,
   formatChainName,
+  formatNumber,
   formatSortAddress,
   formatUSDCurrency,
 } from '../utils/format';
 import { BridgeConfig } from '../config';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 import { useAutoResetState } from '../hooks/useHooks';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 export default function BridgePreviewModal({
   toggleOpenModal,
   ...props
 }: Modal.Props & { toggleOpenModal: () => void }) {
-  const { actionLoading, transfer } = useRainbowBridge();
+  const { actionLoading, transfer } = useBridge();
 
-  const { bridgeFromValue, bridgeToValue, estimatedGasFee } =
+  const { bridgeFromValue, bridgeToValue, bridgeChannel, estimatedGasFee } =
     useBridgeFormContext();
 
   const [loading, setLoading] = useAutoResetState(false, 1000);
@@ -61,14 +62,15 @@ export default function BridgePreviewModal({
   );
 
   async function handleTransfer() {
-    const { tokenMeta: token, amount, chain: from } = bridgeFromValue;
-
     const result = await transfer({
-      token,
-      amount,
-      from,
+      tokenIn: bridgeFromValue.tokenMeta,
+      tokenOut: bridgeToValue.tokenMeta,
+      amount: bridgeFromValue.amount,
+      from: bridgeFromValue.chain,
+      to: bridgeToValue.chain,
       recipient,
       sender,
+      channel: bridgeChannel,
     });
     openBridgeTransactionStatusModal(result);
     toggleOpenModal();
@@ -97,7 +99,7 @@ export default function BridgePreviewModal({
               <div className="w-7 h-7 bg-white rounded-full mr-3 overflow-hidden">
                 <img src={confirmInfo?.tokenMeta?.icon} />
               </div>
-              {formatAmount(confirmInfo?.amount)}{' '}
+              {formatNumber(confirmInfo?.amount)}{' '}
               {confirmInfo?.tokenMeta?.symbol}
             </div>
             <div className="flex items-center gap-5 mb-7">
@@ -144,23 +146,13 @@ export default function BridgePreviewModal({
                   <div className="text-white text-right">
                     <span
                       className="underline cursor-pointer ml-1"
-                      data-for="bridge-gas-fee"
-                      data-type="info"
+                      data-tooltip-id="bridge-gas-fee"
                       data-place="right"
-                      data-multiline={true}
                       data-class="reactTip"
-                      data-html={true}
-                      data-tip={`<div>${confirmInfo?.bridgeFee} Gas + </div><div>$0.00 Rainbow fee</div>`}
+                      data-tooltip-html={`<div>${confirmInfo?.bridgeFee} Gas + </div><div>$0.00 Rainbow fee</div>`}
                     >
                       {confirmInfo?.bridgeFee}
-                      <ReactTooltip
-                        id="bridge-gas-fee"
-                        backgroundColor="#1D2932"
-                        border
-                        borderColor="#7e8a93"
-                        effect="solid"
-                        textColor="#C6D1DA"
-                      />
+                      <CustomTooltip id="bridge-gas-fee" />
                     </span>
                   </div>
                 </div>
@@ -169,7 +161,8 @@ export default function BridgePreviewModal({
                 <div>Minimum Received</div>
                 <div>
                   <div className="text-white text-right">
-                    {confirmInfo.minimumReceived} {confirmInfo.tokenMeta.symbol}
+                    {confirmInfo.minimumReceived}{' '}
+                    {confirmInfo.tokenMeta?.symbol}
                   </div>
                   {/* <div className="text-xs text-right">(~$1885.23)</div> */}
                 </div>

@@ -1,27 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
-import ReactTooltip from 'react-tooltip';
 
 import Button from './Button';
 import SvgIcon from './SvgIcon';
-import LogoRainbow from './../assets/logo-rainbow.png';
-import { SupportBridgeChannels, BridgeConfig } from './../config';
+import { BridgeConfig } from './../config';
 import { useBridgeFormContext } from '../providers/bridgeForm';
 import { formatUSDCurrency } from '../utils/format';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import LogoRainbow from './../assets/logo-rainbow.png';
+import LogoStargate from './../assets/logo-stargate.png';
 
-function BridgeRouteItem({ className }: { className?: string }) {
-  const { bridgeFromValue, estimatedGasFee } = useBridgeFormContext();
+const routeConfig = {
+  Rainbow: { logo: LogoRainbow, ...BridgeConfig.Rainbow },
+  Stargate: { logo: LogoStargate, ...BridgeConfig.Stargate },
+};
+
+function BridgeRouteItem({
+  channel,
+  className,
+  onClick,
+}: {
+  channel: BridgeModel.BridgeSupportChannel;
+  className?: string;
+  onClick?: () => void;
+}) {
+  const { bridgeToValue, estimatedGasFee } = useBridgeFormContext();
+  const route = routeConfig[channel] || {};
   return (
     <div
       className={`bg-opacity-10 rounded-xl p-4 ${className ?? ''}`}
       style={{ backgroundColor: 'rgba(126, 138, 147, 0.10)' }}
+      onClick={onClick}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-white rounded-lg">
-            <img src={LogoRainbow} alt="" />
+            <img src={route.logo} alt="" />
           </div>
-          <div className="text-slate-500 text-base font-medium ">Rainbow</div>
+          <div className="text-slate-500 text-base font-medium ">{channel}</div>
         </div>
         <div className="flex items-center gap-2">
           <div className="px-2 py-0.5 bg-black rounded-md">
@@ -38,32 +54,22 @@ function BridgeRouteItem({ className }: { className?: string }) {
       </div>
       <div className="flex items-center justify-between">
         <div className="text-white text-sm font-medium">
-          ~{bridgeFromValue.amount} {bridgeFromValue.tokenMeta.symbol}
+          ~{bridgeToValue.amount} {bridgeToValue.tokenMeta.symbol}
         </div>
         <div className="text-right text-slate-500 text-xs font-normal ">
-          {BridgeConfig.Rainbow.wait} mins ｜Bridge fee{' '}
+          {route.wait} mins ｜Bridge fee{' '}
           <span
             className="underline cursor-pointer ml-1"
-            data-for="bridge-gas-fee"
-            data-type="info"
+            data-tooltip-id="bridge-gas-fee"
             data-place="right"
-            data-multiline={true}
             data-class="reactTip"
-            data-html={true}
-            data-tip={`<div>${formatUSDCurrency(
+            data-tooltip-html={`<div>${formatUSDCurrency(
               estimatedGasFee,
               '0.01'
             )} Gas + </div><div>$0.00 Rainbow fee</div>`}
           >
             {formatUSDCurrency(estimatedGasFee, '0.01')}
-            <ReactTooltip
-              id="bridge-gas-fee"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-              textColor="#C6D1DA"
-            />
+            <CustomTooltip id="bridge-gas-fee" />
           </span>
         </div>
       </div>
@@ -75,19 +81,33 @@ function BridgeSelectRoutesModal({
   toggleOpenModal,
   ...props
 }: Modal.Props & { toggleOpenModal: () => void }) {
+  const { supportBridgeChannels, setBridgeChannel } = useBridgeFormContext();
+
+  function handleSelectRoute(channel: BridgeModel.BridgeSupportChannel) {
+    setBridgeChannel(channel);
+    toggleOpenModal();
+  }
+
   return (
     <Modal {...props} onRequestClose={toggleOpenModal}>
       <div className="bridge-modal" style={{ width: '428px' }}>
         <div className="flex items-center justify-between">
           <span className="text-base text-white font-medium">
-            {SupportBridgeChannels.length} Bridge Routes
+            {supportBridgeChannels.length} Bridge Routes
           </span>
           <Button text onClick={toggleOpenModal}>
             <SvgIcon name="IconClose" />
           </Button>
         </div>
         <div>
-          <BridgeRouteItem className="mt-4" />
+          {supportBridgeChannels.map((channel) => (
+            <BridgeRouteItem
+              key={channel}
+              channel={channel}
+              className="mt-4"
+              onClick={() => handleSelectRoute(channel)}
+            />
+          ))}
         </div>
       </div>
     </Modal>
@@ -99,9 +119,20 @@ function BridgeRoutes() {
   function toggleOpenModal() {
     setIsOpen(!isOpen);
   }
-  const { bridgeFromValue } = useBridgeFormContext();
+  const {
+    bridgeToValue,
+    bridgeChannel,
+    setBridgeChannel,
+    supportBridgeChannels,
+  } = useBridgeFormContext();
 
-  const hasAmount = bridgeFromValue.amount && bridgeFromValue.amount !== '0';
+  const hasAmount = bridgeToValue.amount && bridgeToValue.amount !== '0';
+
+  useEffect(() => {
+    if (!supportBridgeChannels.includes(bridgeChannel)) {
+      setBridgeChannel(supportBridgeChannels[0]);
+    }
+  }, [supportBridgeChannels, bridgeChannel, setBridgeChannel]);
 
   return (
     <>
@@ -114,14 +145,16 @@ function BridgeRoutes() {
             text
             onClick={toggleOpenModal}
           >
-            {hasAmount ? `${SupportBridgeChannels.length} Routes` : '-'}
+            {hasAmount ? `${supportBridgeChannels.length} Routes` : '-'}
             <SvgIcon
               name="IconArrowDown"
               className="transform -rotate-90 ml-2"
             />
           </Button>
         </div>
-        {hasAmount && <BridgeRouteItem className="mt-4" />}
+        {hasAmount && supportBridgeChannels.length > 0 && (
+          <BridgeRouteItem channel={bridgeChannel} className="mt-4" />
+        )}
       </div>
       <BridgeSelectRoutesModal
         isOpen={isOpen}

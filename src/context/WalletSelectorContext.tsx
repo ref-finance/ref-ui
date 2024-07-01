@@ -2,7 +2,11 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
 
 import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
-import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
+import type {
+  WalletSelector,
+  AccountState,
+  Wallet,
+} from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';
 import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
@@ -34,6 +38,7 @@ import {
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
 import { setupKeypom } from '@keypom/selector';
+import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -44,6 +49,7 @@ declare global {
     selector: WalletSelector & {
       getAccountId?: () => string;
     };
+    nearWallet: Wallet & SignMessageMethod;
     modal: WalletSelectorModal;
     selectorAccountId?: string | null;
   }

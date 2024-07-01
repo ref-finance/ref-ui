@@ -5,8 +5,13 @@ import {
 } from 'src/context/WalletSelectorContext';
 export { WalletSelectorContextProvider as WalletConnectNearProvider } from 'src/context/WalletSelectorContext';
 import { setupWeb3Onboard } from '../hooks/useWeb3Onboard';
-import { Web3OnboardProvider, useConnectWallet } from '@web3-onboard/react';
+import {
+  Web3OnboardProvider,
+  useConnectWallet,
+  useSetChain,
+} from '@web3-onboard/react';
 import { ethers } from 'ethers';
+import { EVMConfig } from '../config';
 
 const WalletConnectContext = createContext(null);
 
@@ -30,6 +35,14 @@ export function useWalletConnectContext() {
   const { accountId, modal, ...context } = useWalletSelector();
   const isSignedIn = useMemo(() => !!accountId, [accountId]);
 
+  useEffect(() => {
+    async function initWallet() {
+      const wallet = await window.selector.wallet();
+      window.nearWallet = wallet;
+    }
+    isSignedIn && initWallet();
+  }, [isSignedIn]);
+
   const walletNearHooks = {
     ...context,
     open: modal.show,
@@ -50,30 +63,52 @@ export function useWalletConnectContext() {
 
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
 
-  const walletEthHooks = {
+  const [{ connectedChain }, setChain] = useSetChain();
+
+  const walletEvmHooks = {
     accountId: wallet?.accounts?.[0]?.address,
     isSignedIn: wallet && !connecting,
     open: connect,
+    chain: (Object.entries(EVMConfig).find(
+      ([_, config]) =>
+        typeof config === 'object' &&
+        'chainId' in config &&
+        config.chainId === parseInt(connectedChain?.id, 16)
+    )?.[0] || 'Ethereum') as BridgeModel.BridgeSupportChain,
+    setChain: (chainId: number) => {
+      const chainHex = '0x' + chainId.toString(16);
+      if (chainHex !== connectedChain?.id) setChain({ chainId: chainHex });
+    },
     disconnect: () => disconnect({ label: wallet.label }),
   };
 
   useEffect(() => {
-    if (wallet?.provider && walletEthHooks.accountId) {
+    if (wallet?.provider && walletEvmHooks.accountId) {
       window.ethProvider = wallet?.provider;
       window.ethWeb3Provider = new ethers.providers.Web3Provider(
         wallet?.provider,
         'any'
       );
     }
-  }, [wallet?.provider, walletEthHooks.accountId]);
+  }, [wallet?.provider, walletEvmHooks.accountId]);
+
+  const getWallet = (chain: string) => {
+    if (chain === 'NEAR') {
+      return walletNearHooks;
+    } else {
+      return walletEvmHooks;
+    }
+  };
 
   if (!context) {
     throw new Error(
       'useWalletConnectContext must be used within a WalletConnectProvider'
     );
   }
+
   return {
     NEAR: walletNearHooks,
-    ETH: walletEthHooks,
+    EVM: walletEvmHooks,
+    getWallet,
   };
 }

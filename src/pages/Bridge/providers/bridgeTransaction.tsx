@@ -3,9 +3,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import BridgeTransactionStatusModal from '../components/BridgeTransactionStatus';
 import { useRoute, useRouter } from '../hooks/useRouter';
 import { toast } from 'react-toastify';
-import useRainbowBridge from '../hooks/useRainbowBridge';
+import useBridge from '../hooks/useBridge';
 import bridgeHistoryService from '../services/history';
-import { useWalletConnectContext } from './walletConcent';
 
 type Props = {
   openBridgeTransactionStatusModal: (
@@ -25,7 +24,7 @@ export default function BridgeTransactionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { setupRainbowBridge, unclaimedTransactions } = useRainbowBridge({
+  const { setupRainbowBridge, unclaimedTransactions } = useBridge({
     enableSubscribeUnclaimed: true,
   });
 
@@ -53,7 +52,6 @@ export default function BridgeTransactionProvider({
   const [transaction, setTransaction] =
     useState<BridgeModel.BridgeTransaction>();
 
-  const wallet = useWalletConnectContext();
   useEffect(() => {
     async function handleTransactionStatus() {
       if (query.transactionHashes) {

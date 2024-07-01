@@ -3,7 +3,6 @@ import './index.css';
 import React from 'react';
 
 import BridgeFormProvider from './providers/bridgeForm';
-import TokenSelectorProvider from './providers/selectToken';
 import {
   WalletConnectNearProvider,
   WalletConnectProvider,
@@ -31,13 +30,11 @@ function BridgePage() {
     <div className="bridge-page">
       <WalletConnectProvider>
         <WalletConnectNearProvider>
-          <TokenSelectorProvider>
-            <BridgeTransactionProvider>
-              <BridgeFormProvider>
-                <Layout />
-              </BridgeFormProvider>
-            </BridgeTransactionProvider>
-          </TokenSelectorProvider>
+          <BridgeTransactionProvider>
+            <BridgeFormProvider>
+              <Layout />
+            </BridgeFormProvider>
+          </BridgeTransactionProvider>
         </WalletConnectNearProvider>
       </WalletConnectProvider>
     </div>

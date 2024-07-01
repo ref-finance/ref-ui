@@ -17,10 +17,10 @@ type BridgeHistoryFilter = {
 
 function BridgeTransactionHistory() {
   const [historyFilter, setHistoryFilter] = useState<BridgeHistoryFilter>({
-    chain: 'ETH',
+    chain: 'Ethereum',
     onlyUnclaimed: false,
   });
-  const wallet = useWalletConnectContext();
+  const { getWallet } = useWalletConnectContext();
 
   const {
     data,
@@ -30,7 +30,7 @@ function BridgeTransactionHistory() {
     () =>
       bridgeHistoryService.query({
         ...historyFilter,
-        accountAddress: wallet?.[historyFilter.chain]?.accountId,
+        accountAddress: getWallet(historyFilter.chain)?.accountId,
       }),
     { refreshDeps: [historyFilter], debounceOptions: 1000 }
   );

@@ -6,6 +6,7 @@ import Button from './Button';
 import SvgIcon from './SvgIcon';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useAutoResetState } from '../hooks/useHooks';
+import { SupportChains } from '../config';
 
 type Props = {
   currentChain: BridgeModel.BridgeSupportChain;
@@ -13,15 +14,9 @@ type Props = {
   onChangeChain?: (chain: BridgeModel.BridgeSupportChain) => void;
 };
 
-const chainList: { label: string; value: BridgeModel.BridgeSupportChain }[] = [
-  { label: 'Ethereum', value: 'ETH' },
-  { label: 'NEAR', value: 'NEAR' },
-];
-
 function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
-  const {
-    [currentChain]: { isSignedIn, accountId, open, disconnect },
-  } = useWalletConnectContext();
+  const { getWallet } = useWalletConnectContext();
+  const { isSignedIn, accountId, open, disconnect } = getWallet(currentChain);
 
   const [showToast, setShowToast] = useAutoResetState(false, 2000);
 
@@ -35,9 +30,9 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
         }
         onFocus={(e) => e.target.blur()}
       >
-        {chainList.map(({ label, value }) => (
-          <option key={value} value={value}>
-            {label}
+        {SupportChains.map((v) => (
+          <option key={v} value={v}>
+            {v}
           </option>
         ))}
       </select>

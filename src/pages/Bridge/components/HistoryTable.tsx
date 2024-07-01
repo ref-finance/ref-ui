@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
 import SvgIcon from './SvgIcon';
 import {
-  formatAmountRaw,
+  formatAmount,
   formatSortAddress,
   formatTimestamp,
   formatTxExplorerUrl,
 } from '../utils/format';
 import Button from './Button';
-import useRainbowBridge from '../hooks/useRainbowBridge';
-import useBridgeToken from '../hooks/useBridgeToken';
+import useBridge from '../hooks/useBridge';
+import { getTokenMeta } from '../utils/token';
 
 const columns = [
   { label: 'Time', prop: 'time', width: '15%' },
@@ -26,12 +26,10 @@ function TableItem({
   item: BridgeModel.BridgeTransaction;
   onRefresh?: () => void;
 }) {
-  const { callAction, actionLoading } = useRainbowBridge();
-
-  const { getTokenBySymbol } = useBridgeToken();
+  const { callAction, actionLoading } = useBridge();
 
   const token = useMemo(
-    () => getTokenBySymbol(transaction.symbol),
+    () => getTokenMeta(transaction.symbol),
     [transaction.symbol]
   );
 
@@ -66,7 +64,7 @@ function TableItem({
       <td>
         <div className="flex items-center gap-2">
           <img className="w-5 h-5 rounded-full" src={token?.icon} />
-          {formatAmountRaw(transaction.amount, transaction.decimals)}
+          {formatAmount(transaction.amount, transaction.decimals)}
           <span className="text-gray-400">{token?.symbol}</span>
         </div>
       </td>

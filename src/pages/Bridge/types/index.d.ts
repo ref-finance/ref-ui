@@ -1,12 +1,13 @@
 declare namespace BridgeModel {
-  type BridgeSupportChain = 'ETH' | 'NEAR';
+  type BridgeSupportChain = 'Ethereum' | 'Arbitrum' | 'NEAR' | 'Aurora';
+  type BridgeSupportChannel = 'Rainbow' | 'Stargate';
   type BridgeTokenMeta = {
     symbol: string;
-    name: string;
+    name?: string;
     decimals: number;
     icon: string;
     addresses: {
-      [k in BridgeSupportChain]: string;
+      [k in BridgeSupportChain]?: string;
     };
   };
   type BridgeTransferFormData = {
@@ -26,7 +27,7 @@ declare namespace BridgeModel {
     amount?: string;
     decimals?: number;
     startTime: string;
-    sourceNetwork: 'ethereum' | 'near';
+    sourceNetwork: Lowercase<BridgeSupportChain>;
     symbol?: string;
     lockHashes?: string[];
     unlockHashes?: string[];

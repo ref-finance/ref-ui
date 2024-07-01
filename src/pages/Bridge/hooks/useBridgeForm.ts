@@ -1,32 +1,37 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useWalletConnectContext } from '../providers/walletConcent';
-import useBridgeToken from './useBridgeToken';
-import {
-  useAsyncMemo,
-  useDebouncedEffect,
-  useStorageState,
-  useTime,
-} from './useHooks';
+import { useDebouncedEffect, useRequest, useStorageState } from './useHooks';
 import Big from 'big.js';
-import { ethServices, tokenServices } from '../services/contract';
-import { BridgeConfig, SupportChains } from '../config';
+import { evmServices, tokenServices } from '../services/contract';
+import {
+  BridgeConfig,
+  SupportChains,
+  EVMConfig,
+  BridgeTokenList,
+  BridgeTokenRoutes,
+} from '../config';
+import { logger } from '../utils/common';
+import { getTokenMeta } from '../utils/token';
+
+interface BridgeForm {
+  fromChain: BridgeModel.BridgeSupportChain;
+  toChain: BridgeModel.BridgeSupportChain;
+  fromToken: string;
+  toToken: string;
+}
 
 export default function useBridgeForm() {
-  const { getTokenBySymbol } = useBridgeToken();
-
-  const [storageState, setStorageState] = useStorageState<{
-    fromChain: BridgeModel.BridgeSupportChain;
-    toChain: BridgeModel.BridgeSupportChain;
-    fromToken: string;
-    toToken: string;
-  }>('REF_BRIDGE_FORM');
+  const [storageState, setStorageState] = useStorageState<BridgeForm>(
+    'REF_BRIDGE_FORM',
+    {} as BridgeForm
+  );
 
   const [bridgeFromValue, setBridgeFromValue] = useState<
     BridgeModel.BridgeTransferFormData['from']
   >(() => ({
-    chain: storageState?.fromChain ?? 'ETH',
-    tokenMeta: getTokenBySymbol(storageState?.fromToken ?? 'ETH'),
+    chain: storageState?.fromChain ?? 'Ethereum',
+    tokenMeta: getTokenMeta(storageState?.fromToken ?? 'ETH'),
     amount: undefined,
   }));
 
@@ -34,24 +39,86 @@ export default function useBridgeForm() {
     BridgeModel.BridgeTransferFormData['to']
   >(() => ({
     chain: storageState?.toChain ?? 'NEAR',
-    tokenMeta: getTokenBySymbol(storageState?.toToken ?? 'ETH'),
+    tokenMeta: getTokenMeta(storageState?.toToken ?? 'NEAR'),
     amount: undefined,
     isCustomAccountAddress: false,
     customAccountAddress: undefined,
   }));
 
-  const walletCxt = useWalletConnectContext();
+  const [bridgeChannel, setBridgeChannel] =
+    useState<BridgeModel.BridgeSupportChannel>();
+
+  const evmSpecialSymbols = ['USDC.e', 'USDT.e'];
+
+  const supportFromTokenSymbols = useMemo(() => {
+    const symbols = BridgeTokenRoutes.filter(
+      (route) =>
+        route.from === bridgeFromValue.chain && route.to === bridgeToValue.chain
+    )
+      .map((v) => v.symbols)
+      .flat()
+      .filter((v, i, a) => a.indexOf(v) === i);
+    if (bridgeFromValue.chain !== 'NEAR') {
+      return symbols.filter((v) => !evmSpecialSymbols.includes(v));
+    }
+    return symbols;
+  }, [bridgeFromValue.chain, bridgeToValue.chain]);
+
+  const supportToTokenSymbols = useMemo(() => {
+    if (
+      bridgeFromValue.chain === 'Ethereum' &&
+      bridgeToValue.chain === 'NEAR' &&
+      bridgeFromValue.tokenMeta?.symbol === 'USDC'
+    ) {
+      return [bridgeFromValue.tokenMeta?.symbol, 'USDC.e'];
+    }
+
+    return supportFromTokenSymbols.filter(
+      (v) => v === bridgeFromValue.tokenMeta?.symbol
+    );
+  }, [
+    bridgeFromValue.chain,
+    bridgeToValue.chain,
+    bridgeFromValue.tokenMeta?.symbol,
+  ]);
+
+  const supportBridgeChannels = useMemo(() => {
+    console.log('BridgeTokenRoutes', bridgeToValue.tokenMeta?.symbol);
+    const channels = BridgeTokenRoutes.filter(
+      (route) =>
+        route.from === bridgeFromValue.chain &&
+        route.to === bridgeToValue.chain &&
+        route.symbols.includes(bridgeToValue.tokenMeta?.symbol)
+    );
+    return channels.map((v) => v.channel);
+  }, [
+    bridgeFromValue.chain,
+    bridgeToValue.chain,
+    bridgeToValue.tokenMeta?.symbol,
+  ]);
+
+  const {
+    getWallet,
+    EVM: { setChain },
+  } = useWalletConnectContext();
 
   useDebouncedEffect(
     () => {
       const fromValue = { ...bridgeFromValue };
       const toValue = { ...bridgeToValue };
 
+      if (fromValue.chain !== 'NEAR')
+        setChain(EVMConfig[fromValue.chain]?.chainId);
+      else if (toValue.chain !== 'NEAR')
+        setChain(EVMConfig[toValue.chain]?.chainId);
+
+      logger.log('useBridgeForm', fromValue, toValue);
+
       // sync account address
-      if (walletCxt?.[fromValue.chain]?.accountId)
-        fromValue.accountAddress = walletCxt?.[fromValue.chain]?.accountId;
-      if (walletCxt?.[bridgeToValue.chain]?.accountId)
-        toValue.accountAddress = walletCxt?.[bridgeToValue.chain]?.accountId;
+      if (getWallet(fromValue.chain)?.accountId)
+        fromValue.accountAddress = getWallet(fromValue.chain)?.accountId;
+      if (getWallet(bridgeToValue.chain)?.accountId)
+        toValue.accountAddress = getWallet(bridgeToValue.chain)?.accountId;
 
       // sync local storage
       if (bridgeFromValue.chain !== bridgeToValue.chain) {
@@ -71,8 +138,8 @@ export default function useBridgeForm() {
       setBridgeToValue(toValue);
     },
     [
-      walletCxt?.[bridgeFromValue.chain]?.accountId,
-      walletCxt?.[bridgeToValue.chain]?.accountId,
+      getWallet(bridgeFromValue.chain)?.accountId,
+      getWallet(bridgeToValue.chain)?.accountId,
       bridgeFromValue.chain,
       bridgeToValue.chain,
       bridgeFromValue.tokenMeta?.symbol,
@@ -82,38 +149,73 @@ export default function useBridgeForm() {
     500
   );
 
-  // Sync every minute
-  const time = useTime('minute');
-  const estimatedGasFee = useAsyncMemo(
-    () => ethServices.calculateGasInUSD(BridgeConfig.Rainbow.gas),
-    [BridgeConfig.Rainbow.gas, time.format()],
-    '0'
+  useEffect(() => {
+    console.log('supportFromTokenSymbols', supportFromTokenSymbols);
+    console.log('supportToTokenSymbols', supportToTokenSymbols);
+    if (
+      !supportFromTokenSymbols.includes(bridgeFromValue.tokenMeta?.symbol || '')
+    ) {
+      setBridgeFromValue({
+        ...bridgeFromValue,
+        tokenMeta: getTokenMeta(supportFromTokenSymbols?.[0]),
+      });
+    }
+    if (
+      !supportToTokenSymbols.includes(bridgeToValue.tokenMeta?.symbol || '')
+    ) {
+      setBridgeToValue({
+        ...bridgeToValue,
+        tokenMeta: getTokenMeta(supportToTokenSymbols?.[0]),
+      });
+    }
+  }, [
+    supportToTokenSymbols,
+    bridgeToValue.tokenMeta?.symbol,
+    supportFromTokenSymbols,
+    bridgeFromValue.tokenMeta?.symbol,
+  ]);
+
+  const { data: estimatedGasFee = '0' } = useRequest(
+    () => evmServices.calculateGasInUSD(BridgeConfig.Rainbow.gas),
+    {
+      refreshDeps: [BridgeConfig.Rainbow.gas],
+    }
   );
 
-  const bridgeFromBalance = useAsyncMemo(
+  const { data: bridgeFromBalance } = useRequest(
     () =>
       tokenServices.getBalance(
         bridgeFromValue.chain,
-        bridgeFromValue.tokenMeta
+        bridgeFromValue.tokenMeta,
+        true
       ),
-    [
-      bridgeFromValue.chain,
-      bridgeFromValue.tokenMeta,
-      walletCxt?.[bridgeFromValue.chain]?.accountId,
-      time.format(),
-    ],
-    '0'
+    {
+      refreshDeps: [bridgeFromValue.chain, bridgeFromValue.tokenMeta],
+      before: () =>
+        !!bridgeFromValue.chain &&
+        !!bridgeFromValue.tokenMeta &&
+        !!getWallet(bridgeFromValue.chain)?.accountId,
+      debounceOptions: 200,
+      pollingInterval: 10000,
+    }
   );
-  const bridgeToBalance = useAsyncMemo(
+
+  const { data: bridgeToBalance } = useRequest(
     () =>
-      tokenServices.getBalance(bridgeToValue.chain, bridgeToValue.tokenMeta),
-    [
-      bridgeToValue.chain,
-      bridgeToValue.tokenMeta,
-      walletCxt?.[bridgeToValue.chain]?.accountId,
-      time.format(),
-    ],
-    '0'
+      tokenServices.getBalance(
+        bridgeToValue.chain,
+        bridgeToValue.tokenMeta,
+        true
+      ),
+    {
+      refreshDeps: [bridgeToValue.chain, bridgeToValue.tokenMeta],
+      before: () =>
+        !!bridgeToValue.chain &&
+        !!bridgeToValue.tokenMeta &&
+        !!getWallet(bridgeToValue.chain)?.accountId,
+      debounceOptions: 200,
+      pollingInterval: 10000,
+    }
   );
 
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);
@@ -128,14 +230,14 @@ export default function useBridgeForm() {
     if (
       !(
         bridgeFromValue.accountAddress ||
-        walletCxt?.[bridgeFromValue.chain]?.accountId
+        getWallet(bridgeFromValue.chain)?.accountId
       )
     )
       return `unConnectForm`;
     else if (
       !(
         bridgeToValue.accountAddress ||
-        walletCxt?.[bridgeToValue.chain]?.accountId ||
+        getWallet(bridgeToValue.chain)?.accountId ||
         bridgeToValue.customAccountAddress
       )
     )
@@ -151,7 +253,6 @@ export default function useBridgeForm() {
     bridgeFromValue.accountAddress,
     bridgeFromValue.chain,
     bridgeFromValue.amount,
-    walletCxt,
     bridgeToValue.accountAddress,
     bridgeToValue.chain,
     bridgeToValue.customAccountAddress,
@@ -179,8 +280,8 @@ export default function useBridgeForm() {
     if (!bridgeFromValue.amount || new Big(bridgeFromBalance).eq(0))
       return false;
     if (
-      (bridgeFromValue.chain === 'ETH' &&
-        bridgeFromValue.tokenMeta?.symbol === 'ETH') ||
+      (bridgeFromValue.chain === 'Ethereum' &&
+        bridgeFromValue.tokenMeta?.symbol === 'Ethereum') ||
       (bridgeFromValue.chain === 'NEAR' &&
         bridgeFromValue.tokenMeta?.symbol === 'NEAR')
     )
@@ -197,7 +298,50 @@ export default function useBridgeForm() {
     type: 'from' | 'to',
     chain: BridgeModel.BridgeSupportChain
   ) {
-    exchangeChain(true);
+    const { chain: oldFromChain, tokenMeta: oldFromTokenMeta } =
+      bridgeFromValue;
+    const { chain: oldToChain, tokenMeta: oldToTokenMeta } = bridgeToValue;
+    if (type === 'from') {
+      if (oldToChain === chain) exchangeChain(true);
+      else {
+        setBridgeFromValue({
+          chain,
+          tokenMeta: oldFromTokenMeta,
+          accountAddress: getWallet(chain)?.accountId,
+          amount: undefined,
+        });
+        setBridgeToValue({
+          chain: chain === 'NEAR' ? SupportChains[0] : 'NEAR',
+          tokenMeta: oldToTokenMeta,
+          accountAddress: getWallet(
+            chain === 'NEAR' ? SupportChains[0] : 'NEAR'
+          )?.accountId,
+          amount: undefined,
+          isCustomAccountAddress: false,
+          customAccountAddress: undefined,
+        });
+      }
+    } else {
+      if (oldFromChain === chain) exchangeChain(true);
+      else {
+        setBridgeToValue({
+          chain,
+          tokenMeta: oldToTokenMeta,
+          accountAddress: getWallet(chain)?.accountId,
+          amount: undefined,
+          isCustomAccountAddress: false,
+          customAccountAddress: undefined,
+        });
+        setBridgeFromValue({
+          chain: chain === 'NEAR' ? SupportChains[0] : 'NEAR',
+          tokenMeta: oldFromTokenMeta,
+          accountAddress: getWallet(
+            chain === 'NEAR' ? SupportChains[0] : 'NEAR'
+          )?.accountId,
+          amount: undefined,
+        });
+      }
+    }
   }
 
   function exchangeChain(restToken?: boolean) {
@@ -226,9 +370,8 @@ export default function useBridgeForm() {
     };
 
     if (restToken) {
-      const tokenMeta = getTokenBySymbol(fromValue.chain);
-      fromValue.tokenMeta = tokenMeta;
-      toValue.tokenMeta = tokenMeta;
+      fromValue.tokenMeta = undefined;
+      toValue.tokenMeta = undefined;
     }
 
     setBridgeFromValue(fromValue);
@@ -236,11 +379,16 @@ export default function useBridgeForm() {
   }
 
   return {
+    bridgeChannel,
+    setBridgeChannel,
     bridgeFromValue,
     setBridgeFromValue,
     bridgeFromBalance,
     bridgeToValue,
     setBridgeToValue,
+    supportFromTokenSymbols,
+    supportToTokenSymbols,
+    supportBridgeChannels,
     bridgeToBalance,
     changeBridgeChain,
     exchangeChain,

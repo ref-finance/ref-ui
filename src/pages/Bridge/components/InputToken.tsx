@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import SvgIcon from './SvgIcon';
 import Big from 'big.js';
-import { formatBalance } from '../utils/format';
+import { formatNumber } from '../utils/format';
 
 type Props = {
   model?:
@@ -89,7 +89,7 @@ function InputToken({
               }`}
               onClick={handleAllAmount}
             >
-              {formatBalance(balance)}
+              {formatNumber(balance)}
             </a>
           </span>
         </div>

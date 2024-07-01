@@ -7,17 +7,18 @@ import {
   setNearConnection,
   act,
 } from '@near-eth/client';
-import { BridgeConfig, EthereumConfig } from '../config';
+import { BridgeConfig, EVMConfig } from '../config';
 import { ethers } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
-import rainbowBridgeService from '../services/rainbowBridge';
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { toast } from 'react-toastify';
-import { WalletConnection } from 'near-api-js';
+import { Near, WalletConnection } from 'near-api-js';
 import { APPID } from '../config';
 import { nearServices } from '../services/contract';
+import bridgeServices, { BridgeTransferParams } from '../services/bridge';
+import rainbowBridgeService from '../services/bridge/rainbow';
 
-export default function useRainbowBridge(params?: {
+export default function useBridge(params?: {
   enableSubscribeUnclaimed?: boolean;
 }) {
   const [actionLoading, setActionLoading] = useState(false);
@@ -25,24 +26,27 @@ export default function useRainbowBridge(params?: {
   const wallet = useWalletConnectContext();
 
   const setupRainbowBridge = useCallback(() => {
-    if (!wallet.ETH.isSignedIn && !wallet.NEAR.isSignedIn) return;
+    if (!wallet.EVM.isSignedIn && !wallet.NEAR.isSignedIn) return;
     setBridgeParams(BridgeConfig.Rainbow.bridgeParams);
 
     setNearConnection(
-      new WalletConnection(nearServices.getNear(), APPID) as any
+      new WalletConnection(
+        new Near(nearServices.getNearConnectionConfig()),
+        APPID
+      ) as any
     );
     setEthProvider(
       new ethers.providers.InfuraProvider(
-        EthereumConfig.network,
-        EthereumConfig.infuraKey
+        EVMConfig.Ethereum.network,
+        EVMConfig.Ethereum.infuraKey
       )
     );
     setSignerProvider(window.ethWeb3Provider);
 
-    checkStatusAll({ loop: 15000 });
+    wallet.EVM.chain === 'Ethereum' && checkStatusAll({ loop: 15000 });
 
     console.log('bridge: setup rainbow');
-  }, [wallet.ETH.isSignedIn, wallet.NEAR.isSignedIn]);
+  }, [wallet.EVM.isSignedIn, wallet.NEAR.isSignedIn, wallet.EVM.chain]);
 
   const [unclaimedTransactions, setUnclaimedTransactions] = useState<
     BridgeModel.BridgeTransaction[]
@@ -66,14 +70,9 @@ export default function useRainbowBridge(params?: {
     }
   }, [params?.enableSubscribeUnclaimed]);
 
-  async function transfer(
-    params: Omit<
-      Parameters<typeof rainbowBridgeService.transfer>[number],
-      'nearWalletSelector'
-    >
-  ) {
+  async function transfer(params: BridgeTransferParams) {
     setActionLoading(true);
-    const result = await rainbowBridgeService
+    const result = await bridgeServices
       .transfer({
         ...params,
         nearWalletSelector: wallet.NEAR.isSignedIn

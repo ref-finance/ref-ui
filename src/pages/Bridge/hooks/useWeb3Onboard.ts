@@ -3,13 +3,13 @@ import { init } from '@web3-onboard/react';
 import injectedModule, { ProviderLabel } from '@web3-onboard/injected-wallets';
 import walletConnectModule from '@web3-onboard/walletconnect';
 import ledgerModule from '@web3-onboard/ledger';
-import { APP_HOST, EthereumConfig } from '../config';
+import { APP_HOST, EVMConfig } from '../config';
 
 const WALLET_CONNECT_OPTION: Parameters<
   typeof walletConnectModule | typeof ledgerModule
 >[number] = {
-  projectId: EthereumConfig.walletConnectProjectId,
-  requiredChains: [EthereumConfig.chainId],
+  projectId: EVMConfig.walletConnectProjectId,
+  requiredChains: [EVMConfig.Ethereum.chainId, EVMConfig.Arbitrum.chainId],
   dappUrl: APP_HOST,
 };
 
@@ -41,7 +41,7 @@ export function setupWeb3Onboard() {
 
   return init({
     wallets: [injected, walletConnect, ledger],
-    chains: EthereumConfig.chains,
+    chains: EVMConfig.chains,
     theme: 'dark',
     appMetadata: {
       name: 'Ref Finance',

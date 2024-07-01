@@ -1,4 +1,4 @@
-import rainbowBridgeService from './rainbowBridge';
+import rainbowBridgeService from './bridge/rainbow';
 
 const bridgeHistoryService = {
   async query(params?: {
