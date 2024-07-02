@@ -120,14 +120,15 @@ const StakingChart = ({ chartType }) => {
         const percent = totalTvlForCalculation.gt(0)
           ? value.div(totalTvlForCalculation).mul(100).toFixed(2)
           : 0;
+        const displayPercent = Number(percent) < 0.01 ? '<0.01' : percent;
         return {
           ...item,
           value: Number(percent),
           displayValue: Math.max(Number(percent), MIN_DISPLAY_PERCENT),
-          percent,
+          percent: displayPercent,
         };
       })
-      .filter((item) => item.value > 0)
+      // .filter((item) => item.value > 0)
       .sort((a, b) => b.value - a.value);
 
     return adjustedDataItems;
