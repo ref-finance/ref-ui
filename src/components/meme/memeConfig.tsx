@@ -440,6 +440,10 @@ export function getMemeDataConfig(): any {
         'bean.tkn.near': '#984D2E',
         'token.0xshitzu.near': '#50ED99',
         'ftv2.nekotoken.near': '#FFFFFF',
+        'marmaj.tkn.near': '#92D5EC',
+        'babyblackdragon.tkn.near': '#FF8F00',
+        'hat.tkn.near': '#F7AE07',
+        'intel.tkn.near': '#2C3D4C',
       },
       meme_cap_tokens: [
         'token.lonkingnearbackto2024.near',
