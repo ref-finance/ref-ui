@@ -79,7 +79,7 @@ export default function AdSwiper() {
               <div
                 className="relative cursor-pointer"
                 onClick={() => {
-                  window.open('/v2farms/4514-r');
+                  window.open('https://www.deltatrade.ai/activity/home');
                 }}
               >
                 {is_mobile ? <DeltaMobile /> : <DeltaPC />}
