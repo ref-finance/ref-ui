@@ -706,7 +706,10 @@ export default function SelectToken({
     <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
     Created by any user on https://tkn.homes with the tkn.near suffix, poses high risks. Ref has not certified it. Exercise caution.
     </div>`;
-
+  const TknxTip = `
+    <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
+    Created by any user on https://tkn.homes with the tknx.near suffix, poses high risks. Ref has not certified it. Exercise caution.
+    </div>`;
   return (
     <MicroModal
       open={visible}
@@ -881,7 +884,7 @@ export default function SelectToken({
                     data-class="reactTip"
                     data-tooltip-id="tknId"
                     data-place="left"
-                    data-tooltip-html={TknTip}
+                    data-tooltip-html={TknxTip}
                   >
                     <QuestionMark></QuestionMark>
                     <CustomTooltip id="tknId" />
