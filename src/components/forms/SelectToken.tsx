@@ -706,6 +706,7 @@ export default function SelectToken({
     <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
     Created by any user on https://tkn.homes with the tkn.near suffix, poses high risks. Ref has not certified it. Exercise caution.
     </div>`;
+
   return (
     <MicroModal
       open={visible}
@@ -875,7 +876,7 @@ export default function SelectToken({
                   onClick={() => setActiveTab('TKNX')}
                 >
                   TKNX
-                  {/* <div
+                  <div
                     className="text-white text-right ml-1 inline-block"
                     data-class="reactTip"
                     data-tooltip-id="tknId"
@@ -884,7 +885,7 @@ export default function SelectToken({
                   >
                     <QuestionMark></QuestionMark>
                     <CustomTooltip id="tknId" />
-                  </div> */}
+                  </div>
                 </div>
               </div>
               <div>
