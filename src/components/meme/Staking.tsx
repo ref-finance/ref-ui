@@ -126,9 +126,9 @@ const Staking = () => {
         <div className="xsm:bg-memeStakingBgColor xsm:border xsm:border-memeBorderColor xsm:rounded-2xl xsm:pt-8 xsm:pb-8 xsm:px-11">
           <div className="lg:hidden mb-3 flex flex-col items-center">
             <div className="text-base text-primaryText">Current Round:</div>
-            <div className="text-lg mb-4">2024/06/06-2024/07/05</div>
-            <div className="text-base text-primaryText">Next Round:</div>
-            <div className="text-lg mb-6">2024/07/06-2024/08/05</div>
+            <div className="text-lg mb-4">2024/07/06-2024/08/05</div>
+            {/* <div className="text-base text-primaryText">Next Round:</div>
+            <div className="text-lg mb-6">2024/07/06-2024/08/05</div> */}
           </div>
           <div className="mb-6" style={{ height: '285px' }}>
             <StakingChart chartType="xref" />
@@ -136,12 +136,12 @@ const Staking = () => {
           <div className="flex justify-between mb-6 px-16 xsm:hidden">
             <div className="text-left ">
               <p className="text-sm text-primaryText mb-2">Current Round:</p>
-              <div className="text-sm ">2024/06/06-2024/07/05</div>
-            </div>
-            <div className="text-left">
-              <p className="text-sm text-primaryText mb-2">Next Round:</p>
               <div className="text-sm ">2024/07/06-2024/08/05</div>
             </div>
+            {/* <div className="text-left">
+              <p className="text-sm text-primaryText mb-2">Next Round:</p>
+              <div className="text-sm ">2024/07/06-2024/08/05</div>
+            </div> */}
           </div>
           {!hasGuided &&
             (currentPage === 1 || currentPage === 2) &&
