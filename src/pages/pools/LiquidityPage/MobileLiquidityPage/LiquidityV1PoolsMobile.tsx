@@ -41,7 +41,6 @@ const LiquidityV1PoolsMobile = ({
   selectCoinClass,
   poolTokenMetas,
   watchPools,
-  poolsMorePoolsIds,
   farmCounts,
   farmAprById,
   filterList,
@@ -52,7 +51,6 @@ const LiquidityV1PoolsMobile = ({
   onHide,
   pools,
   volumes,
-  poolFilterFunc,
 }: any) => {
   const intl = useIntl();
 
@@ -264,23 +262,19 @@ const LiquidityV1PoolsMobile = ({
         )}
         <div className="border-b border-gray-700 border-opacity-70" />
         <div className="max-h-96 overflow-y-auto overflow-x-visible pool-list-container-mobile">
-          {pools
-            ?.filter(poolFilterFunc)
-            .sort(poolSortingFunc)
-            .map((pool, i) => (
-              <MobilePoolRow
-                tokens={poolTokenMetas[pool.id]}
-                pool={pool}
-                sortBy={sortBy}
-                watched={!!find(watchPools, { id: pool.id })}
-                key={i}
-                morePoolIds={poolsMorePoolsIds[pool.id]}
-                supportFarm={!!farmCounts[pool.id]}
-                h24volume={volumes[pool.id]}
-                farmApr={farmAprById[pool.id]}
-                farmCount={farmCounts[pool.id]}
-              />
-            ))}
+          {pools.sort(poolSortingFunc).map((pool, i) => (
+            <MobilePoolRow
+              tokens={poolTokenMetas[pool.id]}
+              pool={pool}
+              sortBy={sortBy}
+              watched={!!find(watchPools, { id: pool.id })}
+              key={i}
+              supportFarm={!!farmCounts[pool.id]}
+              h24volume={volumes[pool.id]}
+              farmApr={farmAprById[pool.id]}
+              farmCount={farmCounts[pool.id]}
+            />
+          ))}
         </div>
       </section>
     </Card>

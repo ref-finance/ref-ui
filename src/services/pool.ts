@@ -25,11 +25,7 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import {
-  getTopPools,
-  getTopPoolsIndexer,
-  getTopPoolsIndexerRaw,
-} from '../services/indexer';
+import { getTopPools, getTopPoolsIndexerRaw } from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -125,6 +121,32 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   token0_ref_price: pool.token0_ref_price,
   pool_kind: pool?.pool_kind,
 });
+
+export const parsePoolNew = (pool: any, id?: number): any => {
+  return {
+    id: Number(id >= 0 ? id : pool.id),
+    tokenIds: pool.token_account_ids,
+    supplies: pool.amounts.reduce(
+      (acc: { [tokenId: string]: string }, amount: string, i: number) => {
+        acc[pool.token_account_ids[i]] = amount;
+        return acc;
+      },
+      {}
+    ),
+    fee: pool.total_fee,
+    shareSupply: pool.shares_total_supply,
+    tvl: pool.tvl,
+    token0_ref_price: pool.token0_ref_price,
+    pool_kind: pool?.pool_kind,
+    apy: pool.apy,
+    farm_apy: pool.farm_apy,
+    is_farm: pool.is_farm,
+    volume_24h: pool.volume_24h,
+    token_symbols: pool.token_symbols,
+    search_symbols: pool.token_symbols.join('-'),
+    top: pool.top,
+  };
+};
 
 export const getPools = async ({
   page = 1,
@@ -241,13 +263,13 @@ export const getCachedPoolsByTokenId = async ({
   token1Id: string;
   token2Id: string;
 }) => {
-  let normalItems = await db
+  const normalItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token1Id)
     .and((item) => item.token2Id === token2Id)
     .primaryKeys();
-  let reverseItems = await db
+  const reverseItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token2Id)
@@ -490,7 +512,7 @@ export const getPoolsByTokensAurora = async ({
   ) {
     setLoadingData && setLoadingData(true);
 
-    let triPools = await getAllTriPools(
+    const triPools = await getAllTriPools(
       tokenIn && tokenOut
         ? [
             tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
@@ -1205,7 +1227,6 @@ export const removeLiquidityByTokensFromStablePool = async ({
   unregister = false,
 }: RemoveLiquidityByTokensFromStablePoolOptions) => {
   const tokenIds = tokens.map((token) => token.id);
-
   const withDrawTransactions: Transaction[] = [];
 
   for (let i = 0; i < tokenIds.length; i++) {
@@ -1283,7 +1304,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
   ];
   let need_split = false;
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
-  if (selectedWalletId == 'ledger') {
+  if (selectedWalletId == 'ledger' || selectedWalletId == 'mintbase-wallet') {
     need_split = true;
   }
   if (explorerType !== ExplorerType.Firefox && !need_split) {

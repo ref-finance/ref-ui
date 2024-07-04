@@ -1,6 +1,7 @@
 import { getCurrentWallet } from '../utils/wallets-integration';
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 import { getOrderlyConfig } from '../pages/Orderly/config';
+const webWalletIds = ['my-near-wallet', 'mintbase-wallet'];
 export async function batchDeleteKeys(publicKeys: string[]) {
   const accountId = getCurrentWallet().wallet.getAccountId();
   const wallet = await window.selector.wallet();
@@ -24,12 +25,12 @@ export async function batchDeleteKeys(publicKeys: string[]) {
       transactions: wstransactions,
     })
     .then(() => {
-      if (wallet.id !== 'my-near-wallet') {
+      if (!webWalletIds.includes(wallet.id)) {
         window.location.reload();
       }
     })
     .catch(() => {
-      if (wallet.id !== 'my-near-wallet') {
+      if (!webWalletIds.includes(wallet.id)) {
         window.location.reload();
       }
     });
@@ -39,12 +40,6 @@ export async function batchOrderelyDeleteKeys(publicKeys: string[]) {
   const wallet = await window.selector.wallet();
   const wstransactions: WSTransaction[] = [];
   const len = 1;
-  // if (wallet.id === 'ledger') {
-  //   len = 3;
-  // }
-  // if (wallet.id === 'my-near-wallet') {
-  //   len = 10;
-  // }
   const transactionsLength = Math.ceil(publicKeys.length / len);
   for (let index = 0; index < transactionsLength; index++) {
     const splitPublicKeys = publicKeys.slice(index * len, index * len + len);
@@ -73,12 +68,12 @@ export async function batchOrderelyDeleteKeys(publicKeys: string[]) {
       transactions: wstransactions,
     })
     .then(() => {
-      if (wallet.id !== 'my-near-wallet') {
+      if (!webWalletIds.includes(wallet.id)) {
         window.location.reload();
       }
     })
     .catch(() => {
-      if (wallet.id !== 'my-near-wallet') {
+      if (!webWalletIds.includes(wallet.id)) {
         window.location.reload();
       }
     });

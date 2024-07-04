@@ -3,7 +3,14 @@ import Modal from 'react-modal';
 import Big from 'big.js';
 import { isEmpty } from 'lodash';
 import { isMobile } from '../../utils/device';
-import { ModalCloseIcon, SelectsDown, TipIcon } from './icons';
+import {
+  FeedForMemeFinalist,
+  ModalCloseIcon,
+  QuestionMarkFeedForMeme,
+  SelectsDown,
+  SelectsSpecialDown,
+  TipIcon,
+} from './icons';
 import { TokenMetadata } from '../../services/ft-contract';
 import { MemeContext } from './context';
 import { getMemeContractConfig } from './memeConfig';
@@ -21,11 +28,12 @@ import {
 } from 'src/components/button/Button';
 
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
-const { meme_winner_tokens } = getMemeDataConfig();
+const { meme_winner_tokens, meme_nonListed_tokens } = getMemeDataConfig();
 const progressConfig = getMemeUiConfig();
 function MemeVoteModal(props: any) {
   const { isOpen, onRequestClose } = props;
   const [selectedTab, setSelectedTab] = useState('');
+  const [selectedOtherTab, setSelectedOtherTab] = useState('');
   const [amount, setAmount] = useState('');
   const [memeVoteLoading, setMemeVoteLoading] = useState(false);
   const {
@@ -75,11 +83,20 @@ function MemeVoteModal(props: any) {
     !selectedTab ||
     !seed;
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [dropdownPcVisible, setDropdownPcVisible] = useState(false);
   const selectedDefaultTab = allTokenMetadatas[selectedTab];
+  const [confirmIsOpen, setConfirmIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef(null);
+  const dropdownContentRef = useRef(null);
   const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target) &&
+      dropdownContentRef.current &&
+      !dropdownContentRef.current.contains(event.target)
+    ) {
       setDropdownVisible(false);
+      setDropdownPcVisible(false);
     }
   };
   useEffect(() => {
@@ -88,6 +105,13 @@ function MemeVoteModal(props: any) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  useEffect(() => {
+    if (meme_winner_tokens.includes(selectedTab)) {
+      setSelectedOtherTab('Other');
+    } else {
+      setSelectedOtherTab('');
+    }
+  }, [selectedTab]);
   // function openMemeVoteConfirmModal() {
   //   setConfirmIsOpen(true);
   // }
@@ -144,7 +168,7 @@ function MemeVoteModal(props: any) {
             <div className="text-primaryText text-sm xsm:hidden">
               Select Meme you support
             </div>
-            <div className="mt-5 flex flex-wrap mb-2 xsm:hidden">
+            <div className="mt-5 flex flex-wrap xsm:hidden">
               {meme_winner_tokens
                 .sort(sortByXrefStaked(xrefSeeds))
                 .map((memeTokenId) => {
@@ -157,6 +181,73 @@ function MemeVoteModal(props: any) {
                     />
                   );
                 })}
+            </div>
+            <div className="flex flex-wrap mb-2 xsm:hidden">
+              <div
+                className="text-white relative w-full"
+                ref={dropdownContentRef}
+              >
+                <button
+                  className="w-full rounded-3xl border border-memeBorderColor pt-2 pl-2 pr-3 pb-2 flex 
+                  items-center justify-between cursor-pointer bg-memeModelgreyColor text-white"
+                  onClick={() => setDropdownPcVisible(!dropdownPcVisible)}
+                >
+                  <div className="flex">
+                    {selectedOtherTab === 'Other' ? (
+                      <QuestionMarkFeedForMeme />
+                    ) : (
+                      <img
+                        className="w-6 h-6 rounded-full"
+                        src={selectedDefaultTab?.icon}
+                      />
+                    )}
+                    <div className="ml-1.5 mr-2 text-base gotham_bold">
+                      {selectedOtherTab === 'Other' ? (
+                        <span className="text-primaryText">Other Token</span>
+                      ) : (
+                        selectedDefaultTab?.symbol
+                      )}
+                    </div>
+                  </div>
+                  <SelectsSpecialDown
+                    className={dropdownPcVisible ? 'transform rotate-180' : ''}
+                  />
+                </button>
+                {dropdownPcVisible && (
+                  <div
+                    className="absolute top-10 right-0  h-56 w-60 overflow-auto rounded-2xl border border-borderC pt-4 pl-3.5 pr-3.5 
+                   cursor-pointer bg-memeDonateBgColor text-white z-50"
+                  >
+                    <p className="text-base mb-3">Other Token</p>
+                    {meme_nonListed_tokens
+                      .sort(sortByXrefStaked(xrefSeeds))
+                      .map((memeTokenId, index, array) => (
+                        <div
+                          key={memeTokenId}
+                          onClick={() => {
+                            setSelectedTab(memeTokenId);
+                            setDropdownPcVisible(false);
+                          }}
+                          className={`flex items-center rounded-3xl border border-transparent hover:border-borderC p-1.5 ${
+                            index !== array.length - 1 ? 'mb-1.5' : 'mb-4'
+                          } ${
+                            selectedTab === memeTokenId
+                              ? 'text-black bg-senderHot'
+                              : ''
+                          }`}
+                        >
+                          <img
+                            className="w-5 h-5 rounded-full"
+                            src={allTokenMetadatas[memeTokenId]?.icon}
+                          />
+                          <div className="ml-2 text-sm">
+                            {allTokenMetadatas[memeTokenId]?.symbol}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex justify-between items-center text-sm mt-2 lg:hidden md:hidden">
               <div className="text-primaryText">Meme</div>
@@ -192,10 +283,21 @@ function MemeVoteModal(props: any) {
                             index !== array.length - 1 ? 'mb-7' : 'mb-4'
                           }`}
                         >
-                          <img
-                            className="w-6 h-6 rounded-full"
-                            src={allTokenMetadatas[memeTokenId]?.icon}
-                          />
+                          {meme_winner_tokens.includes(memeTokenId) ? (
+                            <div className="relative">
+                              <FeedForMemeFinalist className="absolute -top-1 left-1" />
+                              <img
+                                className="w-6 h-6 rounded-full"
+                                src={allTokenMetadatas[memeTokenId]?.icon}
+                                style={{ border: '0.5px solid #C6FC2D' }}
+                              />
+                            </div>
+                          ) : (
+                            <img
+                              className="w-6 h-6 rounded-full"
+                              src={allTokenMetadatas[memeTokenId]?.icon}
+                            />
+                          )}
                           <div className="ml-2 text-base gotham_bold">
                             {allTokenMetadatas[memeTokenId]?.symbol}
                           </div>
@@ -235,6 +337,7 @@ function MemeVoteModal(props: any) {
               <OprationButton
                 minWidth="7rem"
                 disabled={disabled}
+                // onClick={openMemeVoteConfirmModal}
                 onClick={stakeToken}
                 className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
                   disabled || memeVoteLoading ? 'opacity-40' : ''

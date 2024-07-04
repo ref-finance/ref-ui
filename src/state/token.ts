@@ -171,6 +171,8 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         ];
         const allTokens = await getAllTokens();
         const postfix = await get_auto_whitelisted_postfix();
+        postfix.push('.tknx');
+        postfix.push('.tkns');
         const whiteMetaDataList = await Promise.all(
           allWhiteTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
         );
@@ -335,7 +337,7 @@ export const useWalletTokenBalances = (tokenIds: string[] = []) => {
     if (tokenIds.some((id) => !id)) return;
 
     Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
-      let balances = {};
+      const balances = {};
       res.map((item, index) => {
         const tokenId: string = tokenIds[index];
         balances[tokenId] = item;
