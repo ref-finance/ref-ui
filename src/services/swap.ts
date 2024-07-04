@@ -60,6 +60,10 @@ import {
   nearWithdrawTransaction,
   WRAP_NEAR_CONTRACT_ID,
 } from './wrap-near';
+import {
+  IEstimateSwapServerView,
+  estimateSwapFromServer,
+} from './smartRouterFromServer';
 
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
@@ -90,6 +94,7 @@ interface EstimateSwapOptions {
   setSwapsToDoTri?: (todos: EstimateSwapView[]) => void;
   setSwapsToDoRef?: (todos: EstimateSwapView[]) => void;
   proGetCachePool?: boolean;
+  slippage?: number;
 }
 
 export interface ReservesMap {
@@ -365,6 +370,60 @@ export const estimateSwap = async ({
   loadingTrigger,
   supportLedger,
   proGetCachePool,
+  slippage,
+}: EstimateSwapOptions): Promise<{
+  estimates?: EstimateSwapView[];
+  estimatesFromServer?: IEstimateSwapServerView;
+  tag: string;
+  source: 'script' | 'server';
+}> => {
+  // token.v2.ref-finance.near-1000000000000000000-wrap.near
+  const resultFromServer = await estimateSwapFromServer({
+    tokenIn,
+    tokenOut,
+    amountIn: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+    slippage,
+    supportLedger,
+  }).catch(() => ({}));
+  if (
+    !(
+      resultFromServer?.result_code !== 0 ||
+      !resultFromServer?.result_data?.routes?.length
+    )
+  ) {
+    return {
+      estimatesFromServer: resultFromServer.result_data,
+      tag: `${tokenIn.id}-${toNonDivisibleNumber(tokenIn.decimals, amountIn)}-${
+        tokenOut.id
+      }`,
+      source: 'server',
+    };
+  } else {
+    const resultFromScript = await estimateSwapFromScript({
+      tokenIn,
+      tokenOut,
+      amountIn,
+      intl,
+      setLoadingData,
+      loadingTrigger,
+      supportLedger,
+      proGetCachePool,
+    });
+    return {
+      ...resultFromScript,
+      source: 'script',
+    };
+  }
+};
+export const estimateSwapFromScript = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  intl,
+  setLoadingData,
+  loadingTrigger,
+  supportLedger,
+  proGetCachePool,
 }: EstimateSwapOptions): Promise<{
   estimates: EstimateSwapView[];
   tag: string;
@@ -422,7 +481,7 @@ export const estimateSwap = async ({
     return { estimates: supportLedgerRes, tag };
   }
 
-  const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
+  const orpools = await getRefPoolsByToken1ORToken2();
 
   let res;
   let smartRouteV2OutputEstimate;
@@ -1032,12 +1091,13 @@ export async function getHybridStableSmart(
 
 interface SwapOptions {
   useNearBalance?: boolean;
-  swapsToDo: EstimateSwapView[];
+  swapsToDo?: EstimateSwapView[];
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   amountIn: string;
-  slippageTolerance: number;
+  slippageTolerance?: number;
   swapMarket?: SwapMarket;
+  swapsToDoServer?: IEstimateSwapServerView;
 }
 
 export const swap = async ({
@@ -1088,15 +1148,118 @@ export const instantSwap = async ({
     });
   }
 };
+export const swapFromServer = async ({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  swapsToDoServer,
+}: SwapOptions) => {
+  const transactions: Transaction[] = [];
+  const tokenOutActions: RefFiFunctionCallOptions[] = [];
+  const { contract_out, routes } = swapsToDoServer;
+  const registerToken = async (token: TokenMetadata) => {
+    const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
+      throw new Error(`${token.id} doesn't exist.`);
+    });
 
+    if (tokenRegistered === null) {
+      if (NO_REQUIRED_REGISTRATION_TOKEN_IDS.includes(token.id)) {
+        const r = await native_usdc_has_upgrated(token.id);
+        if (r) {
+          tokenOutActions.push({
+            methodName: 'storage_deposit',
+            args: {
+              registration_only: true,
+              account_id: getCurrentWallet()?.wallet?.getAccountId(),
+            },
+            gas: '30000000000000',
+            amount: STORAGE_TO_REGISTER_WITH_MFT,
+          });
+        } else {
+          tokenOutActions.push({
+            methodName: 'register_account',
+            args: {
+              account_id: getCurrentWallet()?.wallet?.getAccountId(),
+            },
+            gas: '10000000000000',
+          });
+        }
+      } else {
+        tokenOutActions.push({
+          methodName: 'storage_deposit',
+          args: {
+            registration_only: true,
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
+          },
+          gas: '30000000000000',
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        });
+      }
+      transactions.push({
+        receiverId: token.id,
+        functionCalls: tokenOutActions,
+      });
+    }
+  };
+
+  if (tokenOut.id !== contract_out) {
+    return window.location.reload();
+  }
+
+  //making sure all actions get included.
+  await registerToken(tokenOut);
+  const actionsList = [];
+  routes.forEach((route) => {
+    route.pools.forEach((pool) => {
+      if (+pool.amount_in == 0) {
+        delete pool.amount_in;
+      }
+      pool.pool_id = Number(pool.pool_id);
+      actionsList.push(pool);
+    });
+  });
+  transactions.push({
+    receiverId: tokenIn.id,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer_call',
+        args: {
+          receiver_id: REF_FI_CONTRACT_ID,
+          amount: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+          msg: JSON.stringify({
+            force: 0,
+            actions: actionsList,
+            ...(tokenOut.symbol == 'NEAR' ? { skip_unwrap_near: false } : {}),
+          }),
+        },
+        gas: '180000000000000',
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
+
+  if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
+    transactions.unshift(nearDepositTransaction(amountIn));
+  }
+  if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+    if (registered === null) {
+      transactions.unshift({
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
+  }
+
+  return executeMultipleTransactions(transactions);
+};
 export const nearInstantSwap = async ({
   tokenIn,
   tokenOut,
   amountIn,
   swapsToDo,
   slippageTolerance,
-}: // minAmountOut,
-SwapOptions) => {
+}: SwapOptions) => {
   const transactions: Transaction[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
@@ -1228,31 +1391,6 @@ SwapOptions) => {
   if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
     transactions.unshift(nearDepositTransaction(amountIn));
   }
-  // if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
-  //   const outEstimate = new Big(0);
-  //   const routes = separateRoutes(swapsToDo, tokenOut.id);
-
-  //   const bigEstimate = routes.reduce((acc, cur) => {
-  //     const curEstimate = round(
-  //       24,
-  //       toNonDivisibleNumber(
-  //         24,
-  //         percentLess(slippageTolerance, cur[cur.length - 1].estimate)
-  //       )
-  //     );
-  //     return acc.plus(curEstimate);
-  //   }, outEstimate);
-
-  //   const minAmountOut = toReadableNumber(
-  //     24,
-  //     scientificNotationToString(bigEstimate.toString())
-  //   );
-
-  //   if (tokenOut.symbol == 'NEAR') {
-  //     transactions.push(nearWithdrawTransaction(minAmountOut));
-  //   }
-  // }
-
   if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
     const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
     if (registered === null) {

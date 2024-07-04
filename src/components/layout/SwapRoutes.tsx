@@ -72,8 +72,13 @@ import { displayNumberToAppropriateDecimals } from '../../services/commonV3';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
 import { get_pool_name, openUrl } from '../../services/commonV3';
 import getConfigV2 from '../../services/configV2';
+
 import { REF_FI_BEST_MARKET_ROUTE } from '../../state/swap';
 import { PolygonRight } from '../../pages/Orderly/components/Common/Icons';
+import {
+  IServerRoute,
+  getTokensOfRoute,
+} from '../../services/smartRouterFromServer';
 const configV2 = getConfigV2();
 export const GetPriceImpact = (
   value: string,
@@ -717,16 +722,23 @@ export const getDexAction = (market: SwapMarket) => {
 
 export const SwapRoute = ({
   route,
-  p,
   market,
+  routeServer,
 }: {
-  route: EstimateSwapView[];
-  p: string;
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
+  route?: EstimateSwapView[];
   market: SwapMarket;
+  routeServer?: IServerRoute;
 }) => {
-  const tokens = route[0].tokens;
+  const [tokens, setTokens] = useState([]);
+  useEffect(() => {
+    if (route) {
+      setTokens(route[0].tokens);
+    } else if (routeServer) {
+      getTokensOfRoute(routeServer).then((res) => {
+        setTokens(res);
+      });
+    }
+  }, [route, routeServer]);
 
   const { swapType } = useContext(SwapProContext);
 
@@ -771,6 +783,7 @@ export const SwapRoute = ({
           tokens.map((t, i) => {
             return (
               <div
+                key={i}
                 className={`text-xs ${
                   tokens.length === 3 && toRealSymbol(t.symbol).length > 7
                     ? 'xsm:overflow-hidden'
@@ -802,9 +815,11 @@ export const SwapRoute = ({
 export const SwapRouteMoreThan2 = ({
   market,
   trade,
+  throughPools,
 }: {
   market: SwapMarket;
   trade: ExchangeEstimate;
+  throughPools: number;
 }) => {
   const intl = useIntl();
 
@@ -846,7 +861,7 @@ export const SwapRouteMoreThan2 = ({
             id: 'steps_in_the_route_zh',
           })}
         <span className={intl.locale === 'zh-CN' ? 'mr-0' : 'mr-1'}>
-          {trade.estimates.length}
+          {throughPools}
         </span>
 
         <FormattedMessage
@@ -1806,10 +1821,9 @@ export const TradeRoute = ({
 
   const { market } = trade;
 
-  const identicalRoutes = separateRoutes(
-    estimates,
-    estimates[estimates.length - 1].outputToken
-  );
+  const identicalRoutes = estimates
+    ? separateRoutes(estimates, estimates[estimates.length - 1].outputToken)
+    : []; // TODO 4
 
   const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
 
@@ -1830,6 +1844,7 @@ export const TradeRoute = ({
         {identicalRoutes.map((route, j) => {
           return (
             <div
+              key={j}
               className="relative frcb my-3 "
               style={{
                 width: isMobile() ? '460px' : '',

@@ -46,7 +46,7 @@ import {
   PoolMode,
   REF_FI_SWAP_SIGNAL,
 } from '../services/swap';
-import { EstimateSwapView, swap } from '../services/swap';
+import { EstimateSwapView, swap, swapFromServer } from '../services/swap';
 import {
   get_pool,
   PoolInfo,
@@ -72,6 +72,11 @@ import { toRealSymbol } from '../utils/token';
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { useIndexerStatus } from './pool';
 import { useTokenPriceList } from './token';
+import {
+  IEstimateSwapServerView,
+  getAvgFeeFromServer,
+  getPriceImpactFromServer,
+} from '../services/smartRouterFromServer';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -367,25 +372,38 @@ export const estimateValidator = (
   swapTodos: EstimateSwapView[],
   tokenIn: TokenMetadata,
   parsedAmountIn: string,
-  tokenOut: TokenMetadata
+  tokenOut: TokenMetadata,
+  swapsToDoServer: IEstimateSwapServerView
 ) => {
-  if (swapTodos && swapTodos?.[0]?.pool === null) return true;
-
-  const tokenInId = swapTodos[0]?.inputToken;
-  const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
-
-  if (
-    tokenInId !== tokenIn.id ||
-    tokenOutId !== tokenOut.id ||
-    !BigNumber.sum(...swapTodos.map((st) => st.partialAmountIn || 0)).isEqualTo(
-      parsedAmountIn
-    ) ||
-    (!!localStorage.getItem(SUPPORT_LEDGER_KEY) && swapTodos?.length > 1)
-  ) {
-    return false;
+  if (swapTodos?.[0]?.pool === null || !swapsToDoServer) return true;
+  if (swapTodos) {
+    const tokenInId = swapTodos[0]?.inputToken;
+    const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
+    if (
+      tokenInId !== tokenIn.id ||
+      tokenOutId !== tokenOut.id ||
+      !BigNumber.sum(
+        ...swapTodos.map((st) => st.partialAmountIn || 0)
+      ).isEqualTo(parsedAmountIn) ||
+      (!!localStorage.getItem(SUPPORT_LEDGER_KEY) && swapTodos?.length > 1)
+    ) {
+      return false;
+    }
   }
+  if (swapsToDoServer) {
+    const { contract_in, contract_out, amount_in } = swapsToDoServer;
+    if (
+      contract_in !== tokenIn.id ||
+      contract_out !== tokenOut.id ||
+      !BigNumber(amount_in).isEqualTo(parsedAmountIn)
+    ) {
+      return false;
+    }
+  }
+
   return true;
 };
+// TODO 1
 export const useSwap = ({
   tokenIn,
   tokenInAmount,
@@ -404,6 +422,8 @@ export const useSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
+  const [swapsToDoServer, setSwapsToDoServer] =
+    useState<IEstimateSwapServerView>();
   const [quoteDone, setQuoteDone] = useState<boolean>(false);
 
   const tokenPriceList = useTokenPriceList(loadingTrigger);
@@ -461,25 +481,55 @@ export const useSwap = ({
   const getEstimate = async () => {
     setCanSwap(false);
     setQuoteDone(false);
+    setEstimating(true);
 
-    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
-      if (!tokenInAmount || ONLY_ZEROS.test(tokenInAmount)) {
-        setTokenOutAmount('0');
-        setSwapsToDo(null);
-
-        return;
-      }
-      setEstimating(true);
-
-      estimateSwap({
-        tokenIn,
-        tokenOut,
-        amountIn: tokenInAmount,
-        intl,
-        supportLedger,
-        loadingTrigger,
-      })
-        .then(async ({ estimates: estimatesRes }) => {
+    estimateSwap({
+      tokenIn,
+      tokenOut,
+      amountIn: tokenInAmount,
+      intl,
+      supportLedger,
+      loadingTrigger,
+      slippage: slippageTolerance,
+    })
+      .then(async (estimateResult) => {
+        if (estimateResult.source == 'server') {
+          const { estimatesFromServer } = estimateResult;
+          const { amount_out } = estimatesFromServer;
+          const expectedOut = toReadableNumber(tokenOut.decimals, amount_out);
+          setSwapError(null);
+          setPriceImpactValue('0');
+          setTokenOutAmount(scientificNotationToString(expectedOut));
+          setEstimateInOut([tokenInAmount, expectedOut]);
+          setCanSwap(true);
+          setQuoteDone(true);
+          setSwapsToDoServer(estimatesFromServer);
+          getAvgFeeFromServer({
+            estimatesFromServer,
+            setAvgFee,
+            tokenInAmount,
+            tokenIn,
+          });
+          const tokenPriceListForCal = !!tokenPriceList?.NEAR
+            ? tokenPriceList
+            : (await getTokenPriceListFromCache()).reduce(
+                (acc, cur) => ({
+                  ...acc,
+                  [cur.id]: cur,
+                }),
+                {}
+              );
+          getPriceImpactFromServer({
+            estimatesFromServer,
+            tokenIn,
+            tokenOut,
+            tokenInAmount,
+            tokenOutAmount: scientificNotationToString(expectedOut.toString()),
+            tokenPriceList: tokenPriceListForCal,
+            setPriceImpactValue,
+          });
+        } else if (estimateResult.source == 'script') {
+          const { estimates: estimatesRes } = estimateResult;
           const estimates = estimatesRes.map((e) => ({
             ...e,
             partialAmountIn: e.pool.partialAmountIn,
@@ -537,102 +587,47 @@ export const useSwap = ({
           }
 
           setPool(estimates[0].pool);
-        })
-        .catch((err) => {
-          // if (!loadingTrigger) {
-          setCanSwap(false);
-          setTokenOutAmount('');
-          setSwapError(err);
-          setQuoteDone(true);
-
-          // }
-        })
-        .finally(() => {
-          setForceEstimate && setForceEstimate(false);
-          setLoadingTrigger && setLoadingTrigger(false);
-          setEstimating && setEstimating(false);
-          setShowSwapLoading && setShowSwapLoading(false);
-        });
-    } else if (
-      tokenIn &&
-      tokenOut &&
-      !tokenInAmount &&
-      ONLY_ZEROS.test(tokenInAmount) &&
-      tokenIn.id !== tokenOut.id
-    ) {
-      setTokenOutAmount('0');
-    }
+        }
+      })
+      .catch((err) => {
+        setCanSwap(false);
+        setTokenOutAmount('');
+        setSwapError(err);
+        setQuoteDone(true);
+      })
+      .finally(() => {
+        setForceEstimate && setForceEstimate(false);
+        setLoadingTrigger && setLoadingTrigger(false);
+        setEstimating && setEstimating(false);
+        setShowSwapLoading && setShowSwapLoading(false);
+      });
   };
 
   useEffect(() => {
-    const valRes =
-      !swapError &&
-      swapsToDo &&
-      tokenIn &&
-      tokenOut &&
-      estimateValidator(
-        swapsToDo,
-        tokenIn,
-        toNonDivisibleNumber(
-          tokenIn?.decimals === null || tokenIn?.decimals === undefined
-            ? 24
-            : tokenIn.decimals,
-          tokenInAmount
-        ),
-        tokenOut
-      );
-
-    if (estimating && swapsToDo && !forceEstimate) return;
-
-    if (valRes && !loadingTrigger && !forceEstimate) {
-      return;
+    if (
+      tokenIn?.id &&
+      tokenOut?.id &&
+      tokenIn.id !== tokenOut.id &&
+      Number(tokenInAmount || 0) > 0
+    ) {
+      getEstimate();
+    } else if (ONLY_ZEROS.test(tokenInAmount || '0')) {
+      setTokenOutAmount('0');
     }
-
-    getEstimate();
   }, [
-    loadingTrigger,
-    loadingPause,
-    tokenIn?.id,
-    tokenOut?.id,
     tokenInAmount,
     reEstimateTrigger,
-    enableTri,
-    forceEstimate,
-  ]);
-
-  useEffect(() => {
-    const valRes =
-      swapsToDo &&
-      tokenIn &&
-      tokenOut &&
-      estimateValidator(
-        swapsToDo,
-        tokenIn,
-        toNonDivisibleNumber(
-          tokenIn?.decimals === null || tokenIn?.decimals === undefined
-            ? 24
-            : tokenIn.decimals,
-          tokenInAmount
-        ),
-        tokenOut
-      );
-
-    if (estimating && swapsToDo && !forceEstimate) return;
-
-    if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
-    getEstimate();
-  }, [estimating]);
-
-  useEffect(() => {
-    setForceEstimate(true);
-  }, [
     tokenIn?.id,
     tokenOut?.id,
-    tokenIn?.symbol,
-    tokenOut?.symbol,
     supportLedger,
+    enableTri,
+    slippageTolerance,
   ]);
-
+  useEffect(() => {
+    if (loadingTrigger) {
+      getEstimate();
+    }
+  }, [loadingTrigger]);
   useEffect(() => {
     let id: any = null;
     if (!loadingTrigger && !loadingPause) {
@@ -649,16 +644,84 @@ export const useSwap = ({
   }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = () => {
-    swap({
-      slippageTolerance,
-      swapsToDo,
-      tokenIn,
-      amountIn: tokenInAmount,
-      tokenOut,
-      swapMarket: 'ref',
-    }).catch(setSwapError);
+    if (swapsToDo) {
+      swap({
+        slippageTolerance,
+        swapsToDo,
+        tokenIn,
+        amountIn: tokenInAmount,
+        tokenOut,
+        swapMarket: 'ref',
+      }).catch(setSwapError);
+    } else if (swapsToDoServer) {
+      swapFromServer({
+        swapsToDoServer,
+        tokenIn,
+        amountIn: tokenInAmount,
+        tokenOut,
+      }).catch(setSwapError);
+    }
   };
+  // useEffect(() => {
+  //   const todos = swapsToDo || swapsToDoServer;
+  //   const valRes =
+  //     !swapError &&
+  //     todos &&
+  //     tokenIn &&
+  //     tokenOut &&
+  //     estimateValidator(
+  //       swapsToDo,
+  //       tokenIn,
+  //       toNonDivisibleNumber(
+  //         tokenIn?.decimals === null || tokenIn?.decimals === undefined
+  //           ? 24
+  //           : tokenIn.decimals,
+  //         tokenInAmount
+  //       ),
+  //       tokenOut,
+  //       swapsToDoServer
+  //     );
 
+  //   if (estimating && todos && !forceEstimate) return;
+
+  //   if (valRes && !loadingTrigger && !forceEstimate) {
+  //     return;
+  //   }
+  //   getEstimate();
+  // }, [
+  //   loadingTrigger,
+  //   loadingPause,
+  //   tokenIn?.id,
+  //   tokenOut?.id,
+  //   reEstimateTrigger,
+  //   forceEstimate,
+  //   enableTri,
+  //   tokenInAmount,
+  // ]);
+  // useEffect(() => {
+  //   const todos = swapsToDo || swapsToDoServer;
+  //   const valRes =
+  //     todos &&
+  //     tokenIn &&
+  //     tokenOut &&
+  //     estimateValidator(
+  //       swapsToDo,
+  //       tokenIn,
+  //       toNonDivisibleNumber(
+  //         tokenIn?.decimals === null || tokenIn?.decimals === undefined
+  //           ? 24
+  //           : tokenIn.decimals,
+  //         tokenInAmount
+  //       ),
+  //       tokenOut,
+  //       swapsToDoServer
+  //     );
+
+  //   if (estimating && todos && !forceEstimate) return;
+
+  //   if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
+  //   getEstimate();
+  // }, [estimating]);
   return {
     canSwap,
     tokenOutAmount,
@@ -668,9 +731,8 @@ export const useSwap = ({
     swapError,
     makeSwap,
     avgFee,
-    tokenInAmount: !swapsToDo
-      ? '1'
-      : toReadableNumber(
+    tokenInAmount: swapsToDo
+      ? toReadableNumber(
           tokenIn.decimals,
           swapsToDo
             .reduce(
@@ -678,7 +740,11 @@ export const useSwap = ({
               new Big(0)
             )
             .toFixed()
-        ),
+        )
+      : swapsToDoServer
+      ? toReadableNumber(tokenIn.decimals, swapsToDoServer.amount_in || '0')
+      : '1',
+
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
@@ -687,6 +753,7 @@ export const useSwap = ({
       new Big(priceImpactValue).minus(new Big((avgFee || 0) / 100)).toString()
     ),
     estimateInOut,
+    swapsToDoServer,
   };
 };
 export const useSwapV3 = ({
@@ -1498,7 +1565,6 @@ export const useRefSwap = ({
 }: SwapOptions): ExchangeEstimate => {
   const {
     canSwap,
-    // tokenOutAmount,
     minAmountOut,
     swapError,
     makeSwap: makeSwapV1,
@@ -1508,6 +1574,7 @@ export const useRefSwap = ({
     priceImpactValue,
     tokenInAmount: tokenInAmountV1,
     estimateInOut,
+    swapsToDoServer,
   } = useSwap({
     tokenIn,
     tokenInAmount,
@@ -1548,11 +1615,13 @@ export const useRefSwap = ({
     setLoadingTrigger,
     reEstimateTrigger,
   });
-
+  // TODO 2
   const quoteDoneRef =
     quoteDoneV2 &&
     quoteDone &&
-    Big(estimateInAmount || 0).eq(tokenInAmount || 0);
+    (swapsToDoServer
+      ? true
+      : Big(estimateInAmount || 0).eq(tokenInAmount || 0));
   if (!quoteDoneRef)
     return {
       quoteDone: false,
@@ -1570,11 +1639,15 @@ export const useRefSwap = ({
       ? 'v2'
       : 'v1';
   if (bestSwap === 'v1') {
+    if (swapsToDoServer) {
+      swapsToDoServer.contract = 'Ref_Classic';
+    }
     return {
       quoteDone: true,
       canSwap,
       makeSwap: makeSwapV1,
       estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_Classic' })),
+      estimatesServer: swapsToDoServer ?? null,
       tokenOutAmount:
         !tokenOutAmount || swapError
           ? ''
@@ -1940,7 +2013,7 @@ export const useRefSwapPro = ({
     selectMarket,
     swapType,
   } = useContext(SwapProContext);
-
+  // TODO 3
   const resRef = useRefSwap({
     tokenIn,
     tokenInAmount,
@@ -2005,8 +2078,6 @@ export const useRefSwapPro = ({
 
       const tradeList = [resRef, resAurora];
 
-      //  reValidate trades
-
       let resValid = true;
 
       resValid =
@@ -2026,17 +2097,18 @@ export const useRefSwapPro = ({
         });
 
       resValid =
-        resValid &&
-        (!resAurora?.availableRoute ||
-          resAurora.tokenOutAmount ===
-            toPrecision(
-              resAurora.tokenOutAmount || '0',
-              Math.min(tokenOut.decimals, 8)
-            )) &&
-        (!resRef?.availableRoute ||
-          resRef.estimates?.[0]?.tokens?.[
-            resRef.estimates?.[0]?.tokens.length - 1
-          ]?.id === localStorage.getItem('REF_FI_SWAP_OUT'));
+        (resValid &&
+          (!resAurora?.availableRoute ||
+            resAurora.tokenOutAmount ===
+              toPrecision(
+                resAurora.tokenOutAmount || '0',
+                Math.min(tokenOut.decimals, 8)
+              )) &&
+          (!resRef?.availableRoute ||
+            resRef.estimates?.[0]?.tokens?.[
+              resRef.estimates?.[0]?.tokens.length - 1
+            ]?.id === localStorage.getItem('REF_FI_SWAP_OUT'))) ||
+        (resRef.estimatesServer && !resRef.estimates);
 
       if (!resValid) {
         setReEstimateTrigger(!reEstimateTrigger);

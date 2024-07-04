@@ -284,30 +284,26 @@ export function SwapRate({
 }
 
 export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
-  const { estimates, tokenIn, tokenOut, market } = trade;
-
-  const { swapType } = useContext(SwapProContext);
-
-  if (!estimates) return null;
-
-  const identicalRoutes = separateRoutes(
-    estimates,
-    estimates[estimates.length - 1].outputToken
-  );
-
-  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
-
-  const percents = useMemo(() => {
-    try {
-      return getPoolAllocationPercents(pools);
-    } catch (error) {
-      if (identicalRoutes.length === 0) return ['100'];
-      else return identicalRoutes.map((r) => r[0].percent);
-    }
-  }, [identicalRoutes, pools]);
-
   const [showRouteDetail, setShowRouteDetail] = useState<boolean>(false);
-
+  const { estimates, tokenIn, tokenOut, market, estimatesServer } = trade;
+  const { swapType } = useContext(SwapProContext);
+  if (!estimates && !estimatesServer) return null;
+  const identicalRoutes = estimates
+    ? separateRoutes(estimates, estimates[estimates.length - 1].outputToken)
+    : [];
+  const estimatesServerRoutes = estimatesServer?.routes || [];
+  let throughPools = 0;
+  if (estimatesServer) {
+    throughPools = estimatesServer.routes
+      .reduce((acc, cur) => {
+        return acc.plus(cur.pools.length);
+      }, Big(0))
+      .toNumber();
+  } else if (estimates) {
+    throughPools = estimates.length;
+  }
+  const isMoreThan2 =
+    identicalRoutes?.length > 1 || estimatesServer?.routes?.length > 1;
   return (
     <section className="frcb py-1 w-full text-13px  rounded-xl ">
       {swapType === SWAP_TYPE.LITE ? (
@@ -350,20 +346,19 @@ export function AutoRouter({ trade }: { trade: ExchangeEstimate }) {
           }
         }}
       >
-        {trade.estimates.length > 2 ? (
-          <SwapRouteMoreThan2 trade={trade} market={market} />
-        ) : (
-          identicalRoutes.map((route, index) => (
-            <SwapRoute
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-              route={route}
-              p={percents[index]}
-              market={market}
-              key={index}
-            />
-          ))
-        )}
+        {isMoreThan2 ? (
+          <SwapRouteMoreThan2
+            trade={trade}
+            market={market}
+            throughPools={throughPools}
+          />
+        ) : null}
+        {!isMoreThan2 && identicalRoutes.length > 0 ? (
+          <SwapRoute route={identicalRoutes[0]} market={market} />
+        ) : null}
+        {!isMoreThan2 && estimatesServerRoutes.length > 0 ? (
+          <SwapRoute routeServer={estimatesServerRoutes[0]} market={market} />
+        ) : null}
       </div>
       <TradeRouteModal
         trade={trade}
