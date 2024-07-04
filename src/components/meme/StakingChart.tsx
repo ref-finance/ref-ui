@@ -44,7 +44,7 @@ const StakingChart = ({ chartType }) => {
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};
-    return Object.keys(MEME_TOKEN_XREF_MAP).reduce(
+    return meme_winner_tokens.reduce(
       (acc, memeTokenId) => ({
         ...acc,
         ...{ [memeTokenId]: seeds[memeTokenId] },
