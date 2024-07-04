@@ -211,7 +211,6 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
       refTokens.push(tk);
     }
   });
-
   return refTokens;
 }
 
@@ -341,7 +340,6 @@ function SwapPage() {
   const crossSwapTokens = allTokens.filter(
     (token) => token.onTri || token.onRef
   );
-
   const SwapNav = (
     <ChangeSwapMode
       setLimitTokenTrigger={setLimitTokenTrigger}
