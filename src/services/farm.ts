@@ -300,7 +300,7 @@ export const getFarmInfo = async (
     userRewardNumberPerWeek.toString()
   );
 
-  let userUnclaimedRewardNumber: string =
+  const userUnclaimedRewardNumber: string =
     isSignedIn && staked && Number(staked) > 0
       ? await getUnclaimedReward(farm.farm_id)
       : '0';
@@ -363,7 +363,7 @@ export const getUnclaimedFarms = async ({
   seeds: Record<string, string>;
 }): Promise<FarmInfo[]> => {
   const isSignedIn = wallet.isSignedIn();
-  let farms: FarmInfo[] = await getFarms({
+  const farms: FarmInfo[] = await getFarms({
     page,
     perPage,
     stakedList,
@@ -1870,6 +1870,9 @@ export function getFarmClassification(): any {
         '4276',
         '4369',
         '4514',
+        '4771',
+        '4479',
+        '4820',
       ],
       eth: [
         '605',
@@ -1892,6 +1895,7 @@ export function getFarmClassification(): any {
         '3815',
         '3804',
         '3471',
+        '4479',
       ],
       stable: [
         '1910',
@@ -1905,7 +1909,7 @@ export function getFarmClassification(): any {
         '4179',
         '4514',
       ],
-      meme: ['4314', '3807', '4276', '4369'],
+      meme: ['4314', '3807', '4276', '4369', '4771', '4820'],
     };
   }
 }

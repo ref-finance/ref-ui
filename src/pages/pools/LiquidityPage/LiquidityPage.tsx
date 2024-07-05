@@ -23,6 +23,7 @@ import { useHistory } from 'react-router';
 import { Card } from '../../../components/card/Card';
 import { find } from 'lodash';
 import { SelectModal } from '../../../components/layout/SelectModal';
+import Pagination from '../../../components/poolsPagination/Pagination';
 import {
   useAllPools,
   usePools,
@@ -32,6 +33,7 @@ import {
   useIndexerStatus,
 } from '../../../state/pool';
 import Loading from '../../../components/layout/Loading';
+import { LoadingSmall } from '../../../../src/components/icon/Loading';
 
 import {
   useTokens,
@@ -77,12 +79,9 @@ import {
   useMobile,
   useClientMobile,
   isClientMobie,
+  isMobile,
 } from '../../../utils/device';
-import {
-  usePoolsMorePoolIds,
-  useDayVolumesPools,
-  useYourliquidity,
-} from '../../../state/pool';
+import { useDayVolumesPools, useYourliquidity } from '../../../state/pool';
 import { PoolTabV3 } from '../../../components/pool/PoolTabV3';
 import { SearchIcon } from '../../../components/icon/FarmBoost';
 import {
@@ -171,6 +170,7 @@ import {
   PoolAvailablePercent,
   PoolFarmAmount,
 } from 'src/components/pool/PoolShare';
+import { format_apy } from '../../../utils/uiNumber';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -221,25 +221,25 @@ function PoolRow({
   index,
   selectCoinClass,
   tokens,
-  morePoolIds,
   supportFarm,
   farmCount,
   h24volume,
   watched,
   mark,
   farmApr,
+  activeTab,
 }: {
-  pool: Pool;
+  pool: any;
   index?: number;
   selectCoinClass?: string;
   tokens?: TokenMetadata[];
-  morePoolIds: string[];
   supportFarm: boolean;
   farmCount: number;
   h24volume: string;
   watched?: boolean;
   mark?: boolean;
   farmApr?: number;
+  activeTab?: string;
 }) {
   const { riskTokens } = useContext(TokenPriceListContext);
   const curRowTokens = useTokens(pool.tokenIds, tokens);
@@ -265,6 +265,18 @@ function PoolRow({
       : atRiskTokens.length === 1
       ? `${atRiskTokens[0].symbol} is uncertified token with high risk.`
       : '';
+
+  function formatNumber(value) {
+    let formattedValue = value.toFixed(2); //
+    if (formattedValue.endsWith('.00')) {
+      //
+      formattedValue = formattedValue.substring(0, formattedValue.length - 3);
+    } else if (formattedValue.endsWith('0')) {
+      // 0
+      formattedValue = formattedValue.substring(0, formattedValue.length - 1);
+    }
+    return formattedValue;
+  }
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
@@ -319,54 +331,117 @@ function PoolRow({
                 </div>
               )}
               {supportFarm && <FarmStampNew multi={farmCount > 1} />}
+              {pool.top && (
+                <div
+                  className="w-9 h-5 bg-greenLight text-black font-bold text-xs frcc ml-2"
+                  style={{ borderRadius: ' 14px' }}
+                >
+                  Top
+                </div>
+              )}
             </div>
           </div>
         </div>
+
+        {/* fee */}
         <div className="col-span-1 flex items-center justify-center justify-self-center py-1 md:hidden ">
-          {calculateFeePercent(pool.fee)}%
+          {Reflect.has(pool, 'farm_apy')
+            ? formatNumber(pool.fee * 100)
+            : calculateFeePercent(pool.fee)}
+          %
         </div>
-        <div
-          className="col-span-1 flex flex-col items-center justify-self-center text-sm py-1"
-          data-type="info"
-          data-place="right"
-          data-multiline={true}
-          data-class={'reactTip'}
-          data-tooltip-html={getPoolListFarmAprTip()}
-          data-tooltip-id={'pool_list_pc_apr' + pool.id}
-        >
-          {!h24volume ? '-' : `${getPoolFeeApr(h24volume, pool)}%`}
-          {supportFarm &&
-            !Number.isNaN(farmApr) &&
-            farmApr !== null &&
-            farmApr !== undefined &&
-            farmApr > 0 &&
-            h24volume && (
-              <span className="text-xs text-gradientFrom">
-                {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
-              </span>
+        {/* apr */}
+        {Reflect.has(pool, 'farm_apy') ? (
+          <div
+            className="col-span-1 flex flex-col items-center justify-self-center text-sm py-1"
+            data-type="info"
+            data-place="right"
+            data-multiline={true}
+            data-class={'reactTip'}
+            data-tooltip-html={getPoolListFarmAprTip()}
+            data-tooltip-id={'pool_list_pc_apr' + pool.id}
+          >
+            {/* {`${
+              Number(pool.apy).toFixed(0) != '0'
+                ? formatNumber(Number(pool.apy))
+                : '0'
+            }%`} */}
+            {format_apy(pool.apy ?? 0)}
+            <span className="text-xs text-gradientFrom">
+              {`${
+                Number(pool.farm_apy).toFixed(0) != '0'
+                  ? formatNumber(Number(pool.farm_apy)) + '%'
+                  : ''
+              }`}
+            </span>
+            {Number(pool.farm_apy).toFixed(0) != '0' && (
+              <CustomTooltip
+                className="w-20"
+                id={'pool_list_pc_apr' + pool.id}
+                place="right"
+              />
             )}
-          {supportFarm && farmApr > 0 && (
-            <CustomTooltip
-              className="w-20"
-              id={'pool_list_pc_apr' + pool.id}
-              place="right"
-            />
-          )}
-        </div>
+          </div>
+        ) : (
+          <div
+            className="col-span-1 flex flex-col items-center justify-self-center text-sm py-1"
+            data-type="info"
+            data-place="right"
+            data-multiline={true}
+            data-class={'reactTip'}
+            data-tooltip-html={getPoolListFarmAprTip()}
+            data-tooltip-id={'pool_list_pc_apr' + pool.id}
+          >
+            {!h24volume ? '-' : `${getPoolFeeApr(h24volume, pool)}%`}
+            {supportFarm &&
+              !Number.isNaN(farmApr) &&
+              farmApr !== null &&
+              farmApr !== undefined &&
+              farmApr > 0 &&
+              h24volume && (
+                <span className="text-xs text-gradientFrom">
+                  {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                </span>
+              )}
+            {supportFarm && farmApr > 0 && (
+              <CustomTooltip
+                className="w-20"
+                id={'pool_list_pc_apr' + pool.id}
+                place="right"
+              />
+            )}
+          </div>
+        )}
+        {/* 24h */}
+        {Reflect.has(pool, 'farm_apy') ? (
+          <div
+            className="col-span-1 flex items-center justify-center py-1 justify-self-center relative "
+            title={h24volume}
+          >
+            {!pool.volume_24h
+              ? '-'
+              : Number(pool.volume_24h) == 0
+              ? '$0'
+              : Number(pool.volume_24h) < 0.01
+              ? '$ <0.01'
+              : `$${toInternationalCurrencySystem(pool.volume_24h)}`}
+          </div>
+        ) : (
+          <div
+            className="col-span-1 flex items-center justify-center py-1 justify-self-center relative "
+            title={h24volume}
+          >
+            {!h24volume
+              ? '-'
+              : Number(h24volume) == 0
+              ? '$0'
+              : Number(h24volume) < 0.01
+              ? '$ <0.01'
+              : `$${toInternationalCurrencySystem(h24volume)}`}
+          </div>
+        )}
 
-        <div
-          className="col-span-1 flex items-center justify-center py-1 justify-self-center relative "
-          title={h24volume}
-        >
-          {!h24volume
-            ? '-'
-            : Number(h24volume) == 0
-            ? '$0'
-            : Number(h24volume) < 0.01
-            ? '$ <0.01'
-            : `$${toInternationalCurrencySystem(h24volume)}`}
-        </div>
-
+        {/* tvl */}
         <div
           className="col-span-1 flex items-center justify-center py-1 justify-self-center relative left-4"
           title={toPrecision(
@@ -587,7 +662,6 @@ function WatchListCard({
   farmCounts,
   volumes,
   watchV2Pools,
-  poolsMorePoolsIds,
   watchList,
   tokenName,
   do_farms_v2_poos,
@@ -598,7 +672,6 @@ function WatchListCard({
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
-  poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
   tokenName: string;
   do_farms_v2_poos: Record<string, Seed>;
@@ -691,13 +764,12 @@ function WatchListCard({
                   return (
                     <div
                       className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
-                      key={pool?.id}
+                      key={pool?.id + i}
                     >
                       <PoolRow
                         pool={pool}
                         farmApr={farmAprById ? farmAprById[pool.id] : null}
                         tokens={poolTokenMetas[pool.id]}
-                        morePoolIds={poolsMorePoolsIds[pool.id]}
                         farmCount={farmCounts[pool.id]}
                         supportFarm={!!farmCounts[pool.id]}
                         h24volume={volumes[pool.id]}
@@ -709,7 +781,7 @@ function WatchListCard({
                   return (
                     <PoolRowV2
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                      key={pool?.pool_id}
+                      key={pool?.pool_id + i}
                       pool={pool}
                       index={1 + i}
                       showCol={true}
@@ -741,7 +813,6 @@ function PcLiquidityPage({
   nextPage,
   allPools,
   poolTokenMetas,
-  poolsMorePoolsIds,
   farmCounts,
   farmOnly,
   setFarmOnly,
@@ -753,7 +824,18 @@ function PcLiquidityPage({
   h24VolumeV2,
   do_farms_v2_poos,
   farmAprById,
+  totalItems,
+  pageSize,
+  handlePageChange,
+  handleSizeChange,
+  cardLoading,
+  setTknType,
 }: {
+  cardLoading: boolean;
+  totalItems: number;
+  pageSize: number;
+  handlePageChange: (key: any, size: any) => void;
+  handleSizeChange: (key: number) => void;
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
   activeTab: string;
@@ -774,7 +856,7 @@ function PcLiquidityPage({
   onSortChange: (by: string) => void;
   onOrderChange: (by: string) => void;
   nextPage: (...args: []) => void;
-  poolsMorePoolsIds: Record<string, string[]>;
+  setTknType: (key: string) => void;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
@@ -807,6 +889,7 @@ function PcLiquidityPage({
 
     setTvlV2(scientificNotationToString(tvl.toString()));
   }, [allPoolsV2]);
+  //
   useEffect(() => {
     if (inputRef?.current) {
       inputRef.current.value = tokenName;
@@ -821,6 +904,7 @@ function PcLiquidityPage({
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
   });
+
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -839,6 +923,10 @@ function PcLiquidityPage({
   const [enableIdSearch, setEnableIdSearch] = useState<boolean>(
     !!sessionStorage.getItem(REF_POOL_ID_SEARCHING_KEY) || false
   );
+
+  useEffect(() => {
+    setTknType(selectCoinClass);
+  }, [selectCoinClass]);
 
   const handleEnableIdSearching = () => {
     if (enableIdSearch) {
@@ -951,7 +1039,6 @@ function PcLiquidityPage({
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
-
     return poolTokenMetas?.[p.id]?.some((tk: TokenMetadata) =>
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
@@ -959,6 +1046,7 @@ function PcLiquidityPage({
 
   if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
+
   return (
     <>
       <PoolTabV3></PoolTabV3>
@@ -1173,7 +1261,7 @@ function PcLiquidityPage({
                   setSearchFocus(false);
                 }}
                 onChange={(evt) => {
-                  inputRef.current.value = evt.target.value;
+                  inputRef.current.value = evt.target.value.trim();
 
                   if (
                     enableIdSearch &&
@@ -1280,12 +1368,12 @@ function PcLiquidityPage({
             volumes={volumes}
             watchV2Pools={watchV2Pools}
             watchList={watchList}
-            poolsMorePoolsIds={poolsMorePoolsIds}
             tokenName={tokenName}
             do_farms_v2_poos={do_farms_v2_poos}
             farmAprById={farmAprById}
           />
         )}
+        {/* classic pools */}
         {activeTab === 'v1' && (
           <Card width="w-full" className="bg-cardBg" padding="pb-7 px-0">
             <div
@@ -1300,6 +1388,7 @@ function PcLiquidityPage({
 
               <div className="ml-8 justify-between  flex">
                 <div className="flex items-center">
+                  {/* check farm */}
                   <div
                     className="flex items-center mr-5 cursor-pointer"
                     onClick={() => {
@@ -1314,6 +1403,7 @@ function PcLiquidityPage({
                       <FormattedMessage id="farm" defaultMessage="Farm" />
                     </div>
                   </div>
+                  {/* check low pools */}
                   <div
                     className="flex items-center mr-5 cursor-pointer"
                     onClick={() => {
@@ -1347,6 +1437,7 @@ function PcLiquidityPage({
                 <div className="col-span-3 md:col-span-4 flex">
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
+                {/* fee */}
                 <div className="col-span-1 justify-self-center md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
@@ -1386,17 +1477,17 @@ function PcLiquidityPage({
                     )}
                   </span>
                 </div>
-
+                {/* apy */}
                 <div className="col-span-1 justify-self-center  relative right-1 md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
-                      reSortBy !== 'apr' ? 'hover:text-white' : ''
-                    } ${reSortBy === 'apr' ? 'text-gradientFrom' : ''}`}
+                      sortBy !== 'apy' ? 'hover:text-white' : ''
+                    } ${sortBy === 'apy' ? 'text-gradientFrom' : ''}`}
                     onClick={() => {
-                      onSortChange('');
-                      setReSortBy('apr');
-                      reSortBy !== 'apr' && onOrderChange('desc');
-                      reSortBy === 'apr' &&
+                      onSortChange('apy');
+                      setReSortBy('');
+                      sortBy !== 'apy' && onOrderChange('desc');
+                      sortBy === 'apy' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
@@ -1404,16 +1495,18 @@ function PcLiquidityPage({
                   </span>
 
                   <span
-                    className={reSortBy !== 'apr' ? 'hidden' : 'cursor-pointer'}
+                    className={`cursor-pointer ${
+                      sortBy !== 'apy' ? 'hidden' : ''
+                    }`}
                     onClick={() => {
-                      onSortChange('');
-                      setReSortBy('apr');
-                      reSortBy !== 'apr' && onOrderChange('desc');
-                      reSortBy === 'apr' &&
+                      onSortChange('apy');
+                      setReSortBy('');
+                      sortBy !== 'apy' && onOrderChange('desc');
+                      sortBy === 'apy' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
-                    {reSortBy === 'apr' ? (
+                    {sortBy === 'apy' ? (
                       order === 'desc' ? (
                         <DownArrowLight />
                       ) : (
@@ -1424,17 +1517,17 @@ function PcLiquidityPage({
                     )}
                   </span>
                 </div>
-
+                {/* 24h */}
                 <div className="col-span-1 justify-self-center relative  md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
-                      reSortBy !== 'volume' ? 'hover:text-white' : ''
-                    } ${reSortBy === 'volume' ? 'text-gradientFrom' : ''}`}
+                      sortBy !== '24h' ? 'hover:text-white' : ''
+                    } ${sortBy === '24h' ? 'text-gradientFrom' : ''}`}
                     onClick={() => {
-                      onSortChange('');
-                      setReSortBy('volume');
-                      reSortBy !== 'volume' && onOrderChange('desc');
-                      reSortBy === 'volume' &&
+                      onSortChange('24h');
+                      setReSortBy('');
+                      sortBy !== '24h' && onOrderChange('desc');
+                      sortBy === '24h' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
@@ -1445,18 +1538,18 @@ function PcLiquidityPage({
                   </span>
 
                   <span
-                    className={
-                      reSortBy !== 'volume' ? 'hidden' : 'cursor-pointer'
-                    }
+                    className={`cursor-pointer ${
+                      sortBy !== '24h' ? 'hidden' : ''
+                    }`}
                     onClick={() => {
-                      onSortChange('');
-                      setReSortBy('volume');
-                      reSortBy !== 'volume' && onOrderChange('desc');
-                      reSortBy === 'volume' &&
+                      onSortChange('24h');
+                      setReSortBy('');
+                      sortBy !== '24h' && onOrderChange('desc');
+                      sortBy === '24h' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
-                    {reSortBy === 'volume' ? (
+                    {sortBy === '24h' ? (
                       order === 'desc' ? (
                         <DownArrowLight />
                       ) : (
@@ -1467,7 +1560,7 @@ function PcLiquidityPage({
                     )}
                   </span>
                 </div>
-
+                {/* tvl */}
                 <div className="col-span-1 justify-self-center relative left-4 flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
@@ -1507,29 +1600,33 @@ function PcLiquidityPage({
                 </div>
               </header>
 
-              <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-                {pools
-                  ?.filter(poolFilterFunc)
-                  .sort(poolReSortingFunc)
-                  .map((pool, i) => {
+              {!cardLoading && (
+                <div className="h-96 overflow-y-auto  pool-list-container-pc">
+                  {pools?.map((pool, i) => {
                     return (
-                      <div key={'v1-pc' + pool.id}>
+                      <div key={'v1-pc' + pool.id + i}>
                         <PoolRow
                           tokens={poolTokenMetas[pool.id]}
                           farmApr={farmAprById ? farmAprById[pool.id] : null}
                           pool={pool}
-                          index={i + 1}
+                          index={pool.id + i + Math.random()}
                           selectCoinClass={selectCoinClass}
-                          morePoolIds={poolsMorePoolsIds[pool.id]}
                           supportFarm={!!farmCounts[pool.id]}
                           farmCount={farmCounts[pool.id]}
                           h24volume={volumes[pool.id]}
                           watched={!!find(watchPools, { id: pool.id })}
+                          activeTab="v1"
                         />
                       </div>
                     );
                   })}
-              </div>
+                </div>
+              )}
+              {cardLoading && (
+                <div className="h-96 overflow-y-auto  pool-list-container-pc">
+                  <LoadingSmall></LoadingSmall>
+                </div>
+              )}
             </section>
           </Card>
         )}
@@ -1603,6 +1700,7 @@ function PcLiquidityPage({
                     className={'pr-1'}
                     maxWidth="210px"
                   />
+                  {/* total locked amounts */}
                   <span
                     className={`cursor-pointer ${
                       v2SortBy !== 'top_bin_apr' ? 'hidden' : ''
@@ -1712,7 +1810,7 @@ function PcLiquidityPage({
                   .map((pool, i) => (
                     <PoolRowV2
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                      key={pool.pool_id}
+                      key={pool.pool_id + i}
                       pool={pool}
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       index={i + 1}
@@ -1735,8 +1833,18 @@ function PcLiquidityPage({
             farmAprById={farmAprById}
           />
         )}
+        {activeTab == 'v1' && (
+          <div className="mt-10">
+            <Pagination
+              totalItems={totalItems}
+              itemsPerPage={pageSize}
+              onChangePage={handlePageChange}
+              onPageSizeChange={handleSizeChange}
+            ></Pagination>
+          </div>
+        )}
       </div>
-      {isSignedIn && (
+      {isSignedIn && selectTokens && selectBalances && (
         <AddPoolModal
           isOpen={showAddPoolModal}
           onRequestClose={(e) => {
@@ -1768,16 +1876,14 @@ export default function LiquidityPage() {
   const [hideLowTVL, setHideLowTVL] = useState<boolean | any>(false);
   const riskTokens = useRiskTokens();
   const [displayPools, setDisplayPools] = useState<Pool[]>();
-  const { pools, hasMore, nextPage, loading, volumes } = usePools({
-    tokenName,
-    sortBy,
-    order,
-  });
+
   const tokenPriceList = useTokenPriceList();
 
   const [farmOnly, setFarmOnly] = useState<boolean>(
     localStorage.getItem(REF_FI_FARM_ONLY) === '1' || false
   );
+
+  const [tknType, setTknType] = useState('all');
 
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
@@ -1789,9 +1895,41 @@ export default function LiquidityPage() {
     (state) => state.setStakeListTogether
   );
 
+  // pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const handleSetTknType = (type) => {
+    setTknType(type);
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem('poolsTotal')) {
+      setTotalItems(Number(localStorage.getItem('poolsTotal')));
+    }
+  }, [localStorage.getItem('poolsTotal')]);
+
+  const handlePageChange = (newPage, newSize) => {
+    setCurrentPage(newPage);
+    console.log(`Changed to page ${newPage} with size ${newSize}`);
+    // fetch
+  };
+
+  //
+  const handleSizeChange = (newSize) => {
+    setPageSize(newSize);
+    console.log(`Changed page size to ${newSize}`);
+    //
+  };
+
+  // pagination end
+
   const switchActiveTab = (curTab: string) => {
     setActiveTab(curTab);
-
+    if (curTab != 'v1') {
+      setCurrentPage(1);
+    }
     localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, curTab);
   };
   const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
@@ -1800,6 +1938,30 @@ export default function LiquidityPage() {
     Record<string, Seed>
   >({});
 
+  const activeObj = {
+    v1: 'classic',
+    v2: 'dcl',
+    stable: 'stable',
+  };
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [farmOnly, hideLowTVL]);
+
+  const { pools, hasMore, nextPage, volumes, cardLoading } = usePools({
+    tokenName,
+    activeTab,
+    sortBy,
+    order,
+    getTopPoolsProps: {
+      farm: farmOnly,
+      hide_low_pool: hideLowTVL,
+      type: activeObj[activeTab],
+      sort: sortBy,
+      order,
+      offset: (currentPage - 1) * pageSize,
+      token_type: tknType,
+    },
+  });
   useEffect(() => {
     get_shadow_records().then((res) => {
       setShadowRecords(res);
@@ -1866,7 +2028,7 @@ export default function LiquidityPage() {
     setHideLowTVL(JSON.parse(localStorage.getItem(HIDE_LOW_TVL)) || false);
 
     if (hideLowTVL) {
-      tempPools = _.filter(tempPools, (pool) => pool.tvl > 1000);
+      tempPools = _.filter(tempPools, (pool) => pool.tvl > 100);
     }
     if (farmOnly) {
       tempPools = _.filter(tempPools, (pool) => !!farmCounts[pool.id]);
@@ -1878,6 +2040,7 @@ export default function LiquidityPage() {
     );
     setDisplayPools(tempPools);
   }, [pools, hideLowTVL, farmOnly, farmCounts]);
+
   const poolTokenMetas = usePoolTokens(pools);
 
   const onSearch = useCallback(
@@ -1925,8 +2088,6 @@ export default function LiquidityPage() {
     }
   }, [txHash]);
 
-  const poolsMorePoolsIds = usePoolsMorePoolIds();
-
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
   const v3PoolVolumes = useV3VolumesPools();
   const stablePools = useAllStablePools();
@@ -1962,13 +2123,7 @@ export default function LiquidityPage() {
 
   const allVolumes = { ...watchPoolVolumes, ...volumes, ...v3PoolVolumes };
 
-  if (
-    !displayPools ||
-    loading ||
-    !watchPools ||
-    !poolTokenMetas ||
-    !farmAprById
-  )
+  if (!displayPools || !watchPools || !poolTokenMetas || !farmAprById)
     return <Loading />;
 
   return (
@@ -1978,7 +2133,7 @@ export default function LiquidityPage() {
         riskTokens,
       }}
     >
-      {!clientMobileDevice && (
+      {!isMobile() && (
         <PcLiquidityPage
           farmAprById={farmAprById}
           poolTokenMetas={poolTokenMetas}
@@ -1986,8 +2141,7 @@ export default function LiquidityPage() {
           h24VolumeV2={h24VolumeV2}
           switchActiveTab={switchActiveTab}
           tokenName={tokenName}
-          pools={displayPools}
-          poolsMorePoolsIds={poolsMorePoolsIds}
+          pools={activeTab == 'v1' ? pools : displayPools}
           onHide={(isHide) => {
             localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
             setHideLowTVL(isHide);
@@ -2012,18 +2166,23 @@ export default function LiquidityPage() {
           hasMore={hasMore}
           nextPage={nextPage}
           do_farms_v2_poos={do_farms_v2_poos}
+          totalItems={totalItems}
+          handlePageChange={handlePageChange}
+          handleSizeChange={handleSizeChange}
+          pageSize={pageSize}
+          cardLoading={cardLoading}
+          setTknType={handleSetTknType}
         />
       )}
 
-      {clientMobileDevice && (
+      {isMobile() && (
         <MobileLiquidityPage
           activeTab={activeTab}
           switchActiveTab={switchActiveTab}
           poolTokenMetas={poolTokenMetas}
           hideLowTVL={hideLowTVL}
-          poolsMorePoolsIds={poolsMorePoolsIds}
           tokenName={tokenName}
-          pools={displayPools}
+          pools={activeTab == 'v1' ? pools : displayPools}
           watchPools={watchPools}
           watchV2Pools={watchV2Pools}
           watchList={watchList}
@@ -2048,6 +2207,13 @@ export default function LiquidityPage() {
           nextPage={nextPage}
           do_farms_v2_poos={do_farms_v2_poos}
           farmAprById={farmAprById}
+          h24VolumeV2={h24VolumeV2}
+          totalItems={totalItems}
+          handlePageChange={handlePageChange}
+          handleSizeChange={handleSizeChange}
+          pageSize={pageSize}
+          cardLoading={cardLoading}
+          setTknType={handleSetTknType}
         />
       )}
       {indexerFail && (
@@ -2296,7 +2462,7 @@ const RenderDisplayTokensAmounts = ({
         return (
           <span
             className={`flex   `}
-            key={token.id + 'pool_page_stable_pool'}
+            key={token.id + 'pool_page_stable_pool' + i}
             onMouseEnter={() => {
               setChartActiveToken && setChartActiveToken(token.id);
             }}

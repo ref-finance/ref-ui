@@ -8,6 +8,7 @@ import React, {
 import { Card } from 'src/components/card/Card';
 import Alert from 'src/components/alert/Alert';
 import Modal from 'react-modal';
+import Big from 'big.js';
 
 import {
   ConnectToNearBtn,
@@ -119,6 +120,8 @@ import {
   ShadowInBurrowAmount,
 } from 'src/components/pool/PoolShare';
 
+import { FeeTipV1 } from '../../components/pool/FeeTip';
+import { useLpLocker } from '../../state/lpLocker';
 const is_mobile = isMobile();
 const { BLACK_TOKEN_LIST } = getConfig();
 export const StakeListContext = createContext(null);
@@ -1119,7 +1122,7 @@ function MyShares({
 }) {
   if (!shares || !totalShares) return <div>-</div>;
 
-  let sharePercent = percent(userTotalShare.valueOf(), totalShares);
+  const sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
@@ -1197,7 +1200,8 @@ function PoolRow(props: {
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
   const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
-  const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
+  const LpLocked = useLpLocker(`:${poolId}`);
+  const userTotalShare = BigNumber.sum(shares, farmStakeTotal, LpLocked);
 
   const userTotalShareToString = userTotalShare
     .toNumber()
@@ -1344,7 +1348,6 @@ function PoolRow(props: {
     const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
-
   return (
     <>
       {/* PC */}
@@ -1404,6 +1407,7 @@ function PoolRow(props: {
                 pool,
                 lptAmount,
                 shares,
+                LpLocked,
               }}
             />
           </div>
@@ -2582,7 +2586,7 @@ export function YourLiquidityAddLiquidityModal(
                   </GradientButton>
                 </div>
               ) : null}
-
+              <FeeTipV1 />
               <ButtonRender />
               <BLACKTip className="mt-2" show={disabled_add} />
             </div>

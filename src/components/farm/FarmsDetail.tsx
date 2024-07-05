@@ -106,6 +106,7 @@ import getConfigV2 from 'src/services/configV2';
 import LPTip from './LPTip';
 import ShadowTip from './ShadowTip';
 const configV2 = getConfigV2();
+import { FeeTipV1 } from 'src/components/pool/FeeTip';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -1925,7 +1926,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             </label>
           </div>
         ) : null}
-
+        <FeeTipV1 />
         <ButtonRender />
       </div>
       <div

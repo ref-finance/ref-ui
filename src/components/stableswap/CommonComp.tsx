@@ -101,6 +101,7 @@ export const TknImages = ({
             if (icon)
               return (
                 <div
+                  key={token?.id + index}
                   className={`inline-block flex-shrink-0 ${
                     is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
                   }  h-${size || 10} w-${size || 10} rounded-full ${
@@ -390,13 +391,13 @@ export const StableTokens = ({
   };
   function add_to_watchlist_tip() {
     const tip = intl.formatMessage({ id: 'add_to_watchlist' });
-    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
 
   function remove_from_watchlist_tip() {
     const tip = intl.formatMessage({ id: 'remove_from_watchlist' });
-    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
   const isMobile = isClientMobie();

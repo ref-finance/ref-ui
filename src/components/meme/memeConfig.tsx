@@ -178,6 +178,10 @@ export function getMemeContractConfig(
           'memefarm-xref-bean.ref-labs.near',
           'memefarm-xref-shitzu.ref-labs.near',
           'memefarm-xref-neko.ref-labs.near',
+          'memefarm-xref-marmaj.ref-labs.near',
+          'memefarm-xref-baby.ref-labs.near',
+          'memefarm-xref-hat.ref-labs.near',
+          'memefarm-xref-intel.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -193,6 +197,10 @@ export function getMemeContractConfig(
           'bean.tkn.near': 'memefarm-xref-bean.ref-labs.near',
           'token.0xshitzu.near': 'memefarm-xref-shitzu.ref-labs.near',
           'ftv2.nekotoken.near': 'memefarm-xref-neko.ref-labs.near',
+          'marmaj.tkn.near': 'memefarm-xref-marmaj.ref-labs.near',
+          'babyblackdragon.tkn.near': 'memefarm-xref-baby.ref-labs.near',
+          'hat.tkn.near': 'memefarm-xref-hat.ref-labs.near',
+          'intel.tkn.near': 'memefarm-xref-intel.ref-labs.near',
         },
       };
     case 'pub-testnet':
@@ -256,6 +264,10 @@ export function getMemeContractConfig(
           'memefarm-xref-bean.ref-labs.near',
           'memefarm-xref-shitzu.ref-labs.near',
           'memefarm-xref-neko.ref-labs.near',
+          'memefarm-xref-marmaj.ref-labs.near',
+          'memefarm-xref-baby.ref-labs.near',
+          'memefarm-xref-hat.ref-labs.near',
+          'memefarm-xref-intel.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -271,6 +283,10 @@ export function getMemeContractConfig(
           'bean.tkn.near': 'memefarm-xref-bean.ref-labs.near',
           'token.0xshitzu.near': 'memefarm-xref-shitzu.ref-labs.near',
           'ftv2.nekotoken.near': 'memefarm-xref-neko.ref-labs.near',
+          'marmaj.tkn.near': 'memefarm-xref-marmaj.ref-labs.near',
+          'babyblackdragon.tkn.near': 'memefarm-xref-baby.ref-labs.near',
+          'hat.tkn.near': 'memefarm-xref-hat.ref-labs.near',
+          'intel.tkn.near': 'memefarm-xref-intel.ref-labs.near',
         },
       };
   }
@@ -307,12 +323,19 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet',
         'shitzu.fakes.testnet',
       ],
+      meme_nonListed_tokens: ['uwon.fakes.testnet', 'sgpt.fakes.testnet'],
       pie_color: {
         'lonk.fakes.testnet': '#38D999',
         'neko.fakes.testnet': '#EBB200',
         'blackdragon.fakes.testnet': '#FEF9D7',
         'shitzu.fakes.testnet': '#41A14C',
       },
+      meme_cap_tokens: [
+        'lonk.fakes.testnet',
+        'neko.fakes.testnet',
+        'blackdragon.fakes.testnet',
+        'shitzu.fakes.testnet',
+      ],
     };
   } else if (env == 'testnet') {
     return {
@@ -344,12 +367,19 @@ export function getMemeDataConfig(): any {
         'blackdragon.fakes.testnet',
         'shitzu.fakes.testnet',
       ],
+      meme_nonListed_tokens: ['uwon.fakes.testnet', 'sgpt.fakes.testnet'],
       pie_color: {
         'lonk.fakes.testnet': '#38D999',
         'neko.fakes.testnet': '#EBB200',
         'blackdragon.fakes.testnet': '#FEF9D7',
         'shitzu.fakes.testnet': '#41A14C',
       },
+      meme_cap_tokens: [
+        'lonk.fakes.testnet',
+        'neko.fakes.testnet',
+        'blackdragon.fakes.testnet',
+        'shitzu.fakes.testnet',
+      ],
     };
   } else {
     return {
@@ -370,6 +400,8 @@ export function getMemeDataConfig(): any {
         'token.0xshitzu.near': '4369',
         'nkok.tkn.near': '4820',
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near': '4528',
+        'touched.tkn.near': '4771',
+        'usmeme.tg': '4949',
       },
       token_icon: {
         'ftv2.nekotoken.near':
@@ -380,9 +412,21 @@ export function getMemeDataConfig(): any {
       meme_winner_tokens: [
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
-        'nkok.tkn.near',
+        'usmeme.tg',
+        'touched.tkn.near',
         'token.0xshitzu.near',
+      ],
+      meme_nonListed_tokens: [
+        'gear.enleap.near',
+        'nkok.tkn.near',
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
+        'nearnvidia.near',
+        'bean.tkn.near',
+        'ftv2.nekotoken.near',
+        'marmaj.tkn.near',
+        'babyblackdragon.tkn.near',
+        'hat.tkn.near',
+        'intel.tkn.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',
@@ -397,7 +441,18 @@ export function getMemeDataConfig(): any {
         'bean.tkn.near': '#984D2E',
         'token.0xshitzu.near': '#50ED99',
         'ftv2.nekotoken.near': '#FFFFFF',
+        'marmaj.tkn.near': '#92D5EC',
+        'babyblackdragon.tkn.near': '#FF8F00',
+        'hat.tkn.near': '#F7AE07',
+        'intel.tkn.near': '#2C3D4C',
       },
+      meme_cap_tokens: [
+        'token.lonkingnearbackto2024.near',
+        'blackdragon.tkn.near',
+        'usmeme.tg',
+        'touched.tkn.near',
+        'token.0xshitzu.near',
+      ],
     };
   }
 }

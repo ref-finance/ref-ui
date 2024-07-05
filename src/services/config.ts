@@ -140,16 +140,21 @@ export default function getConfig(
     case 'production':
     case 'mainnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://api.ref.finance',
+        // indexerUrl: 'https://apiself.cclp.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
+        memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -166,6 +171,7 @@ export default function getConfig(
         USDTe_TOKEN_ID:
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
         XREF_TOKEN_ID: 'xtoken.ref-finance.near',
+        BRRR_TOKEN_ID: 'token.burrow.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
@@ -304,19 +310,24 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
       };
     case 'pub-testnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -331,6 +342,7 @@ export default function getConfig(
         USDT_TOKEN_ID: 'usdtt.fakes.testnet',
         USDCe_TOKEN_ID: 'usdc.fakes.testnet',
         USDTe_TOKEN_ID: 'usdt.fakes.testnet',
+        BRRR_TOKEN_ID: 'brrr.ft.ref-labs.testnet',
         XREF_TOKEN_ID: 'xref.ref-finance.testnet',
         REF_VE_CONTRACT_ID: 'v010.refve.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
@@ -401,19 +413,24 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
       };
     case 'testnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -429,6 +446,7 @@ export default function getConfig(
         USDT_TOKEN_ID: 'usdtt.fakes.testnet',
         USDCe_TOKEN_ID: 'usdc.fakes.testnet',
         USDTe_TOKEN_ID: 'usdt.fakes.testnet',
+        BRRR_TOKEN_ID: '',
         XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
@@ -498,19 +516,25 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.testnet',
       };
     default:
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://api.ref.finance',
+        // indexerUrl: 'https://apiself.cclp.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
+        memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -526,6 +550,7 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
         USDTe_TOKEN_ID:
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+        BRRR_TOKEN_ID: 'token.burrow.near',
         XREF_TOKEN_ID: 'xtoken.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
@@ -665,6 +690,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
       };
   }
 }

@@ -32,6 +32,10 @@ import { useDclPoolIdByCondition } from '../state/swapV3';
 import { useUserBlackAssetStore } from '../stores/userBlackAsset';
 import getConfig from '../services/config';
 import BLACKTip from '../components/pool/BLACKTip';
+import OrderlyAirDropPop from '../components/orderlyAirdrop/index';
+import OrderlyAirDropPopMobile from '../components/orderlyAirdropMobile/index';
+import { useOrderlyGuidePopStore } from '../stores/orderlyGuidePop';
+import { isMobile } from 'src/utils/device';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -207,11 +211,12 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
       refTokens.push(tk);
     }
   });
-
   return refTokens;
 }
 
 function SwapPage() {
+  const orderlyGuidePopStore: any = useOrderlyGuidePopStore();
+
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenInAmountInput, setTokenInAmountInput] = useState<string>('1');
 
@@ -335,7 +340,6 @@ function SwapPage() {
   const crossSwapTokens = allTokens.filter(
     (token) => token.onTri || token.onRef
   );
-
   const SwapNav = (
     <ChangeSwapMode
       setLimitTokenTrigger={setLimitTokenTrigger}
@@ -347,150 +351,154 @@ function SwapPage() {
     />
   );
   return (
-    <SwapProContext.Provider
-      value={{
-        trades,
-        setTrades,
-        enableTri,
-        setEnableTri: changeEnableTri,
-        swapMode,
-        changeSwapType,
-        swapType,
-        selectMarket,
-        setSelectMarket,
-        forceEstimatePro,
-        setForceEstimatePro,
-        proTab,
-        setProTab,
-        dcl_pool_id,
-      }}
-    >
-      <div className="frsc xsm:flex   xsm:flex-col-reverse">
-        {swapType === SWAP_TYPE.Pro && (
-          <div
-            className="lg:w-full  mr-8 xsm:w-95vw xsm:mx-auto xsm:overflow-x-hidden"
-            style={{
-              maxWidth: '850px',
-            }}
-          >
-            {(swapMode === SWAP_MODE.NORMAL ||
-              (SWAP_MODE.LIMIT && dcl_pool_id && proTab == 'PRICE')) && (
-              <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
-            )}
-            {dcl_pool_id &&
-              proTab == 'ORDER' &&
-              swapMode === SWAP_MODE.LIMIT && (
-                <SwapLimitOrderChart></SwapLimitOrderChart>
+    <>
+      <SwapProContext.Provider
+        value={{
+          trades,
+          setTrades,
+          enableTri,
+          setEnableTri: changeEnableTri,
+          swapMode,
+          changeSwapType,
+          swapType,
+          selectMarket,
+          setSelectMarket,
+          forceEstimatePro,
+          setForceEstimatePro,
+          proTab,
+          setProTab,
+          dcl_pool_id,
+        }}
+      >
+        <div className="frsc xsm:flex   xsm:flex-col-reverse">
+          {swapType === SWAP_TYPE.Pro && (
+            <div
+              className="lg:w-full  mr-8 xsm:w-95vw xsm:mx-auto xsm:overflow-x-hidden"
+              style={{
+                maxWidth: '850px',
+              }}
+            >
+              {(swapMode === SWAP_MODE.NORMAL ||
+                (SWAP_MODE.LIMIT && dcl_pool_id && proTab == 'PRICE')) && (
+                <SwapRateChart tokenIn={tokenIn} tokenOut={tokenOut} />
               )}
-            {swapMode === SWAP_MODE.NORMAL ? (
-              <>
+              {dcl_pool_id &&
+                proTab == 'ORDER' &&
+                swapMode === SWAP_MODE.LIMIT && (
+                  <SwapLimitOrderChart></SwapLimitOrderChart>
+                )}
+              {swapMode === SWAP_MODE.NORMAL ? (
+                <>
+                  <div
+                    className="text-primaryText xsm:text-white xsm:text-base mt-8 mb-4 font-gothamBold"
+                    id="swap_pro_trade_route"
+                  >
+                    <FormattedMessage
+                      id="your_trade_route"
+                      defaultMessage={`Your trade route`}
+                    />
+                  </div>
+
+                  <TradeRoute
+                    trade={trades?.[selectMarket]}
+                    tokenIn={tokenIn}
+                    tokenOut={tokenOut}
+                  />
+                </>
+              ) : (
                 <div
-                  className="text-primaryText xsm:text-white xsm:text-base mt-8 mb-4 font-gothamBold"
-                  id="swap_pro_trade_route"
+                  className="lg:bg-portfolioBgColor  my-5 py-2 xsm:px-0 px-4 rounded-xl text-v3SwapGray xsm:text-limitOrderInputColor"
+                  style={{
+                    border: isMobile ? '' : '1px solid #00463A',
+
+                    fontSize: '13px',
+                  }}
                 >
                   <FormattedMessage
-                    id="your_trade_route"
-                    defaultMessage={`Your trade route`}
+                    id="new_swap_order_tip"
+                    defaultMessage={
+                      'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. '
+                    }
                   />
                 </div>
-
-                <TradeRoute
-                  trade={trades?.[selectMarket]}
-                  tokenIn={tokenIn}
-                  tokenOut={tokenOut}
-                />
-              </>
-            ) : (
-              <div
-                className="lg:bg-portfolioBgColor  my-5 py-2 xsm:px-0 px-4 rounded-xl text-v3SwapGray xsm:text-limitOrderInputColor"
-                style={{
-                  border: isMobile ? '' : '1px solid #00463A',
-
-                  fontSize: '13px',
-                }}
-              >
-                <FormattedMessage
-                  id="new_swap_order_tip"
-                  defaultMessage={
-                    'The price is from the Ref AMM offer and for reference only. There is no guarente that your limit order will be immediately filled. '
-                  }
-                />
-              </div>
-            )}
-
-            {swapMode === SWAP_MODE.NORMAL &&
-              trades &&
-              trades?.[selectMarket] && (
-                <MarketList
-                  trade={trades[selectMarket]}
-                  allTrades={trades}
-                  selectMarket={selectMarket}
-                  tokenIn={tokenIn}
-                  tokenOut={tokenOut}
-                />
               )}
 
-            {isSignedIn && swapMode === SWAP_MODE.LIMIT && <MyOrderComponent />}
-          </div>
-        )}
-        {isMobile && swapMode === SWAP_MODE.NORMAL && (
-          <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
-            <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
-          </div>
-        )}
-        <div className="swapContainer xsm:w-95vw xsm:mx-auto">
-          <section className={`lg:w-480px  relative`}>
-            {swapMode === SWAP_MODE.NORMAL && (
-              <SwapCard
-                allTokens={crossSwapTokens}
-                swapMode={swapMode}
-                tokenIn={tokenIn}
-                setTokenIn={setTokenIn}
-                tokenOut={tokenOut}
-                setTokenOut={setTokenOut}
-                tokenInAmount={tokenInAmount}
-                setTokenInAmount={setTokenInAmount}
-                tokenInAmountInput={tokenInAmountInput}
-                setTokenInAmountInput={setTokenInAmountInput}
-                swapTab={SwapNav}
-                globalWhiteListTokens={globalWhiteListTokens}
-              />
-            )}
-            {swapMode === SWAP_MODE.LIMIT && (
-              <LimitOrderCard
-                allTokens={crossSwapTokens}
-                swapMode={swapMode}
-                tokenInAmount={tokenInAmount}
-                setTokenInAmount={setTokenInAmount}
-                limitTokenTrigger={limitTokenTrigger}
-                tokenIn={tokenIn}
-                setTokenIn={setTokenIn}
-                tokenOut={tokenOut}
-                setTokenOut={setTokenOut}
-                swapTab={SwapNav}
-                globalWhiteListTokens={globalWhiteListTokens}
-              />
-            )}
-          </section>
-          {!isMobile && (
-            <div className="lg:w-480px  text-white mt-5">
-              <AdSwiper />
+              {swapMode === SWAP_MODE.NORMAL &&
+                trades &&
+                trades?.[selectMarket] && (
+                  <MarketList
+                    trade={trades[selectMarket]}
+                    allTrades={trades}
+                    selectMarket={selectMarket}
+                    tokenIn={tokenIn}
+                    tokenOut={tokenOut}
+                  />
+                )}
+
+              {isSignedIn && swapMode === SWAP_MODE.LIMIT && (
+                <MyOrderComponent />
+              )}
             </div>
           )}
-          {!isMobile && swapMode === SWAP_MODE.NORMAL && (
-            <div className="lg:w-480px  text-white mt-5">
+          {isMobile && swapMode === SWAP_MODE.NORMAL && (
+            <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
               <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
             </div>
           )}
+          <div className="swapContainer xsm:w-95vw xsm:mx-auto">
+            <section className={`lg:w-480px  relative`}>
+              {swapMode === SWAP_MODE.NORMAL && (
+                <SwapCard
+                  allTokens={crossSwapTokens}
+                  swapMode={swapMode}
+                  tokenIn={tokenIn}
+                  setTokenIn={setTokenIn}
+                  tokenOut={tokenOut}
+                  setTokenOut={setTokenOut}
+                  tokenInAmount={tokenInAmount}
+                  setTokenInAmount={setTokenInAmount}
+                  tokenInAmountInput={tokenInAmountInput}
+                  setTokenInAmountInput={setTokenInAmountInput}
+                  swapTab={SwapNav}
+                  globalWhiteListTokens={globalWhiteListTokens}
+                />
+              )}
+              {swapMode === SWAP_MODE.LIMIT && (
+                <LimitOrderCard
+                  allTokens={crossSwapTokens}
+                  swapMode={swapMode}
+                  tokenInAmount={tokenInAmount}
+                  setTokenInAmount={setTokenInAmount}
+                  limitTokenTrigger={limitTokenTrigger}
+                  tokenIn={tokenIn}
+                  setTokenIn={setTokenIn}
+                  tokenOut={tokenOut}
+                  setTokenOut={setTokenOut}
+                  swapTab={SwapNav}
+                  globalWhiteListTokens={globalWhiteListTokens}
+                />
+              )}
+            </section>
+            {!isMobile && (
+              <div className="lg:w-480px  text-white mt-5">
+                <AdSwiper />
+              </div>
+            )}
+            {!isMobile && swapMode === SWAP_MODE.NORMAL && (
+              <div className="lg:w-480px  text-white mt-5">
+                <BLACKTip show={userBlackAssetStore.getHasBlackAsset()} />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {isMobile && (
-        <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
-          <AdSwiper />
-        </div>
-      )}
-    </SwapProContext.Provider>
+        {isMobile && (
+          <div className="lg:w-480px xsm:mx-3  m-auto relative text-white mt-5">
+            <AdSwiper />
+          </div>
+        )}
+      </SwapProContext.Provider>
+    </>
   );
 }
 

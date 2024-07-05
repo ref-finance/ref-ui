@@ -5,6 +5,7 @@ import React, {
   createContext,
   useMemo,
   Fragment,
+  useRef,
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
@@ -83,6 +84,11 @@ import _ from 'lodash';
 import { HistoryOrderSwapInfo, getTxId } from '../../../../services/indexer';
 import { useDclPoolIdByCondition } from '../../../../state/swapV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import {
+  NearblocksIcon,
+  PikespeakIcon,
+  TxLeftArrow,
+} from 'src/components/icon/Pool';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -140,27 +146,44 @@ function HistoryLine({
   hoverOn: number;
   setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const handleTxClick = async () => {
-    if (orderTx) {
-      setIsLoading(true);
-      try {
-        const data = await getTxId(orderTx);
-        if (data && data.receipts && data.receipts.length > 0) {
-          const txHash = data.receipts[0].originated_from_transaction_hash;
-          window.open(
-            `${getConfig().explorerUrl}/txns/${txHash}`,
-            '_blank',
-            'noopener,noreferrer'
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching txId:', error);
-      } finally {
-        setIsLoading(false);
-      }
+  const [loadingStates, setLoadingStates] = useState({});
+  const [hoveredTx, setHoveredTx] = useState(null);
+  const closeTimeoutRef = useRef(null);
+
+  const handleMouseEnter = (receipt_id) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
     }
+    setHoveredTx(receipt_id);
   };
+
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredTx(null);
+    }, 200);
+  };
+
+  async function handleTxClick(receipt_id, url) {
+    setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
+    try {
+      const data = await getTxId(receipt_id);
+      if (data && data.receipts && data.receipts.length > 0) {
+        const txHash = data.receipts[0].originated_from_transaction_hash;
+        window.open(`${url}/${txHash}`, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error) {
+      console.error(
+        'An error occurred while fetching transaction data:',
+        error
+      );
+    } finally {
+      setLoadingStates((prevStates) => ({
+        ...prevStates,
+        [receipt_id]: false,
+      }));
+    }
+  }
   const intl = useIntl();
   const buyToken = tokensMap[order.buy_token];
   const sellToken = tokensMap[order.sell_token];
@@ -527,28 +550,96 @@ function HistoryLine({
         )}
       </span>
 
-      {!!orderTx && (
-        <a
-          className="flex items-center text-v3SwapGray cursor-pointer"
-          onClick={handleTxClick}
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-        >
-          {isLoading ? (
-            <>
-              Tx
-              <span className="loading-dots"></span>
-            </>
-          ) : (
-            <>
-              Tx
-              <span className="ml-1.5">
-                <HiOutlineExternalLink />
-              </span>
-            </>
-          )}
-        </a>
-      )}
+      <div className="relative">
+        {!!orderTx && (
+          <a
+            className="flex items-center text-v3SwapGray cursor-pointer"
+            onMouseEnter={() => handleMouseEnter(orderTx)}
+            onMouseLeave={handleMouseLeave}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+          >
+            {loadingStates[orderTx] ? (
+              <>
+                Tx
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                Tx
+                <span className="ml-1.5">
+                  <HiOutlineExternalLink />
+                </span>
+              </>
+            )}
+            {hoveredTx === orderTx && (
+              <div className="w-44 absolute top-6 left-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg z-50">
+                <div className="flex flex-col">
+                  <div
+                    className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(orderTx, `${getConfig().explorerUrl}/txns`)
+                    }
+                  >
+                    <NearblocksIcon />
+                    <p className="ml-2 text-sm">nearblocks</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                  <div
+                    className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        orderTx,
+                        `${getConfig().pikespeakUrl}/transaction-viewer`
+                      )
+                    }
+                  >
+                    <PikespeakIcon />
+                    <p className="ml-2 text-sm">Pikespeak...</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </a>
+        )}
+      </div>
     </div>
   );
 
@@ -841,28 +932,105 @@ function HistoryLine({
         {/* title */}
         <div className="rounded-t-xl relative bg-orderMobileTop px-3 pt-3">
           <div className="absolute right-4 bottom-2.5 z-50  text-xs">
-            {!!orderTx && (
-              <a
-                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
-                onClick={handleTxClick}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-              >
-                {isLoading ? (
-                  <>
-                    Tx
-                    <span className="loading-dots"></span>
-                  </>
-                ) : (
-                  <>
-                    <span className="mr-1.5">
-                      <HiOutlineExternalLink></HiOutlineExternalLink>
-                    </span>
-                    Tx
-                  </>
-                )}
-              </a>
-            )}
+            <div className="relative">
+              {!!orderTx && (
+                <a
+                  className="flex items-center text-v3SwapGray cursor-pointer"
+                  onMouseEnter={() => handleMouseEnter(orderTx)}
+                  onMouseLeave={handleMouseLeave}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                >
+                  {loadingStates[orderTx] ? (
+                    <>
+                      Tx
+                      <span className="loading-dots"></span>
+                    </>
+                  ) : (
+                    <>
+                      Tx
+                      <span className="ml-1.5">
+                        <HiOutlineExternalLink />
+                      </span>
+                    </>
+                  )}
+                  {hoveredTx === orderTx && (
+                    <div className="w-44 absolute top-6 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg z-50">
+                      <div className="flex flex-col">
+                        <div
+                          className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                          onMouseEnter={(e) => {
+                            const arrow = e.currentTarget.querySelector(
+                              '.arrow'
+                            ) as HTMLElement;
+                            if (arrow) {
+                              arrow.style.display = 'block';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            const arrow = e.currentTarget.querySelector(
+                              '.arrow'
+                            ) as HTMLElement;
+                            if (arrow) {
+                              arrow.style.display = 'none';
+                            }
+                          }}
+                          onClick={() =>
+                            handleTxClick(
+                              orderTx,
+                              `${getConfig().explorerUrl}/txns`
+                            )
+                          }
+                        >
+                          <NearblocksIcon />
+                          <p className="ml-2 text-sm">nearblocks</p>
+                          <div
+                            className="ml-3 arrow"
+                            style={{ display: 'none' }}
+                          >
+                            <TxLeftArrow />
+                          </div>
+                        </div>
+                        <div
+                          className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                          onMouseEnter={(e) => {
+                            const arrow = e.currentTarget.querySelector(
+                              '.arrow'
+                            ) as HTMLElement;
+                            if (arrow) {
+                              arrow.style.display = 'block';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            const arrow = e.currentTarget.querySelector(
+                              '.arrow'
+                            ) as HTMLElement;
+                            if (arrow) {
+                              arrow.style.display = 'none';
+                            }
+                          }}
+                          onClick={() =>
+                            handleTxClick(
+                              orderTx,
+                              `${getConfig().pikespeakUrl}/transaction-viewer`
+                            )
+                          }
+                        >
+                          <PikespeakIcon />
+                          <p className="ml-2 text-sm">Pikespeak...</p>
+                          <div
+                            className="ml-3 arrow"
+                            style={{ display: 'none' }}
+                          >
+                            <TxLeftArrow />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </a>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center relative justify-between">
@@ -931,27 +1099,44 @@ function HistorySwapInfoLine({
   hoverOn: number;
   setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const handleTxClick = async () => {
-    if (orderTx) {
-      setIsLoading(true);
-      try {
-        const data = await getTxId(orderTx);
-        if (data && data.receipts && data.receipts.length > 0) {
-          const txHash = data.receipts[0].originated_from_transaction_hash;
-          window.open(
-            `${getConfig().explorerUrl}/txns/${txHash}`,
-            '_blank',
-            'noopener,noreferrer'
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching txId:', error);
-      } finally {
-        setIsLoading(false);
-      }
+  const [loadingStates, setLoadingStates] = useState({});
+  const [hoveredTx, setHoveredTx] = useState(null);
+  const closeTimeoutRef = useRef(null);
+
+  const handleMouseEnter = (receipt_id) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
     }
+    setHoveredTx(receipt_id);
   };
+
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredTx(null);
+    }, 200);
+  };
+
+  async function handleTxClick(receipt_id, url) {
+    setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
+    try {
+      const data = await getTxId(receipt_id);
+      if (data && data.receipts && data.receipts.length > 0) {
+        const txHash = data.receipts[0].originated_from_transaction_hash;
+        window.open(`${url}/${txHash}`, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error) {
+      console.error(
+        'An error occurred while fetching transaction data:',
+        error
+      );
+    } finally {
+      setLoadingStates((prevStates) => ({
+        ...prevStates,
+        [receipt_id]: false,
+      }));
+    }
+  }
   const intl = useIntl();
 
   const buyToken = tokensMap[token_out];
@@ -1105,28 +1290,96 @@ function HistorySwapInfoLine({
       <span className="flex items-center text-sm text-white whitespace-nowrap">
         {<FormattedMessage id="executed" defaultMessage={'Executed'} />}
       </span>
-      {!!orderTx && (
-        <a
-          className="flex items-center text-v3SwapGray cursor-pointer"
-          onClick={handleTxClick}
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-        >
-          {isLoading ? (
-            <>
-              Tx
-              <span className="loading-dots"></span>
-            </>
-          ) : (
-            <>
-              Tx
-              <span className="ml-1.5">
-                <HiOutlineExternalLink></HiOutlineExternalLink>
-              </span>
-            </>
-          )}
-        </a>
-      )}
+      <div className="relative">
+        {!!orderTx && (
+          <a
+            className="flex items-center text-v3SwapGray cursor-pointer"
+            onMouseEnter={() => handleMouseEnter(orderTx)}
+            onMouseLeave={handleMouseLeave}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+          >
+            {loadingStates[orderTx] ? (
+              <>
+                Tx
+                <span className="loading-dots"></span>
+              </>
+            ) : (
+              <>
+                Tx
+                <span className="ml-1.5">
+                  <HiOutlineExternalLink />
+                </span>
+              </>
+            )}
+            {hoveredTx === orderTx && (
+              <div className="w-44 absolute top-6 left-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg z-50">
+                <div className="flex flex-col">
+                  <div
+                    className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(orderTx, `${getConfig().explorerUrl}/txns`)
+                    }
+                  >
+                    <NearblocksIcon />
+                    <p className="ml-2 text-sm">nearblocks</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                  <div
+                    className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                    onMouseEnter={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'block';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const arrow = e.currentTarget.querySelector(
+                        '.arrow'
+                      ) as HTMLElement;
+                      if (arrow) {
+                        arrow.style.display = 'none';
+                      }
+                    }}
+                    onClick={() =>
+                      handleTxClick(
+                        orderTx,
+                        `${getConfig().pikespeakUrl}/transaction-viewer`
+                      )
+                    }
+                  >
+                    <PikespeakIcon />
+                    <p className="ml-2 text-sm">Pikespeak...</p>
+                    <div className="ml-3 arrow" style={{ display: 'none' }}>
+                      <TxLeftArrow />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </a>
+        )}
+      </div>
     </div>
   );
 
@@ -1188,28 +1441,105 @@ function HistorySwapInfoLine({
           {created}
 
           <div className="absolute right-4 bottom-2.5 z-50  text-xs">
-            {!!orderTx && (
-              <a
-                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
-                onClick={handleTxClick}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-              >
-                {isLoading ? (
-                  <>
-                    Tx
-                    <span className="loading-dots"></span>
-                  </>
-                ) : (
-                  <>
-                    <span className="mr-1.5">
-                      <HiOutlineExternalLink></HiOutlineExternalLink>
-                    </span>
-                    Tx
-                  </>
-                )}
-              </a>
-            )}
+            <div className="relative">
+              {!!orderTx && (
+                <a
+                  className="flex items-center text-v3SwapGray cursor-pointer"
+                  onMouseEnter={() => handleMouseEnter(orderTx)}
+                  onMouseLeave={handleMouseLeave}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                >
+                  {loadingStates[orderTx] ? (
+                    <>
+                      Tx
+                      <span className="loading-dots"></span>
+                    </>
+                  ) : (
+                    <>
+                      Tx
+                      <span className="ml-1.5">
+                        <HiOutlineExternalLink />
+                      </span>
+                    </>
+                  )}
+                  {hoveredTx === orderTx && (
+                    <div className="w-44 absolute top-6 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg z-50">
+                      <div className="flex flex-col">
+                        <div
+                          className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                          onMouseEnter={(e) => {
+                            const arrow = e.currentTarget.querySelector(
+                              '.arrow'
+                            ) as HTMLElement;
+                            if (arrow) {
+                              arrow.style.display = 'block';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            const arrow = e.currentTarget.querySelector(
+                              '.arrow'
+                            ) as HTMLElement;
+                            if (arrow) {
+                              arrow.style.display = 'none';
+                            }
+                          }}
+                          onClick={() =>
+                            handleTxClick(
+                              orderTx,
+                              `${getConfig().explorerUrl}/txns`
+                            )
+                          }
+                        >
+                          <NearblocksIcon />
+                          <p className="ml-2 text-sm">nearblocks</p>
+                          <div
+                            className="ml-3 arrow"
+                            style={{ display: 'none' }}
+                          >
+                            <TxLeftArrow />
+                          </div>
+                        </div>
+                        <div
+                          className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                          onMouseEnter={(e) => {
+                            const arrow = e.currentTarget.querySelector(
+                              '.arrow'
+                            ) as HTMLElement;
+                            if (arrow) {
+                              arrow.style.display = 'block';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            const arrow = e.currentTarget.querySelector(
+                              '.arrow'
+                            ) as HTMLElement;
+                            if (arrow) {
+                              arrow.style.display = 'none';
+                            }
+                          }}
+                          onClick={() =>
+                            handleTxClick(
+                              orderTx,
+                              `${getConfig().pikespeakUrl}/transaction-viewer`
+                            )
+                          }
+                        >
+                          <PikespeakIcon />
+                          <p className="ml-2 text-sm">Pikespeak...</p>
+                          <div
+                            className="ml-3 arrow"
+                            style={{ display: 'none' }}
+                          >
+                            <TxLeftArrow />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </a>
+              )}
+            </div>
           </div>
         </div>
         {/*  content */}
@@ -1257,27 +1587,44 @@ function ActiveLine({
   hoverOn: number;
   setHoverOn: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const handleTxClick = async () => {
-    if (orderTx) {
-      setIsLoading(true);
-      try {
-        const data = await getTxId(orderTx);
-        if (data && data.receipts && data.receipts.length > 0) {
-          const txHash = data.receipts[0].originated_from_transaction_hash;
-          window.open(
-            `${getConfig().explorerUrl}/txns/${txHash}`,
-            '_blank',
-            'noopener,noreferrer'
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching txId:', error);
-      } finally {
-        setIsLoading(false);
-      }
+  const [loadingStates, setLoadingStates] = useState({});
+  const [hoveredTx, setHoveredTx] = useState(null);
+  const closeTimeoutRef = useRef(null);
+
+  const handleMouseEnter = (receipt_id) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
     }
+    setHoveredTx(receipt_id);
   };
+
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredTx(null);
+    }, 200);
+  };
+
+  async function handleTxClick(receipt_id, url) {
+    setLoadingStates((prevStates) => ({ ...prevStates, [receipt_id]: true }));
+    try {
+      const data = await getTxId(receipt_id);
+      if (data && data.receipts && data.receipts.length > 0) {
+        const txHash = data.receipts[0].originated_from_transaction_hash;
+        window.open(`${url}/${txHash}`, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error) {
+      console.error(
+        'An error occurred while fetching transaction data:',
+        error
+      );
+    } finally {
+      setLoadingStates((prevStates) => ({
+        ...prevStates,
+        [receipt_id]: false,
+      }));
+    }
+  }
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const intl = useIntl();
 
@@ -2099,15 +2446,16 @@ function ActiveLine({
           <tr className="relative bottom-6 rounded-b-xl bg-portfolioBarBgColor">
             <td colSpan={8} className="rounded-b-xl">
               <div className="frcb pb-3 py-6 px-4 text-xs">
-                <div className="frcs">
+                <div className="frcs relative">
                   {!!orderTx && (
                     <a
                       className="flex items-center text-v3SwapGray cursor-pointer"
-                      onClick={handleTxClick}
+                      onMouseEnter={() => handleMouseEnter(orderTx)}
+                      onMouseLeave={handleMouseLeave}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                     >
-                      {isLoading ? (
+                      {loadingStates[orderTx] ? (
                         <>
                           Tx
                           <span className="loading-dots"></span>
@@ -2119,6 +2467,82 @@ function ActiveLine({
                             <HiOutlineExternalLink />
                           </span>
                         </>
+                      )}
+                      {hoveredTx === orderTx && (
+                        <div className="w-44 absolute top-6 left-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg z-50">
+                          <div className="flex flex-col">
+                            <div
+                              className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                              onMouseEnter={(e) => {
+                                const arrow = e.currentTarget.querySelector(
+                                  '.arrow'
+                                ) as HTMLElement;
+                                if (arrow) {
+                                  arrow.style.display = 'block';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                const arrow = e.currentTarget.querySelector(
+                                  '.arrow'
+                                ) as HTMLElement;
+                                if (arrow) {
+                                  arrow.style.display = 'none';
+                                }
+                              }}
+                              onClick={() =>
+                                handleTxClick(
+                                  orderTx,
+                                  `${getConfig().explorerUrl}/txns`
+                                )
+                              }
+                            >
+                              <NearblocksIcon />
+                              <p className="ml-2 text-sm">nearblocks</p>
+                              <div
+                                className="ml-3 arrow"
+                                style={{ display: 'none' }}
+                              >
+                                <TxLeftArrow />
+                              </div>
+                            </div>
+                            <div
+                              className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                              onMouseEnter={(e) => {
+                                const arrow = e.currentTarget.querySelector(
+                                  '.arrow'
+                                ) as HTMLElement;
+                                if (arrow) {
+                                  arrow.style.display = 'block';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                const arrow = e.currentTarget.querySelector(
+                                  '.arrow'
+                                ) as HTMLElement;
+                                if (arrow) {
+                                  arrow.style.display = 'none';
+                                }
+                              }}
+                              onClick={() =>
+                                handleTxClick(
+                                  orderTx,
+                                  `${
+                                    getConfig().pikespeakUrl
+                                  }/transaction-viewer`
+                                )
+                              }
+                            >
+                              <PikespeakIcon />
+                              <p className="ml-2 text-sm">Pikespeak...</p>
+                              <div
+                                className="ml-3 arrow"
+                                style={{ display: 'none' }}
+                              >
+                                <TxLeftArrow />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       )}
                     </a>
                   )}
@@ -2156,23 +2580,92 @@ function ActiveLine({
           <div className="absolute right-4 bottom-2.5 z-50  text-xs">
             {!!orderTx && (
               <a
-                className="flex items-center bg-black text-primaryText px-1.5  bg-opacity-20 rounded cursor-pointer"
-                onClick={handleTxClick}
+                className="flex items-center text-v3SwapGray cursor-pointer"
+                onMouseEnter={() => handleMouseEnter(orderTx)}
+                onMouseLeave={handleMouseLeave}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
-                {isLoading ? (
+                {loadingStates[orderTx] ? (
                   <>
                     Tx
                     <span className="loading-dots"></span>
                   </>
                 ) : (
                   <>
-                    <span className="mr-1.5">
-                      <HiOutlineExternalLink></HiOutlineExternalLink>
-                    </span>
                     Tx
+                    <span className="ml-1.5">
+                      <HiOutlineExternalLink />
+                    </span>
                   </>
+                )}
+                {hoveredTx === orderTx && (
+                  <div className="w-44 absolute top-5 right-0 bg-poolDetaileTxBgColor border border-poolDetaileTxBorderColor rounded-lg p-2 shadow-lg z-50">
+                    <div className="flex flex-col">
+                      <div
+                        className="mb-2 px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                        onMouseEnter={(e) => {
+                          const arrow = e.currentTarget.querySelector(
+                            '.arrow'
+                          ) as HTMLElement;
+                          if (arrow) {
+                            arrow.style.display = 'block';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          const arrow = e.currentTarget.querySelector(
+                            '.arrow'
+                          ) as HTMLElement;
+                          if (arrow) {
+                            arrow.style.display = 'none';
+                          }
+                        }}
+                        onClick={() =>
+                          handleTxClick(
+                            orderTx,
+                            `${getConfig().explorerUrl}/txns`
+                          )
+                        }
+                      >
+                        <NearblocksIcon />
+                        <p className="ml-2 text-sm">nearblocks</p>
+                        <div className="ml-3 arrow" style={{ display: 'none' }}>
+                          <TxLeftArrow />
+                        </div>
+                      </div>
+                      <div
+                        className="px-3 py-2 hover:bg-poolDetaileTxHoverColor text-white rounded-md flex items-center"
+                        onMouseEnter={(e) => {
+                          const arrow = e.currentTarget.querySelector(
+                            '.arrow'
+                          ) as HTMLElement;
+                          if (arrow) {
+                            arrow.style.display = 'block';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          const arrow = e.currentTarget.querySelector(
+                            '.arrow'
+                          ) as HTMLElement;
+                          if (arrow) {
+                            arrow.style.display = 'none';
+                          }
+                        }}
+                        onClick={() =>
+                          handleTxClick(
+                            orderTx,
+                            `${getConfig().pikespeakUrl}/transaction-viewer`
+                          )
+                        }
+                      >
+                        <PikespeakIcon />
+                        <p className="ml-2 text-sm">Pikespeak...</p>
+                        <div className="ml-3 arrow" style={{ display: 'none' }}>
+                          <TxLeftArrow />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </a>
             )}

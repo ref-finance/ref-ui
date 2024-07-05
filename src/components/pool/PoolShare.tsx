@@ -1,4 +1,5 @@
 import { getVEPoolId } from 'src/pages/ReferendumPage';
+import Big from 'big.js';
 import getConfig from 'src/services/config';
 import { openUrl } from 'src/services/commonV3';
 import {
@@ -140,11 +141,12 @@ export const PoolShareYourLiquidityV1 = ({
   endedFarmV2,
   farmStakeV2,
   onlyEndedFarmV2,
-
   pool,
   lptAmount,
   shares,
-}) => {
+  LpLocked,
+}: any) => {
+  const lpDecimal = isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24;
   const isShadowPool = configV2.SUPPORT_SHADOW_POOL_IDS.includes(
     pool.id?.toString()
   );
@@ -175,6 +177,23 @@ export const PoolShareYourLiquidityV1 = ({
             farmVersion={'v2'}
           />
         )}
+        {Big(LpLocked).gt(0) ? (
+          <div>
+            <span>
+              {toPrecision(
+                toReadableNumber(
+                  lpDecimal,
+                  scientificNotationToString(LpLocked.toString())
+                ),
+                2
+              )}
+            </span>
+            <span className="mx-1">
+              <FormattedMessage id="in" defaultMessage={'in'} />
+            </span>
+            <span className="text-primaryText">Locked</span>
+          </div>
+        ) : null}
       </>
     );
   }

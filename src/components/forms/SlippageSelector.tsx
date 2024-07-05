@@ -217,7 +217,9 @@ export default function SlippageSelector({
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
   const trisDisbaled =
     selectedWalletId === 'near-snap' ||
-    selectedWalletId === 'near-mobile-wallet';
+    selectedWalletId === 'near-mobile-wallet' ||
+    selectedWalletId === 'okx-wallet' ||
+    selectedWalletId === 'mintbase-wallet';
   useEffect(() => {
     if (trisDisbaled) {
       setEnableTri(false);

@@ -1,3 +1,4 @@
+import Big from 'big.js';
 import {
   executeMultipleTransactions,
   LP_STORAGE_AMOUNT,
@@ -13,6 +14,7 @@ import {
   ftGetStorageBalance,
   TokenMetadata,
   native_usdc_has_upgrated,
+  tokenFtMetadata,
 } from './ft-contract';
 import {
   toNonDivisibleNumber,
@@ -23,11 +25,7 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import {
-  getTopPools,
-  getTopPoolsIndexer,
-  getTopPoolsIndexerRaw,
-} from '../services/indexer';
+import { getTopPools, getTopPoolsIndexerRaw } from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -61,6 +59,7 @@ import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { cacheAllDCLPools } from './swapV3';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 import getConfigV2 from '../services/configV2';
+import { DEFLATION_MARK } from '../utils/token';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 
 const explorerType = getExplorer();
@@ -122,6 +121,32 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   token0_ref_price: pool.token0_ref_price,
   pool_kind: pool?.pool_kind,
 });
+
+export const parsePoolNew = (pool: any, id?: number): any => {
+  return {
+    id: Number(id >= 0 ? id : pool.id),
+    tokenIds: pool.token_account_ids,
+    supplies: pool.amounts.reduce(
+      (acc: { [tokenId: string]: string }, amount: string, i: number) => {
+        acc[pool.token_account_ids[i]] = amount;
+        return acc;
+      },
+      {}
+    ),
+    fee: pool.total_fee,
+    shareSupply: pool.shares_total_supply,
+    tvl: pool.tvl,
+    token0_ref_price: pool.token0_ref_price,
+    pool_kind: pool?.pool_kind,
+    apy: pool.apy,
+    farm_apy: pool.farm_apy,
+    is_farm: pool.is_farm,
+    volume_24h: pool.volume_24h,
+    token_symbols: pool.token_symbols,
+    search_symbols: pool.token_symbols.join('-'),
+    top: pool.top,
+  };
+};
 
 export const getPools = async ({
   page = 1,
@@ -238,13 +263,13 @@ export const getCachedPoolsByTokenId = async ({
   token1Id: string;
   token2Id: string;
 }) => {
-  let normalItems = await db
+  const normalItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token1Id)
     .and((item) => item.token2Id === token2Id)
     .primaryKeys();
-  let reverseItems = await db
+  const reverseItems = await db
     .allPoolsTokens()
     .where('token1Id')
     .equals(token2Id)
@@ -487,7 +512,7 @@ export const getPoolsByTokensAurora = async ({
   ) {
     setLoadingData && setLoadingData(true);
 
-    let triPools = await getAllTriPools(
+    const triPools = await getAllTriPools(
       tokenIn && tokenOut
         ? [
             tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
@@ -752,9 +777,7 @@ export const addLiquidityToPool = async ({
   id,
   tokenAmounts,
 }: AddLiquidityToPoolOptions) => {
-  // const transactions:Transaction[] = []
-
-  const amounts = tokenAmounts.map(({ token, amount }) =>
+  let amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
 
@@ -762,7 +785,35 @@ export const addLiquidityToPool = async ({
     tokens: tokenAmounts.map(({ token, amount }) => token),
     amounts: tokenAmounts.map(({ token, amount }) => amount),
   });
-
+  // add deflation calc logic
+  const tknx_tokens = tokenAmounts
+    .map((item) => item.token)
+    .filter((token) => token.id.includes(DEFLATION_MARK));
+  if (tknx_tokens.length > 0) {
+    const pending = tknx_tokens.map((token) => tokenFtMetadata(token.id));
+    const tokenFtMetadatas = await Promise.all(pending);
+    const rate = tokenFtMetadatas.reduce((acc, cur, index) => {
+      const is_owner =
+        cur.owner_account_id == getCurrentWallet()?.wallet?.getAccountId();
+      return {
+        ...acc,
+        [tknx_tokens[index].id]: is_owner
+          ? 0
+          : (cur?.deflation_strategy?.fee_strategy?.SellFee?.fee_rate ?? 0) +
+            (cur?.deflation_strategy?.burn_strategy?.SellBurn?.burn_rate ?? 0),
+      };
+    }, {});
+    amounts = tokenAmounts.map(({ token, amount }) => {
+      const reforeAmount = toNonDivisibleNumber(token.decimals, amount);
+      let afterAmount = reforeAmount;
+      if (rate[token.id]) {
+        afterAmount = Big(1 - rate[token.id] / 1000000)
+          .mul(reforeAmount)
+          .toFixed(0);
+      }
+      return afterAmount;
+    });
+  }
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'add_liquidity',
@@ -804,7 +855,7 @@ export const predictLiquidityShares = async (
 ): Promise<string> => {
   return refFiViewFunction({
     methodName: 'predict_add_stable_liquidity',
-    args: { pool_id: pool_id, amounts },
+    args: { pool_id, amounts },
   });
 };
 
@@ -1176,7 +1227,6 @@ export const removeLiquidityByTokensFromStablePool = async ({
   unregister = false,
 }: RemoveLiquidityByTokensFromStablePoolOptions) => {
   const tokenIds = tokens.map((token) => token.id);
-
   const withDrawTransactions: Transaction[] = [];
 
   for (let i = 0; i < tokenIds.length; i++) {
@@ -1254,7 +1304,7 @@ export const removeLiquidityByTokensFromStablePool = async ({
   ];
   let need_split = false;
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
-  if (selectedWalletId == 'ledger') {
+  if (selectedWalletId == 'ledger' || selectedWalletId == 'mintbase-wallet') {
     need_split = true;
   }
   if (explorerType !== ExplorerType.Firefox && !need_split) {

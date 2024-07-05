@@ -97,6 +97,7 @@ interface SwapOptions {
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
   wrapOperation?: boolean;
   reEstimatingPro?: boolean;
+  tokenDeflationRateData?: Record<string, any>;
 }
 
 interface SwapV3Options {
@@ -397,6 +398,7 @@ export const useSwap = ({
   loadingPause,
   reEstimateTrigger,
   supportLedger,
+  tokenDeflationRateData,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -469,8 +471,8 @@ export const useSwap = ({
 
         return;
       }
-      setEstimating(true);
 
+      setEstimating(true);
       estimateSwap({
         tokenIn,
         tokenOut,
@@ -581,7 +583,7 @@ export const useSwap = ({
         ),
         tokenOut
       );
-
+    if (!tokenDeflationRateData) return;
     if (estimating && swapsToDo && !forceEstimate) return;
 
     if (valRes && !loadingTrigger && !forceEstimate) {
@@ -598,6 +600,7 @@ export const useSwap = ({
     reEstimateTrigger,
     enableTri,
     forceEstimate,
+    tokenDeflationRateData?.rate,
   ]);
 
   useEffect(() => {
@@ -616,12 +619,12 @@ export const useSwap = ({
         ),
         tokenOut
       );
-
+    if (!tokenDeflationRateData) return;
     if (estimating && swapsToDo && !forceEstimate) return;
 
     if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
     getEstimate();
-  }, [estimating]);
+  }, [estimating, tokenDeflationRateData?.rate]);
 
   useEffect(() => {
     setForceEstimate(true);
@@ -653,7 +656,9 @@ export const useSwap = ({
       slippageTolerance,
       swapsToDo,
       tokenIn,
-      amountIn: tokenInAmount,
+      amountIn: Big(tokenInAmount)
+        .div(Big(1).minus(tokenDeflationRateData?.rate || 0))
+        .toFixed(),
       tokenOut,
       swapMarket: 'ref',
     }).catch(setSwapError);
@@ -1495,10 +1500,10 @@ export const useRefSwap = ({
   reEstimateTrigger,
   supportLedger,
   loadingData,
+  tokenDeflationRateData,
 }: SwapOptions): ExchangeEstimate => {
   const {
     canSwap,
-    // tokenOutAmount,
     minAmountOut,
     swapError,
     makeSwap: makeSwapV1,
@@ -1522,6 +1527,7 @@ export const useRefSwap = ({
     swapMode,
     reEstimateTrigger,
     supportLedger,
+    tokenDeflationRateData,
   });
   const [estimateInAmount, tokenOutAmount] = estimateInOut;
 
@@ -1927,6 +1933,7 @@ export const useRefSwapPro = ({
   setReEstimateTrigger,
   setQuoting,
   quoting,
+  tokenDeflationRateData,
 }: SwapOptions & {
   setQuoting: (quoting: boolean) => void;
   quoting: boolean;
@@ -1940,7 +1947,6 @@ export const useRefSwapPro = ({
     selectMarket,
     swapType,
   } = useContext(SwapProContext);
-
   const resRef = useRefSwap({
     tokenIn,
     tokenInAmount,
@@ -1954,6 +1960,7 @@ export const useRefSwapPro = ({
     reEstimateTrigger,
     supportLedger,
     loadingData,
+    tokenDeflationRateData,
   });
 
   resRef.hasTriPool =
@@ -2004,9 +2011,6 @@ export const useRefSwapPro = ({
       };
 
       const tradeList = [resRef, resAurora];
-
-      //  reValidate trades
-
       let resValid = true;
 
       resValid =
@@ -2042,7 +2046,6 @@ export const useRefSwapPro = ({
         setReEstimateTrigger(!reEstimateTrigger);
         return;
       }
-
       setTrades(trades);
 
       const bestMarket = Object.keys(trades).reduce((a, b) => {
