@@ -48,7 +48,7 @@ import {
   StablePool,
 } from './pool';
 
-// import { stableSmart } from './smartRouteLogic';
+import { getAllPoolsFromCache } from './smartRouterFromServer';
 import {
   createSmartRouteLogicWorker,
   transformWorkerResult,
@@ -63,6 +63,8 @@ import {
 import {
   IEstimateSwapServerView,
   estimateSwapFromServer,
+  getUsedPools,
+  getUsedTokens,
 } from './smartRouterFromServer';
 
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
@@ -321,44 +323,6 @@ export const estimateSwapFlow = async ({
 
   //@ts-ignore
   if (tokenFlow?.data === null || tokenFlow === null) throwNoPoolError();
-
-  // const res = await Promise.all(
-  //   tokenFlow
-  //     .map((flow) => {
-  //       return flow.pool_ids.map(async (pool_id, i) => {
-  //         const pool = isStablePool(pool_id)
-  //           ? (await getStablePoolFromCache(pool_id.toString()))[0]
-  //           : await db
-  //               .queryTopPoolsByIds({
-  //                 poolIds: [pool_id],
-  //               })
-  //               .then((pools) => pools?.[0]);
-
-  //         return {
-  //           estimate:
-  //             i === flow.pool_ids.length - 1
-  //               ? new Big(flow.amount).toFixed(tokenOut.decimals)
-  //               : '',
-  //           inputToken: flow.all_tokens[i],
-  //           outputToken: flow.all_tokens[i + 1],
-  //           tokens: await Promise.all(
-  //             flow.all_tokens.map((t) => ftGetTokenMetadata(t))
-  //           ),
-  //           percent: flow.swap_ratio.toString(),
-  //           partialAmountIn:
-  //             i === 0
-  //               ? new Big(parsedAmountIn)
-  //                   .mul(new Big(flow.swap_ratio))
-  //                   .div(100)
-  //                   .toFixed(0, 0)
-  //               : '',
-  //           pool: pool,
-  //         } as EstimateSwapView;
-  //       });
-  //     })
-  //     .flat()
-  // );
-
   return { estimates: [] };
 };
 export const estimateSwap = async ({
@@ -376,8 +340,9 @@ export const estimateSwap = async ({
   estimatesFromServer?: IEstimateSwapServerView;
   tag: string;
   source: 'script' | 'server';
+  poolsMap?: Record<string, Pool>;
+  tokensMap?: Record<string, TokenMetadata>;
 }> => {
-  // token.v2.ref-finance.near-1000000000000000000-wrap.near
   const resultFromServer = await estimateSwapFromServer({
     tokenIn,
     tokenOut,
@@ -391,12 +356,17 @@ export const estimateSwap = async ({
       !resultFromServer?.result_data?.routes?.length
     )
   ) {
+    const routes = resultFromServer.result_data?.routes;
+    const poolsMap = await getUsedPools(routes);
+    const tokensMap = await getUsedTokens(routes);
     return {
       estimatesFromServer: resultFromServer.result_data,
       tag: `${tokenIn.id}-${toNonDivisibleNumber(tokenIn.decimals, amountIn)}-${
         tokenOut.id
       }`,
       source: 'server',
+      poolsMap,
+      tokensMap,
     };
   } else {
     const resultFromScript = await estimateSwapFromScript({

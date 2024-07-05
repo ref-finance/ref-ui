@@ -494,11 +494,10 @@ export const useSwap = ({
     })
       .then(async (estimateResult) => {
         if (estimateResult.source == 'server') {
-          const { estimatesFromServer } = estimateResult;
+          const { estimatesFromServer, poolsMap, tokensMap } = estimateResult;
           const { amount_out } = estimatesFromServer;
           const expectedOut = toReadableNumber(tokenOut.decimals, amount_out);
           setSwapError(null);
-          setPriceImpactValue('0');
           setTokenOutAmount(scientificNotationToString(expectedOut));
           setEstimateInOut([tokenInAmount, expectedOut]);
           setCanSwap(true);
@@ -509,6 +508,7 @@ export const useSwap = ({
             setAvgFee,
             tokenInAmount,
             tokenIn,
+            poolsMap,
           });
           const tokenPriceListForCal = !!tokenPriceList?.NEAR
             ? tokenPriceList
@@ -527,6 +527,8 @@ export const useSwap = ({
             tokenOutAmount: scientificNotationToString(expectedOut.toString()),
             tokenPriceList: tokenPriceListForCal,
             setPriceImpactValue,
+            poolsMap,
+            tokensMap,
           });
         } else if (estimateResult.source == 'script') {
           const { estimates: estimatesRes } = estimateResult;
@@ -1591,7 +1593,6 @@ export const useRefSwap = ({
     supportLedger,
   });
   const [estimateInAmount, tokenOutAmount] = estimateInOut;
-
   const {
     makeSwap: makeSwapV2,
     tokenOutAmount: tokenOutAmountV2,

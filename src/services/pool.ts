@@ -459,6 +459,74 @@ export const getPoolsByTokens = async ({
     });
   return { filteredPools, pool_protocol };
 };
+export const getAllPoolsByTokens = async (): Promise<{
+  filteredPools: Pool[];
+  pool_protocol: string;
+}> => {
+  let pools;
+
+  let pool_protocol = 'indexer';
+
+  const cachePools = async (pools: any) => {
+    await db.cachePoolsByTokens(
+      pools.filter(filterBlackListPools).filter((p: any) => isNotStablePool(p))
+    );
+  };
+
+  if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
+    await cacheAllDCLPools();
+  }
+
+  const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
+  pool_protocol = cachedPoolProtocol || 'indexer';
+
+  if (cachedPoolProtocol === 'rpc') {
+    pools = await db.getAllPoolsTokens();
+
+    if (!pools || pools.length === 0) {
+      pools = await fetchPoolsRPC();
+      await cachePools(pools);
+    }
+  } else {
+    const poolsRaw = await db.queryTopPools();
+
+    if (poolsRaw && poolsRaw?.length > 0 && cachedPoolProtocol !== 'rpc') {
+      pools = poolsRaw.map((p) => {
+        const parsedP = parsePool({
+          ...p,
+          share: p.shares_total_supply,
+          id: Number(p.id),
+          tvl: Number(p.tvl),
+        });
+
+        return {
+          ...parsedP,
+          Dex: 'ref',
+        };
+      });
+    } else {
+      const poolsRaw = await fetchPoolsIndexer();
+
+      await db.cacheTopPools(poolsRaw);
+
+      pools = poolsRaw.map((p: any) => {
+        return {
+          ...parsePool(p),
+          Dex: 'ref',
+        };
+      });
+
+      await cachePools(pools);
+    }
+  }
+
+  const filteredPools = pools
+    .filter(filterBlackListPools)
+    .filter((pool: any) => {
+      return isNotStablePool(pool);
+    });
+  return { filteredPools, pool_protocol };
+};
 
 export const getPoolsByTokensAurora = async ({
   tokenInId,
@@ -541,7 +609,9 @@ export const getPoolsByTokensAurora = async ({
 
 export const getRefPoolsByToken1ORToken2 = async () => {
   return await db.queryPoolsByTokens2();
-  //return await db.poolsTokens;
+};
+export const getRefPoolsByToken1ORToken2Parsed = async () => {
+  return await db.getAllPoolsTokens();
 };
 
 export const getPool = async (id: number): Promise<Pool> => {

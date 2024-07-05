@@ -2,12 +2,11 @@ import Big from 'big.js';
 import {
   toNonDivisibleNumber,
   scientificNotationToString,
+  calculateMarketPrice,
 } from '../utils/numbers';
 import { TokenMetadata, ftGetTokenMetadata } from './ft-contract';
-import {
-  getRefPoolsByToken1ORToken2,
-  getAllStablePoolsFromCache,
-} from './pool';
+import { getAllPoolsByTokens, getAllStablePoolsFromCache, Pool } from './pool';
+import { isStablePool } from '../services/near';
 export interface IEstimateSwapServerView {
   amount_in: string;
   amount_out: string;
@@ -57,15 +56,16 @@ export async function getAvgFeeFromServer({
   setAvgFee,
   tokenInAmount,
   tokenIn,
+  poolsMap,
 }: {
   tokenInAmount: string;
   tokenIn: TokenMetadata;
   estimatesFromServer: IEstimateSwapServerView;
   setAvgFee: (fee: number) => void;
+  poolsMap: Record<string, Pool>;
 }) {
   let avgFee: number = 0;
   const { routes } = estimatesFromServer;
-  const poolsMap = await getUsedPools(routes);
   routes.forEach((route) => {
     const { amount_in, pools } = route;
     const allocation = new Big(amount_in).div(
@@ -78,9 +78,9 @@ export async function getAvgFeeFromServer({
   });
   setAvgFee(avgFee);
 }
-async function getUsedPools(routes: IServerRoute[]) {
-  const { topPools, stablePools } = await getAllPools();
-  const pools = {};
+export async function getUsedPools(routes: IServerRoute[]) {
+  const { topPools, stablePools } = await getAllPoolsFromCache();
+  const pools: Record<string, Pool> = {};
   routes.forEach((route) => {
     route.pools.forEach((cur) => {
       let p;
@@ -95,6 +95,16 @@ async function getUsedPools(routes: IServerRoute[]) {
   });
   return pools;
 }
+export async function getUsedTokens(routes: IServerRoute[]) {
+  const pending = routes.map((route) => getTokensOfRoute(route));
+  const tokensList = await Promise.all(pending);
+  const list = tokensList.flat();
+  const tokens: Record<string, TokenMetadata> = list.reduce((acc, cur) => {
+    acc[cur.id] = cur;
+    return acc;
+  }, {});
+  return tokens;
+}
 export async function getTokensOfRoute(route: IServerRoute) {
   const tokenIds = route.pools.reduce((acc, cur, index) => {
     if (index == 0) {
@@ -106,17 +116,26 @@ export async function getTokensOfRoute(route: IServerRoute) {
   }, []);
   const pending = tokenIds.map((tokenId) => ftGetTokenMetadata(tokenId));
   const tokens = await Promise.all(pending);
-  return tokens;
+  return tokens as TokenMetadata[];
 }
-export async function getAllPools() {
-  const pools = await getRefPoolsByToken1ORToken2();
+export async function getAllPoolsFromCache() {
+  const { filteredPools: topPools } = await getAllPoolsByTokens();
   const { allStablePools } = await getAllStablePoolsFromCache();
+  const topPoolsMap = topPools.reduce((acc, p) => {
+    acc[p.id] = p;
+    return acc;
+  }, {});
+  const stablePoolsMap = allStablePools.reduce((acc, p) => {
+    acc[p.id] = p;
+    return acc;
+  }, {});
   return {
-    topPools: pools,
+    topPools,
     stablePools: allStablePools,
+    poolsMap: { ...topPoolsMap, ...stablePoolsMap },
   };
 }
-export function getPriceImpactFromServer({
+export async function getPriceImpactFromServer({
   estimatesFromServer,
   tokenIn,
   tokenOut,
@@ -124,6 +143,8 @@ export function getPriceImpactFromServer({
   tokenOutAmount,
   tokenPriceList,
   setPriceImpactValue,
+  poolsMap,
+  tokensMap,
 }: {
   estimatesFromServer: IEstimateSwapServerView;
   tokenInAmount: string;
@@ -132,18 +153,18 @@ export function getPriceImpactFromServer({
   tokenOutAmount: string;
   tokenPriceList: any;
   setPriceImpactValue: (impact: string) => void;
+  poolsMap: Record<string, Pool>;
+  tokensMap: Record<string, TokenMetadata>;
 }) {
   try {
     const newPrice = new Big(tokenInAmount || '0').div(
       new Big(tokenOutAmount || '1')
     );
     const { routes } = estimatesFromServer;
-    const priceImpactForRoutes = routes.map(() => {
+    const priceIn = tokenPriceList[tokenIn.id]?.price;
+    const priceOut = tokenPriceList[tokenOut.id]?.price;
+    const priceImpactForRoutes = routes.map((route) => {
       let oldPrice: Big;
-
-      const priceIn = tokenPriceList[tokenIn.id]?.price;
-      const priceOut = tokenPriceList[tokenOut.id]?.price;
-
       if (!!priceIn && !!priceOut) {
         oldPrice = new Big(priceOut).div(new Big(priceIn));
 
@@ -151,7 +172,27 @@ export function getPriceImpactFromServer({
           ? '0'
           : newPrice.minus(oldPrice).div(newPrice).times(100).abs().toFixed();
       }
-      return '0';
+      const pools = route.pools.map((pool) => poolsMap[pool.pool_id]);
+      oldPrice = pools.reduce((acc, pool, i) => {
+        const curRate = isStablePool(pool.id)
+          ? new Big(pool.rates[route.pools[i].token_out]).div(
+              new Big(pool.rates[route.pools[i].token_in])
+            )
+          : new Big(
+              scientificNotationToString(
+                calculateMarketPrice(
+                  pool,
+                  tokensMap[route.pools[i].token_in],
+                  tokensMap[route.pools[i].token_out]
+                ).toString()
+              )
+            );
+
+        return acc.mul(curRate);
+      }, new Big(1));
+      return newPrice.lt(oldPrice)
+        ? '0'
+        : newPrice.minus(oldPrice).div(newPrice).times(100).abs().toFixed();
     });
     const rawRes = priceImpactForRoutes.reduce(
       (pre, cur, i) => {
@@ -164,9 +205,8 @@ export function getPriceImpactFromServer({
 
       new Big(0)
     );
-
-    return setPriceImpactValue(scientificNotationToString(rawRes.toString()));
+    setPriceImpactValue(scientificNotationToString(rawRes.toString()));
   } catch (error) {
-    return setPriceImpactValue('0');
+    setPriceImpactValue('0');
   }
 }
