@@ -45,9 +45,9 @@ export const estimateSwapFromServer = async ({
   const resultFromServer = await fetch(
     `https://${domain}/findPath?amountIn=${amountIn}&tokenIn=${
       tokenIn.id
-    }&tokenOut=${tokenOut.id}&pathDeep=${
-      supportLedger ? 1 : 3
-    }&slippage=${slippage}`
+    }&tokenOut=${tokenOut.id}&pathDeep=${supportLedger ? 1 : 3}&slippage=${
+      Number(slippage) / 100
+    }`
   ).then((res) => res.json());
   return resultFromServer;
 };
