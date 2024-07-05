@@ -20,6 +20,7 @@ export interface IServerRoute {
   amount_in: string;
   min_amount_out: string;
   pools: IServerPool[];
+  tokens?: TokenMetadata[];
 }
 export interface IServerPool {
   amount_in: string;
