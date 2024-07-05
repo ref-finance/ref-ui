@@ -461,71 +461,80 @@ export const getPoolsByTokens = async ({
 };
 export const getAllPoolsByTokens = async (): Promise<{
   filteredPools: Pool[];
-  pool_protocol: string;
 }> => {
   let pools;
-
-  let pool_protocol = 'indexer';
 
   const cachePools = async (pools: any) => {
     await db.cachePoolsByTokens(
       pools.filter(filterBlackListPools).filter((p: any) => isNotStablePool(p))
     );
   };
+  try {
+    const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
 
-  if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
-    await cacheAllDCLPools();
-  }
+    if (cachedPoolProtocol === 'rpc') {
+      pools = await db.getAllPoolsTokens();
 
-  const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
-  pool_protocol = cachedPoolProtocol || 'indexer';
+      if (!pools || pools.length === 0) {
+        pools = await fetchPoolsRPC();
+        await cachePools(pools);
+      }
+    } else {
+      const poolsRaw = await db.queryTopPools();
+      if (poolsRaw && poolsRaw?.length > 0) {
+        pools = poolsRaw.map((p) => {
+          const parsedP = parsePool({
+            ...p,
+            share: p.shares_total_supply,
+            id: Number(p.id),
+            tvl: Number(p.tvl),
+          });
 
-  if (cachedPoolProtocol === 'rpc') {
-    pools = await db.getAllPoolsTokens();
+          return {
+            ...parsedP,
+            Dex: 'ref',
+          };
+        });
+      } else {
+        const poolsRaw = await fetchPoolsIndexer();
 
-    if (!pools || pools.length === 0) {
-      pools = await fetchPoolsRPC();
-      await cachePools(pools);
-    }
-  } else {
-    const poolsRaw = await db.queryTopPools();
+        await db.cacheTopPools(poolsRaw);
 
-    if (poolsRaw && poolsRaw?.length > 0 && cachedPoolProtocol !== 'rpc') {
-      pools = poolsRaw.map((p) => {
-        const parsedP = parsePool({
-          ...p,
-          share: p.shares_total_supply,
-          id: Number(p.id),
-          tvl: Number(p.tvl),
+        pools = poolsRaw.map((p: any) => {
+          return {
+            ...parsePool(p),
+            Dex: 'ref',
+          };
         });
 
-        return {
-          ...parsedP,
-          Dex: 'ref',
-        };
-      });
-    } else {
-      const poolsRaw = await fetchPoolsIndexer();
+        await cachePools(pools);
+      }
+    }
+  } catch (error) {
+    const { pools: poolsRaw, protocol } = await fetchTopPools();
 
+    if (protocol === 'indexer') {
       await db.cacheTopPools(poolsRaw);
-
       pools = poolsRaw.map((p: any) => {
         return {
           ...parsePool(p),
           Dex: 'ref',
         };
       });
-
-      await cachePools(pools);
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'indexer');
+    } else {
+      pools = poolsRaw;
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
     }
+    await cachePools(pools);
+    await cacheAllDCLPools();
   }
-
   const filteredPools = pools
     .filter(filterBlackListPools)
     .filter((pool: any) => {
       return isNotStablePool(pool);
     });
-  return { filteredPools, pool_protocol };
+  return { filteredPools };
 };
 
 export const getPoolsByTokensAurora = async ({

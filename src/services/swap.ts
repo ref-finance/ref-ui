@@ -357,8 +357,14 @@ export const estimateSwap = async ({
     )
   ) {
     const routes = resultFromServer.result_data?.routes;
-    const poolsMap = await getUsedPools(routes);
-    const tokensMap = await getUsedTokens(routes);
+    let poolsMap = {};
+    let tokensMap = {};
+    try {
+      poolsMap = await getUsedPools(routes);
+    } catch (error) {}
+    try {
+      tokensMap = await getUsedTokens(routes);
+    } catch (error) {}
     return {
       estimatesFromServer: resultFromServer.result_data,
       tag: `${tokenIn.id}-${toNonDivisibleNumber(tokenIn.decimals, amountIn)}-${
