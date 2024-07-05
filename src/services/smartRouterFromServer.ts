@@ -37,8 +37,13 @@ export const estimateSwapFromServer = async ({
   slippage,
   supportLedger,
 }) => {
+  const env = process.env.REACT_APP_NEAR_ENV;
+  const domain =
+    env === 'pub-testnet'
+      ? 'smartroutertest.refburrow.top'
+      : 'smartrouter.refburrow.top';
   const resultFromServer = await fetch(
-    `https://smartrouter.refburrow.top/findPath?amountIn=${amountIn}&tokenIn=${
+    `https://${domain}/findPath?amountIn=${amountIn}&tokenIn=${
       tokenIn.id
     }&tokenOut=${tokenOut.id}&pathDeep=${
       supportLedger ? 1 : 3
