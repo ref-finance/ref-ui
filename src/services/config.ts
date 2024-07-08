@@ -412,7 +412,8 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
-        NEAR_USDCC_ID: process.env.NEAR_USDCC_ID || 2022,
+        DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 2022,
+        DEGEN_TOKEN_IDS: ['wrap.testnet', 'usdcc.ft.ref-labs.testnet'],
       };
     case 'testnet':
       return {
@@ -832,7 +833,7 @@ export function getExtraStablePoolConfig(
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
         NEARUSDCC: ['wrap.testnet', 'usdcc.ft.ref-labs.testnet'],
-        NEAR_USDCC_POOL_INDEX: {
+        DEGEN_POOL_INDEX: {
           'wrap.testnet': 0,
           'usdcc.ft.ref-labs.testnet': 1,
         },

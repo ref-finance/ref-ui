@@ -44,8 +44,6 @@ export const USDTT_USDCC_USDT_USDC_POOL_ID =
 
 export const DEGEN_POOL_ID = config.DEGEN_POOL_ID;
 
-export const NEAR_USDCC_ID = config.NEAR_USDCC_ID;
-
 export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 
 export const STABLE_TOKEN_USN_IDS = config.STABLE_TOKEN_USN_IDS;
@@ -84,7 +82,6 @@ export const {
   DEGEN_POOL_INDEX,
   USDC3E2,
   NEARUSDCC,
-  NEAR_USDCC_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
@@ -95,7 +92,6 @@ export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(CUSDIDS)
   .concat(NEW_NEARXIDS)
   .concat(USDTIDS)
-  .concat(NEARUSDCC)
   .filter((_) => !!_);
 
 export const isRatedPool = (id: string | number) => {
@@ -215,7 +211,6 @@ export const USD_CLASS_STABLE_POOL_IDS = [
   USDT_USDC_POOL_ID?.toString(),
   FRAX_USDC_POOL_ID?.toString(),
   DEGEN_POOL_ID?.toString(),
-  NEAR_USDCC_ID?.toString(),
 ];
 
 export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;
