@@ -42,7 +42,6 @@ const StakingChart = ({ chartType }) => {
   const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
   const memeDataConfig = getMemeDataConfig();
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
-
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};
     return meme_winner_tokens.reduce(
@@ -52,7 +51,7 @@ const StakingChart = ({ chartType }) => {
       }),
       {}
     ) as Record<string, Seed>;
-  }, [meme_winner_tokens, seeds]);
+  }, [seeds]);
 
   useEffect(() => {
     if (!seeds) {
@@ -112,20 +111,27 @@ const StakingChart = ({ chartType }) => {
       }
     });
 
-    return dataItems
+    const MIN_DISPLAY_PERCENT = 1;
+
+    const adjustedDataItems = dataItems
       .map((item) => {
         const value =
           chartType === 'meme' ? Big(item.seedTvl) : Big(item.xrefSeedTvl);
         const percent = totalTvlForCalculation.gt(0)
           ? value.div(totalTvlForCalculation).mul(100).toFixed(2)
           : 0;
+        const displayPercent = Number(percent) < 0.01 ? '<0.01' : percent;
         return {
           ...item,
           value: Number(percent),
-          percent,
+          displayValue: Math.max(Number(percent), MIN_DISPLAY_PERCENT),
+          percent: displayPercent,
         };
       })
+      // .filter((item) => item.value > 0)
       .sort((a, b) => b.value - a.value);
+
+    return adjustedDataItems;
   }, [displaySeeds, xrefSeeds, allTokenMetadatas, chartType]);
 
   const onPieEnter = (_, index) => {
@@ -204,7 +210,7 @@ const StakingChart = ({ chartType }) => {
           activeIndex={activeIndex}
           activeShape={customActiveShape}
           data={chartData}
-          dataKey="value"
+          dataKey="displayValue"
           nameKey="symbol"
           cx="50%"
           cy="50%"

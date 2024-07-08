@@ -401,6 +401,7 @@ export function getMemeDataConfig(): any {
         'nkok.tkn.near': '4820',
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near': '4528',
         'touched.tkn.near': '4771',
+        'usmeme.tg': '4949',
       },
       token_icon: {
         'ftv2.nekotoken.near':
@@ -411,13 +412,13 @@ export function getMemeDataConfig(): any {
       meme_winner_tokens: [
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
-        'nkok.tkn.near',
+        'usmeme.tg',
         'touched.tkn.near',
         'token.0xshitzu.near',
       ],
       meme_nonListed_tokens: [
         'gear.enleap.near',
-        'usmeme.tg',
+        'nkok.tkn.near',
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
         'nearnvidia.near',
         'bean.tkn.near',
@@ -440,11 +441,15 @@ export function getMemeDataConfig(): any {
         'bean.tkn.near': '#984D2E',
         'token.0xshitzu.near': '#50ED99',
         'ftv2.nekotoken.near': '#FFFFFF',
+        'marmaj.tkn.near': '#92D5EC',
+        'babyblackdragon.tkn.near': '#FF8F00',
+        'hat.tkn.near': '#F7AE07',
+        'intel.tkn.near': '#2C3D4C',
       },
       meme_cap_tokens: [
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
-        'nkok.tkn.near',
+        'usmeme.tg',
         'touched.tkn.near',
         'token.0xshitzu.near',
       ],

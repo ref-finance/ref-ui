@@ -102,6 +102,7 @@ interface SwapOptions {
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
   wrapOperation?: boolean;
   reEstimatingPro?: boolean;
+  tokenDeflationRateData?: Record<string, any>;
 }
 
 interface SwapV3Options {
@@ -415,6 +416,7 @@ export const useSwap = ({
   loadingPause,
   reEstimateTrigger,
   supportLedger,
+  tokenDeflationRateData,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -1564,6 +1566,7 @@ export const useRefSwap = ({
   reEstimateTrigger,
   supportLedger,
   loadingData,
+  tokenDeflationRateData,
 }: SwapOptions): ExchangeEstimate => {
   const {
     canSwap,
@@ -1591,6 +1594,7 @@ export const useRefSwap = ({
     swapMode,
     reEstimateTrigger,
     supportLedger,
+    tokenDeflationRateData,
   });
   const [estimateInAmount, tokenOutAmount] = estimateInOut;
   const {
@@ -2001,6 +2005,7 @@ export const useRefSwapPro = ({
   setReEstimateTrigger,
   setQuoting,
   quoting,
+  tokenDeflationRateData,
 }: SwapOptions & {
   setQuoting: (quoting: boolean) => void;
   quoting: boolean;
@@ -2028,6 +2033,7 @@ export const useRefSwapPro = ({
     reEstimateTrigger,
     supportLedger,
     loadingData,
+    tokenDeflationRateData,
   });
 
   resRef.hasTriPool =
@@ -2078,7 +2084,6 @@ export const useRefSwapPro = ({
       };
 
       const tradeList = [resRef, resAurora];
-
       let resValid = true;
 
       resValid =
@@ -2115,7 +2120,6 @@ export const useRefSwapPro = ({
         setReEstimateTrigger(!reEstimateTrigger);
         return;
       }
-
       setTrades(trades);
 
       const bestMarket = Object.keys(trades).reduce((a, b) => {

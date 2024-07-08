@@ -1,3 +1,4 @@
+import Big from 'big.js';
 import {
   executeMultipleTransactions,
   LP_STORAGE_AMOUNT,
@@ -13,6 +14,7 @@ import {
   ftGetStorageBalance,
   TokenMetadata,
   native_usdc_has_upgrated,
+  tokenFtMetadata,
 } from './ft-contract';
 import {
   toNonDivisibleNumber,
@@ -57,6 +59,7 @@ import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { cacheAllDCLPools } from './swapV3';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 import getConfigV2 from '../services/configV2';
+import { DEFLATION_MARK } from '../utils/token';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
 
 const explorerType = getExplorer();
@@ -850,9 +853,7 @@ export const addLiquidityToPool = async ({
   id,
   tokenAmounts,
 }: AddLiquidityToPoolOptions) => {
-  // const transactions:Transaction[] = []
-
-  const amounts = tokenAmounts.map(({ token, amount }) =>
+  let amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
 
@@ -860,7 +861,35 @@ export const addLiquidityToPool = async ({
     tokens: tokenAmounts.map(({ token, amount }) => token),
     amounts: tokenAmounts.map(({ token, amount }) => amount),
   });
-
+  // add deflation calc logic
+  const tknx_tokens = tokenAmounts
+    .map((item) => item.token)
+    .filter((token) => token.id.includes(DEFLATION_MARK));
+  if (tknx_tokens.length > 0) {
+    const pending = tknx_tokens.map((token) => tokenFtMetadata(token.id));
+    const tokenFtMetadatas = await Promise.all(pending);
+    const rate = tokenFtMetadatas.reduce((acc, cur, index) => {
+      const is_owner =
+        cur.owner_account_id == getCurrentWallet()?.wallet?.getAccountId();
+      return {
+        ...acc,
+        [tknx_tokens[index].id]: is_owner
+          ? 0
+          : (cur?.deflation_strategy?.fee_strategy?.SellFee?.fee_rate ?? 0) +
+            (cur?.deflation_strategy?.burn_strategy?.SellBurn?.burn_rate ?? 0),
+      };
+    }, {});
+    amounts = tokenAmounts.map(({ token, amount }) => {
+      const reforeAmount = toNonDivisibleNumber(token.decimals, amount);
+      let afterAmount = reforeAmount;
+      if (rate[token.id]) {
+        afterAmount = Big(1 - rate[token.id] / 1000000)
+          .mul(reforeAmount)
+          .toFixed(0);
+      }
+      return afterAmount;
+    });
+  }
   const actions: RefFiFunctionCallOptions[] = [
     {
       methodName: 'add_liquidity',

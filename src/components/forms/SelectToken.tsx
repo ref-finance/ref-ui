@@ -474,6 +474,7 @@ export default function SelectToken({
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [listTknData, setListTknData] = useState<TokenMetadata[]>([]);
+  const [listTknxData, setListTknxData] = useState<TokenMetadata[]>([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
@@ -507,7 +508,22 @@ export default function SelectToken({
     useTokensData(
       tokens.filter(
         (t) =>
-          TOKEN_BLACK_LIST.indexOf(t.id) === -1 && t.isRisk && !t.isUserToken
+          TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
+          t.id.indexOf('tknx') == -1 &&
+          t.isRisk &&
+          !t.isUserToken
+      ),
+      balances,
+      visible
+    );
+  const { tokensData: tknxTokensData, loading: loadingTKNXTokensData } =
+    useTokensData(
+      tokens.filter(
+        (t) =>
+          TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
+          t.id.indexOf('tknx') != -1 &&
+          t.isRisk &&
+          !t.isUserToken
       ),
       balances,
       visible
@@ -524,6 +540,13 @@ export default function SelectToken({
       setListTknData(tknTokensData);
     }
   }, [tknTokensData?.length, loadingTKNTokensData, currentSort]);
+
+  useEffect(() => {
+    if (tknTokensData?.length && !loadingTKNXTokensData) {
+      tknxTokensData.sort(sortTypes[currentSort].fn);
+      setListTknxData(tknxTokensData);
+    }
+  }, [tknxTokensData?.length, loadingTKNXTokensData, currentSort]);
 
   useEffect(() => {
     getLatestCommonBassesTokens();
@@ -682,6 +705,10 @@ export default function SelectToken({
   const TknTip = `
     <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
     Created by any user on https://tkn.homes with the tkn.near suffix, poses high risks. Ref has not certified it. Exercise caution.
+    </div>`;
+  const TknxTip = `
+    <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
+    Created by any user on https://tkn.homes with the tknx.near suffix, poses high risks. Ref has not certified it. Exercise caution.
     </div>`;
   return (
     <MicroModal
@@ -843,6 +870,27 @@ export default function SelectToken({
                     <CustomTooltip id="tknId" />
                   </div>
                 </div>
+                {/* tknx */}
+                {/* <div
+                  className={`text-center px-2.5 py-2 ${
+                    activeTab === 'TKNX'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('TKNX')}
+                >
+                  TKNX
+                  <div
+                    className="text-white text-right ml-1 inline-block"
+                    data-class="reactTip"
+                    data-tooltip-id="tknId"
+                    data-place="left"
+                    data-tooltip-html={TknxTip}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <CustomTooltip id="tknId" />
+                  </div>
+                </div> */}
               </div>
               <div>
                 {activeTab === 'Default' && (
@@ -915,6 +963,33 @@ export default function SelectToken({
                     showRiskTokens={true}
                   />
                 )}
+
+                {activeTab === 'TKNX' && (
+                  <SelectTokenTable
+                    sortBy={sortBy}
+                    tokenPriceList={tokenPriceList}
+                    currentSort={currentSort}
+                    onSortChange={onSortChange}
+                    tokens={listTknxData}
+                    onClick={(token) => {
+                      if (token.id != NEARXIDS[0]) {
+                        if (
+                          !(
+                            token.id == WRAP_NEAR_CONTRACT_ID &&
+                            token.symbol == 'wNEAR' &&
+                            !allowWNEAR
+                          )
+                        ) {
+                          onSelect && onSelect(token);
+                        }
+                      }
+                      handleClose();
+                    }}
+                    balances={balances}
+                    forCross={forCross}
+                    showRiskTokens={true}
+                  />
+                )}
               </div>
             </localTokens.Provider>
           </div>
@@ -944,6 +1019,13 @@ export default function SelectToken({
             </div>
           ) : null}
           {tknSearchNoData && activeTab === 'TKN' ? (
+            <div className="flex flex-col  items-center justify-center mt-32 relative z-10">
+              <div className="text-sm text-farmText">
+                <FormattedMessage id="no_token_found"></FormattedMessage>
+              </div>
+            </div>
+          ) : null}
+          {tknSearchNoData && activeTab === 'TKNX' ? (
             <div className="flex flex-col  items-center justify-center mt-32 relative z-10">
               <div className="text-sm text-farmText">
                 <FormattedMessage id="no_token_found"></FormattedMessage>
