@@ -39,14 +39,14 @@ function RuleModal(props: any) {
             height: cardHeight,
           }}
         >
-          <p className="mt-4">New campaign start on 1st of May</p>
-          <p className="mt-5">
+          {/* <p className="mt-4">New campaign start on 1st of May</p> */}
+          {/* <p className="mt-5">
             A new selection of top 5 reward Meme tokens is voted by holders of
             xREF, with 25% boosted reward for the overall campaign (NEAR + Ref
             reward).
-          </p>
-          <p className="mt-5">Selection criteria:</p>
-          <ul className="text-sm list-disc pl-3">
+          </p> */}
+          {/* <p className="mt-5">Selection criteria:</p> */}
+          <ul className="text-sm list-disc pl-3 mt-5">
             <li>
               Meme token projects ask xREF holders to deposit into their vault
               for the selection from July 1st.
@@ -58,11 +58,11 @@ function RuleModal(props: any) {
               the Memetoken.
             </li>
             <li>
-              The first voting period is a 96h window, to vote in xREF for your
+              The first voting period is a 72h window, to vote in xREF for your
               preferred Memetoken.
             </li>
             <li>
-              After the 96h, we have the top three Memecoins selected through
+              After the 72h, we have the top three Memecoins selected through
               xREF staking.
             </li>
             {/* <li>
