@@ -412,6 +412,7 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
+        NEAR_USDCC_ID: process.env.NEAR_USDCC_ID || 2022,
       };
     case 'testnet':
       return {
@@ -759,7 +760,7 @@ export function getExtraStablePoolConfig(
           '4513',
           '4514',
         ],
-        DEGEN_POOLS_IDS: ['736'],
+        DEGEN_POOLS_IDS: ['736', '2022'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
@@ -822,7 +823,7 @@ export function getExtraStablePoolConfig(
           'usdtt.fakes.testnet': 1,
         },
         RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1843'],
-        DEGEN_POOLS_IDS: ['736'],
+        DEGEN_POOLS_IDS: ['736', '2022'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdtt.fakes.testnet': 0,
           '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 1,
@@ -831,6 +832,11 @@ export function getExtraStablePoolConfig(
         },
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
+        NEARUSDCC: ['wrap.testnet', 'usdcc.ft.ref-labs.testnet'],
+        NEAR_USDCC_POOL_INDEX: {
+          'wrap.testnet': 0,
+          'usdcc.ft.ref-labs.testnet': 1,
+        },
       };
     case 'testnet':
       return {
@@ -882,7 +888,7 @@ export function getExtraStablePoolConfig(
         },
 
         RATED_POOLS_IDS: ['621', '622', '666', '685', '686', '711'],
-        DEGEN_POOLS_IDS: ['736'],
+        DEGEN_POOLS_IDS: ['736', '2022'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdtt.fakes.testnet': 0,
           'usdcc.fakes.testnet': 1,
@@ -957,7 +963,7 @@ export function getExtraStablePoolConfig(
           '4513',
           '4514',
         ],
-        DEGEN_POOLS_IDS: ['736'],
+        DEGEN_POOLS_IDS: ['736', '2022'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,

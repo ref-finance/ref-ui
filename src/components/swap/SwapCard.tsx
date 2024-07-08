@@ -683,7 +683,8 @@ export default function SwapCard(props: {
   setTokenOut: (value: TokenMetadata) => void;
   tokenOut: TokenMetadata;
 }) {
-  const { NEARXIDS, STNEARIDS, USDC3E2 } = getExtraStablePoolConfig();
+  const { NEARXIDS, STNEARIDS, USDC3E2, NEARUSDCC } =
+    getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
 
   const {

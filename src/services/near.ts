@@ -44,6 +44,8 @@ export const USDTT_USDCC_USDT_USDC_POOL_ID =
 
 export const DEGEN_POOL_ID = config.DEGEN_POOL_ID;
 
+export const NEAR_USDCC_ID = config.NEAR_USDCC_ID;
+
 export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 
 export const STABLE_TOKEN_USN_IDS = config.STABLE_TOKEN_USN_IDS;
@@ -81,6 +83,8 @@ export const {
   FRAX_USDC_POOL_INDEX,
   DEGEN_POOL_INDEX,
   USDC3E2,
+  NEARUSDCC,
+  NEAR_USDCC_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
@@ -91,6 +95,7 @@ export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(CUSDIDS)
   .concat(NEW_NEARXIDS)
   .concat(USDTIDS)
+  .concat(NEARUSDCC)
   .filter((_) => !!_);
 
 export const isRatedPool = (id: string | number) => {
@@ -178,6 +183,8 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return USDT_USDC_POOL_INDEX;
     case FRAX_USDC_POOL_ID.toString():
       return FRAX_USDC_POOL_INDEX;
+    case NEARX_POOL_ID.toString():
+      return NEARX_POOL_INDEX;
   }
 };
 
@@ -207,13 +214,19 @@ export const USD_CLASS_STABLE_POOL_IDS = [
   USDTT_USDCC_USDT_USDC_POOL_ID.toString(),
   USDT_USDC_POOL_ID?.toString(),
   FRAX_USDC_POOL_ID?.toString(),
-  DEGEN_POOL_ID.toString(),
+  DEGEN_POOL_ID?.toString(),
+  NEAR_USDCC_ID?.toString(),
 ];
 
 export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;
 
 export const NEAR_CLASS_STABLE_TOKEN_IDS = new Array(
-  ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEW_NEARXIDS).concat(USDC3E2))
+  ...new Set(
+    STNEARIDS.concat(LINEARIDS)
+      .concat(NEW_NEARXIDS)
+      .concat(USDC3E2)
+      .concat(NEARUSDCC)
+  )
 ).map((id) => id);
 
 export const USD_CLASS_STABLE_TOKEN_IDS = new Array(
