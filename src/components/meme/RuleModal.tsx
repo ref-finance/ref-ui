@@ -72,43 +72,46 @@ function RuleModal(props: any) {
             <li>
               Note:
               <p>
-                1) As same mechanism as before - snapshot on Meme gauge weight
-                for the 80/20 % staking and pools
+                1) The same mechanism as before will be used—snapshot on Meme
+                gauge weight for the 80/20% staking and pools.
               </p>
               <p>
-                2) *xRef stake will determine Ref allocation ratio, while
-                MemeToken stake only determines Near allocation ratio.
+                2) -xRef staking will determine the REF allocation ratio, while
+                MemeToken staking will only determine the NEAR allocation ratio.
               </p>
             </li>
             <li>
-              The top 2 out of 5 will be maintained from the current campaign
-              and as an ongoing mechanism for following months, while the other
-              3 seats will rotate based on the results of their xREF staking
-              within a 48-hour period.
+              The top 2 out of 5 will be maintained from the current campaign as
+              an ongoing mechanism for the following months. The other 3 seats
+              will rotate based on the results of their xREF staking within a
+              voting period.
             </li>
           </ul>
           <p className="mt-5">Some rules:</p>
           <ul className="text-sm list-disc pl-3">
             <li>
-              Users can unstake their xREF after the voting period of xREF but
-              it won’t affect the pools, or they can leave their staked xREF for
-              the next round of vote at the end of the month
+              Users who unstake their xREF after the voting period ends will not
+              affect the rewards pool or the meme's position during that season
             </li>
             <li>
-              xREF unstaking will have one day of cooldown before being able to
-              withdraw
+              Users who keep their xREF staked will be able for extra incentive
+              in the next season
             </li>
             <li>
-              For staked Memecoin tokens, it will still take five days of
-              cooldown period before being able to withdraw the tokens.
+              Unstaking xREF will have a one-day cooldown before withdrawal is
+              possible.
             </li>
             <li>
-              The selected five Memecoins will have their staking pools running
-              for one month
+              Five selected MEME will have their staking pools active for one
+              month.
             </li>
             <li>
-              After that, the competition starts again. Some may remain
-              depending on voting or new Memecoins may take the spot.
+              The top 2 MEME tokens based on staking volume at the end of the
+              season will automatically qualify for the next season.
+            </li>
+            <li>
+              The remaining 3 seats will be reshuffled based on the new season's
+              voting session.
             </li>
           </ul>
         </div>
