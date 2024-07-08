@@ -76,7 +76,7 @@ function RuleModal(props: any) {
                 gauge weight for the 80/20% staking and pools.
               </p>
               <p>
-                2) -xRef staking will determine the REF allocation ratio, while
+                2) xRef staking will determine the REF allocation ratio, while
                 MemeToken staking will only determine the NEAR allocation ratio.
               </p>
             </li>
@@ -91,11 +91,11 @@ function RuleModal(props: any) {
           <ul className="text-sm list-disc pl-3">
             <li>
               Users who unstake their xREF after the voting period ends will not
-              affect the rewards pool or the meme's position during that season
+              affect the rewards pool or the meme's position during that season.
             </li>
             <li>
               Users who keep their xREF staked will be able for extra incentive
-              in the next season
+              in the next season.
             </li>
             <li>
               Unstaking xREF will have a one-day cooldown before withdrawal is
