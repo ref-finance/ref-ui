@@ -49,26 +49,26 @@ function RuleModal(props: any) {
           <ul className="text-sm list-disc pl-3">
             <li>
               Meme token projects ask xREF holders to deposit into their vault
-              for the selection from May 1st
+              for the selection from July 1st.
             </li>
             <li>
               During the voting process, Memetoken communities can participate
               in donating in the 'Show love for voters' section and allocate
               rewards to users to incentivize them to stake xREF and vote for
-              the Memetoken
+              the Memetoken.
             </li>
             <li>
-              The first voting period is a 48h window, to vote in xREF for your
-              preferred Memetoken
+              The first voting period is a 96h window, to vote in xREF for your
+              preferred Memetoken.
             </li>
             <li>
-              After the 48h, we have the top three Memecoins selected through
-              xREF staking
+              After the 96h, we have the top three Memecoins selected through
+              xREF staking.
             </li>
-            <li>
+            {/* <li>
               The following 24h, after the 48h, is for users to now stake their
               Memecoin token to compete as before
-            </li>
+            </li> */}
             <li>
               Note:
               <p>
