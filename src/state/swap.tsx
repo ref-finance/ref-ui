@@ -432,7 +432,7 @@ export const useSwap = ({
 
   const { enableTri } = useContext(SwapProContext);
 
-  const [forceEstimate, setForceEstimate] = useState<boolean>(false);
+  const [tag, setTag] = useState<any>();
 
   const [priceImpactValue, setPriceImpactValue] = useState<string>('0');
 
@@ -479,7 +479,6 @@ export const useSwap = ({
 
     setAvgFee(avgFee);
   };
-
   const getEstimate = async () => {
     setCanSwap(false);
     setQuoteDone(false);
@@ -500,6 +499,7 @@ export const useSwap = ({
           const { amount_out } = estimatesFromServer;
           const expectedOut = toReadableNumber(tokenOut.decimals, amount_out);
           setSwapError(null);
+          setSwapsToDo(null);
           setTokenOutAmount(scientificNotationToString(expectedOut));
           setEstimateInOut([tokenInAmount, expectedOut]);
           setCanSwap(true);
@@ -550,6 +550,7 @@ export const useSwap = ({
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
             setSwapError(null);
+            setSwapsToDoServer(null);
 
             const expectedOut = estimates.reduce(
               (acc, cur) =>
@@ -600,10 +601,10 @@ export const useSwap = ({
         setQuoteDone(true);
       })
       .finally(() => {
-        setForceEstimate && setForceEstimate(false);
         setLoadingTrigger && setLoadingTrigger(false);
         setEstimating && setEstimating(false);
         setShowSwapLoading && setShowSwapLoading(false);
+        setTag(`${tokenIn?.id}|${tokenOut?.id}|${tokenInAmount}`);
       });
   };
 
@@ -628,7 +629,13 @@ export const useSwap = ({
     slippageTolerance,
   ]);
   useEffect(() => {
-    if (loadingTrigger) {
+    if (
+      loadingTrigger &&
+      tokenIn?.id &&
+      tokenOut?.id &&
+      tokenIn.id !== tokenOut.id &&
+      Number(tokenInAmount || 0) > 0
+    ) {
       getEstimate();
     }
   }, [loadingTrigger]);
@@ -653,7 +660,9 @@ export const useSwap = ({
         slippageTolerance,
         swapsToDo,
         tokenIn,
-        amountIn: tokenInAmount,
+        amountIn: Big(tokenInAmount)
+          .div(Big(1).minus(tokenDeflationRateData?.rate || 0))
+          .toFixed(),
         tokenOut,
         swapMarket: 'ref',
       }).catch(setSwapError);
@@ -661,71 +670,13 @@ export const useSwap = ({
       swapFromServer({
         swapsToDoServer,
         tokenIn,
-        amountIn: tokenInAmount,
+        amountIn: Big(tokenInAmount)
+          .div(Big(1).minus(tokenDeflationRateData?.rate || 0))
+          .toFixed(),
         tokenOut,
       }).catch(setSwapError);
     }
   };
-  // useEffect(() => {
-  //   const todos = swapsToDo || swapsToDoServer;
-  //   const valRes =
-  //     !swapError &&
-  //     todos &&
-  //     tokenIn &&
-  //     tokenOut &&
-  //     estimateValidator(
-  //       swapsToDo,
-  //       tokenIn,
-  //       toNonDivisibleNumber(
-  //         tokenIn?.decimals === null || tokenIn?.decimals === undefined
-  //           ? 24
-  //           : tokenIn.decimals,
-  //         tokenInAmount
-  //       ),
-  //       tokenOut,
-  //       swapsToDoServer
-  //     );
-
-  //   if (estimating && todos && !forceEstimate) return;
-
-  //   if (valRes && !loadingTrigger && !forceEstimate) {
-  //     return;
-  //   }
-  //   getEstimate();
-  // }, [
-  //   loadingTrigger,
-  //   loadingPause,
-  //   tokenIn?.id,
-  //   tokenOut?.id,
-  //   reEstimateTrigger,
-  //   forceEstimate,
-  //   enableTri,
-  //   tokenInAmount,
-  // ]);
-  // useEffect(() => {
-  //   const todos = swapsToDo || swapsToDoServer;
-  //   const valRes =
-  //     todos &&
-  //     tokenIn &&
-  //     tokenOut &&
-  //     estimateValidator(
-  //       swapsToDo,
-  //       tokenIn,
-  //       toNonDivisibleNumber(
-  //         tokenIn?.decimals === null || tokenIn?.decimals === undefined
-  //           ? 24
-  //           : tokenIn.decimals,
-  //         tokenInAmount
-  //       ),
-  //       tokenOut,
-  //       swapsToDoServer
-  //     );
-
-  //   if (estimating && todos && !forceEstimate) return;
-
-  //   if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
-  //   getEstimate();
-  // }, [estimating]);
   return {
     canSwap,
     tokenOutAmount,
@@ -758,6 +709,7 @@ export const useSwap = ({
     ),
     estimateInOut,
     swapsToDoServer,
+    tag,
   };
 };
 export const useSwapV3 = ({
@@ -848,14 +800,13 @@ export const useSwapV3 = ({
       input_token: tokenIn,
       output_token: tokenOut,
       input_amount: tokenInAmount,
-      tag: `${tokenIn.id}|${fee}|${tokenInAmount}`,
+      tag: `${tokenIn.id}|${tokenOut.id}|${tokenInAmount}`,
     }).catch((e) => null);
   };
 
   const bestFee = bestEstimate?.tag?.split('|')?.[1]
     ? Number(bestEstimate?.tag?.split('|')?.[1])
     : null;
-
   useEffect(() => {
     if (!bestFee || wrapOperation) return;
 
@@ -871,7 +822,6 @@ export const useSwapV3 = ({
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount || wrapOperation) return;
-
     setQuoteDone(false);
 
     const storedPools = localStorage.getItem(REF_DCL_POOL_CACHE_KEY);
@@ -884,7 +834,6 @@ export const useSwapV3 = ({
     const allDCLPools = JSON.parse(
       localStorage.getItem(REF_DCL_POOL_CACHE_KEY)
     );
-
     Promise.all(
       fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
     )
@@ -906,9 +855,6 @@ export const useSwapV3 = ({
           setTokenOutAmount(
             toReadableNumber(tokenOut?.decimals || 24, bestEstimate.amount)
           );
-
-          setTag(bestEstimate.tag);
-
           return;
         }
       })
@@ -917,6 +863,7 @@ export const useSwapV3 = ({
         setQuoteDone(true);
         setPoolReFetch(!poolReFetch);
         setLoadingTrigger && setLoadingTrigger(false);
+        setTag(`${tokenIn?.id}|${tokenOut?.id}|${tokenInAmount}`);
       });
   }, [
     tokenIn?.id,
@@ -1580,6 +1527,7 @@ export const useRefSwap = ({
     tokenInAmount: tokenInAmountV1,
     estimateInOut,
     swapsToDoServer,
+    tag,
   } = useSwap({
     tokenIn,
     tokenInAmount,
@@ -1608,7 +1556,7 @@ export const useRefSwap = ({
     canSwap: canSwapV2,
     swapErrorV3: swapErrorV2,
     tokenInAmount: tokenInAmountV2,
-    tag: tagV2,
+    tag: tagV3,
   } = useSwapV3({
     tokenIn,
     tokenOut,
@@ -1620,13 +1568,23 @@ export const useRefSwap = ({
     setLoadingTrigger,
     reEstimateTrigger,
   });
+  function validator() {
+    if (tag && tagV3) {
+      const [inId, outId, inAmount] = tag.split('|');
+      const [dclInId, dclOutId, dclInAmount] = tagV3.split('|');
+      return (
+        inId == tokenIn?.id &&
+        outId == tokenOut.id &&
+        inAmount == tokenInAmount &&
+        dclInId == tokenIn?.id &&
+        dclOutId == tokenOut.id &&
+        dclInAmount == tokenInAmount
+      );
+    }
+    return false;
+  }
   // TODO 2
-  const quoteDoneRef =
-    quoteDoneV2 &&
-    quoteDone &&
-    (swapsToDoServer
-      ? true
-      : Big(estimateInAmount || 0).eq(tokenInAmount || 0));
+  const quoteDoneRef = quoteDoneV2 && quoteDone && validator();
   if (!quoteDoneRef)
     return {
       quoteDone: false,

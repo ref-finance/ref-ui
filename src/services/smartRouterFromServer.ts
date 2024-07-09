@@ -36,7 +36,12 @@ export const estimateSwapFromServer = async ({
   slippage,
   supportLedger,
 }) => {
+  const timeoutDuration = 5000;
+  const controller = new AbortController();
   const env = process.env.REACT_APP_NEAR_ENV;
+  const timeOutId = setTimeout(() => {
+    controller.abort();
+  }, timeoutDuration);
   const domain =
     env === 'pub-testnet'
       ? 'smartroutertest.refburrow.top'
@@ -46,8 +51,17 @@ export const estimateSwapFromServer = async ({
       tokenIn.id
     }&tokenOut=${tokenOut.id}&pathDeep=${supportLedger ? 1 : 3}&slippage=${
       Number(slippage) / 100
-    }`
-  ).then((res) => res.json());
+    }`,
+    {
+      signal: controller.signal,
+    }
+  )
+    .then((res) => {
+      return res.json();
+    })
+    .finally(() => {
+      clearTimeout(timeOutId);
+    });
   return resultFromServer;
 };
 

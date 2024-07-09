@@ -48,7 +48,7 @@ import {
   StablePool,
 } from './pool';
 
-import { getAllPoolsFromCache } from './smartRouterFromServer';
+import { cacheAllDCLPools } from './swapV3';
 import {
   createSmartRouteLogicWorker,
   transformWorkerResult,
@@ -66,6 +66,7 @@ import {
   getUsedPools,
   getUsedTokens,
 } from './smartRouterFromServer';
+import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
@@ -325,6 +326,7 @@ export const estimateSwapFlow = async ({
   if (tokenFlow?.data === null || tokenFlow === null) throwNoPoolError();
   return { estimates: [] };
 };
+const SHUTDOWN_SRVER = false;
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,
@@ -343,37 +345,60 @@ export const estimateSwap = async ({
   poolsMap?: Record<string, Pool>;
   tokensMap?: Record<string, TokenMetadata>;
 }> => {
-  const resultFromServer = await estimateSwapFromServer({
-    tokenIn,
-    tokenOut,
-    amountIn: toNonDivisibleNumber(tokenIn.decimals, amountIn),
-    slippage,
-    supportLedger,
-  }).catch(() => ({}));
-  if (
-    !(
-      resultFromServer?.result_code !== 0 ||
-      !resultFromServer?.result_data?.routes?.length
-    )
-  ) {
-    const routes = resultFromServer.result_data?.routes;
-    let poolsMap = {};
-    let tokensMap = {};
-    try {
-      poolsMap = await getUsedPools(routes);
-    } catch (error) {}
-    try {
-      tokensMap = await getUsedTokens(routes);
-    } catch (error) {}
-    return {
-      estimatesFromServer: resultFromServer.result_data,
-      tag: `${tokenIn.id}-${toNonDivisibleNumber(tokenIn.decimals, amountIn)}-${
-        tokenOut.id
-      }`,
-      source: 'server',
-      poolsMap,
-      tokensMap,
-    };
+  if (!SHUTDOWN_SRVER) {
+    const resultFromServer = await estimateSwapFromServer({
+      tokenIn,
+      tokenOut,
+      amountIn: toNonDivisibleNumber(tokenIn.decimals, amountIn),
+      slippage,
+      supportLedger,
+    }).catch(() => ({}));
+    if (
+      !(
+        resultFromServer?.result_code !== 0 ||
+        !resultFromServer?.result_data?.routes?.length
+      )
+    ) {
+      const routes = resultFromServer.result_data?.routes;
+      let poolsMap = {};
+      let tokensMap = {};
+      try {
+        if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
+          await cacheAllDCLPools();
+        }
+      } catch (error) {}
+      try {
+        poolsMap = await getUsedPools(routes);
+      } catch (error) {}
+      try {
+        tokensMap = await getUsedTokens(routes);
+      } catch (error) {}
+      return {
+        estimatesFromServer: resultFromServer.result_data,
+        tag: `${tokenIn.id}-${toNonDivisibleNumber(
+          tokenIn.decimals,
+          amountIn
+        )}-${tokenOut.id}`,
+        source: 'server',
+        poolsMap,
+        tokensMap,
+      };
+    } else {
+      const resultFromScript = await estimateSwapFromScript({
+        tokenIn,
+        tokenOut,
+        amountIn,
+        intl,
+        setLoadingData,
+        loadingTrigger,
+        supportLedger,
+        proGetCachePool,
+      });
+      return {
+        ...resultFromScript,
+        source: 'script',
+      };
+    }
   } else {
     const resultFromScript = await estimateSwapFromScript({
       tokenIn,
