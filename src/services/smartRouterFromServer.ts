@@ -36,7 +36,7 @@ export const estimateSwapFromServer = async ({
   slippage,
   supportLedger,
 }) => {
-  const timeoutDuration = 500;
+  const timeoutDuration = 5000;
   const controller = new AbortController();
   const env = process.env.REACT_APP_NEAR_ENV;
   const timeOutId = setTimeout(() => {
