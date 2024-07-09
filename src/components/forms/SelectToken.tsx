@@ -871,7 +871,7 @@ export default function SelectToken({
                   </div>
                 </div>
                 {/* tknx */}
-                {/* <div
+                <div
                   className={`text-center px-2.5 py-2 ${
                     activeTab === 'TKNX'
                       ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
@@ -890,7 +890,7 @@ export default function SelectToken({
                     <QuestionMark></QuestionMark>
                     <CustomTooltip id="tknId" />
                   </div>
-                </div> */}
+                </div>
               </div>
               <div>
                 {activeTab === 'Default' && (
