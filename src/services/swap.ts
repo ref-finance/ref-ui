@@ -326,7 +326,7 @@ export const estimateSwapFlow = async ({
   if (tokenFlow?.data === null || tokenFlow === null) throwNoPoolError();
   return { estimates: [] };
 };
-const SHUTDOWN_SRVER = true;
+const SHUTDOWN_SRVER = false;
 export const estimateSwap = async ({
   tokenIn,
   tokenOut,
