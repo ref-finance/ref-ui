@@ -99,7 +99,7 @@ export const isRatedPool = (id: string | number) => {
 };
 
 export const isDegenPool = (id: string | number) => {
-  return getExtraStablePoolConfig().DEGEN_POOLS_IDS.includes(id.toString());
+  return getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(id.toString());
 };
 
 export const AllStableTokenIds = new Array(

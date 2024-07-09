@@ -59,6 +59,7 @@ import {
   USDTT_USDCC_USDT_USDC_POOL_ID,
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
+  DEGEN_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -157,6 +158,7 @@ import {
   TokenPriceListContext,
 } from './constLiquidityPage';
 import { useRiskTokens } from '../../../state/token';
+import { getExtraStablePoolConfig } from '../../../services/config';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -2889,6 +2891,10 @@ function StablePoolList({
         ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
+        : option === 'DEGEN'
+        ? getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(
+            p.pool.id.toString()
+          )
         : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
@@ -2947,7 +2953,7 @@ function StablePoolList({
     <>
       <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
         <div className="flex items-center col-span-2 xsm:w-full">
-          {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
+          {['ALL', 'USD', 'BTC', 'NEAR', 'DEGEN'].map((o) => {
             return (
               <button
                 key={o + '-stable-pool-type'}
