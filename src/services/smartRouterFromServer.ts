@@ -45,7 +45,7 @@ export const estimateSwapFromServer = async ({
   const domain =
     env === 'pub-testnet'
       ? 'smartroutertest.refburrow.top'
-      : 'smartrouter.refburrow.top';
+      : 'smartrouter.ref.finance';
   const resultFromServer = await fetch(
     `https://${domain}/findPath?amountIn=${amountIn}&tokenIn=${
       tokenIn.id
