@@ -9,6 +9,7 @@ import { formatUSDCurrency } from '../utils/format';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import LogoRainbow from './../assets/logo-rainbow.png';
 import LogoStargate from './../assets/logo-stargate.png';
+import Big from 'big.js';
 
 const routeConfig = {
   Rainbow: { logo: LogoRainbow, ...BridgeConfig.Rainbow },
@@ -24,56 +25,68 @@ function BridgeRouteItem({
   className?: string;
   onClick?: () => void;
 }) {
-  const { bridgeToValue, estimatedGasFee } = useBridgeFormContext();
-  const route = routeConfig[channel] || {};
+  const { bridgeToValue, estimatedGasFee, channelFeeMap } =
+    useBridgeFormContext();
+  const route = routeConfig[channel];
+
   return (
-    <div
-      className={`bg-opacity-10 rounded-xl p-4 ${className ?? ''}`}
-      style={{ backgroundColor: 'rgba(126, 138, 147, 0.10)' }}
-      onClick={onClick}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-white rounded-lg">
-            <img src={route.logo} alt="" />
+    route && (
+      <div
+        className={`bg-opacity-10 rounded-xl p-4 ${className ?? ''}`}
+        style={{ backgroundColor: 'rgba(126, 138, 147, 0.10)' }}
+        onClick={onClick}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-white rounded-lg">
+              <img src={route.logo} alt="" />
+            </div>
+            <div className="text-slate-500 text-base font-medium ">
+              {channel}
+            </div>
           </div>
-          <div className="text-slate-500 text-base font-medium ">{channel}</div>
+          <div className="flex items-center gap-2">
+            <div className="px-2 py-0.5 bg-black rounded-md">
+              <div className="text-10px " style={{ color: '#6AFFE4' }}>
+                Best Return
+              </div>
+            </div>
+            <div className="px-2 py-0.5 bg-black rounded-md">
+              <div className="text-10px " style={{ color: '#5077FF' }}>
+                Fastest
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="px-2 py-0.5 bg-black rounded-md">
-            <div className="text-10px " style={{ color: '#6AFFE4' }}>
-              Best Return
-            </div>
+        <div className="flex items-center justify-between">
+          <div className="text-white text-sm font-medium">
+            ~{bridgeToValue.amount} {bridgeToValue.tokenMeta.symbol}
           </div>
-          <div className="px-2 py-0.5 bg-black rounded-md">
-            <div className="text-10px " style={{ color: '#5077FF' }}>
-              Fastest
-            </div>
+          <div className="text-right text-slate-500 text-xs font-normal ">
+            ~{route.wait} mins ｜Bridge fee{' '}
+            <span
+              className="underline cursor-pointer ml-1"
+              data-tooltip-id="bridge-gas-fee"
+              data-place="right"
+              data-class="reactTip"
+              data-tooltip-html={`
+                <div>${formatUSDCurrency(estimatedGasFee, '0.01')} Gas + </div>
+                <div>${formatUSDCurrency(
+                  channelFeeMap?.[channel]?.usdFee || 0
+                )} ${channel} fee</div>`}
+            >
+              {formatUSDCurrency(
+                new Big(estimatedGasFee)
+                  .plus(channelFeeMap?.[channel]?.usdFee || 0)
+                  .toString(),
+                '0.01'
+              )}
+              <CustomTooltip id="bridge-gas-fee" />
+            </span>
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between">
-        <div className="text-white text-sm font-medium">
-          ~{bridgeToValue.amount} {bridgeToValue.tokenMeta.symbol}
-        </div>
-        <div className="text-right text-slate-500 text-xs font-normal ">
-          {route.wait} mins ｜Bridge fee{' '}
-          <span
-            className="underline cursor-pointer ml-1"
-            data-tooltip-id="bridge-gas-fee"
-            data-place="right"
-            data-class="reactTip"
-            data-tooltip-html={`<div>${formatUSDCurrency(
-              estimatedGasFee,
-              '0.01'
-            )} Gas + </div><div>$0.00 Rainbow fee</div>`}
-          >
-            {formatUSDCurrency(estimatedGasFee, '0.01')}
-            <CustomTooltip id="bridge-gas-fee" />
-          </span>
-        </div>
-      </div>
-    </div>
+    )
   );
 }
 

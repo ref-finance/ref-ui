@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import Modal from 'react-modal';
-import ReactTooltip from 'react-tooltip';
 
 import SvgIcon from './SvgIcon';
 import Button from './Button';
@@ -16,6 +15,7 @@ import { BridgeConfig } from '../config';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 import { useAutoResetState } from '../hooks/useHooks';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import Big from 'big.js';
 
 export default function BridgePreviewModal({
   toggleOpenModal,
@@ -23,8 +23,13 @@ export default function BridgePreviewModal({
 }: Modal.Props & { toggleOpenModal: () => void }) {
   const { actionLoading, transfer } = useBridge();
 
-  const { bridgeFromValue, bridgeToValue, bridgeChannel, estimatedGasFee } =
-    useBridgeFormContext();
+  const {
+    bridgeFromValue,
+    bridgeToValue,
+    bridgeChannel,
+    estimatedGasFee,
+    channelFeeMap,
+  } = useBridgeFormContext();
 
   const [loading, setLoading] = useAutoResetState(false, 1000);
 
@@ -44,8 +49,10 @@ export default function BridgePreviewModal({
       to: bridgeToValue?.chain,
       recipient,
       sender,
-      constTime: BridgeConfig.Rainbow.wait,
-      bridgeFee: formatUSDCurrency(estimatedGasFee, '0.01'),
+      constTime: BridgeConfig[bridgeChannel]?.wait,
+      bridgeFee: new Big(estimatedGasFee)
+        .plus(channelFeeMap?.[bridgeChannel]?.usdFee || 0)
+        .toString(),
       output: bridgeToValue.amount,
       minimumReceived: bridgeFromValue.amount,
     }),
@@ -149,9 +156,16 @@ export default function BridgePreviewModal({
                       data-tooltip-id="bridge-gas-fee"
                       data-place="right"
                       data-class="reactTip"
-                      data-tooltip-html={`<div>${confirmInfo?.bridgeFee} Gas + </div><div>$0.00 Rainbow fee</div>`}
+                      data-tooltip-html={`
+                        <div>${formatUSDCurrency(
+                          estimatedGasFee,
+                          '0.01'
+                        )} Gas + </div>
+                        <div>${formatUSDCurrency(
+                          channelFeeMap?.[bridgeChannel]?.usdFee || 0
+                        )} ${bridgeChannel} fee</div>`}
                     >
-                      {confirmInfo?.bridgeFee}
+                      {formatUSDCurrency(confirmInfo.bridgeFee, '0.01')}
                       <CustomTooltip id="bridge-gas-fee" />
                     </span>
                   </div>

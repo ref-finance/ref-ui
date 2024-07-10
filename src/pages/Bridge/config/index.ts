@@ -86,12 +86,10 @@ const RainbowBridgeDefaultParams = {
   eNEARAbi,
   ethChainId: EVMConfig.Ethereum.chainId,
 };
-export const BridgeConfig: Record<BridgeModel.BridgeSupportChannel, any> = {
+export const BridgeConfig = {
   Rainbow: {
     /** estimated 20 minutes */
     wait: 20,
-    gas: '336847',
-    bridgeFee: '0',
     bridgeParams: IS_MAINNET
       ? {
           ...RainbowBridgeDefaultParams,
@@ -121,12 +119,33 @@ export const BridgeConfig: Record<BridgeModel.BridgeSupportChannel, any> = {
         },
   },
   Stargate: {
-    wait: 20,
-    gas: '336847',
-    bridgeFee: '0',
-    bridgeParams: IS_MAINNET ? {} : {},
+    wait: 5,
+    bridgeParams: {
+      Arbitrum: {
+        send: '0x9affc062e3cbe2806334355b92059e3d8f4c4657',
+        pool: {
+          USDC: '0xe8CDF27AcD73a434D661C84887215F7598e7d0d3',
+        },
+        eid: '30110',
+      },
+      Ethereum: {
+        send: '0x3B693e0F2f5f5e0b819e669b60A715858dCb6C07',
+        pool: {
+          USDC: '0xc026395860Db2d07ee33e05fE50ed7bD583189C7',
+        },
+        eid: '30101',
+      },
+      Aurora: {
+        pool: {
+          USDC: '0x81F6138153d473E8c5EcebD3DC8Cd4903506B075',
+        },
+        eid: '30211',
+      },
+      EndpointV2: '0x1a44076050125825900e736c501f859c50fE728c',
+      auroraReceive: '0xBafAB363F04A4D2E7239f9E3942E768d76Baf0f3',
+    },
   },
-};
+} as const;
 
 export const BridgeTokenList: (BridgeModel.BridgeTokenMeta & {
   supportChannels?: BridgeModel.BridgeSupportChannel[];

@@ -14,9 +14,11 @@ import { useWalletConnectContext } from '../providers/walletConcent';
 import { toast } from 'react-toastify';
 import { Near, WalletConnection } from 'near-api-js';
 import { APPID } from '../config';
-import { nearServices } from '../services/contract';
+import { evmServices, nearServices } from '../services/contract';
 import bridgeServices, { BridgeTransferParams } from '../services/bridge';
 import rainbowBridgeService from '../services/bridge/rainbow';
+import { useRequest } from './useHooks';
+import { logger } from '../utils/common';
 
 export default function useBridge(params?: {
   enableSubscribeUnclaimed?: boolean;
@@ -45,7 +47,7 @@ export default function useBridge(params?: {
 
     wallet.EVM.chain === 'Ethereum' && checkStatusAll({ loop: 15000 });
 
-    console.log('bridge: setup rainbow');
+    logger.log('bridge: setup rainbow');
   }, [wallet.EVM.isSignedIn, wallet.NEAR.isSignedIn, wallet.EVM.chain]);
 
   const [unclaimedTransactions, setUnclaimedTransactions] = useState<
@@ -84,7 +86,7 @@ export default function useBridge(params?: {
         toast.error(err.message.substring(0, 100), { theme: 'dark' });
       });
     setActionLoading(false);
-    console.log('bridge: transfer result', result);
+    logger.log('bridge: transfer result', result);
     return result as BridgeModel.BridgeTransaction;
   }
   async function callAction(id: string) {

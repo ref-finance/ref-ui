@@ -4,15 +4,10 @@ import { useWalletConnectContext } from '../providers/walletConcent';
 import { useDebouncedEffect, useRequest, useStorageState } from './useHooks';
 import Big from 'big.js';
 import { evmServices, tokenServices } from '../services/contract';
-import {
-  BridgeConfig,
-  SupportChains,
-  EVMConfig,
-  BridgeTokenList,
-  BridgeTokenRoutes,
-} from '../config';
+import { SupportChains, EVMConfig, BridgeTokenRoutes } from '../config';
 import { logger } from '../utils/common';
 import { getTokenMeta } from '../utils/token';
+import bridgeServices from '../services/bridge';
 
 interface BridgeForm {
   fromChain: BridgeModel.BridgeSupportChain;
@@ -83,7 +78,7 @@ export default function useBridgeForm() {
   ]);
 
   const supportBridgeChannels = useMemo(() => {
-    console.log('BridgeTokenRoutes', bridgeToValue.tokenMeta?.symbol);
+    logger.log('BridgeTokenRoutes', bridgeToValue.tokenMeta?.symbol);
     const channels = BridgeTokenRoutes.filter(
       (route) =>
         route.from === bridgeFromValue.chain &&
@@ -96,6 +91,40 @@ export default function useBridgeForm() {
     bridgeToValue.chain,
     bridgeToValue.tokenMeta?.symbol,
   ]);
+
+  const { data: estimatedGasFee = '0' } = useRequest(() =>
+    evmServices.calculateGasInUSD('336847')
+  );
+
+  const { data: channelFeeMap } = useRequest(
+    async () => {
+      const result = {} as Record<
+        BridgeModel.BridgeSupportChannel,
+        {
+          fee: any;
+          readableFee: string;
+          usdFee: string;
+          discounted: boolean;
+        }
+      >;
+      for (const channel of supportBridgeChannels) {
+        result[channel] = await bridgeServices.queryFee(
+          bridgeFromValue.chain,
+          channel,
+          bridgeFromValue.tokenMeta
+        );
+      }
+      logger.log('channelFeeMap', result);
+      return result;
+    },
+    {
+      refreshDeps: [
+        bridgeFromValue.chain,
+        bridgeFromValue.tokenMeta,
+        supportBridgeChannels,
+      ],
+    }
+  );
 
   const {
     getWallet,
@@ -150,8 +179,8 @@ export default function useBridgeForm() {
   );
 
   useEffect(() => {
-    console.log('supportFromTokenSymbols', supportFromTokenSymbols);
-    console.log('supportToTokenSymbols', supportToTokenSymbols);
+    logger.log('supportFromTokenSymbols', supportFromTokenSymbols);
+    logger.log('supportToTokenSymbols', supportToTokenSymbols);
     if (
       !supportFromTokenSymbols.includes(bridgeFromValue.tokenMeta?.symbol || '')
     ) {
@@ -174,13 +203,6 @@ export default function useBridgeForm() {
     supportFromTokenSymbols,
     bridgeFromValue.tokenMeta?.symbol,
   ]);
-
-  const { data: estimatedGasFee = '0' } = useRequest(
-    () => evmServices.calculateGasInUSD(BridgeConfig.Rainbow.gas),
-    {
-      refreshDeps: [BridgeConfig.Rainbow.gas],
-    }
-  );
 
   const { data: bridgeFromBalance } = useRequest(
     () =>
@@ -398,5 +420,6 @@ export default function useBridgeForm() {
     slippageTolerance,
     setSlippageTolerance,
     estimatedGasFee,
+    channelFeeMap,
   };
 }

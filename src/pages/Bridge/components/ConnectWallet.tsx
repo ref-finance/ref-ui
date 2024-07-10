@@ -7,6 +7,8 @@ import SvgIcon from './SvgIcon';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useAutoResetState } from '../hooks/useHooks';
 import { SupportChains } from '../config';
+import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 
 type Props = {
   currentChain: BridgeModel.BridgeSupportChain;
@@ -19,6 +21,19 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
   const { isSignedIn, accountId, open, disconnect } = getWallet(currentChain);
 
   const [showToast, setShowToast] = useAutoResetState(false, 2000);
+
+  const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+
+  function handleOpenWalletModal() {
+    if (
+      currentChain === 'NEAR' &&
+      localStorage.getItem(CONST_ACKNOWLEDGE_WALLET_RISK) !== '1'
+    ) {
+      setShowWalletRisk(true);
+    } else {
+      open();
+    }
+  }
 
   return (
     <div className={`inline-flex items-center ${className}`}>
@@ -66,9 +81,20 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
           }
         </Button>
       ) : (
-        <Button type="primary" text onClick={() => open()}>
+        <Button type="primary" text onClick={() => handleOpenWalletModal()}>
           Connect
         </Button>
+      )}
+      {currentChain === 'NEAR' && (
+        <WalletRiskCheckBoxModal
+          isOpen={showWalletRisk}
+          setCheckedStatus={() => {
+            localStorage.setItem(CONST_ACKNOWLEDGE_WALLET_RISK, '1');
+            setShowWalletRisk(false);
+            handleOpenWalletModal();
+          }}
+          onClose={() => setShowWalletRisk(false)}
+        />
       )}
     </div>
   );
