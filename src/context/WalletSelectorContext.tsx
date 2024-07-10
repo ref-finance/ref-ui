@@ -19,6 +19,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 import getConfig from '../services/config';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
+import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
@@ -133,6 +134,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       network: getConfig().networkId as NetworkId,
       debug: false,
       modules: [
+        setupOKXWallet({}),
         setupMyNearWallet({
           // iconUrl: walletIcons['my-near-wallet'],
         }),

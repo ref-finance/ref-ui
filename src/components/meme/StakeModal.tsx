@@ -254,7 +254,7 @@ function StakeModal(props: any) {
             {/* Tab */}
             <div className="mt-5 flex justify-between">
               <div
-                className={`flex-1 ${
+                className={`flex-grow w-1 ${
                   selectedTab === 'meme'
                     ? 'bg-senderHot text-cardBg'
                     : 'bg-memeModelgreyColor text-white'
@@ -277,7 +277,7 @@ function StakeModal(props: any) {
                 </span>
               </div>
               <div
-                className={`flex-1 ${
+                className={`flex-grow w-1 ${
                   selectedTab === 'xref'
                     ? 'bg-senderHot text-cardBg'
                     : 'bg-memeModelgreyColor text-white'

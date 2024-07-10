@@ -284,6 +284,14 @@ function MobilePoolRow({
                 >
                   {supportFarm && <FarmStampNew multi={farmCount > 1} />}
                 </div>
+                {pool.top && (
+                  <div
+                    className="w-9 h-5 bg-greenLight text-black font-bold text-xs frcc"
+                    style={{ borderRadius: ' 14px' }}
+                  >
+                    Top
+                  </div>
+                )}
               </div>
             </div>
           </div>

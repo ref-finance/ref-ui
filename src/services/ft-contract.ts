@@ -27,6 +27,7 @@ const FRAX_ID = '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near';
 const BLACKDRAGON_ID = 'blackdragon.tkn.near';
 const SOL_NATIVE_ID = '22.contract.portalbridge.near';
 const BABY_BLACKDRAGON_ID = 'babyblackdragon.tkn.near';
+const INTEL_ID = 'intel.tkn.near';
 
 export const REF_META_DATA = {
   decimals: 18,
@@ -202,7 +203,8 @@ export const ftGetTokenMetadata = async (
       metadata.id === BLACKDRAGON_ID ||
       metadata.id === FRAX_ID ||
       metadata.id === SOL_NATIVE_ID ||
-      metadata.id === BABY_BLACKDRAGON_ID
+      metadata.id === BABY_BLACKDRAGON_ID ||
+      metadata.id === INTEL_ID
     ) {
       metadata.icon = metadataDefaults[id];
       if (metadata.id === SOL_ID) {
@@ -245,4 +247,11 @@ export const unWrapToken = (token: TokenMetadata, keepId?: boolean) => {
   if (token.id === getConfig().WRAP_NEAR_CONTRACT_ID)
     return { ...nearMetadata, id: keepId ? token.id : nearMetadata.id };
   else return token;
+};
+
+export const tokenFtMetadata = async (tokenId: string) => {
+  const metadata = await ftViewFunction(tokenId, {
+    methodName: 'tknx_metadata',
+  });
+  return metadata;
 };

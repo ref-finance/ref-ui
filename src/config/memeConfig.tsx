@@ -1,16 +1,16 @@
 export const memeComingSoonJson = [
-  {
-    id: 'dragonsoultoken.near',
-    title: 'DGS',
-    introduce: `DGS is the exclusive token of DragonWorld game. 
-    DragonWorld integrates the excellent elements of World of Warcraft and 
-    Palworld, including dragon growth, dragon adventures, single and multiplayer 
-    dungeons, dragon mining, dragon production farms, and a series of other interesting elements.`,
-    amount: '10000000',
-    airdropTime: 'June 30',
-    rules: `1-30: 150000 DGS\n31-100: 50000 DGS\n101-200: 20000 DGS`,
-    isShow: false,
-  },
+  // {
+  //   id: 'dragonsoultoken.near',
+  //   title: 'DGS',
+  //   introduce: `DGS is the exclusive token of DragonWorld game. 
+  //   DragonWorld integrates the excellent elements of World of Warcraft and 
+  //   Palworld, including dragon growth, dragon adventures, single and multiplayer 
+  //   dungeons, dragon mining, dragon production farms, and a series of other interesting elements.`,
+  //   amount: '10000000',
+  //   airdropTime: 'June 30',
+  //   rules: `1-30: 150000 DGS\n31-100: 50000 DGS\n101-200: 20000 DGS`,
+  //   isShow: false,
+  // },
   {
     id: 'edge-fast.near',
     title: '$FAST',

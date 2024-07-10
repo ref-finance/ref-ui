@@ -140,6 +140,7 @@ export default function getConfig(
     case 'production':
     case 'mainnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
@@ -313,6 +314,7 @@ export default function getConfig(
       };
     case 'pub-testnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
@@ -417,6 +419,7 @@ export default function getConfig(
       };
     case 'testnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
@@ -521,6 +524,7 @@ export default function getConfig(
       };
     default:
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
