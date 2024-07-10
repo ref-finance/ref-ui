@@ -1711,7 +1711,7 @@ export const TradeRouteHub = ({
     >
       <div className="border-b pb-1 frcs border-primaryText border-opacity-30">
         <DisplayIcon token={token} height="14px" width="14px" />
-        <span className="ml-1 text-white text-xs w-10 mr-4 whitespace-nowrap">
+        <span className="block ml-1 text-white text-xs w-28 truncate">
           {toRealSymbol(token.symbol)}
         </span>
       </div>
