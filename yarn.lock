@@ -3187,71 +3187,23 @@
   resolved "https://registry.yarnpkg.com/@msgpackr-extract/msgpackr-extract-win32-x64/-/msgpackr-extract-win32-x64-3.0.2.tgz#0f164b726869f71da3c594171df5ebc1c4b0a407"
   integrity sha512-O+6Gs8UeDbyFpbSh2CPEz/UOrrdWPTBYNblZK5CxxLisYt4kGX3Sc+czffFonyjiGSq3jWLwJS/CCJc7tBr4sQ==
 
-"@near-eth/aurora-erc20@^2.5.1":
-  version "2.5.1"
-  resolved "https://registry.npmmirror.com/@near-eth/aurora-erc20/-/aurora-erc20-2.5.1.tgz#f3681120c4911e327f5dcdebd5ef43405142ccb2"
-  integrity sha512-DrIcntJmJFc45SE8KWL7VFGwcmyhRm3FZLa0GD+bJrd0dyJQwzWIw9Nsjx1QgNrC0kVZ2SJv9I5hsrIYtORFuw==
-  dependencies:
-    "@near-eth/client" "1.9.0"
-    "@near-eth/utils" "2.4.0"
-    bn.js "^5.1.3"
-    bs58 "^4.0.1"
-    ethereumjs-util "^7.0.10"
-    ethers "^5.6.9"
-    find-replacement-tx "1.2.3"
-    near-api-js "^0.45.1"
-    promisfy "^1.2.0"
-    rlp "^2.2.6"
-
-"@near-eth/aurora-ether@^2.5.1":
-  version "2.5.1"
-  resolved "https://registry.npmmirror.com/@near-eth/aurora-ether/-/aurora-ether-2.5.1.tgz#83eb3d1d833105245f466b11a40ee62069fd663b"
-  integrity sha512-MElA1q0bwF+yTgR6Q1ngwrAsSeiHkEw0TmLJsPfJyoIoxAAtR0O+v1UBVMqbVkFO/ExQHhQ26gm3NTl8BGET0w==
-  dependencies:
-    "@near-eth/client" "1.9.0"
-    "@near-eth/utils" "2.4.0"
-    bn.js "^5.1.3"
-    bs58 "^4.0.1"
-    ethereumjs-util "^7.0.10"
-    ethers "^5.6.9"
-    find-replacement-tx "1.2.3"
-    near-api-js "^0.45.1"
-    promisfy "^1.2.0"
-    rlp "^2.2.6"
-
-"@near-eth/aurora-nep141@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.npmmirror.com/@near-eth/aurora-nep141/-/aurora-nep141-1.4.0.tgz#083969bbd8cb5b73bc24bfda70859dc46b9ee82c"
-  integrity sha512-+zw2G1dEjteVRtGEoZCEf7fM+E9FSzDrwsrZB+NWz+/SEbw86hYE9lBk2sZYSRTf/sxq30MEJY9Ldfi98sJiDg==
-  dependencies:
-    "@near-eth/client" "1.9.0"
-    "@near-eth/utils" "2.4.0"
-    bn.js "^5.1.3"
-    bs58 "^4.0.1"
-    ethereumjs-util "^7.0.10"
-    ethers "^5.6.9"
-    find-replacement-tx "1.2.3"
-    near-api-js "^0.45.1"
-    promisfy "^1.2.0"
-    rlp "^2.2.6"
-
-"@near-eth/client@1.9.0", "@near-eth/client@^1.9.0":
-  version "1.9.0"
-  resolved "https://registry.npmmirror.com/@near-eth/client/-/client-1.9.0.tgz#84123940dcb2639aaf13052d3ced9c7866364dd3"
-  integrity sha512-rLaJ8BkZhQPtCPl6tktHISg2e5ZS7dz1F0UXlh/5+JAas+Nw9BBuUmWnd3mVJX81s9Svq7JT2P0PmabTvx5X4Q==
+"@near-eth/client@1.12.0", "@near-eth/client@^1.12.0":
+  version "1.12.0"
+  resolved "https://registry.npmjs.org/@near-eth/client/-/client-1.12.0.tgz#173c76aa06a2ae64fab9b00a337f617ea5309ec2"
+  integrity sha512-B+8fb28kszHRPATP9/Yl8qoDkZYjed+uGpyjr8dGgI6hx/L4Mmo66prcb9ADEKztZ6s7ee8WwV/GPEwN68S0uQ==
   dependencies:
     bn.js "^5.1.3"
     decimal.js "^10.2.1"
     ethers "^5.6.9"
     near-api-js "^0.45.1"
 
-"@near-eth/near-ether@^2.4.1":
-  version "2.4.1"
-  resolved "https://registry.npmmirror.com/@near-eth/near-ether/-/near-ether-2.4.1.tgz#b469a3ad4281f84bbb9fb76b26ce426d2bf48f90"
-  integrity sha512-guZW9oeSHa593fthJ7F93olTxdAvXva6AWIP2gEZvCy/7wfwApqSBSU0V5MBtDSigH8CyCT1sO50SxVTWWYJnA==
+"@near-eth/near-ether@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.npmjs.org/@near-eth/near-ether/-/near-ether-2.5.0.tgz#39809f6650c457af4d8934a491033ca803abbd16"
+  integrity sha512-fwt8ySVY8+81s8Yqd03VfIcKcWdwf7/kVyn3vKwcvF6VO1DdULkRz5wpC5EKkObwOEL/487H3Wm+u1bNJ3RqyQ==
   dependencies:
-    "@near-eth/client" "1.9.0"
-    "@near-eth/utils" "2.4.0"
+    "@near-eth/client" "1.12.0"
+    "@near-eth/utils" "2.6.0"
     bn.js "^5.1.3"
     bs58 "^4.0.1"
     ethereumjs-util "^7.0.10"
@@ -3261,13 +3213,13 @@
     promisfy "^1.2.0"
     rlp "^2.2.6"
 
-"@near-eth/nep141-erc20@^2.4.1":
-  version "2.4.1"
-  resolved "https://registry.npmmirror.com/@near-eth/nep141-erc20/-/nep141-erc20-2.4.1.tgz#2595cb584725238de1997330bc5cfa1072811750"
-  integrity sha512-ok6lCbt/2fEijje2t3oGZqWCFKqpf4ppme5PNqD/3MwH1HdILKFXe4tZLMTUqP+HzICfTPDUQug4qjkOVAAOng==
+"@near-eth/nep141-erc20@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.npmjs.org/@near-eth/nep141-erc20/-/nep141-erc20-2.5.0.tgz#eb0b58446b64fcc334d73798126f0d19816a1bdc"
+  integrity sha512-mYHGs1jfBcN3tVa+9Ht9MnvvOhC9OABZfMVhikYD5M8pmAAuWdisOlHBMb0wdBF+pjcQ880K+fsP+WJQPG2izQ==
   dependencies:
-    "@near-eth/client" "1.9.0"
-    "@near-eth/utils" "2.4.0"
+    "@near-eth/client" "1.12.0"
+    "@near-eth/utils" "2.6.0"
     bn.js "^5.1.3"
     bs58 "^4.0.1"
     ethereumjs-util "^7.0.10"
@@ -3277,13 +3229,14 @@
     promisfy "^1.2.0"
     rlp "^2.2.6"
 
-"@near-eth/utils@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.npmmirror.com/@near-eth/utils/-/utils-2.4.0.tgz#91fcb439be4d8fb0255da59ec4110fb0a3759905"
-  integrity sha512-LiEDDoV7Vso1FoAgOTxaiivTVjzwv5nMeQDUL8KnTn5GNmgVs5f1wEFSTdf2fVKdYpJaoxvVajucpcb9QerY9A==
+"@near-eth/utils@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.npmjs.org/@near-eth/utils/-/utils-2.6.0.tgz#75db4f42e7c2424ea89e241bf854ba6bfee1b704"
+  integrity sha512-ZTq2uxfqbUvHY4LXRaXAKFloBsTH0bHQmKcuhPiXUw95aeaAk9dez2uCMvrMtnmzoR1bymq1ycSvGROMTgbbaw==
   dependencies:
+    bn.js "^5.2.1"
     bs58 "^4.0.1"
-    eth-object aurora-is-near/eth-object#a84d1420fdde87a768b96c6a3b3d0ee435998f72
+    eth-object aurora-is-near/eth-object#378b8dbf44a71f7049666cea5a16ab88d45aed06
     ethereumjs-util "^7.0.10"
     ethers "^5.6.9"
     lite-merkle-patricia-tree "1.0.1"
@@ -6256,6 +6209,28 @@
     events "^3.3.0"
     lodash.isequal "4.5.0"
     pino "7.11.0"
+    uint8arrays "^3.1.0"
+
+"@walletconnect/core@2.9.1":
+  version "2.9.1"
+  resolved "https://registry.npmjs.org/@walletconnect/core/-/core-2.9.1.tgz#1a333933750f5f933d9b7788a8dae44ce1173063"
+  integrity sha512-xyWeP0eLhEEDQAVJSmqs4n/AClKUM+8os2ZFe7BTuw1tFYjeLNVDtKCHziVOSTh8wEChMsKSGKA4zerQoH8mAQ==
+  dependencies:
+    "@walletconnect/heartbeat" "1.2.1"
+    "@walletconnect/jsonrpc-provider" "1.0.13"
+    "@walletconnect/jsonrpc-types" "1.0.3"
+    "@walletconnect/jsonrpc-utils" "1.0.8"
+    "@walletconnect/jsonrpc-ws-connection" "1.0.13"
+    "@walletconnect/keyvaluestorage" "^1.0.2"
+    "@walletconnect/logger" "^2.0.1"
+    "@walletconnect/relay-api" "^1.0.9"
+    "@walletconnect/relay-auth" "^1.0.4"
+    "@walletconnect/safe-json" "^1.0.2"
+    "@walletconnect/time" "^1.0.2"
+    "@walletconnect/types" "2.9.1"
+    "@walletconnect/utils" "2.9.1"
+    events "^3.3.0"
+    lodash.isequal "4.5.0"
     uint8arrays "^3.1.0"
 
 "@walletconnect/core@^1.8.0":
@@ -11004,9 +10979,9 @@ eth-lib@^0.1.26:
     ws "^3.0.0"
     xhr-request-promise "^0.1.2"
 
-eth-object@aurora-is-near/eth-object#a84d1420fdde87a768b96c6a3b3d0ee435998f72:
+eth-object@aurora-is-near/eth-object#378b8dbf44a71f7049666cea5a16ab88d45aed06:
   version "1.0.3"
-  resolved "https://codeload.github.com/aurora-is-near/eth-object/tar.gz/a84d1420fdde87a768b96c6a3b3d0ee435998f72"
+  resolved "https://codeload.github.com/aurora-is-near/eth-object/tar.gz/378b8dbf44a71f7049666cea5a16ab88d45aed06"
   dependencies:
     eth-util-lite near/eth-util-lite#master
     ethereumjs-util "^7.0.3"
