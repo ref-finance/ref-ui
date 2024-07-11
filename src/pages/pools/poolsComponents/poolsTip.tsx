@@ -2,11 +2,17 @@ import React from 'react';
 
 export const PoolsTip = ({ activeTab }) => {
   const tip = (text, link) => (
-    <div className={'text-primaryText mb-6 gotham_font text-14px'}>
+    <div
+      className={
+        'text-primaryText mb-6 gotham_font text-14px whitespace-normal'
+      }
+    >
       {text}
-      <a href={link} className={'underline ml-2 cursor-pointer'}>
-        Learn more
-      </a>
+      {activeTab != 'degen' && (
+        <a href={link} className={'underline ml-2 cursor-pointer'}>
+          Learn more
+        </a>
+      )}
     </div>
   );
 
@@ -27,6 +33,12 @@ export const PoolsTip = ({ activeTab }) => {
     case 'stable':
       node = tip(
         "Stable pools, which can contain two or more tokens, use Curve's StableSwap algorithm.",
+        'https://guide.ref.finance/products/guides/liquidity-management/stable-and-rated-pools'
+      );
+      break;
+    case 'degen':
+      node = tip(
+        "Degen pools, which can contain two or more tokens, use Curve's StableSwap algorithm combined with Oracle for real-time price updates of trading pairs, allowing the creation of StablePools with any token.",
         'https://guide.ref.finance/products/guides/liquidity-management/stable-and-rated-pools'
       );
       break;

@@ -53,6 +53,7 @@ import getConfig from 'src/services/config';
 import Big from 'big.js';
 import { BLACK_TOKEN_IDS_IN_POOL } from '../LiquidityPage/LiquidityPage';
 import { TokenPriceListContext } from '../LiquidityPage/constLiquidityPage';
+import { getExtraStablePoolConfig } from 'src/services/config';
 
 function StablePoolList({
   searchBy,
@@ -60,14 +61,19 @@ function StablePoolList({
   watchPools,
   farmCounts,
   farmAprById,
+  activeType,
 }: {
   searchBy: string;
   volumes: Record<string, string>;
   watchPools: Pool[];
   farmCounts: Record<string, number>;
   farmAprById: Record<string, number>;
+  activeType?: string;
 }) {
-  const [option, setOption] = useState<string>('ALL');
+  // const [option, setOption] = useState<string>('ALL');
+  const [option, setOption] = useState<string>(
+    activeType == 'degen' ? 'DEGEN' : 'ALL'
+  );
 
   const [orderStable, setorderStable] = useState<string>('desc');
 
@@ -90,6 +96,10 @@ function StablePoolList({
         ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
+        : option === 'DEGEN'
+        ? getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(
+            p.pool.id.toString()
+          )
         : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
@@ -148,23 +158,25 @@ function StablePoolList({
     <>
       <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
         <div className="flex items-center col-span-2 xsm:w-full">
-          {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
-            return (
-              <button
-                key={o + '-stable-pool-type'}
-                className={`text-sm xs:text-base md:text-base flex px-3 mr-3 py-1 rounded-xl items-center justify-center  ${
-                  option === o ? 'bg-cardBg text-white' : 'text-primaryText'
-                } `}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setOption(o);
-                }}
-              >
-                {o}
-              </button>
-            );
-          })}
+          {activeType == 'degen'
+            ? null
+            : ['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
+                return (
+                  <button
+                    key={o + '-stable-pool-type'}
+                    className={`text-sm xs:text-base md:text-base flex px-3 mr-3 py-1 rounded-xl items-center justify-center  ${
+                      option === o ? 'bg-cardBg text-white' : 'text-primaryText'
+                    } `}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOption(o);
+                    }}
+                  >
+                    {o}
+                  </button>
+                );
+              })}
         </div>
 
         <div className="col-span-4 grid grid-cols-5 items-center xsm:hidden text-primaryText ">
@@ -782,7 +794,7 @@ function TokenChart({
     return {
       name: token.symbol,
       value: Number(coinsAmounts[token.id]),
-      token: token,
+      token,
       displayV: tokensData[token.id].display2,
     };
   });
@@ -824,9 +836,9 @@ function TokenChart({
     USDt: '#0E8585',
   };
 
-  let innerRadius = 30;
-  let outerRadius = 40;
-  let width = 80;
+  const innerRadius = 30;
+  const outerRadius = 40;
+  const width = 80;
 
   const renderActiveShape = (props: any) => {
     const RADIAN = Math.PI / 180;
@@ -909,7 +921,7 @@ const calculateTokenValueAndShare = (
   coinsAmounts: { [id: string]: BigNumber },
   tokensMap: { [id: string]: TokenMetadata }
 ): Record<string, any> => {
-  let result: Record<string, any> = {};
+  const result: Record<string, any> = {};
   const totalShares = _.sumBy(Object.values(coinsAmounts), (o) => Number(o));
 
   let otherTokenNumber = '0';

@@ -1197,6 +1197,26 @@ function PcLiquidityPage({
               <FormattedMessage id="watchlist" defaultMessage={'Watchlist'} />
               {totalWatchList_length > 0 ? ` (${totalWatchList_length})` : ''}
             </button>
+
+            <button
+              className={`ml-2.5 h-10 px-4  hover:bg-viewPoolHoverBgColor bg-cardBg flex items-center justify-center ${
+                activeTab === 'degen' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background:
+                  activeTab === 'degen'
+                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+                    : null,
+                borderRadius: '10px',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                switchActiveTab('degen');
+              }}
+            >
+              Degen Pool
+            </button>
           </div>
 
           <div className="flex items-center justify-end relative ">
@@ -1822,6 +1842,18 @@ function PcLiquidityPage({
             farmAprById={farmAprById}
           />
         )}
+
+        {activeTab === 'degen' && (
+          <StablePoolList
+            searchBy={tokenName}
+            volumes={volumes}
+            watchPools={watchPools}
+            farmCounts={farmCounts}
+            farmAprById={farmAprById}
+            activeType={'degen'}
+          />
+        )}
+
         {activeTab == 'v1' && (
           <div className="mt-10">
             <Pagination
@@ -2872,14 +2904,18 @@ function StablePoolList({
   watchPools,
   farmCounts,
   farmAprById,
+  activeType,
 }: {
   searchBy: string;
   volumes: Record<string, string>;
   watchPools: Pool[];
   farmCounts: Record<string, number>;
   farmAprById: Record<string, number>;
+  activeType?: string;
 }) {
-  const [option, setOption] = useState<string>('ALL');
+  const [option, setOption] = useState<string>(
+    activeType == 'degen' ? 'DEGEN' : 'ALL'
+  );
 
   const [orderStable, setorderStable] = useState<string>('desc');
 
@@ -2963,23 +2999,25 @@ function StablePoolList({
     <>
       <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
         <div className="flex items-center col-span-2 xsm:w-full">
-          {['ALL', 'USD', 'BTC', 'NEAR', 'DEGEN'].map((o) => {
-            return (
-              <button
-                key={o + '-stable-pool-type'}
-                className={`text-sm xs:text-base md:text-base flex px-3 mr-3 py-1 rounded-xl items-center justify-center  ${
-                  option === o ? 'bg-cardBg text-white' : 'text-primaryText'
-                } `}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setOption(o);
-                }}
-              >
-                {o}
-              </button>
-            );
-          })}
+          {activeType == 'degen'
+            ? null
+            : ['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
+                return (
+                  <button
+                    key={o + '-stable-pool-type'}
+                    className={`text-sm xs:text-base md:text-base flex px-3 mr-3 py-1 rounded-xl items-center justify-center  ${
+                      option === o ? 'bg-cardBg text-white' : 'text-primaryText'
+                    } `}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOption(o);
+                    }}
+                  >
+                    {o}
+                  </button>
+                );
+              })}
         </div>
 
         <div className="col-span-4 grid grid-cols-5 items-center xsm:hidden text-primaryText ">

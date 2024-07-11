@@ -384,7 +384,8 @@ function MobileLiquidityPage({
                 switchActiveTab('v2');
               }}
             >
-              <FormattedMessage id="v2_pools" />
+              {/* <FormattedMessage id="v2_pools" /> */}
+              DCL
             </button>
 
             <button
@@ -404,7 +405,8 @@ function MobileLiquidityPage({
                 switchActiveTab('v1');
               }}
             >
-              <FormattedMessage id="classic_pools"></FormattedMessage>
+              {/* <FormattedMessage id="classic_pools"></FormattedMessage> */}
+              Classic
             </button>
 
             <button
@@ -424,10 +426,31 @@ function MobileLiquidityPage({
                 switchActiveTab('stable');
               }}
             >
-              <FormattedMessage
+              {/* <FormattedMessage
                 id="stable_pools"
                 defaultMessage={'Stable Pools'}
-              ></FormattedMessage>
+              ></FormattedMessage> */}
+              Stable
+            </button>
+
+            <button
+              className={`w-1/3 h-10 flex items-center justify-center ${
+                activeTab === 'degen' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background:
+                  activeTab === 'degen'
+                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+                    : null,
+                borderRadius: '10px',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                switchActiveTab('degen');
+              }}
+            >
+              Degen
             </button>
           </div>
 
@@ -671,6 +694,18 @@ function MobileLiquidityPage({
             farmAprById={farmAprById}
           />
         )}
+
+        {activeTab === 'degen' && (
+          <StablePoolList
+            searchBy={tokenName}
+            volumes={volumes}
+            watchPools={watchPools}
+            farmCounts={farmCounts}
+            farmAprById={farmAprById}
+            activeType="degen"
+          />
+        )}
+
         {activeTab == 'v1' && (
           <div className="mt-10">
             <Pagination
