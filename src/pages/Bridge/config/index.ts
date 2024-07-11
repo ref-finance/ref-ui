@@ -37,7 +37,7 @@ export const EVMConfig = {
   walletConnectProjectId: '669d1b9f59163a92d90a3c1ff78a7326',
   chains: [
     {
-      id: '0x1',
+      id: IS_MAINNET ? '0x1' : '0xaa36a7',
       token: 'ETH',
       label: `Ethereum ${EVM_NETWORK}`,
       rpcUrl: `https://${EVM_NETWORK}.infura.io/v3/${INFURA_KEY}`,
@@ -108,14 +108,14 @@ export const BridgeConfig = {
           ...RainbowBridgeDefaultParams,
           auroraChainId: 1313161555,
           erc20LockerAddress: '0xC115851CA60Aed2CCc6EE3D5343F590834e4a3aB',
-          nep141Factory: 'factory.sepolia.testnet',
+          nep141Factory: 'factory.goerli.testnet',
           etherCustodianAddress: '0x84a82Bb39c83989D5Dc07e1310281923D2544dC2',
           ethClientAddress: '0x37C2d89b55Bfd95532637554711441017eFabFef',
-          nearClientAccount: 'client-eth2.sepolia.testnet',
+          nearClientAccount: 'client-eth2.goerli.testnet',
           eNEARAddress: '0xe6b7C088Da1c2BfCf84aaE03fd6DE3C4f28629dA',
-          nativeNEARLockerAddress: 'enear.sepolia.testnet',
+          nativeNEARLockerAddress: 'enear.goerli.testnet',
           wNearNep141: 'wrap.testnet',
-          eventRelayerAccount: 'event-relayer.sepolia.testnet',
+          eventRelayerAccount: 'event-relayer.goerli.testnet',
         },
   },
   Stargate: {
