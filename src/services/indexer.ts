@@ -1174,3 +1174,15 @@ export const getTokens = async () => {
     return tokens;
   });
 };
+export const addUserWallet = async (params) => {
+  return await fetch(config.indexerUrl + '/add-user-wallet', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/add-user-wallet'),
+    },
+    body: JSON.stringify(params),
+  }).catch(async (res) => {
+    console.log('add user wallet failed', res);
+  });
+};

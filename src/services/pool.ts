@@ -462,6 +462,83 @@ export const getPoolsByTokens = async ({
     });
   return { filteredPools, pool_protocol };
 };
+export const getAllPoolsByTokens = async (): Promise<{
+  filteredPools: Pool[];
+}> => {
+  let pools;
+
+  const cachePools = async (pools: any) => {
+    await db.cachePoolsByTokens(
+      pools.filter(filterBlackListPools).filter((p: any) => isNotStablePool(p))
+    );
+  };
+  try {
+    const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
+
+    if (cachedPoolProtocol === 'rpc') {
+      pools = await db.getAllPoolsTokens();
+
+      if (!pools || pools.length === 0) {
+        pools = await fetchPoolsRPC();
+        await cachePools(pools);
+      }
+    } else {
+      const poolsRaw = await db.queryTopPools();
+      if (poolsRaw && poolsRaw?.length > 0) {
+        pools = poolsRaw.map((p) => {
+          const parsedP = parsePool({
+            ...p,
+            share: p.shares_total_supply,
+            id: Number(p.id),
+            tvl: Number(p.tvl),
+          });
+
+          return {
+            ...parsedP,
+            Dex: 'ref',
+          };
+        });
+      } else {
+        const poolsRaw = await fetchPoolsIndexer();
+
+        await db.cacheTopPools(poolsRaw);
+
+        pools = poolsRaw.map((p: any) => {
+          return {
+            ...parsePool(p),
+            Dex: 'ref',
+          };
+        });
+
+        await cachePools(pools);
+      }
+    }
+  } catch (error) {
+    const { pools: poolsRaw, protocol } = await fetchTopPools();
+
+    if (protocol === 'indexer') {
+      await db.cacheTopPools(poolsRaw);
+      pools = poolsRaw.map((p: any) => {
+        return {
+          ...parsePool(p),
+          Dex: 'ref',
+        };
+      });
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'indexer');
+    } else {
+      pools = poolsRaw;
+      sessionStorage.setItem(REF_FI_POOL_PROTOCOL, 'rpc');
+    }
+    await cachePools(pools);
+    await cacheAllDCLPools();
+  }
+  const filteredPools = pools
+    .filter(filterBlackListPools)
+    .filter((pool: any) => {
+      return isNotStablePool(pool);
+    });
+  return { filteredPools };
+};
 
 export const getPoolsByTokensAurora = async ({
   tokenInId,
@@ -542,12 +619,11 @@ export const getPoolsByTokensAurora = async ({
   return filtered_pools;
 };
 
-export const getRefPoolsByToken1ORToken2 = async (
-  tokenId1: string,
-  tokenId2: string
-) => {
-  return await db.queryPoolsByTokens2(tokenId1, tokenId2);
-  //return await db.poolsTokens;
+export const getRefPoolsByToken1ORToken2 = async () => {
+  return await db.queryPoolsByTokens2();
+};
+export const getRefPoolsByToken1ORToken2Parsed = async () => {
+  return await db.getAllPoolsTokens();
 };
 
 export const getPool = async (id: number): Promise<Pool> => {
