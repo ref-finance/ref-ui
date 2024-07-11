@@ -434,7 +434,7 @@ function MobileLiquidityPage({
             </button>
 
             <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
+              className={`w-1/3 h-10 flex items-center justify-center relative ${
                 activeTab === 'degen' ? 'text-white' : 'text-primaryText'
               } `}
               style={{
@@ -451,6 +451,17 @@ function MobileLiquidityPage({
               }}
             >
               Degen
+              <div
+                className="absolute -right-3 -top-2 w-8 h-5 frcc text-black font-gothamBold p-1 italic"
+                style={{
+                  background: 'linear-gradient(to right,#00FFD1, #08FF6B)',
+                  borderRadius: '16px 16px 16px 0',
+                  fontSize: '10px',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                New
+              </div>
             </button>
           </div>
 

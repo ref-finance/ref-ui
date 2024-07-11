@@ -1117,7 +1117,7 @@ function PcLiquidityPage({
                   switchActiveTab('v2');
                 }}
               >
-                <FormattedMessage id="dcl_pools" defaultMessage={'DCL Pools'} />
+                <FormattedMessage id="dcl_pools" defaultMessage={'DCL'} />
               </button>
               {activeTab === 'v1' || activeTab === 'v2' ? null : (
                 <div
@@ -1173,6 +1173,37 @@ function PcLiquidityPage({
             </button>
 
             <button
+              className={`relative ml-2.5 h-10 px-4  hover:bg-viewPoolHoverBgColor bg-cardBg flex items-center justify-center ${
+                activeTab === 'degen' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background:
+                  activeTab === 'degen'
+                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+                    : null,
+                borderRadius: '10px',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                switchActiveTab('degen');
+              }}
+            >
+              Degen
+              <div
+                className="absolute -right-5 -top-2 w-8 h-5 frcc text-black font-gothamBold p-1 italic"
+                style={{
+                  background: 'linear-gradient(to right,#00FFD1, #08FF6B)',
+                  borderRadius: '16px 16px 16px 0',
+                  fontSize: '10px',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                New
+              </div>
+            </button>
+
+            <button
               className={`ml-2.5 h-10 px-4  hover:bg-viewPoolHoverBgColor bg-cardBg flex items-center justify-center ${
                 activeTab === 'watchlist' ? 'text-white' : 'text-primaryText'
               } `}
@@ -1196,26 +1227,6 @@ function PcLiquidityPage({
               )}
               <FormattedMessage id="watchlist" defaultMessage={'Watchlist'} />
               {totalWatchList_length > 0 ? ` (${totalWatchList_length})` : ''}
-            </button>
-
-            <button
-              className={`ml-2.5 h-10 px-4  hover:bg-viewPoolHoverBgColor bg-cardBg flex items-center justify-center ${
-                activeTab === 'degen' ? 'text-white' : 'text-primaryText'
-              } `}
-              style={{
-                background:
-                  activeTab === 'degen'
-                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
-                    : null,
-                borderRadius: '10px',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                switchActiveTab('degen');
-              }}
-            >
-              Degen Pool
             </button>
           </div>
 

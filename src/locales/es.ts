@@ -1174,7 +1174,7 @@ const es = {
   your_investment: 'Tu Inversión',
   your_investment_tip:
     'Valor en USD de tu inversión en Ref: Pools Clásicos + Pools DCL (incluyendo staked en farms) + xREF',
-  classic_pools: 'Pools Clásicos',
+  classic_pools: 'Clásicos',
   xref_staking: 'Staking xREF',
   token_balances: 'Saldos de Tokens',
   unclaimed_earnings: 'Ganancias no Reclamadas',
@@ -1231,7 +1231,7 @@ const es = {
   more_2: 'Más',
   liquidity_pools_2: 'Pools de Liquidez',
   business_inquiries: 'Consultas Comerciales',
-  stable_pools: 'Pools Estables',
+  stable_pools: 'Estables',
   pool_detail: 'Detalle del Pool',
   new_contract_deploy_tip:
     '¡Se ha implementado un nuevo contrato! Por favor, retira tu liquidez del contrato antiguo',

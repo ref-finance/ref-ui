@@ -1139,7 +1139,7 @@ const ko = {
   your_investment: '당신의 투자금',
   your_investment_tip:
     'Ref에 예치한 투자금을 USD로 계산하려면: 기존의 Classic 풀 + (농장 스테이킹 포함한) DCL 풀  + xRef를 하면 됩니다',
-  classic_pools: 'Classic 풀',
+  classic_pools: 'Classic',
   xref_staking: 'xREF 스테이킹',
   token_balances: '토큰 잔고',
   unclaimed_earnings: '미수령 수입',

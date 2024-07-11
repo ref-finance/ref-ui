@@ -1147,7 +1147,7 @@ const uk_UA = {
   your_investment: 'Your Investment',
   your_investment_tip:
     'USD value of your investment on Ref:Classic pools + DCL pools (including staked in farms) + xREF',
-  classic_pools: 'Classic Pools',
+  classic_pools: 'Classic',
   xref_staking: 'xREF Staking',
   token_balances: 'Token Balances',
   unclaimed_earnings: 'Unclaimed Earnings',
@@ -1203,7 +1203,7 @@ const uk_UA = {
   more_2: 'More',
   liquidity_pools_2: 'Liquidity Pools',
   business_inquiries: 'Business Inquiries',
-  stable_pools: 'Stable Pools',
+  stable_pools: 'Stable',
   pool_detail: 'Pool Detail',
   new_contract_deploy_tip:
     'A new contract has been deployed! Please remove your liquidity from the old contract',
