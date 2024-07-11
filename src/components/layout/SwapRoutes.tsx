@@ -15,7 +15,11 @@ import { toRealSymbol } from '../../utils/token';
 
 import { EstimateSwapView } from 'src/services/swap';
 
-import { getPoolAllocationPercents, percent } from '../../utils/numbers';
+import {
+  getPoolAllocationPercents,
+  percent,
+  getRouteAllocationPercents,
+} from '../../utils/numbers';
 import { Pool } from '../../services/pool';
 import { FaAngleUp, FaAngleDown } from '../reactIcons';
 import { Card } from '../card/Card';
@@ -72,8 +76,14 @@ import { displayNumberToAppropriateDecimals } from '../../services/commonV3';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
 import { get_pool_name, openUrl } from '../../services/commonV3';
 import getConfigV2 from '../../services/configV2';
+
 import { REF_FI_BEST_MARKET_ROUTE } from '../../state/swap';
 import { PolygonRight } from '../../pages/Orderly/components/Common/Icons';
+import {
+  IEstimateSwapServerView,
+  IServerRoute,
+  getTokensOfRoute,
+} from '../../services/smartRouterFromServer';
 const configV2 = getConfigV2();
 export const GetPriceImpact = (
   value: string,
@@ -717,16 +727,23 @@ export const getDexAction = (market: SwapMarket) => {
 
 export const SwapRoute = ({
   route,
-  p,
   market,
+  routeServer,
 }: {
-  route: EstimateSwapView[];
-  p: string;
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
+  route?: EstimateSwapView[];
   market: SwapMarket;
+  routeServer?: IServerRoute;
 }) => {
-  const tokens = route[0].tokens;
+  const [tokens, setTokens] = useState([]);
+  useEffect(() => {
+    if (route) {
+      setTokens(route[0].tokens);
+    } else if (routeServer) {
+      getTokensOfRoute(routeServer).then((res) => {
+        setTokens(res);
+      });
+    }
+  }, [route, routeServer]);
 
   const { swapType } = useContext(SwapProContext);
 
@@ -771,6 +788,7 @@ export const SwapRoute = ({
           tokens.map((t, i) => {
             return (
               <div
+                key={i}
                 className={`text-xs ${
                   tokens.length === 3 && toRealSymbol(t.symbol).length > 7
                     ? 'xsm:overflow-hidden'
@@ -802,9 +820,11 @@ export const SwapRoute = ({
 export const SwapRouteMoreThan2 = ({
   market,
   trade,
+  throughPools,
 }: {
   market: SwapMarket;
   trade: ExchangeEstimate;
+  throughPools: number;
 }) => {
   const intl = useIntl();
 
@@ -846,7 +866,7 @@ export const SwapRouteMoreThan2 = ({
             id: 'steps_in_the_route_zh',
           })}
         <span className={intl.locale === 'zh-CN' ? 'mr-0' : 'mr-1'}>
-          {trade.estimates.length}
+          {throughPools}
         </span>
 
         <FormattedMessage
@@ -1691,7 +1711,7 @@ export const TradeRouteHub = ({
     >
       <div className="border-b pb-1 frcs border-primaryText border-opacity-30">
         <DisplayIcon token={token} height="14px" width="14px" />
-        <span className="ml-1 text-white text-xs w-10 mr-4">
+        <span className="block ml-1 text-white text-xs w-28 truncate">
           {toRealSymbol(token.symbol)}
         </span>
       </div>
@@ -1742,7 +1762,7 @@ export const RightBracket = ({ size }: { size: number }) => {
     <div
       className="w-4 mr-3 opacity-30 rounded-full relative z-10 border border-primaryText "
       style={{
-        height: `${size * 35}px`,
+        height: `${size * 60}px`,
         clipPath: `polygon(50% 0, 100% 0,100% 100%, 50%  100%)`,
       }}
     ></div>
@@ -1754,7 +1774,7 @@ export const LeftBracket = ({ size }: { size: number }) => {
     <div
       className="w-4 ml-3 opacity-30 rounded-full relative z-10 border border-primaryText  transform rotate-180"
       style={{
-        height: `${size * 35}px`,
+        height: `${size * 60}px`,
         clipPath: `polygon(50% 0, 100% 0,100% 100%, 50%  100%)`,
       }}
     ></div>
@@ -1770,6 +1790,47 @@ export const TradeRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
+  const [estimatesServerUI, setEstimatesServerUI] =
+    useState<IEstimateSwapServerView>();
+  const { estimates, estimatesServer } = trade || {};
+  const identicalRoutes = estimates
+    ? separateRoutes(estimates, estimates[estimates.length - 1].outputToken)
+    : [];
+
+  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
+  useEffect(() => {
+    if (estimatesServer) {
+      getTokensDataOfEstimatesServer();
+    } else {
+      setEstimatesServerUI(undefined);
+    }
+  }, [JSON.stringify(estimatesServer || {})]);
+  async function getTokensDataOfEstimatesServer() {
+    const pending = estimatesServer.routes.map((route) =>
+      getTokensOfRoute(route)
+    );
+    const tokens_of_routes = await Promise.all(pending);
+    estimatesServer.routes.map((route, index) => {
+      route.tokens = tokens_of_routes[index];
+    });
+    setEstimatesServerUI(estimatesServer);
+  }
+  const percents = useMemo(() => {
+    try {
+      return getPoolAllocationPercents(pools);
+    } catch (error) {
+      if (identicalRoutes.length === 0) return ['100'];
+      else return identicalRoutes.map((r) => r[0].percent);
+    }
+  }, [identicalRoutes, pools]);
+  const percentsServer = useMemo(() => {
+    const routes = estimatesServer?.routes || [];
+    try {
+      return getRouteAllocationPercents(routes);
+    } catch (error) {
+      return ['100'];
+    }
+  }, [(estimatesServer?.routes || []).length]);
   if (!tokenIn || !tokenOut) return null;
 
   if (!trade || !trade?.availableRoute || tokenIn?.id === tokenOut?.id) {
@@ -1801,70 +1862,102 @@ export const TradeRoute = ({
       </div>
     );
   }
-
-  const { estimates } = trade;
-
-  const { market } = trade;
-
-  const identicalRoutes = separateRoutes(
-    estimates,
-    estimates[estimates.length - 1].outputToken
-  );
-
-  const pools = identicalRoutes.map((r) => r[0]).map((hub) => hub.pool);
-
-  const percents = useMemo(() => {
-    try {
-      return getPoolAllocationPercents(pools);
-    } catch (error) {
-      if (identicalRoutes.length === 0) return ['100'];
-      else return identicalRoutes.map((r) => r[0].percent);
-    }
-  }, [identicalRoutes, pools]);
-
+  const routeLength =
+    identicalRoutes.length || trade.estimatesServer?.routes?.length;
   return (
     <div className="frcb">
       <DisplayIcon token={tokenIn} height="26px" width="26px" />
-      <LeftBracket size={identicalRoutes.length} />
-      <div className="w-full  mx-2 xsm:overflow-x-auto hideScroll relative">
-        {identicalRoutes.map((route, j) => {
-          return (
-            <div
-              className="relative frcb my-3 "
-              style={{
-                width: isMobile() ? '460px' : '',
-              }}
-            >
-              <span className="text-xs text-senderHot">{percents[j]}%</span>
+      <LeftBracket size={routeLength} />
+      {/* from script routes */}
+      {trade.estimates ? (
+        <div className={`w-full  mx-2 xsm:overflow-x-auto hideScroll relative`}>
+          {identicalRoutes.map((route, j) => {
+            return (
               <div
-                className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
+                key={j}
+                className="relative frcb my-3 "
                 style={{
-                  width: 'calc(100% - 32px)',
+                  width: isMobile() ? '460px' : '',
                 }}
-              ></div>
-              <div className="frcs">
-                {route[0].tokens
-                  .slice(1, route[0].tokens.length)
-                  .map((t, i) => {
+              >
+                <span className="text-xs text-senderHot">{percents[j]}%</span>
+                <div
+                  className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
+                  style={{
+                    width: 'calc(100% - 32px)',
+                  }}
+                ></div>
+                <div className="frcs">
+                  {route[0].tokens
+                    .slice(1, route[0].tokens.length)
+                    .map((t, i) => {
+                      return (
+                        <>
+                          <TradeRouteHub
+                            poolId={
+                              route[i].contract === 'Ref_DCL'
+                                ? getV3PoolId(
+                                    tokenIn.id,
+                                    tokenOut.id,
+                                    trade.fee * 100
+                                  )
+                                : route[i].contract === 'Ref_Classic'
+                                ? Number(route[i].pool.id)
+                                : null
+                            }
+                            token={t}
+                            contract={route[i].contract}
+                          />
+                          {t.id !==
+                            route[0].tokens[route[0].tokens.length - 1]?.id && (
+                            <div className="mx-3">
+                              <PolygonArrow />
+                            </div>
+                          )}
+                        </>
+                      );
+                    })}
+                </div>
+
+                <PolygonArrow />
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {/* from server routes */}
+      {estimatesServerUI ? (
+        <div className={`w-full  mx-2 xsm:overflow-x-auto hideScroll relative`}>
+          {estimatesServerUI.routes.map((route, j) => {
+            const { pools, tokens } = route;
+            return (
+              <div
+                key={j}
+                className="relative frcb my-3 "
+                style={{
+                  width: isMobile() ? '620px' : '',
+                }}
+              >
+                <span className="text-xs text-senderHot">
+                  {percentsServer[j]}%
+                </span>
+                <div
+                  className="border border-dashed absolute left-5 opacity-30 border-primaryText w-full px-3"
+                  style={{
+                    width: 'calc(100% - 32px)',
+                  }}
+                ></div>
+                <div className="frcs">
+                  {tokens?.slice(1, tokens.length).map((t, i) => {
                     return (
                       <>
                         <TradeRouteHub
-                          poolId={
-                            route[i].contract === 'Ref_DCL'
-                              ? getV3PoolId(
-                                  tokenIn.id,
-                                  tokenOut.id,
-                                  trade.fee * 100
-                                )
-                              : route[i].contract === 'Ref_Classic'
-                              ? Number(route[i].pool.id)
-                              : null
-                          }
+                          poolId={Number(pools[i].pool_id)}
                           token={t}
-                          contract={route[i].contract}
+                          contract="Ref_Classic"
                         />
-                        {t.id !==
-                          route[0].tokens[route[0].tokens.length - 1]?.id && (
+                        {t.id !== tokens[tokens.length - 1]?.id && (
                           <div className="mx-3">
                             <PolygonArrow />
                           </div>
@@ -1872,14 +1965,16 @@ export const TradeRoute = ({
                       </>
                     );
                   })}
-              </div>
+                </div>
 
-              <PolygonArrow />
-            </div>
-          );
-        })}
-      </div>
-      <RightBracket size={identicalRoutes.length} />
+                <PolygonArrow />
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      <RightBracket size={routeLength} />
 
       <DisplayIcon token={tokenOut} height="26px" width="26px" />
     </div>
@@ -1900,7 +1995,7 @@ export const TradeRouteModal = (
         />
       }
       {...props}
-      customWidth={isMobile() ? '95vw' : '700px'}
+      customWidth={isMobile() ? '95vw' : '800px'}
     >
       <div className="w-full mt-7">
         <TradeRoute

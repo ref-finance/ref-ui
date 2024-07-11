@@ -1963,6 +1963,9 @@ export default function LiquidityPage() {
     },
   });
   useEffect(() => {
+    setCurrentPage(1);
+  }, [farmOnly, hideLowTVL]);
+  useEffect(() => {
     get_shadow_records().then((res) => {
       setShadowRecords(res);
     });

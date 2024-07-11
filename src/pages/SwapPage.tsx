@@ -36,6 +36,7 @@ import OrderlyAirDropPop from '../components/orderlyAirdrop/index';
 import OrderlyAirDropPopMobile from '../components/orderlyAirdropMobile/index';
 import { useOrderlyGuidePopStore } from '../stores/orderlyGuidePop';
 import { isMobile } from 'src/utils/device';
+import { IEstimateSwapServerView } from '~src/services/smartRouterFromServer';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -71,6 +72,7 @@ export type SwapContractType =
 
 export interface ExchangeEstimate {
   estimates?: EstimateSwapView[];
+  estimatesServer?: IEstimateSwapServerView;
   fee?: number;
   priceImpact?: string;
   minAmountOut?: string;

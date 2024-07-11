@@ -36,6 +36,7 @@ import {
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
 import { setupKeypom } from '@keypom/selector';
+import { addUserWallet } from '../services/indexer';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -230,7 +231,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     if (!selector) {
       return;
     }
-
     const subscription = selector.store.observable
       .pipe(
         map((state) => state.accounts),
@@ -242,6 +242,15 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
     return () => subscription.unsubscribe();
   }, [selector, accountId]);
+  useEffect(() => {
+    const selectedWalletId = selector?.store?.getState()?.selectedWalletId;
+    if (accountId && selectedWalletId) {
+      addUserWallet({
+        account_id: accountId,
+        wallet_address: selectedWalletId,
+      });
+    }
+  }, [selector?.store?.getState()?.selectedWalletId, accountId]);
 
   const getAllKeys = async (accountId: string) => {
     const account = await near.account(accountId);

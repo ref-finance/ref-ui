@@ -423,7 +423,7 @@ class RefDatabase extends Dexie {
     return result;
   }
 
-  async queryPoolsByTokens2(tokenInId: string, tokenOutId: string) {
+  async queryPoolsByTokens2() {
     //Queries for any pools that contain either tokenInId OR tokenOutId OR both.
     const normalItems = await this.poolsTokens.toArray();
 
