@@ -277,7 +277,7 @@ export function RegisterModal(
               })}
               <a
                 className="underline text-primary ml-1"
-                href="https://orderly.network/"
+                href="https://orderly.org/"
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
@@ -360,7 +360,7 @@ function LearnMoreBox() {
           defaultMessage: 'Learn more about',
         })}
         <a
-          href="https://orderly.network/"
+          href="https://orderly.org/"
           target="_blank"
           rel="noopener noreferrer nofollow"
           className="inline underline cursor-pointer text-white ml-1"
@@ -434,7 +434,7 @@ function UserBoardFoot() {
         </div>
 
         <a
-          href="https://docs.orderly.network/welcome-to-orderly/what-is-orderly-network"
+          href="https://docs.orderly.org/welcome-to-orderly/what-is-orderly-network"
           className="underline hover:text-white whitespace-nowrap"
           target="_blank"
           rel="noopener noreferrer nofollow"
