@@ -234,10 +234,28 @@ const routes: Route[] = [
     }),
     wrapper: 'AutoHeight',
   },
+  // {
+  //   path: '/meme',
+  //   element: lazy(() => {
+  //     return import(
+  //       /* webpackChunkName: "MemeHotPage" */ 'src/pages/MemeHotPage'
+  //     );
+  //   }),
+  //   wrapper: 'AutoHeight',
+  // },
   {
     path: '/meme',
     element: lazy(() => {
-      return import(/* webpackChunkName: "swap" */ 'src/pages/MemePage');
+      return import(/* webpackChunkName: "MemePage" */ 'src/pages/MemePage');
+    }),
+    wrapper: 'AutoHeight',
+  },
+  {
+    path: '/airdop',
+    element: lazy(() => {
+      return import(
+        /* webpackChunkName: "memepage" */ 'src/pages/MemeAirdropListForMobile'
+      );
     }),
     wrapper: 'AutoHeight',
   },

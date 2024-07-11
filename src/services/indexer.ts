@@ -24,6 +24,7 @@ import {
 import { getPool as getPoolRPC } from '../services/pool';
 import { BLACKLIST_POOL_IDS } from './near';
 import { TokenMetadata } from './ft-contract';
+import { getAuthenticationHeaders } from './signature';
 
 const config = getConfig();
 
@@ -45,6 +46,7 @@ export const getPoolsByTokensIndexer = async ({
       `/list-pools-by-tokens?token0=${token0}&token1=${token1}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders('/list-pools-by-tokens'),
     }
   ).then((res) => res.json());
 
@@ -90,6 +92,9 @@ export const getHistoryOrder = async (
     config.indexerUrl + `/get-limit-order-log-by-account/${account_id}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders(
+        `/get-limit-order-log-by-account/${account_id}`
+      ),
     }
   ).then((res) => res.json());
 };
@@ -142,6 +147,7 @@ export const getTokenFlow = async ({
       }`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders('/get-token-flow'),
     }
   ).then((res) => res.json());
 };
@@ -153,13 +159,16 @@ export const getHistoryOrderSwapInfo = async (
     config.indexerUrl + `/get-limit-order-swap-by-account/${account_id}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders(
+        `/get-limit-order-swap-by-account/${account_id}`
+      ),
     }
   ).then((res) => res.json());
 };
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
-    config.sodakiApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
+    config.newSodakiApiUrl + `/poollist/${pool_id}/24hvolume/sum`,
     {
       method: 'GET',
     }
@@ -183,8 +192,7 @@ export const get24hVolumes = async (
   for (let i = 0; i < numBatches; i++) {
     const batchIds = pool_ids.slice(i * batchSize, (i + 1) * batchSize);
     const promise = fetch(
-      config.sodakiApiUrl +
-        `/poollist/${batchIds.join('|')}/rolling24hvolume/sum`,
+      config.newSodakiApiUrl + `/poollist/${batchIds.join('|')}/24hvolume/sum`,
       {
         method: 'GET',
       }
@@ -204,36 +212,23 @@ const parseActionView = async (action: any) => {
   return {
     datetime: moment.unix(action[0] / 1000000000),
     txUrl: config.explorerUrl + '/txns/' + action[1],
-    data: data,
-    // status: action[5] === 'SUCCESS_VALUE',
+    data,
     status: action[6] && action[6].indexOf('SUCCESS') > -1,
   };
 };
 
 export const getYourPools = async (): Promise<PoolRPCView[]> => {
-  return await fetch(
-    config.indexerUrl +
-      '/liquidity-pools/' +
-      getCurrentWallet()?.wallet?.getAccountId(),
-    {
-      method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }
-  )
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(config.indexerUrl + '/liquidity-pools/' + account_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders(`/liquidity-pools/${account_id}`),
+    },
+  })
     .then((res) => res.json())
     .then((pools) => {
       return pools;
-    });
-};
-
-export const getTopPoolsIndexer = async () => {
-  return await fetch(config.indexerUrl + '/list-top-pools', {
-    method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
-  })
-    .then((res) => res.json())
-    .then((poolList) => {
-      return poolList.map((p: any) => parsePool(p));
     });
 };
 
@@ -248,7 +243,10 @@ export const getTopPoolsIndexerRaw = async () => {
   try {
     const response = await fetch(config.indexerUrl + '/list-top-pools', {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-top-pools'),
+      },
       signal: controller.signal,
     });
 
@@ -277,7 +275,10 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     } else {
       pools = await fetch(config.indexerUrl + '/list-top-pools', {
         method: 'GET',
-        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/list-top-pools'),
+        },
       }).then((res) => res.json());
 
       // include non-stable pools on top pool list
@@ -333,22 +334,159 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
   }
 };
 
+export const getTopPoolsByNewUI = async ({
+  type = 'classic',
+  sort = 'tvl',
+  limit = '100',
+  offset = '0',
+  farm = 'false',
+  hide_low_pool = 'false',
+  order = 'desc',
+  token_type = '',
+}: {
+  type?: string;
+  sort?: string;
+  limit?: string;
+  offset?: string;
+  farm?: string | boolean;
+  hide_low_pool?: string | boolean;
+  order: string;
+  token_type: string;
+}): Promise<PoolRPCView[]> => {
+  let tktype = token_type;
+  if (token_type == 'all') {
+    tktype = '';
+  } else if (token_type == 'stablecoin') {
+    tktype = 'stable_coin';
+  }
+  if (sort == 'apr') {
+    sort = 'apy';
+  }
+  if (sort == 'volume_24h') {
+    sort = '24h';
+  }
+
+  try {
+    let pools: any;
+
+    pools = await fetch(
+      config.indexerUrl +
+        `/list-pools?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/list-pools'),
+        },
+      }
+    ).then((res) => res.json());
+
+    if (pools?.data?.list.length > 0) {
+      localStorage.setItem('poolsTotal', pools.data.total);
+      pools = pools.data.list;
+      return pools
+        .filter((pool: { token_account_ids: string | any[]; id: any }) => {
+          return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
+        })
+        .filter(filterBlackListPools);
+    } else {
+      pools = [];
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
+export const getSearchResult = async ({
+  type = 'classic',
+  sort = 'tvl',
+  limit = '100',
+  offset = '0',
+  farm = 'false',
+  hide_low_pool = 'false',
+  order = 'desc',
+  token_type = '',
+  token_list = '',
+  pool_id_list = '',
+  onlyUseId = false,
+}: {
+  type?: string;
+  sort?: string;
+  limit?: string;
+  offset?: string;
+  farm?: string | boolean;
+  hide_low_pool?: string | boolean;
+  order?: string;
+  token_list?: string;
+  token_type?: string;
+  pool_id_list?: string;
+  onlyUseId?: boolean;
+}): Promise<PoolRPCView[]> => {
+  let tktype = token_type;
+  if (token_type == 'all') {
+    tktype = '';
+  } else if (token_type == 'stablecoin') {
+    tktype = 'stable_coin';
+  }
+  if (sort == 'apr') {
+    sort = 'apy';
+  }
+  if (sort == 'volume_24h') {
+    sort = '24h';
+  }
+  try {
+    let pools: any;
+    const url = !onlyUseId
+      ? `/pool/search?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}&token_list=${token_list}&pool_id_list=${pool_id_list}`
+      : `/pool/search?pool_id_list=${pool_id_list}`;
+    // use classicTestUrl to replace indexerUrl
+    pools = await fetch(config.indexerUrl + url, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/pool/search'),
+      },
+    }).then((res) => res.json());
+    localStorage.setItem('poolsTotal', pools.data.total);
+
+    if (pools?.data?.list.length > 0) {
+      pools = pools.data.list;
+      return pools
+        .filter((pool: { token_account_ids: string | any[]; id: any }) => {
+          return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
+        })
+        .filter(filterBlackListPools);
+    } else {
+      pools = [];
+      return [];
+    }
+  } catch (error) {
+    console.log(error, 'usePools error');
+    return [];
+  }
+};
+
 export const getAllPoolsIndexer = async (amountThresh?: string) => {
   const rawRes = await fetch(
     config.indexerUrl +
       `/list-pools?${amountThresh ? `amounts=${amountThresh}` : ''}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders('/list-pools'),
     }
   ).then((res) => res.json());
-
+  console.log(rawRes, 'rawRes315>>>>>');
   return rawRes.map((r: any) => parsePool(r));
 };
 
 export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
   return await fetch(config.indexerUrl + '/get-pool?pool_id=' + pool_id, {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/get-pool'),
+    },
   })
     .then((res) => res.json())
     .then((pool) => {
@@ -378,7 +516,10 @@ export const getClassicPoolSwapRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-swap?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-swap'),
+      },
     }
   )
     .then((res) => res.json())
@@ -411,7 +552,10 @@ export const getDCLPoolSwapRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-dcl-swap?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-dcl-swap'),
+      },
     }
   )
     .then((res) => res.json())
@@ -446,7 +590,10 @@ export const getClassicPoolLiquidtyRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-liquidity?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-liquidity'),
+      },
     }
   )
     .then((res) => res.json())
@@ -476,7 +623,10 @@ export const getDCLPoolLiquidtyRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-dcl-liquidity?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-dcl-liquidity'),
+      },
     }
   )
     .then((res) => res.json())
@@ -507,7 +657,10 @@ export const getLimitOrderRecentTransaction = async (props: {
     config.indexerUrl + `/get-recent-transaction-limit-order?${paramString}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-recent-transaction-limit-order'),
+      },
     }
   )
     .then((res) => res.json())
@@ -545,7 +698,10 @@ export const getDCLAccountFee = async (props: {
       config.indexerUrl + `/get-fee-by-account?${paramString}`,
       {
         method: 'GET',
-        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/get-fee-by-account'),
+        },
       }
     ).then((res) => res.json());
   } catch (error) {
@@ -570,7 +726,10 @@ export const getProposalHashes = async ({
       proposal_ids.join('|'),
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-proposal-hash-by-id'),
+      },
     }
   )
     .then((res) => res.json())
@@ -589,7 +748,10 @@ export const getPoolsByIds = async ({
   if (!ids) return [];
   return fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/list-pools-by-ids'),
+    },
   })
     .then((res) => res.json())
     .then((pools) => {
@@ -601,10 +763,59 @@ export const getPoolsByIds = async ({
     });
 };
 
+export const getPoolsDetailByIds = async ({
+  pool_ids,
+}: {
+  pool_ids: string[];
+}): Promise<PoolRPCView[]> => {
+  const ids = pool_ids.join('|');
+  if (!ids) return [];
+
+  return Promise.all(
+    pool_ids.map((pool_id) => {
+      return fetch(config.indexerUrl + '/pool/detail?pool_id=' + pool_id, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          ...getAuthenticationHeaders('/pool/detail'),
+        },
+      })
+        .then((res) => res.json())
+        .then((pools) => {
+          return pools.data;
+        })
+        .catch(() => {
+          return [];
+        });
+    })
+  );
+};
+
+export const getPoolsDetailById = async ({ pool_id }: { pool_id: string }) => {
+  return fetch(config.indexerUrl + '/pool/detail?pool_id=' + pool_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/pool/detail'),
+    },
+  })
+    .then((res) => res.json())
+    .then((pools) => {
+      console.log(pools);
+      return pools.data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
 export const getTokenPriceList = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/list-token-price', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/list-token-price'),
+    },
   })
     .then((res) => res.json())
     .then((list) => {
@@ -615,7 +826,10 @@ export const getTokenPriceList = async (): Promise<any> => {
 export const getIndexerStatus = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/get-service-version', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/get-service-version'),
+    },
   }).then((res) => res.status !== 502);
 };
 
@@ -637,7 +851,7 @@ export const _search = (args: any, pools: PoolRPCView[]) => {
 
 export const _order = (args: any, pools: PoolRPCView[]) => {
   let column = args.column || 'tvl';
-  let order = args.order || 'desc';
+  const order = args.order || 'desc';
   column = args.column === 'fee' ? 'total_fee' : column;
   return _.orderBy(pools, [column], [order]);
 };
@@ -655,15 +869,14 @@ export type ActionData = Awaited<ReturnType<typeof parseActionView>>;
 type Awaited<T> = T extends Promise<infer P> ? P : never;
 
 export const getLatestActions = async (): Promise<Array<ActionData>> => {
-  return await fetch(
-    config.indexerUrl +
-      '/latest-actions/' +
-      getCurrentWallet()?.wallet?.getAccountId(),
-    {
-      method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
-    }
-  )
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(config.indexerUrl + '/latest-actions/' + account_id, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders(`/latest-actions/${account_id}`),
+    },
+  })
     .then((res) => res.json())
     .then((items) => {
       const tasks = items.map(async (item: any) => await parseActionView(item));
@@ -679,7 +892,10 @@ export const getListHistoryTokenPriceByIds = async (
     config.indexerUrl + '/list-history-token-price-by-ids?ids=' + tokenIds,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-history-token-price-by-ids'),
+      },
     }
   )
     .then((res) => res.json())
@@ -696,7 +912,10 @@ export const getV3PoolVolumeById = async (pool_id: string): Promise<any[]> => {
     config.indexerUrl + '/get-dcl-pools-volume?pool_id=' + pool_id,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-dcl-pools-volume'),
+      },
     }
   )
     .then((res) => res.json())
@@ -717,7 +936,10 @@ export const getV3poolTvlById = async (pool_id: string): Promise<any[]> => {
     config.indexerUrl + '/get-dcl-pools-tvl-list?pool_id=' + pool_id,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-dcl-pools-tvl-list'),
+      },
     }
   )
     .then((res) => res.json())
@@ -734,7 +956,10 @@ export const getV3Pool24VolumeById = async (pool_id: string): Promise<any> => {
     config.indexerUrl + '/get-24h-volume-by-id?pool_id=' + pool_id,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-24h-volume-by-id'),
+      },
     }
   )
     .then((res) => res.json())
@@ -748,7 +973,10 @@ export const getV3Pool24VolumeById = async (pool_id: string): Promise<any> => {
 export const getAllV3Pool24Volume = async (): Promise<any[]> => {
   return await fetch(config.indexerUrl + '/get-24h-volume-list', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/get-24h-volume-list'),
+    },
   })
     .then((res) => res.json())
     .then((list) => {
@@ -779,6 +1007,19 @@ export const getAllVolume24h = async () => {
     });
 };
 
+export const getAllPoolData = async () => {
+  return await fetch(config.indexerUrl + '/all-pool-data', {
+    method: 'GET',
+    headers: {
+      ...getAuthenticationHeaders('/all-pool-data'),
+    },
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res.data;
+    });
+};
+
 export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   return await fetch(
@@ -787,6 +1028,7 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
       `account_id=${accountId}&dimension=${dateType}`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders('/get-assets-by-account'),
     }
   )
     .then((res) => res.json())
@@ -798,12 +1040,17 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
     });
 };
 export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
+  const account_id = getCurrentWallet()?.wallet?.getAccountId();
   return await fetch(
-    config.indexerUrl +
-      `/get-limit-order-log-by-account/${getCurrentWallet()?.wallet?.getAccountId()}`,
+    config.indexerUrl + `/get-limit-order-log-by-account/${account_id}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders(
+          `/get-limit-order-log-by-account/${account_id}`
+        ),
+      },
     }
   )
     .then((res) => res.json())
@@ -840,7 +1087,10 @@ export const getTokenPairRate = async ({
       `/token-price-report?token=${token.id}&base_token=${base_token.id}&dimension=${dimension}`,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/token-price-report'),
+      },
     }
   )
     .then(async (res) => {
@@ -871,7 +1121,10 @@ export const getDclPoolPoints = async (
 ) => {
   return await fetch(
     config.indexerUrl +
-      `/get-dcl-points?pool_id=${pool_id}&slot_number=${bin}&start_point=${start_point}&end_point=${end_point}`
+      `/get-dcl-points?pool_id=${pool_id}&slot_number=${bin}&start_point=${start_point}&end_point=${end_point}`,
+    {
+      headers: getAuthenticationHeaders('/get-dcl-points'),
+    }
   )
     .then(async (res) => {
       const data = await res.json();
@@ -888,7 +1141,10 @@ export const getDclUserPoints = async (
 ) => {
   return await fetch(
     config.indexerUrl +
-      `/get-dcl-points-by-account?pool_id=${pool_id}&slot_number=${bin}&account_id=${account_id}`
+      `/get-dcl-points-by-account?pool_id=${pool_id}&slot_number=${bin}&account_id=${account_id}`,
+    {
+      headers: getAuthenticationHeaders('/get-dcl-points-by-account'),
+    }
   )
     .then(async (res) => {
       const data = await res.json();
@@ -908,4 +1164,13 @@ export const getTxId = async (receipt_id: string) => {
     .catch(() => {
       return [];
     });
+};
+export const getTokens = async () => {
+  return await fetch(config.indexerUrl + '/list-token', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then(async (res) => {
+    const tokens = await res.json();
+    return tokens;
+  });
 };

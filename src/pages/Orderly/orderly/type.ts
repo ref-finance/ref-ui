@@ -424,3 +424,10 @@ export interface PortfolioTableColumns {
   textColor?: string;
   headerType?: string;
 }
+export interface IOrderKeyInfo {
+  ip_restriction_list: any[];
+  ip_restriction_status: string;
+  key_status: 'ACTIVE' | 'REMOVING' | 'REMOVED';
+  orderly_key: string;
+  trading_key: string;
+}

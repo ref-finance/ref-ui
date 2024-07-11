@@ -31,7 +31,7 @@ export function PerpOrderlyTip() {
         }
         // id="perpTipDown"
         // defaultMessage={
-        //   'Order book system update will be conducted from 2024/2/5 07:00 AM to 2024/2/5 09:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
+        //   'Order book system update will be conducted from 2024/06/25 07:00 AM to 2024/06/25 08:30 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
         // }
         values={{
           perpTipLink: (
@@ -94,7 +94,7 @@ export function PerpOrderlyTipMobile() {
         }
         // id="perpTipDown"
         // defaultMessage={
-        //   'Order book system update will be conducted from 2024/2/5 07:00 AM to 2024/2/5 09:00 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
+        //   'Order book system update will be conducted from 2024/06/25 07:00 AM to 2024/06/25 08:30 AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
         // }
         values={{
           perpTipLink: (

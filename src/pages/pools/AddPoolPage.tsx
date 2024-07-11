@@ -35,6 +35,7 @@ import { useClientMobile } from '../../utils/device';
 import { TokenBalancesView } from '../../services/token';
 import { ModalClose } from '../../components/icon/ModalClose';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import { TknIcon } from 'src/components/icon/Common';
 
 export function AddPoolModal(
   props: ReactModal.Props & {
@@ -92,7 +93,7 @@ export function AddPoolModal(
   const isMobile = useClientMobile();
   const cardWidth = isMobile ? '98vw' : '450px';
 
-  if (!tokens || !balances) return <Loading />;
+  // if (!tokens || !balances) return <Loading />;
   if (!props.isOpen) return null;
 
   const render = (token: TokenMetadata) => {
@@ -106,12 +107,20 @@ export function AddPoolModal(
     const Icon = ({ token }: { token: TokenMetadata }) => {
       return (
         <div className="flex items-center">
-          <div>
+          <div className="relative">
             <img
               key={token.id}
-              className="mx-1 h-7 w-7 border rounded-full border-greenLight"
+              className="mx-1 h-7 w-7 border rounded-full border-black"
               src={token.icon}
             />
+            {token.isRisk && (
+              <div
+                className="absolute bottom-0 transform -translate-x-1/2 text-center"
+                style={{ left: '18px' }}
+              >
+                <TknIcon />
+              </div>
+            )}
           </div>
 
           <div className="mx-1 font-semibold">{toRealSymbol(token.symbol)}</div>

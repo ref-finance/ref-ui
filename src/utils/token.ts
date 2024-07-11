@@ -1,6 +1,6 @@
 export const toRealSymbol = (symbol: string) => {
   if (!symbol) return '';
-  const blackList = ['nUSDO'];
+  const blackList = ['nUSDO', 'nKOK'];
 
   if (!symbol) return symbol;
 
@@ -15,3 +15,4 @@ export const toRealSymbol = (symbol: string) => {
 export const getMftTokenId = (id: string) => {
   return ':' + id;
 };
+export const DEFLATION_MARK = 'tknx.near';

@@ -5,6 +5,7 @@ import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
 import { getCurrentWallet } from '../utils/wallets-integration';
 import { TokenMetadata } from './ft-contract';
+import { getAuthenticationHeaders } from './signature';
 
 const config = getConfig();
 
@@ -53,7 +54,7 @@ export const getPoolBalance = async (pool_id: number) => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
     args: {
-      pool_id: pool_id,
+      pool_id,
       account_id: getCurrentWallet()?.wallet?.getAccountId(),
     },
   }).then((balance) => {
@@ -103,7 +104,10 @@ export const getUserWalletTokens = async (): Promise<any> => {
 export const getCurrentUnixTime = async (): Promise<any> => {
   return await fetch(config.indexerUrl + '/timestamp', {
     method: 'GET',
-    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/timestamp'),
+    },
   })
     .then((res) => res.json())
     .then((ts) => {
@@ -120,7 +124,10 @@ export const currentRefPrice = async (): Promise<any> => {
       '/get-token-price?token_id=token.v2.ref-finance.near',
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/get-token-price'),
+      },
     }
   )
     .then((res) => res.json())
@@ -137,12 +144,84 @@ export const currentTokensPrice = async (ids: string): Promise<any> => {
     config.indexerUrl + '/list-token-price-by-ids?ids=' + ids,
     {
       method: 'GET',
-      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/list-token-price-by-ids'),
+      },
     }
   )
     .then((res) => res.json())
     .then((priceBody) => {
       return priceBody;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getMemeFarmingTokens = async (): Promise<any> => {
+  return await fetch(config.memeRankApiUrl + '/v3/meme-farming/tokens', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getMemeFarmingTotalAssetsList = async (
+  limit: number,
+  offset: number,
+  orderBy: string
+): Promise<any> => {
+  const queryParams = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+    order_by: orderBy,
+  });
+  const url = `${
+    config.memeRankApiUrl
+  }/v3/meme-farming/total?${queryParams.toString()}`;
+
+  return await fetch(url, {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getMemeFarmingAssetsList = async (
+  token: string,
+  sort: string,
+  limit: number,
+  offset: number,
+  orderBy: string
+): Promise<any> => {
+  const queryParams = new URLSearchParams({
+    token,
+    sort,
+    limit: limit.toString(),
+    offset: offset.toString(),
+    order_by: orderBy,
+  });
+  const url = `${
+    config.memeRankApiUrl
+  }/v3/meme-farming/list?${queryParams.toString()}`;
+
+  return await fetch(url, {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return data;
     })
     .catch(() => {
       return [];

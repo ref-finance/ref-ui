@@ -8,6 +8,7 @@ import {
   getAllTvl,
   getAllVolume24h,
   getYourPools,
+  getAllPoolData,
 } from '../../services/indexer';
 import { PoolTabBanner, PoolTabBannerMask } from '../icon/Pool';
 import {
@@ -73,8 +74,13 @@ export const PoolTabV3 = ({
 
   const [allVolume24h, setAllVolume24h] = useState<string>();
   useEffect(() => {
-    getAllTvl().then(setAllTVL);
-    getAllVolume24h().then(setAllVolume24h);
+    // getAllTvl().then(setAllTVL);
+    // getAllVolume24h().then(setAllVolume24h);
+
+    getAllPoolData().then((res) => {
+      setAllTVL(res.tvl);
+      setAllVolume24h(res.volume_24h);
+    });
   }, []);
 
   const isMobile = useClientMobile();

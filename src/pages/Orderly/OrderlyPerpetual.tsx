@@ -48,8 +48,9 @@ import PositionsTable from './components/AllOrders/PositionsTable';
 import { CheckBox } from './components/Common';
 import { parseSymbol } from './components/RecentTrade';
 import { NewUserTip } from './components/Common/NewUserTip';
+import BlockOrderBookTip from './BlockOrderBookTip';
 
-export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN6';
+export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN9';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -391,7 +392,7 @@ function OrderlyUnderMaintain() {
   );
 }
 
-export default function OrderlyPerpetual() {
+function OrderlyPerpetual() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();
@@ -425,4 +426,11 @@ export default function OrderlyPerpetual() {
       {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
     </>
   );
+}
+export default function OrderBookPerp() {
+  const disbaledWallet = ['okx-wallet'];
+  const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
+  const isBlock = disbaledWallet.includes(selectedWalletId);
+  if (isBlock) return <BlockOrderBookTip />;
+  return <OrderlyPerpetual />;
 }

@@ -6,6 +6,7 @@ import { ModalCloseIcon, ArrowRightIcon } from './icons';
 import Modal from 'react-modal';
 import { MemeContext } from './context';
 import { ITxParams } from './SeedsBox';
+import { getListedMemeSeeds } from './tool';
 import { toReadableNumber } from '../../utils/numbers';
 import {
   formatWithCommas_number,
@@ -14,40 +15,57 @@ import {
 import { openUrl } from '../../services/commonV3';
 import getConfig from '../../services/config';
 import { useHistory } from 'react-router';
-import { getProgressConfig } from './ProgressConfig';
-const progressConfig = getProgressConfig();
+import { getMemeUiConfig, getMemeContractConfig } from './memeConfig';
+const progressConfig = getMemeUiConfig();
 function CallBackModal(props: any) {
-  const { seeds, tokenPriceList } = useContext(MemeContext);
+  const { seeds, xrefTokenId, tokenPriceList, allTokenMetadatas } =
+    useContext(MemeContext);
   const {
     isOpen,
     onRequestClose,
     txParams,
   }: { isOpen: boolean; onRequestClose: any; txParams: ITxParams } = props;
   const history = useHistory();
-  const cardWidth = isMobile() ? '90vw' : '28vw';
+  const cardWidth = isMobile() ? '95vw' : '28vw';
   const cardHeight = isMobile() ? '90vh' : '80vh';
-  const [seed, amount] = useMemo(() => {
+  const [seed, amount, metadata, isXrefAction] = useMemo(() => {
     const { action, receiver_id, params } = txParams;
+    const { XREF_MEME_FARM_CONTRACT_IDS } = getMemeContractConfig();
+    const isXrefAction =
+      action == 'stake'
+        ? receiver_id === xrefTokenId
+        : XREF_MEME_FARM_CONTRACT_IDS.includes(receiver_id);
+    const metadata =
+      action == 'stake'
+        ? allTokenMetadatas[receiver_id]
+        : isXrefAction
+        ? allTokenMetadatas[xrefTokenId]
+        : seeds?.[params.seed_id]?.token_meta_data;
     if (action == 'stake') {
       const seed = seeds[receiver_id];
       return [
         seed,
-        toReadableNumber(seed?.seed_decimal || 0, txParams.params.amount),
+        toReadableNumber(metadata?.decimals || 0, txParams.params.amount),
+        metadata,
+        isXrefAction,
       ];
     } else {
       const seed = seeds[params.seed_id];
       return [
         seed,
         toReadableNumber(
-          seed?.seed_decimal || 0,
+          metadata?.decimals || 0,
           txParams.params.unstake_amount
         ),
+        metadata,
+        isXrefAction,
       ];
     }
-  }, [seeds, txParams]);
+  }, [seeds, txParams, allTokenMetadatas]);
   const [weightFrom, weightTo] = useMemo(() => {
     const { action } = txParams;
-    const totalTvl = Object.entries(seeds).reduce((acc, [, seed]) => {
+    const listedSeeds = getListedMemeSeeds(seeds);
+    const totalTvl = Object.entries(listedSeeds).reduce((acc, [, seed]) => {
       return acc.plus(seed?.seedTvl || 0);
     }, Big(0));
     const seedTvl = seed?.seedTvl || 0;
@@ -68,7 +86,7 @@ function CallBackModal(props: any) {
     return [from.toFixed(), to.toFixed()];
   }, [amount, seeds, txParams, seed]);
 
-  if (!seed) return null;
+  if (!seed && !isXrefAction) return null;
   function goNearblocks() {
     history.replace('/meme');
     onRequestClose();
@@ -108,36 +126,41 @@ function CallBackModal(props: any) {
           <div className="mt-5">
             <div className="flex flex-col items-center gap-5">
               <img
-                src={seed?.token_meta_data.icon}
+                src={metadata?.icon}
                 style={{ width: '86px', height: '86px' }}
                 className="rounded-full"
               />
               <div className="flex flex-col items-center">
                 {txParams?.action == 'stake' ? (
-                  <span className="text-2xl text-white gotham_bold">
-                    {progressConfig.progress[seed?.seed_id]?.stakeTip}
+                  <span className="text-2xl text-white gotham_bold text-center">
+                    {isXrefAction
+                      ? metadata?.symbol + ' Staked'
+                      : progressConfig.progress[seed?.seed_id]?.stakeTip}
                   </span>
                 ) : (
-                  <span className="text-2xl text-white gotham_bold">
-                    {seed?.token_meta_data.symbol} Unstaked
+                  <span className="text-2xl text-white gotham_bold text-center">
+                    {metadata?.symbol} Unstaked
                   </span>
                 )}
               </div>
             </div>
-            <div className="flex justify-center text-sm text-white mt-6">
+            <div className="flex justify-center text-sm text-white mt-6 text-center">
               You have just {txParams.action == 'stake' ? 'feed' : 'unstake'}{' '}
-              {formatWithCommas_number(amount)} {seed?.token_meta_data.symbol}{' '}
+              {formatWithCommas_number(amount)} {metadata?.symbol}{' '}
             </div>
-            <div className="flex justify-center text-sm text-white mt-3">
-              Gauge Weight
-              <div className="flex items-center text-sm text-white gap-2 ml-3">
-                <span className="line-through">
-                  {formatPercentage(weightFrom)}
-                </span>
-                <ArrowRightIcon />
-                <span>{formatPercentage(weightTo)}</span>
+            {isXrefAction ? null : (
+              <div className="flex justify-center text-sm text-white mt-3">
+                Gauge Weight
+                <div className="flex items-center text-sm text-white gap-2 ml-3">
+                  <span className="line-through">
+                    {formatPercentage(weightFrom)}
+                  </span>
+                  <ArrowRightIcon />
+                  <span>{formatPercentage(weightTo)}</span>
+                </div>
               </div>
-            </div>
+            )}
+
             <OprationButton
               minWidth="7rem"
               onClick={goNearblocks}

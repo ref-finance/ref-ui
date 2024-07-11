@@ -23,6 +23,8 @@ interface TokenMetadata {
   symbol: string;
   decimals: number;
   icon: string;
+  isRisk?: boolean;
+  isUserToken?: boolean;
 }
 
 export interface PoolsTokens {
@@ -207,6 +209,10 @@ class RefDatabase extends Dexie {
   public async queryTokens(args: any) {
     const tokens = await this.allTokens().toArray();
     return this.searchTokens(args, tokens);
+  }
+  public async queryAllTokens() {
+    const tokens = await this.allTokens().toArray();
+    return tokens;
   }
 
   public async queryFarms() {

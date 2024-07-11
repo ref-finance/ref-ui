@@ -64,6 +64,8 @@ import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
 import { commonLangKey, formatItem } from './NavigationBar';
 import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 import { WalletRiskCheckBoxModal } from 'src/context/modal-ui/components/WalletOptions/WalletRiskCheckBox';
+import { KeyIcon } from '../../components/portfolio/icons';
+import AccessKeyModal from '../../components/portfolio/AccessKeyModal';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -110,7 +112,7 @@ export function AccountModel(props: any) {
 
   const { wallet } = getCurrentWallet();
 
-  const { hasBalanceOnRefAccount } = props;
+  const { hasBalanceOnRefAccount, setAccountVisible, setKeyModalShow } = props;
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
   const accountList = [
@@ -122,26 +124,6 @@ export function AccountModel(props: any) {
         history.push('/overview');
       },
     },
-    // {
-    //   icon: <ActivityIcon />,
-    //   textId: 'recent_activity',
-    //   selected: location.pathname == '/recent',
-    //   click: () => {
-    //     history.push('/recent');
-    //   },
-    // },
-    // {
-    //   icon: <WalletIcon />,
-    //   textId: 'go_to_near_wallet',
-    //   subIcon: <HiOutlineExternalLink />,
-    //   click: () => {
-    //     openUrl(
-    //       selector.store.getState().selectedWalletId === 'my-near-wallet'
-    //         ? config.myNearWalletUrl
-    //         : config.walletUrl
-    //     );
-    //   },
-    // },
   ];
 
   const [currentWalletName, setCurrentWalletName] = useState<string>();
@@ -320,9 +302,21 @@ export function AccountModel(props: any) {
                   ) : null}
                 </label>
 
-                {item.subIcon ? (
+                {/* {item.subIcon ? (
                   <label className="text-lg ml-2">{item.subIcon}</label>
-                ) : null}
+                ) : null} */}
+              </div>
+              <div
+                onClick={() => {
+                  setKeyModalShow(true);
+                  setAccountVisible(false);
+                }}
+                className={`flex items-center text-base cursor-pointer font-semibold py-4 pl-20 hover:text-white hover:bg-navHighLightBg text-primaryText`}
+              >
+                <label className="w-9">
+                  <KeyIcon />
+                </label>
+                <label className="cursor-pointer text-base">Approved Key</label>
               </div>
               {hasBalanceOnRefAccount && item.textId === 'your_assets' ? (
                 <div
@@ -372,6 +366,7 @@ export function MobileNavBar(props: any) {
   const [one_level_selected, set_one_level_selected] = useState<string>('');
   const [two_level_selected, set_two_level_selected] = useState<string>('');
   const [showWalletRisk, setShowWalletRisk] = useState<boolean>(false);
+  const [keyModalShow, setKeyModalShow] = useState<boolean>(false);
   const handleWalletModalOpen = () => {
     const isAcknowledgeWalletRisk = localStorage.getItem(
       CONST_ACKNOWLEDGE_WALLET_RISK
@@ -600,7 +595,12 @@ export function MobileNavBar(props: any) {
 
   const [showBridgeModalMobile, setShowBridgeModalMobile] =
     useState<boolean>(false);
-
+  function closeKeyModal() {
+    setKeyModalShow(false);
+  }
+  function showkeyModal() {
+    setKeyModalShow(true);
+  }
   return (
     <>
       <div
@@ -918,6 +918,8 @@ export function MobileNavBar(props: any) {
         {accountVisible ? (
           <AccountModel
             hasBalanceOnRefAccount={hasBalanceOnRefAccount}
+            setAccountVisible={setAccountVisible}
+            setKeyModalShow={setKeyModalShow}
             closeAccount={() => {
               setAccountVisible(false);
             }}
@@ -925,7 +927,6 @@ export function MobileNavBar(props: any) {
         ) : null}
       </div>
       {/* {isMobile ? <Marquee></Marquee> : null} */}
-
       <WalletRiskCheckBoxModal
         isOpen={showWalletRisk}
         setCheckedStatus={handleAcknowledgeClick}
@@ -938,6 +939,9 @@ export function MobileNavBar(props: any) {
           setShowBridgeModalMobile(false);
         }}
       ></MobileBridgeModal>
+      {accountId && keyModalShow ? (
+        <AccessKeyModal isOpen={keyModalShow} onRequestClose={closeKeyModal} />
+      ) : null}
     </>
   );
 }

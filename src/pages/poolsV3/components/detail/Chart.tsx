@@ -76,7 +76,9 @@ function LiquidityChart(props: any) {
   const { data, chartDisplay, setChartDisplay } = props;
   const { poolDetail, depthData } = data;
   const isMobile = isClientMobie();
-  const svgDefaultWidth = isMobile ? window.screen.width - 32 || '330' : 750;
+  const svgDefaultWidth = isMobile
+    ? document.documentElement.clientWidth - 32 || '330'
+    : 750;
   const [chartLoading, setChartLoading] = useState<boolean>(true);
   const [noData, setNoData] = useState<boolean>(true);
   const [rateDirection, setRateDirection] = useState(true);

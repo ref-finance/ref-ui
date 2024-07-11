@@ -16,6 +16,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://beta.rpc.mainnet.near.org',
             simpleName: 'official beta rpc',
           },
+          fastnearRpc: {
+            url: 'https://free.rpc.fastnear.com',
+            simpleName: 'fastnear rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
           //   simpleName: 'blockpi rpc',
@@ -83,6 +87,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://beta.rpc.mainnet.near.org',
             simpleName: 'official beta rpc',
           },
+          fastnearRpc: {
+            url: 'https://free.rpc.fastnear.com',
+            simpleName: 'fastnear rpc',
+          },
           // publicRpc: {
           //   url: 'https://public-rpc.blockpi.io/http/near',
           //   simpleName: 'blockpi rpc',
@@ -128,21 +136,25 @@ export default function getConfig(
       localStorage.removeItem('endPoint');
     }
   } catch (error) {}
-  // console.log('666666666666666-env', env);
   switch (env) {
     case 'production':
     case 'mainnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
-        indexerUrl: 'https://indexer.ref.finance',
+        indexerUrl: 'https://api.ref.finance',
+        // indexerUrl: 'https://apiself.cclp.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
+        memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -151,7 +163,15 @@ export default function getConfig(
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.v2.ref-finance.near',
+        USDC_TOKEN_ID:
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        USDT_TOKEN_ID: 'usdt.tether-token.near',
+        USDCe_TOKEN_ID:
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        USDTe_TOKEN_ID:
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
         XREF_TOKEN_ID: 'xtoken.ref-finance.near',
+        BRRR_TOKEN_ID: 'token.burrow.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
@@ -194,9 +214,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -205,49 +225,50 @@ export default function getConfig(
           '3613',
           '3620',
           '3625',
-          '1923',
-          '2451',
-          '1559',
-          '3015',
-          '3398',
-          '2089',
-          '2121',
-          '4149',
-          '3383',
-          '3805',
-          '3907',
-          '4161',
-          '3021',
-          '3385',
-          '3046',
-          '3384',
-          '1820',
-          '4150',
-          '3466',
-          '3386',
-          '3087',
-          '2558',
-          '3587',
-          '3759',
-          '1904',
-          '1903',
-          '3850',
-          '1821',
-          '2975',
-          '3529',
-          '3676',
-          '1908',
-          '2450',
-          '1955',
-          '2781',
-          '3822',
-          '2161',
-          '2560',
-          '3091',
-          '2497',
-          '2194',
-          '2320',
+          // '1923',
+          // '2451',
+          // '1559',
+          // '3015',
+          // '3398',
+          // '2089',
+          // '2121',
+          // '4149',
+          // '3383',
+          // '3805',
+          // '3907',
+          // '4161',
+          // '3021',
+          // '3385',
+          // '3046',
+          // '3384',
+          // '1820',
+          // '4150',
+          // '3466',
+          // '3386',
+          // '3087',
+          // '2558',
+          // '3587',
+          // '3759',
+          // '1904',
+          // '1903',
+          // '3850',
+          // '1821',
+          // '2975',
+          // '3529',
+          // '3676',
+          // '1908',
+          // '2450',
+          // '1955',
+          // '2781',
+          // '3822',
+          // '2161',
+          // '2560',
+          // '3091',
+          // '2497',
+          // '2194',
+          // '2320',
           '4744',
+          '5029',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
@@ -289,19 +310,24 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
       };
     case 'pub-testnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -311,6 +337,12 @@ export default function getConfig(
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
         REF_TOKEN_ID: 'ref.fakes.testnet',
+        USDC_TOKEN_ID:
+          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
+        USDT_TOKEN_ID: 'usdtt.fakes.testnet',
+        USDCe_TOKEN_ID: 'usdc.fakes.testnet',
+        USDTe_TOKEN_ID: 'usdt.fakes.testnet',
+        BRRR_TOKEN_ID: 'brrr.ft.ref-labs.testnet',
         XREF_TOKEN_ID: 'xref.ref-finance.testnet',
         REF_VE_CONTRACT_ID: 'v010.refve.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
@@ -343,9 +375,9 @@ export default function getConfig(
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -381,19 +413,24 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
       };
     case 'testnet':
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
         myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
+        memeRankApiUrl: 'https://test.api.cclp.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -404,6 +441,12 @@ export default function getConfig(
           process.env.REF_FARM_CONTRACT_ID || 'farm-dev.ref-dev.testnet',
         // REF_VE_CONTRACT_ID: 'dev-20220623151446-29039416013661',
         REF_TOKEN_ID: 'ref.fakes.testnet',
+        USDC_TOKEN_ID:
+          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
+        USDT_TOKEN_ID: 'usdtt.fakes.testnet',
+        USDCe_TOKEN_ID: 'usdc.fakes.testnet',
+        USDTe_TOKEN_ID: 'usdt.fakes.testnet',
+        BRRR_TOKEN_ID: '',
         XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
@@ -438,9 +481,9 @@ export default function getConfig(
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -473,19 +516,25 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.testnet',
       };
     default:
       return {
+        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
         myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
+        pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
-        indexerUrl: 'https://indexer.ref.finance',
+        indexerUrl: 'https://api.ref.finance',
+        // indexerUrl: 'https://apiself.cclp.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
+        memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -494,6 +543,14 @@ export default function getConfig(
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.v2.ref-finance.near',
+        USDC_TOKEN_ID:
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        USDT_TOKEN_ID: 'usdt.tether-token.near',
+        USDCe_TOKEN_ID:
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near',
+        USDTe_TOKEN_ID:
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+        BRRR_TOKEN_ID: 'token.burrow.near',
         XREF_TOKEN_ID: 'xtoken.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
@@ -537,9 +594,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2137295.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '2840988.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -548,49 +605,50 @@ export default function getConfig(
           '3613',
           '3620',
           '3625',
-          '1923',
-          '2451',
-          '1559',
-          '3015',
-          '3398',
-          '2089',
-          '2121',
-          '4149',
-          '3383',
-          '3805',
-          '3907',
-          '4161',
-          '3021',
-          '3385',
-          '3046',
-          '3384',
-          '1820',
-          '4150',
-          '3466',
-          '3386',
-          '3087',
-          '2558',
-          '3587',
-          '3759',
-          '1904',
-          '1903',
-          '3850',
-          '1821',
-          '2975',
-          '3529',
-          '3676',
-          '1908',
-          '2450',
-          '1955',
-          '2781',
-          '3822',
-          '2161',
-          '2560',
-          '3091',
-          '2497',
-          '2194',
-          '2320',
+          // '1923',
+          // '2451',
+          // '1559',
+          // '3015',
+          // '3398',
+          // '2089',
+          // '2121',
+          // '4149',
+          // '3383',
+          // '3805',
+          // '3907',
+          // '4161',
+          // '3021',
+          // '3385',
+          // '3046',
+          // '3384',
+          // '1820',
+          // '4150',
+          // '3466',
+          // '3386',
+          // '3087',
+          // '2558',
+          // '3587',
+          // '3759',
+          // '1904',
+          // '1903',
+          // '3850',
+          // '1821',
+          // '2975',
+          // '3529',
+          // '3676',
+          // '1908',
+          // '2450',
+          // '1955',
+          // '2781',
+          // '3822',
+          // '2161',
+          // '2560',
+          // '3091',
+          // '2497',
+          // '2194',
+          // '2320',
           '4744',
+          '5029',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
@@ -632,6 +690,7 @@ export default function getConfig(
         REF_MEME_FARM_CONTRACT_ID:
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
+        REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
       };
   }
 }

@@ -3,6 +3,7 @@ import { toRealSymbol } from '../../utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownWhite } from '../../components/icon';
 import { ArrowDownGreen } from '../icon/Arrows';
+import { TknIcon } from '../icon/Common';
 
 export default function Icon({
   className = '',
@@ -65,7 +66,7 @@ export function IconLeft({
     >
       <img
         key={token.id}
-        className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-greenLight`}
+        className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 flex-shrink-0 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-greenLight`}
         src={token.icon}
       />
       {label && (
@@ -102,11 +103,18 @@ export function IconLeftV3({
       }`}
       style={{ lineHeight: 'unset' }}
     >
-      <img
-        key={token.id}
-        className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-greenLight`}
-        src={token.icon}
-      />
+      <div className="relative flex-shrink-0">
+        <img
+          key={token.id}
+          className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 flex-shrink-0 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-black`}
+          src={token.icon}
+        />
+        {token.isRisk && (
+          <div className="absolute bottom-0 left-3.5 transform -translate-x-1/2 text-center xsm:left-2.5">
+            <TknIcon />
+          </div>
+        )}
+      </div>
       {label && (
         <p className="block text-base overflow-ellipsis overflow-hidden font-bold">
           {toRealSymbol(token.symbol)}

@@ -23,6 +23,8 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 import getConfig from '../services/config';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
+import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
+import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
@@ -52,9 +54,23 @@ declare global {
     nearWallet: Wallet & SignMessageMethod;
     modal: WalletSelectorModal;
     selectorAccountId?: string | null;
+    sender?: any;
   }
 }
-
+interface IAccountKey {
+  access_key: {
+    nonce: number;
+    permission: string | Ipermission;
+  };
+  public_key: string;
+}
+export interface Ipermission {
+  FunctionCall: {
+    allowance: string;
+    method_names: string[];
+    receiver_id: string;
+  };
+}
 interface WalletSelectorContextValue {
   selector: WalletSelector;
   modal: WalletSelectorModal;
@@ -62,6 +78,7 @@ interface WalletSelectorContextValue {
   accountId: string | null;
   setAccountId: (accountId: string) => void;
   isLedger: boolean;
+  allKeys: IAccountKey[];
 }
 
 const WalletSelectorContext =
@@ -74,6 +91,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
 
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
+  const [allKeys, setAllKeys] = useState<IAccountKey[]>([]);
 
   const syncAccountState = (
     currentAccountId: string | null,
@@ -122,6 +140,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       network: getConfig().networkId as NetworkId,
       debug: false,
       modules: [
+        setupOKXWallet({}),
         setupMyNearWallet({
           // iconUrl: walletIcons['my-near-wallet'],
         }),
@@ -176,6 +195,11 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
             url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
           },
         }),
+        setupMintbaseWallet({
+          walletUrl: 'https://wallet.mintbase.xyz',
+          contractId: CONTRACT_ID,
+          deprecated: false,
+        }),
       ],
     });
     const _modal = setupModal(_selector, {
@@ -228,20 +252,19 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const getAllKeys = async (accountId: string) => {
     const account = await near.account(accountId);
 
-    const allKeys = await account.getAccessKeys();
+    const allKeys = (await account.getAccessKeys()) as IAccountKey[];
 
     const isWalletMeta = allKeys.some((k) => {
       if (k.access_key.permission === 'FullAccess') return false;
-      const meta =
-        k.access_key.permission.FunctionCall.method_names.includes(
-          '__wallet__metadata'
-        );
+      const meta = (
+        k.access_key.permission as Ipermission
+      ).FunctionCall.method_names.includes('__wallet__metadata');
       return meta;
     });
 
     const isSelectLedger =
       selector.store.getState().selectedWalletId === 'ledger';
-
+    setAllKeys(allKeys);
     setIsLedger(isSelectLedger || isWalletMeta);
   };
 
@@ -300,6 +323,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         accountId,
         setAccountId,
         isLedger,
+        allKeys,
       }}
     >
       {children}

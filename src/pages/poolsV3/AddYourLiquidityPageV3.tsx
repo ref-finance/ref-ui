@@ -67,6 +67,7 @@ import { NoDataComponent } from './components/add/NoDataComponent';
 import { InputAmount } from './components/add/InputAmount';
 import { PairComponent } from './components/add/PairComponent';
 import { SelectFeeTiers } from './components/add/SelectFeeTiers';
+import { FeeTipDcl } from '../../components/pool/FeeTip';
 
 export const LiquidityProviderData = createContext(null);
 export default function AddYourLiquidityPageV3() {
@@ -2134,6 +2135,7 @@ export default function AddYourLiquidityPageV3() {
                   </div>
                 )}
               </div>
+              <FeeTipDcl />
               <AddLiquidityButton></AddLiquidityButton>
             </div>
           </div>
