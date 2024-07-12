@@ -3211,6 +3211,54 @@
   resolved "https://registry.yarnpkg.com/@msgpackr-extract/msgpackr-extract-win32-x64/-/msgpackr-extract-win32-x64-3.0.2.tgz#0f164b726869f71da3c594171df5ebc1c4b0a407"
   integrity sha512-O+6Gs8UeDbyFpbSh2CPEz/UOrrdWPTBYNblZK5CxxLisYt4kGX3Sc+czffFonyjiGSq3jWLwJS/CCJc7tBr4sQ==
 
+"@near-eth/aurora-erc20@^2.7.2":
+  version "2.7.2"
+  resolved "https://registry.npmjs.org/@near-eth/aurora-erc20/-/aurora-erc20-2.7.2.tgz#dfb7717d6a87e2a1a7edde29a01fac91ed905b48"
+  integrity sha512-6R+FNz4NIpNCUBcVQlnxQHxGV0aUDNOd/OG/vUAibLQ32zf44/EjSxuz0ry8c5mBhWHQO8pV3ZbwL/MzPx6ieA==
+  dependencies:
+    "@near-eth/client" "1.12.0"
+    "@near-eth/utils" "2.6.0"
+    bn.js "^5.1.3"
+    bs58 "^4.0.1"
+    ethereumjs-util "^7.0.10"
+    ethers "^5.6.9"
+    find-replacement-tx "1.2.3"
+    near-api-js "^0.45.1"
+    promisfy "^1.2.0"
+    rlp "^2.2.6"
+
+"@near-eth/aurora-ether@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.npmjs.org/@near-eth/aurora-ether/-/aurora-ether-2.7.0.tgz#fa14e3a660c455e1946e0efdfe40016714f0c300"
+  integrity sha512-ep3m15MYx0gRxLhYKRFyV2Ju+LA2VHPCHdHVszl2rOjM/YKpWb5UzD+rX2cXkZmgaj9CfV9qfjB3HmVdLmgFpg==
+  dependencies:
+    "@near-eth/client" "1.12.0"
+    "@near-eth/utils" "2.6.0"
+    bn.js "^5.1.3"
+    bs58 "^4.0.1"
+    ethereumjs-util "^7.0.10"
+    ethers "^5.6.9"
+    find-replacement-tx "1.2.3"
+    near-api-js "^0.45.1"
+    promisfy "^1.2.0"
+    rlp "^2.2.6"
+
+"@near-eth/aurora-nep141@^1.5.2":
+  version "1.5.2"
+  resolved "https://registry.npmjs.org/@near-eth/aurora-nep141/-/aurora-nep141-1.5.2.tgz#7627fa987c8ad32f332f06a1c5daad988cd5ef64"
+  integrity sha512-02zCyM90zf3aP7AFjWDqZd7P2jXzyDkPtXksPkxDl97IfayCRpZOdFDB9PGlwmk2MlcMPt+mpQd5c/cL15MbDg==
+  dependencies:
+    "@near-eth/client" "1.12.0"
+    "@near-eth/utils" "2.6.0"
+    bn.js "^5.1.3"
+    bs58 "^4.0.1"
+    ethereumjs-util "^7.0.10"
+    ethers "^5.6.9"
+    find-replacement-tx "1.2.3"
+    near-api-js "^0.45.1"
+    promisfy "^1.2.0"
+    rlp "^2.2.6"
+
 "@near-eth/client@1.12.0", "@near-eth/client@^1.12.0":
   version "1.12.0"
   resolved "https://registry.npmjs.org/@near-eth/client/-/client-1.12.0.tgz#173c76aa06a2ae64fab9b00a337f617ea5309ec2"
@@ -8496,15 +8544,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001538, caniuse-lite@^1.0.30001541:
-  version "1.0.30001559"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001559.tgz#95a982440d3d314c471db68d02664fb7536c5a30"
-  integrity sha512-cPiMKZgqgkg5LY3/ntGeLFUpi6tzddBNS58A4tnTgQw1zON7u2sZMU7SzOeVH4tj20++9ggL+V6FDOFMTaFFYA==
-
-caniuse-lite@^1.0.30001587:
-  version "1.0.30001594"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001594.tgz#bea552414cd52c2d0c985ed9206314a696e685f5"
-  integrity sha512-VblSX6nYqyJVs8DKFMldE2IVCJjZ225LW00ydtUWwh5hk9IfkTOffO6r8gJNsH0qqqeAF8KrbMYA2VEwTlGW5g==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001538, caniuse-lite@^1.0.30001541, caniuse-lite@^1.0.30001587:
+  version "1.0.30001641"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001641.tgz"
+  integrity sha512-Phv5thgl67bHYo1TtMY/MurjkHhV4EDaCosezRXgZ8jzA/Ub+wjxAvbGvjoFENStinwi5kCyOYV3mi5tOGykwA==
 
 capability@^0.2.5:
   version "0.2.5"
