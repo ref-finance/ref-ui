@@ -113,7 +113,6 @@ import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
-<<<<<<< HEAD
 import {
   PoolAvailableAmount,
   PoolFarmAmount,
@@ -121,8 +120,6 @@ import {
   ShadowInBurrowAmount,
 } from 'src/components/pool/PoolShare';
 
-=======
->>>>>>> main
 import { FeeTipV1 } from '../../components/pool/FeeTip';
 import { useLpLocker } from '../../state/lpLocker';
 const is_mobile = isMobile();
