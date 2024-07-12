@@ -39,7 +39,7 @@ export function PerpOrderlyTip() {
               className="font-gothamBold mx-1 underline"
               rel="noopener noreferrer nofollow"
               target="_blank"
-              href="https://docs.orderly.network/perpetual-futures/introduction"
+              href="https://docs.orderly.org/perpetual-futures/introduction"
             >
               {isMobile && <br />}
               <FormattedMessage
@@ -102,7 +102,7 @@ export function PerpOrderlyTipMobile() {
               className="font-gothamBold mx-1 underline"
               rel="noopener noreferrer nofollow"
               target="_blank"
-              href="https://docs.orderly.network/perpetual-futures/introduction"
+              href="https://docs.orderly.org/perpetual-futures/introduction"
             >
               {/* {isMobile && <br />} */}
               <FormattedMessage
