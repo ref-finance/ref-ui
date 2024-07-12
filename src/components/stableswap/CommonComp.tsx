@@ -9,7 +9,7 @@ import BigNumber from 'bignumber.js';
 import { useCanFarm, useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 import { useFarmStake } from '../../state/farm';
 import { Pool, canFarmV1, canFarmV2 } from '../../services/pool';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { FarmDot } from 'src/components/icon';
 import { ShareInFarmV2 } from '../layout/ShareInFarm';
 import { useYourliquidity } from '../../state/pool';
@@ -30,15 +30,20 @@ import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from '../icon/Common';
 import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
+import { getExtraStablePoolConfig } from 'src/services/config';
 
 export function BackToStablePoolList() {
   const history = useHistory();
-
+  const params: any = useParams();
+  const ids = getExtraStablePoolConfig().DEGEN_POOLS_IDS;
   return (
     <div className="flex items-center text-base text-farmText ">
       <span
         onClick={() => {
-          localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'stable');
+          localStorage.setItem(
+            REF_FI_POOL_ACTIVE_TAB,
+            ids.includes(params?.id || '') ? 'degen' : 'stable'
+          );
 
           history.push('/pools');
         }}
