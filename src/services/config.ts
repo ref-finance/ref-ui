@@ -20,10 +20,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://free.rpc.fastnear.com',
             simpleName: 'fastnear rpc',
           },
-          pagodaRpc: {
-            url: 'https://rpc.mainnet.pagoda.co',
-            simpleName: 'pagoda rpc',
-          },
+          // pagodaRpc: {
+          //   url: 'https://rpc.mainnet.pagoda.co',
+          //   simpleName: 'pagoda rpc',
+          // },
           // archivalRpc: {
           //   url: 'https://archival-rpc.mainnet.pagoda.co',
           //   simpleName: 'archival rpc',
@@ -43,10 +43,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://g.w.lavanet.xyz/gateway/neart/rpc-http/a6e88c7710da77f09430aacd6328efd6',
             simpleName: 'lava rpc',
           },
-          pagodaRpc: {
-            url: 'https://rpc.testnet.pagoda.co',
-            simpleName: 'pagoda rpc',
-          },
+          // pagodaRpc: {
+          //   url: 'https://rpc.testnet.pagoda.co',
+          //   simpleName: 'pagoda rpc',
+          // },
           // archivalRpc: {
           //   url: 'https://archival-rpc.testnet.pagoda.co',
           //   simpleName: 'archival rpc',
@@ -65,14 +65,14 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://g.w.lavanet.xyz/gateway/neart/rpc-http/a6e88c7710da77f09430aacd6328efd6',
             simpleName: 'lava rpc',
           },
-          pagodaRpc: {
-            url: 'https://rpc.testnet.pagoda.co',
-            simpleName: 'pagoda rpc',
-          },
-          archivalRpc: {
-            url: 'https://archival-rpc.testnet.pagoda.co',
-            simpleName: 'archival rpc',
-          },
+          // pagodaRpc: {
+          //   url: 'https://rpc.testnet.pagoda.co',
+          //   simpleName: 'pagoda rpc',
+          // },
+          // archivalRpc: {
+          //   url: 'https://archival-rpc.testnet.pagoda.co',
+          //   simpleName: 'archival rpc',
+          // },
         },
         pool_protocol: 'indexer',
       };
@@ -95,10 +95,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://free.rpc.fastnear.com',
             simpleName: 'fastnear rpc',
           },
-          pagodaRpc: {
-            url: 'https://rpc.mainnet.pagoda.co',
-            simpleName: 'pagoda rpc',
-          },
+          // pagodaRpc: {
+          //   url: 'https://rpc.mainnet.pagoda.co',
+          //   simpleName: 'pagoda rpc',
+          // },
           // archivalRpc: {
           //   url: 'https://archival-rpc.mainnet.pagoda.co',
           //   simpleName: 'archival rpc',
