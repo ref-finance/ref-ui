@@ -24,10 +24,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.mainnet.pagoda.co',
             simpleName: 'pagoda rpc',
           },
-          archivalRpc: {
-            url: 'https://archival-rpc.mainnet.pagoda.co',
-            simpleName: 'archival rpc',
-          },
+          // archivalRpc: {
+          //   url: 'https://archival-rpc.mainnet.pagoda.co',
+          //   simpleName: 'archival rpc',
+          // },
         },
         pool_protocol: 'indexer',
       };
@@ -47,10 +47,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.testnet.pagoda.co',
             simpleName: 'pagoda rpc',
           },
-          archivalRpc: {
-            url: 'https://archival-rpc.testnet.pagoda.co',
-            simpleName: 'archival rpc',
-          },
+          // archivalRpc: {
+          //   url: 'https://archival-rpc.testnet.pagoda.co',
+          //   simpleName: 'archival rpc',
+          // },
         },
         pool_protocol: 'indexer',
       };
@@ -99,10 +99,10 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://rpc.mainnet.pagoda.co',
             simpleName: 'pagoda rpc',
           },
-          archivalRpc: {
-            url: 'https://archival-rpc.mainnet.pagoda.co',
-            simpleName: 'archival rpc',
-          },
+          // archivalRpc: {
+          //   url: 'https://archival-rpc.mainnet.pagoda.co',
+          //   simpleName: 'archival rpc',
+          // },
         },
         pool_protocol: 'indexer',
       };
