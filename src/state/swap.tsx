@@ -800,7 +800,7 @@ export const useSwapV3 = ({
       input_token: tokenIn,
       output_token: tokenOut,
       input_amount: tokenInAmount,
-      tag: `${tokenIn.id}|${tokenOut.id}|${tokenInAmount}`,
+      tag: `${tokenIn.id}|${fee}|${tokenInAmount}`,
     }).catch((e) => null);
   };
 
