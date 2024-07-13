@@ -326,7 +326,7 @@ export function RegisterButton({
               })}
               <a
                 className="underline text-primary ml-1"
-                href="https://orderly.network/"
+                href="https://orderly.org/"
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >

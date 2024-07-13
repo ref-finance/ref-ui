@@ -6,6 +6,7 @@ import type {
   WalletSelector,
   AccountState,
   Wallet,
+  Network,
 } from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';
 import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
@@ -20,7 +21,10 @@ import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
 import { setupNightly } from '@near-wallet-selector/nightly';
 
-import getConfig from '../services/config';
+import getConfig, {
+  getExtendConfig,
+  getCustomConfig,
+} from '../services/config';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
 import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
@@ -41,6 +45,7 @@ import {
 import { isMobile } from '../utils/device';
 import { setupKeypom } from '@keypom/selector';
 import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
+import { addUserWallet } from '../services/indexer';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -136,8 +141,22 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   };
 
   const init = useCallback(async () => {
+    const RPC_LIST_system = getExtendConfig().RPC_LIST;
+    const RPC_LIST_custom = getCustomConfig();
+    const RPC_LIST = Object.assign(RPC_LIST_system, RPC_LIST_custom) as any;
+    let endPoint = 'defaultRpc';
+    try {
+      endPoint = window.localStorage.getItem('endPoint') || endPoint;
+      if (!RPC_LIST[endPoint]) {
+        endPoint = 'defaultRpc';
+        localStorage.removeItem('endPoint');
+      }
+    } catch (error) {}
     const _selector = await setupWalletSelector({
-      network: getConfig().networkId as NetworkId,
+      network: {
+        networkId: getConfig().networkId as NetworkId,
+        nodeUrl: RPC_LIST[endPoint].url,
+      } as Network,
       debug: false,
       modules: [
         setupOKXWallet({}),
@@ -236,7 +255,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     if (!selector) {
       return;
     }
-
     const subscription = selector.store.observable
       .pipe(
         map((state) => state.accounts),
@@ -248,6 +266,15 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
     return () => subscription.unsubscribe();
   }, [selector, accountId]);
+  useEffect(() => {
+    const selectedWalletId = selector?.store?.getState()?.selectedWalletId;
+    if (accountId && selectedWalletId) {
+      addUserWallet({
+        account_id: accountId,
+        wallet_address: selectedWalletId,
+      });
+    }
+  }, [selector?.store?.getState()?.selectedWalletId, accountId]);
 
   const getAllKeys = async (accountId: string) => {
     const account = await near.account(accountId);

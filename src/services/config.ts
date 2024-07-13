@@ -20,17 +20,13 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://free.rpc.fastnear.com',
             simpleName: 'fastnear rpc',
           },
-          // publicRpc: {
-          //   url: 'https://public-rpc.blockpi.io/http/near',
-          //   simpleName: 'blockpi rpc',
+          // pagodaRpc: {
+          //   url: 'https://rpc.mainnet.pagoda.co',
+          //   simpleName: 'pagoda rpc',
           // },
-          // infuraRpc: {
-          //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
-          //   simpleName: 'infura rpc',
-          // },
-          // ankrRpc: {
-          //   url: 'https://rpc.ankr.com/near',
-          //   simpleName: 'ankr rpc',
+          // archivalRpc: {
+          //   url: 'https://archival-rpc.mainnet.pagoda.co',
+          //   simpleName: 'archival rpc',
           // },
         },
         pool_protocol: 'indexer',
@@ -47,9 +43,13 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://g.w.lavanet.xyz/gateway/neart/rpc-http/a6e88c7710da77f09430aacd6328efd6',
             simpleName: 'lava rpc',
           },
-          // publicRpc: {
-          //   url: 'https://public-rpc.blockpi.io/http/near-testnet',
-          //   simpleName: 'blockpi rpc',
+          // pagodaRpc: {
+          //   url: 'https://rpc.testnet.pagoda.co',
+          //   simpleName: 'pagoda rpc',
+          // },
+          // archivalRpc: {
+          //   url: 'https://archival-rpc.testnet.pagoda.co',
+          //   simpleName: 'archival rpc',
           // },
         },
         pool_protocol: 'indexer',
@@ -65,9 +65,13 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://g.w.lavanet.xyz/gateway/neart/rpc-http/a6e88c7710da77f09430aacd6328efd6',
             simpleName: 'lava rpc',
           },
-          // publicRpc: {
-          //   url: 'https://public-rpc.blockpi.io/http/near-testnet',
-          //   simpleName: 'blockpi rpc',
+          // pagodaRpc: {
+          //   url: 'https://rpc.testnet.pagoda.co',
+          //   simpleName: 'pagoda rpc',
+          // },
+          // archivalRpc: {
+          //   url: 'https://archival-rpc.testnet.pagoda.co',
+          //   simpleName: 'archival rpc',
           // },
         },
         pool_protocol: 'indexer',
@@ -91,17 +95,13 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
             url: 'https://free.rpc.fastnear.com',
             simpleName: 'fastnear rpc',
           },
-          // publicRpc: {
-          //   url: 'https://public-rpc.blockpi.io/http/near',
-          //   simpleName: 'blockpi rpc',
+          // pagodaRpc: {
+          //   url: 'https://rpc.mainnet.pagoda.co',
+          //   simpleName: 'pagoda rpc',
           // },
-          // infuraRpc: {
-          //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
-          //   simpleName: 'infura rpc',
-          // },
-          // ankrRpc: {
-          //   url: 'https://rpc.ankr.com/near',
-          //   simpleName: 'ankr rpc',
+          // archivalRpc: {
+          //   url: 'https://archival-rpc.mainnet.pagoda.co',
+          //   simpleName: 'archival rpc',
           // },
         },
         pool_protocol: 'indexer',
@@ -149,8 +149,8 @@ export default function getConfig(
         explorerUrl: 'https://nearblocks.io',
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
-        indexerUrl: 'https://api.ref.finance',
-        // indexerUrl: 'https://apiself.cclp.finance',
+        // indexerUrl: 'https://api.ref.finance',
+        indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
