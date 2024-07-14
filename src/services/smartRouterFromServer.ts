@@ -249,7 +249,7 @@ export const getTokenPriceListFromCacheForServer = async () => {
     return {
       ...acc,
       [cur.id]: cur,
-    }
+    };
   }, {});
   return map || {};
 };

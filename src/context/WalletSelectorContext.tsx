@@ -278,12 +278,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
     const allKeys = (await account.getAccessKeys()) as IAccountKey[];
 
+    const inUsedKey = selector.store.getState().accounts?.[0]?.publicKey || '';
     const isWalletMeta = allKeys.some((k) => {
       if (k.access_key.permission === 'FullAccess') return false;
       const meta = (
         k.access_key.permission as Ipermission
       ).FunctionCall.method_names.includes('__wallet__metadata');
-      return meta;
+      const isInUsed = k.public_key == inUsedKey;
+      return meta && isInUsed;
     });
 
     const isSelectLedger =
