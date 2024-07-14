@@ -54,7 +54,7 @@ export function TokenSelector({
         )}
         {!disabled && tokens.length > 0 && <SvgIcon name="IconArrowDown" />}
       </Button>
-      {isOpen && (
+      {isOpen && tokens.length && (
         <TokenSelectorModal
           isOpen={isOpen}
           value={value}
@@ -172,16 +172,19 @@ export function TokenSelectorModal({
             />
           )}
           <div>
-            {tokenList.map((item) => (
-              <TokenSelectorItem
-                key={tokenFilter.chain + item.symbol}
-                isSelect={value?.symbol === item.symbol}
-                chain={tokenFilter.chain}
-                token={item}
-                balance={balanceMap?.[item.symbol]}
-                onClick={() => handleSelected(item)}
-              />
-            ))}
+            {tokenList.map(
+              (item) =>
+                item.symbol && (
+                  <TokenSelectorItem
+                    key={tokenFilter.chain + item.symbol}
+                    isSelect={value?.symbol === item.symbol}
+                    chain={tokenFilter.chain}
+                    token={item}
+                    balance={balanceMap?.[item.symbol]}
+                    onClick={() => handleSelected(item)}
+                  />
+                )
+            )}
           </div>
         </div>
       </div>
@@ -249,7 +252,7 @@ function formatChainToken(
   chain: BridgeModel.BridgeSupportChain,
   token: BridgeModel.BridgeTokenMeta
 ) {
-  if (chain !== 'NEAR' && token.symbol.endsWith('.e')) {
+  if (chain !== 'NEAR' && token?.symbol.endsWith('.e')) {
     return getTokenMeta(token.symbol.slice(0, -2));
   }
   return token;

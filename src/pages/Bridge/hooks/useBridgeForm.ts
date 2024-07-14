@@ -8,6 +8,7 @@ import { SupportChains, EVMConfig, BridgeTokenRoutes } from '../config';
 import { logger } from '../utils/common';
 import { getTokenMeta } from '../utils/token';
 import bridgeServices from '../services/bridge';
+import { formatAmount } from '../utils/format';
 
 interface BridgeForm {
   fromChain: BridgeModel.BridgeSupportChain;
@@ -67,7 +68,6 @@ export default function useBridgeForm() {
     ) {
       return [bridgeFromValue.tokenMeta?.symbol, 'USDC.e'];
     }
-
     return supportFromTokenSymbols.filter(
       (v) => v === bridgeFromValue.tokenMeta?.symbol
     );
@@ -96,33 +96,39 @@ export default function useBridgeForm() {
     evmServices.calculateGasInUSD('336847')
   );
 
-  const { data: channelFeeMap } = useRequest(
+  const { data: channelInfoMap } = useRequest(
     async () => {
       const result = {} as Record<
         BridgeModel.BridgeSupportChannel,
-        {
-          fee: any;
-          readableFee: string;
-          usdFee: string;
-          discounted: boolean;
-        }
+        Awaited<ReturnType<typeof bridgeServices.query>>
       >;
       for (const channel of supportBridgeChannels) {
-        result[channel] = await bridgeServices.queryFee(
-          bridgeFromValue.chain,
+        result[channel] = await bridgeServices.query({
+          tokenIn: bridgeFromValue.tokenMeta,
+          tokenOut: bridgeToValue.tokenMeta,
+          amount: bridgeFromValue.amount,
+          from: bridgeFromValue.chain,
+          to: bridgeToValue.chain,
+          recipient:
+            bridgeToValue.isCustomAccountAddress &&
+            bridgeToValue.customAccountAddress
+              ? bridgeToValue.customAccountAddress
+              : bridgeToValue.accountAddress,
+          sender: bridgeFromValue.accountAddress,
           channel,
-          bridgeFromValue.tokenMeta
-        );
+        });
       }
-      logger.log('channelFeeMap', result);
+      logger.log('channelInfoMap', result);
       return result;
     },
     {
       refreshDeps: [
         bridgeFromValue.chain,
         bridgeFromValue.tokenMeta,
+        bridgeFromValue.amount,
         supportBridgeChannels,
       ],
+      debounceOptions: 500,
     }
   );
 
@@ -203,6 +209,16 @@ export default function useBridgeForm() {
     supportFromTokenSymbols,
     bridgeFromValue.tokenMeta?.symbol,
   ]);
+
+  useEffect(() => {
+    const amountOut = bridgeChannel
+      ? channelInfoMap?.[bridgeChannel]?.minAmount
+      : Object.values(channelInfoMap || {})[0]?.minAmount;
+    setBridgeToValue({
+      ...bridgeToValue,
+      amount: formatAmount(amountOut, bridgeToValue.tokenMeta?.decimals),
+    });
+  }, [channelInfoMap, bridgeChannel]);
 
   const { data: bridgeFromBalance } = useRequest(
     () =>
@@ -420,6 +436,6 @@ export default function useBridgeForm() {
     slippageTolerance,
     setSlippageTolerance,
     estimatedGasFee,
-    channelFeeMap,
+    channelInfoMap,
   };
 }

@@ -5,7 +5,7 @@ import Button from './Button';
 import SvgIcon from './SvgIcon';
 import { BridgeConfig } from './../config';
 import { useBridgeFormContext } from '../providers/bridgeForm';
-import { formatUSDCurrency } from '../utils/format';
+import { formatAmount, formatUSDCurrency } from '../utils/format';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import LogoRainbow from './../assets/logo-rainbow.png';
 import LogoStargate from './../assets/logo-stargate.png';
@@ -25,7 +25,7 @@ function BridgeRouteItem({
   className?: string;
   onClick?: () => void;
 }) {
-  const { bridgeToValue, estimatedGasFee, channelFeeMap } =
+  const { bridgeToValue, estimatedGasFee, channelInfoMap } =
     useBridgeFormContext();
   const route = routeConfig[channel];
 
@@ -60,7 +60,12 @@ function BridgeRouteItem({
         </div>
         <div className="flex items-center justify-between">
           <div className="text-white text-sm font-medium">
-            ~{bridgeToValue.amount} {bridgeToValue.tokenMeta.symbol}
+            ~
+            {formatAmount(
+              channelInfoMap?.[channel].minAmount,
+              bridgeToValue.tokenMeta.decimals
+            )}{' '}
+            {bridgeToValue.tokenMeta.symbol}
           </div>
           <div className="text-right text-slate-500 text-xs font-normal ">
             ~{route.wait} mins ｜Bridge fee{' '}
@@ -72,12 +77,12 @@ function BridgeRouteItem({
               data-tooltip-html={`
                 <div>${formatUSDCurrency(estimatedGasFee, '0.01')} Gas + </div>
                 <div>${formatUSDCurrency(
-                  channelFeeMap?.[channel]?.usdFee || 0
+                  channelInfoMap?.[channel]?.usdFee || 0
                 )} ${channel} fee</div>`}
             >
               {formatUSDCurrency(
                 new Big(estimatedGasFee)
-                  .plus(channelFeeMap?.[channel]?.usdFee || 0)
+                  .plus(channelInfoMap?.[channel]?.usdFee || 0)
                   .toString(),
                 '0.01'
               )}
@@ -133,13 +138,13 @@ function BridgeRoutes() {
     setIsOpen(!isOpen);
   }
   const {
-    bridgeToValue,
+    bridgeFromValue,
     bridgeChannel,
     setBridgeChannel,
     supportBridgeChannels,
   } = useBridgeFormContext();
 
-  const hasAmount = bridgeToValue.amount && bridgeToValue.amount !== '0';
+  const hasAmount = bridgeFromValue.amount && bridgeFromValue.amount !== '0';
 
   useEffect(() => {
     if (!supportBridgeChannels.includes(bridgeChannel)) {

@@ -6,6 +6,7 @@ import Button from './Button';
 import useBridge from '../hooks/useBridge';
 import { useBridgeFormContext } from '../providers/bridgeForm';
 import {
+  formatAmount,
   formatChainName,
   formatNumber,
   formatSortAddress,
@@ -28,7 +29,7 @@ export default function BridgePreviewModal({
     bridgeToValue,
     bridgeChannel,
     estimatedGasFee,
-    channelFeeMap,
+    channelInfoMap,
   } = useBridgeFormContext();
 
   const [loading, setLoading] = useAutoResetState(false, 1000);
@@ -51,20 +52,25 @@ export default function BridgePreviewModal({
       sender,
       constTime: BridgeConfig[bridgeChannel]?.wait,
       bridgeFee: new Big(estimatedGasFee)
-        .plus(channelFeeMap?.[bridgeChannel]?.usdFee || 0)
+        .plus(channelInfoMap?.[bridgeChannel]?.usdFee || 0)
         .toString(),
-      output: bridgeToValue.amount,
-      minimumReceived: bridgeFromValue.amount,
+      output: formatAmount(
+        channelInfoMap?.[bridgeChannel]?.minAmount,
+        bridgeFromValue.tokenMeta.decimals
+      ),
+      minimumReceived: formatAmount(
+        channelInfoMap?.[bridgeChannel]?.minAmount,
+        bridgeFromValue.tokenMeta.decimals
+      ),
     }),
     [
-      bridgeFromValue.amount,
-      bridgeFromValue?.chain,
-      bridgeFromValue?.tokenMeta,
-      bridgeToValue.amount,
-      bridgeToValue?.chain,
+      bridgeFromValue,
+      bridgeToValue,
+      bridgeChannel,
       estimatedGasFee,
-      recipient,
+      channelInfoMap,
       sender,
+      recipient,
     ]
   );
 
@@ -162,7 +168,7 @@ export default function BridgePreviewModal({
                           '0.01'
                         )} Gas + </div>
                         <div>${formatUSDCurrency(
-                          channelFeeMap?.[bridgeChannel]?.usdFee || 0
+                          channelInfoMap?.[bridgeChannel]?.usdFee || 0
                         )} ${bridgeChannel} fee</div>`}
                     >
                       {formatUSDCurrency(confirmInfo.bridgeFee, '0.01')}

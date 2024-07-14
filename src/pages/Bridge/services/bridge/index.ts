@@ -27,14 +27,10 @@ const bridgeServices = {
         throw new Error('Unsupported bridge channel');
     }
   },
-  async queryFee(
-    from: BridgeModel.BridgeSupportChain,
-    channel: BridgeModel.BridgeSupportChannel,
-    token: BridgeModel.BridgeTokenMeta
-  ) {
-    switch (channel) {
+  async query(params: BridgeTransferParams) {
+    switch (params.channel) {
       case 'Stargate':
-        return stargateBridgeService.queryFee(from, token);
+        return stargateBridgeService.query(params);
       default:
         return;
     }

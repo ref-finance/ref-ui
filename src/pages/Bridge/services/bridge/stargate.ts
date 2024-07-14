@@ -5,7 +5,7 @@ import {
   buildInput,
   toAddress,
 } from 'src/services/aurora/aurora';
-import { auroraServices, evmServices } from '../contract';
+import { auroraServices, evmServices, tokenServices } from '../contract';
 import StargateAbi from '../../abi/stargate.json';
 import StargatePoolAbi from '../../abi/stargatePoolUSDC.json';
 import { BridgeTransferParams } from '.';
@@ -14,6 +14,7 @@ import { formatAmount, parseAmount } from '../../utils/format';
 import { logger } from '../../utils/common';
 import { Optional, Transaction } from '@near-wallet-selector/core';
 import { BridgeConfig } from '../../config';
+import { getTokenMeta } from '../../utils/token';
 
 const stargateBridgeService = {
   async transfer(params: BridgeTransferParams) {
@@ -23,11 +24,13 @@ const stargateBridgeService = {
       return await stargateBridgeService.nearToEvm(params);
     }
   },
-  async queryFee(
-    from: BridgeModel.BridgeSupportChain,
-    token: BridgeModel.BridgeTokenMeta
-  ) {
-    if (from === 'NEAR') {
+  async query(params: BridgeTransferParams) {
+    const feeRes = await stargateBridgeService.queryFee(params);
+    const minAmountRes = await stargateBridgeService.queryMinAmount(params);
+    return { ...feeRes, minAmount: minAmountRes };
+  },
+  async queryFee(params: BridgeTransferParams) {
+    if (params.from === 'NEAR') {
       const sendContract = await auroraServices.getAuroraContract(
         BridgeConfig.Stargate.bridgeParams.auroraReceive,
         StargateAbi
@@ -40,42 +43,109 @@ const stargateBridgeService = {
       if (discountPoolETH.gte(decrementPerTransactionETH)) {
         const discountedFeeUSD: Big = await sendContract.discountedFeeUSD();
         return {
-          fee: discountedFeeUSD.toString(),
-          readableFee: formatAmount(
+          feeAmount: discountedFeeUSD.toString(),
+          readableFeeAmount: formatAmount(
             discountedFeeUSD.toString(),
-            token.decimals
+            params.tokenOut.decimals
           ),
-          usdFee: formatAmount(discountedFeeUSD.toString(), token.decimals),
+          usdFee: formatAmount(
+            discountedFeeUSD.toString(),
+            params.tokenOut.decimals
+          ),
           discounted: true,
         };
       } else {
         const currentFeeUSD: Big = await sendContract.currentFeeUSD();
         return {
-          fee: currentFeeUSD.toString(),
-          readableFee: formatAmount(currentFeeUSD.toString(), token.decimals),
-          usdFee: formatAmount(currentFeeUSD.toString(), token.decimals),
+          feeAmount: currentFeeUSD.toString(),
+          readableFeeAmount: formatAmount(
+            currentFeeUSD.toString(),
+            params.tokenOut.decimals
+          ),
+          usdFee: formatAmount(
+            currentFeeUSD.toString(),
+            params.tokenOut.decimals
+          ),
           discounted: false,
         };
       }
+    } else {
+      const { messagingFee } =
+        await stargateBridgeService.prepareTakeTaxiStargate(params);
+      console.log('messagingFee.nativeFee', messagingFee.nativeFee);
+      const { nativeFee, lzTokenFee } = messagingFee;
+      const feeAmount = new Big(nativeFee).plus(lzTokenFee).toString();
+      const readableFeeAmount = formatAmount(
+        feeAmount,
+        getTokenMeta('ETH').decimals
+      );
+      const ethPriceInUSD = await tokenServices.getPrice(getTokenMeta('ETH'));
+      const usdFee = new Big(readableFeeAmount).times(ethPriceInUSD).toFixed(4);
+      return {
+        feeAmount,
+        readableFeeAmount,
+        usdFee,
+        discounted: false,
+      };
     }
   },
-  async nearToEvm({
-    from,
-    to,
-    tokenIn,
-    tokenOut,
-    amount,
-    sender,
-    recipient,
-  }: BridgeTransferParams) {
+  async queryMinAmount(params: BridgeTransferParams) {
+    const res = await stargateBridgeService.prepareTakeTaxiStargate(params);
+    return res?.sendParam?.minAmountLD?.toString();
+  },
+  async prepareTakeTaxiStargate(params: BridgeTransferParams) {
+    const { from, to, tokenIn, amount, recipient } = params;
+    const rawAmount = parseAmount(amount, tokenIn.decimals);
+    if (from === 'NEAR') {
+      const sendContract = await auroraServices.getAuroraContract(
+        BridgeConfig.Stargate.bridgeParams.auroraReceive,
+        StargateAbi
+      );
+
+      const { valueToSend, sendParam, messagingFee } =
+        await sendContract.prepareTakeTaxiStargate(
+          BridgeConfig.Stargate.bridgeParams[to].eid,
+          rawAmount,
+          recipient,
+          `0x`
+        );
+      logger.log('prepareTakeTaxiStargate', {
+        valueToSend,
+        sendParam,
+        messagingFee,
+      });
+      return { valueToSend, sendParam, messagingFee };
+    } else {
+      const sendContract = await evmServices.getEvmContract(
+        BridgeConfig.Stargate.bridgeParams[from].send,
+        StargateAbi
+      );
+      const { valueToSend, sendParam, messagingFee } =
+        await sendContract.prepareTakeTaxiStargate(
+          BridgeConfig.Stargate.bridgeParams.Aurora.eid,
+          rawAmount,
+          BridgeConfig.Stargate.bridgeParams.auroraReceive,
+          `0x${Buffer.from(recipient, 'utf-8').toString('hex')}`
+        );
+      logger.log('prepareTakeTaxiStargate', {
+        valueToSend,
+        sendParam,
+        messagingFee,
+      });
+      return { valueToSend, sendParam, messagingFee };
+    }
+  },
+  async nearToEvm(params: BridgeTransferParams) {
+    const { from, tokenIn, amount, sender } = params;
     const auroraAccount = auroraAddr(sender);
     const nearTokenAddress = tokenIn.addresses.NEAR;
     const auroraTokenAddress = tokenIn.addresses.Aurora;
     const rawAmount = parseAmount(amount, tokenIn.decimals);
-    const { fee: rawFeeAmount, discounted } =
-      await stargateBridgeService.queryFee(from, tokenIn);
-    logger.log('bridge: queryFee', { rawAmount, rawFeeAmount, discounted });
-    const rawTotalAmount = Big(rawAmount).plus(rawFeeAmount).toFixed();
+    const { feeAmount, discounted } = await stargateBridgeService.queryFee(
+      params
+    );
+    logger.log('bridge: queryFee', { rawAmount, feeAmount, discounted });
+    const rawTotalAmount = Big(rawAmount).plus(feeAmount).toFixed();
 
     const transferTransaction = {
       receiverId: nearTokenAddress,
@@ -121,25 +191,10 @@ const stargateBridgeService = {
         });
     }
 
-    const sendContract = await auroraServices.getAuroraContract(
-      BridgeConfig.Stargate.bridgeParams.auroraReceive,
-      StargateAbi
-    );
     try {
       const { valueToSend, sendParam, messagingFee } =
-        await sendContract.prepareTakeTaxiStargate(
-          BridgeConfig.Stargate.bridgeParams[to].eid,
-          rawAmount,
-          recipient,
-          `0x`
-        );
+        await stargateBridgeService.prepareTakeTaxiStargate(params);
 
-      logger.log('bridge: send params', [
-        sendParam,
-        messagingFee,
-        auroraAccount,
-        rawTotalAmount,
-      ]);
       const sendInput = buildInput(
         StargateAbi,
         discounted ? 'sendStargateWithDiscount' : 'sendStargate',
@@ -181,27 +236,9 @@ const stargateBridgeService = {
       spender: poolAddress,
     });
 
-    const rawAmount = ethers.utils
-      .parseUnits(amount, tokenIn.decimals)
-      .toString();
-
-    const sendContract = await evmServices.getEvmContract(
-      BridgeConfig.Stargate.bridgeParams[from].send,
-      StargateAbi
-    );
-
     const { valueToSend, sendParam, messagingFee } =
-      await sendContract.prepareTakeTaxiStargate(
-        BridgeConfig.Stargate.bridgeParams.Aurora.eid,
-        rawAmount,
-        BridgeConfig.Stargate.bridgeParams.auroraReceive,
-        `0x${Buffer.from(recipient, 'utf-8').toString('hex')}`
-      );
-    logger.log('bridge: stargate prepareTakeTaxiStargate', {
-      valueToSend,
-      sendParam,
-      messagingFee,
-    });
+      await stargateBridgeService.prepareTakeTaxiStargate(params);
+
     const stargatePoolContract = await evmServices.getEvmContract(
       poolAddress,
       StargatePoolAbi

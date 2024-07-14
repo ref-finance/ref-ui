@@ -5,6 +5,7 @@ import auroraErc20Abi from './../abi/auroraErc20.json';
 import etherCustodianAbi from './../abi/etherCustodian.json';
 import eNEARAbi from './../abi/eNEAR.json';
 import { formatFileUrl } from '../utils/format';
+import { send } from 'process';
 
 export const APPID = 'ref-finance';
 export const APP_HOST = 'https://app.ref.finance';
@@ -62,12 +63,6 @@ export const NearConfig = {
     ? 'https://nearblocks.io'
     : 'https://testnet.nearblocks.io',
 };
-
-export const SupportChains: BridgeModel.BridgeSupportChain[] = [
-  'Ethereum',
-  'Arbitrum',
-  'NEAR',
-];
 
 const RainbowBridgeDefaultParams = {
   nearEventRelayerMargin: 10, // blocks
@@ -136,6 +131,7 @@ export const BridgeConfig = {
         eid: '30101',
       },
       Aurora: {
+        send: '',
         pool: {
           USDC: '0x81F6138153d473E8c5EcebD3DC8Cd4903506B075',
         },
@@ -267,21 +263,21 @@ export const BridgeTokenRoutes: {
   channel: BridgeModel.BridgeSupportChannel;
   symbols: string[];
 }[] = [
-  {
-    from: 'NEAR',
-    to: 'Ethereum',
-    channel: 'Rainbow',
-    symbols: ['NEAR', 'ETH', 'USDT.e', 'USDC.e', 'DAI', 'WBTC', 'OCT', 'WOO'],
-  },
-  { from: 'NEAR', to: 'Ethereum', channel: 'Stargate', symbols: ['USDC'] },
+  // {
+  //   from: 'NEAR',
+  //   to: 'Ethereum',
+  //   channel: 'Rainbow',
+  //   symbols: ['NEAR', 'ETH', 'USDT.e', 'USDC.e', 'DAI', 'WBTC', 'OCT', 'WOO'],
+  // },
+  // { from: 'NEAR', to: 'Ethereum', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Arbitrum', channel: 'Stargate', symbols: ['USDC'] },
-  {
-    from: 'Ethereum',
-    to: 'NEAR',
-    channel: 'Rainbow',
-    symbols: ['NEAR', 'ETH', 'USDT.e', 'USDC.e', 'DAI', 'WBTC', 'OCT', 'WOO'],
-  },
-  { from: 'Ethereum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  // {
+  //   from: 'Ethereum',
+  //   to: 'NEAR',
+  //   channel: 'Rainbow',
+  //   symbols: ['NEAR', 'ETH', 'USDT.e', 'USDC.e', 'DAI', 'WBTC', 'OCT', 'WOO'],
+  // },
+  // { from: 'Ethereum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Arbitrum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
 ];
 
@@ -296,3 +292,9 @@ export const BridgeTokenSortRule = [
   'OCT',
   'WOO',
 ];
+
+export const SupportChains = BridgeTokenRoutes.reduce((acc, v) => {
+  if (!acc.includes(v.from)) acc.push(v.from);
+  if (!acc.includes(v.to)) acc.push(v.to);
+  return acc;
+}, [] as BridgeModel.BridgeSupportChain[]);
