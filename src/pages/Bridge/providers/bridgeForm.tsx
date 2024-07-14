@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import BridgePreviewModal from '../components/BridgePreview';
 import useBridgeForm from './../hooks/useBridgeForm';
+import { useWalletConnectContext } from './walletConcent';
 
 type Props = ReturnType<typeof useBridgeForm> & {
   openPreviewModal: () => void;
@@ -18,8 +19,12 @@ export default function BridgeFormProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { bridgeFromValue, bridgeToValue, bridgeChannel, ...restHooks } =
-    useBridgeForm();
+  const {
+    NEAR: { isSignedIn: isNEARSignedIn },
+    EVM: { isSignedIn: isEVMSignedIn },
+  } = useWalletConnectContext();
+
+  const { bridgeFromValue, bridgeToValue, ...restHooks } = useBridgeForm();
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   function toggleOpen() {
@@ -33,14 +38,14 @@ export default function BridgeFormProvider({
     ...restHooks,
     bridgeFromValue,
     bridgeToValue,
-    bridgeChannel,
+
     openPreviewModal,
   };
 
   return (
     <BridgeFormContext.Provider value={exposes}>
       {children}
-      {bridgeChannel && (
+      {isNEARSignedIn && isEVMSignedIn && (
         <BridgePreviewModal
           isOpen={previewModalOpen}
           toggleOpenModal={toggleOpen}

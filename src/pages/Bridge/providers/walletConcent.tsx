@@ -64,10 +64,10 @@ export function useWalletConnectContext() {
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
 
   const [{ connectedChain }, setChain] = useSetChain();
-
+  const isEVMSignedIn = wallet && !connecting;
   const walletEvmHooks = {
     accountId: wallet?.accounts?.[0]?.address,
-    isSignedIn: wallet && !connecting,
+    isSignedIn: isEVMSignedIn,
     open: connect,
     chain: (Object.entries(EVMConfig).find(
       ([_, config]) =>
@@ -76,6 +76,7 @@ export function useWalletConnectContext() {
         config.chainId === parseInt(connectedChain?.id, 16)
     )?.[0] || 'Ethereum') as BridgeModel.BridgeSupportChain,
     setChain: (chainId: number) => {
+      if (!isEVMSignedIn) return;
       const chainHex = '0x' + chainId.toString(16);
       if (chainHex !== connectedChain?.id) setChain({ chainId: chainHex });
     },
