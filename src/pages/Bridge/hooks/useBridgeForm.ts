@@ -18,28 +18,23 @@ interface BridgeForm {
 }
 
 export default function useBridgeForm() {
-  const [storageState, setStorageState] = useStorageState<BridgeForm>(
-    'REF_BRIDGE_FORM',
-    {} as BridgeForm
-  );
-
-  const [bridgeFromValue, setBridgeFromValue] = useState<
+  const [bridgeFromValue, setBridgeFromValue] = useStorageState<
     BridgeModel.BridgeTransferFormData['from']
-  >(() => ({
-    chain: storageState?.fromChain ?? 'Ethereum',
-    tokenMeta: getTokenMeta(storageState?.fromToken ?? 'ETH'),
+  >('bridgeFromValue', {
+    chain: SupportChains[0],
+    tokenMeta: getTokenMeta('USDC'),
     amount: undefined,
-  }));
+  });
 
-  const [bridgeToValue, setBridgeToValue] = useState<
+  const [bridgeToValue, setBridgeToValue] = useStorageState<
     BridgeModel.BridgeTransferFormData['to']
-  >(() => ({
-    chain: storageState?.toChain ?? 'NEAR',
-    tokenMeta: getTokenMeta(storageState?.toToken ?? 'NEAR'),
+  >('bridgeToValue', {
+    chain: SupportChains[1],
+    tokenMeta: getTokenMeta('NEAR'),
     amount: undefined,
     isCustomAccountAddress: false,
     customAccountAddress: undefined,
-  }));
+  });
 
   const [bridgeChannel, setBridgeChannel] =
     useState<BridgeModel.BridgeSupportChannel>();
@@ -96,12 +91,13 @@ export default function useBridgeForm() {
     evmServices.calculateGasInUSD('336847')
   );
 
-  const { data: channelInfoMap } = useRequest(
+  const { data: channelInfoMap, loading: channelInfoMapLoading } = useRequest(
     async () => {
       const result = {} as Record<
         BridgeModel.BridgeSupportChannel,
         Awaited<ReturnType<typeof bridgeServices.query>>
       >;
+      setBridgeToValue({ ...bridgeToValue, amount: undefined });
       for (const channel of supportBridgeChannels) {
         result[channel] = await bridgeServices.query({
           tokenIn: bridgeFromValue.tokenMeta,
@@ -155,38 +151,19 @@ export default function useBridgeForm() {
       if (getWallet(bridgeToValue.chain)?.accountId)
         toValue.accountAddress = getWallet(bridgeToValue.chain)?.accountId;
 
-      // sync local storage
-      if (bridgeFromValue.chain !== bridgeToValue.chain) {
-        setStorageState({
-          fromChain: fromValue.chain,
-          fromToken: fromValue.tokenMeta?.symbol,
-          toChain: toValue.chain,
-          toToken: toValue.tokenMeta?.symbol,
-        });
-      }
-
-      // sync amount out
-      const amountOut = fromValue.amount;
-      toValue.amount = amountOut;
-
       setBridgeFromValue(fromValue);
       setBridgeToValue(toValue);
     },
     [
-      getWallet(bridgeFromValue.chain)?.accountId,
-      getWallet(bridgeToValue.chain)?.accountId,
       bridgeFromValue.chain,
       bridgeToValue.chain,
-      bridgeFromValue.tokenMeta?.symbol,
-      bridgeToValue.tokenMeta?.symbol,
-      bridgeFromValue.amount,
+      getWallet(bridgeFromValue.chain)?.accountId,
+      getWallet(bridgeToValue.chain)?.accountId,
     ],
-    500
+    200
   );
 
   useEffect(() => {
-    logger.log('supportFromTokenSymbols', supportFromTokenSymbols);
-    logger.log('supportToTokenSymbols', supportToTokenSymbols);
     if (
       !supportFromTokenSymbols.includes(bridgeFromValue.tokenMeta?.symbol || '')
     ) {
@@ -220,7 +197,7 @@ export default function useBridgeForm() {
     });
   }, [channelInfoMap, bridgeChannel]);
 
-  const { data: bridgeFromBalance } = useRequest(
+  const { data: bridgeFromBalance = '0' } = useRequest(
     () =>
       tokenServices.getBalance(
         bridgeFromValue.chain,
@@ -238,7 +215,7 @@ export default function useBridgeForm() {
     }
   );
 
-  const { data: bridgeToBalance } = useRequest(
+  const { data: bridgeToBalance = '0' } = useRequest(
     () =>
       tokenServices.getBalance(
         bridgeToValue.chain,
@@ -437,5 +414,6 @@ export default function useBridgeForm() {
     setSlippageTolerance,
     estimatedGasFee,
     channelInfoMap,
+    channelInfoMapLoading,
   };
 }

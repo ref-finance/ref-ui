@@ -62,7 +62,7 @@ function BridgeRouteItem({
           <div className="text-white text-sm font-medium">
             ~
             {formatAmount(
-              channelInfoMap?.[channel].minAmount,
+              channelInfoMap?.[channel]?.minAmount,
               bridgeToValue.tokenMeta.decimals
             )}{' '}
             {bridgeToValue.tokenMeta.symbol}
