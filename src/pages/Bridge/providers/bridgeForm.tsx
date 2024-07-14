@@ -18,7 +18,8 @@ export default function BridgeFormProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { bridgeFromValue, bridgeToValue, ...restHooks } = useBridgeForm();
+  const { bridgeFromValue, bridgeToValue, bridgeChannel, ...restHooks } =
+    useBridgeForm();
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   function toggleOpen() {
@@ -32,16 +33,19 @@ export default function BridgeFormProvider({
     ...restHooks,
     bridgeFromValue,
     bridgeToValue,
+    bridgeChannel,
     openPreviewModal,
   };
 
   return (
     <BridgeFormContext.Provider value={exposes}>
       {children}
-      <BridgePreviewModal
-        isOpen={previewModalOpen}
-        toggleOpenModal={toggleOpen}
-      />
+      {bridgeChannel && (
+        <BridgePreviewModal
+          isOpen={previewModalOpen}
+          toggleOpenModal={toggleOpen}
+        />
+      )}
     </BridgeFormContext.Provider>
   );
 }

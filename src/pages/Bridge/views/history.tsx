@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import Button from '../components/Button';
 import ConnectWallet from '../components/ConnectWallet';
 import HistoryTable from '../components/HistoryTable';
-import { useRequest } from '../hooks/useHooks';
+import { useRequest, useStorageState } from '../hooks/useHooks';
 import bridgeHistoryService from '../services/history';
 import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';
 import { useWalletConnectContext } from '../providers/walletConcent';
+import { SupportChains } from '../config';
 
 type BridgeHistoryFilter = {
   chain: BridgeModel.BridgeSupportChain;
@@ -16,10 +17,11 @@ type BridgeHistoryFilter = {
 };
 
 function BridgeTransactionHistory() {
-  const [historyFilter, setHistoryFilter] = useState<BridgeHistoryFilter>({
-    chain: 'Ethereum',
-    onlyUnclaimed: false,
-  });
+  const [historyFilter, setHistoryFilter] =
+    useStorageState<BridgeHistoryFilter>('historyFilter', {
+      chain: SupportChains?.[0],
+      onlyUnclaimed: false,
+    });
   const { getWallet } = useWalletConnectContext();
 
   const {
@@ -32,7 +34,11 @@ function BridgeTransactionHistory() {
         ...historyFilter,
         accountAddress: getWallet(historyFilter.chain)?.accountId,
       }),
-    { refreshDeps: [historyFilter], debounceOptions: 1000 }
+    {
+      refreshDeps: [historyFilter, getWallet(historyFilter.chain).isSignedIn],
+      before: () => getWallet(historyFilter.chain).isSignedIn,
+      debounceOptions: 1000,
+    }
   );
 
   const router = useRouter();
@@ -68,7 +74,7 @@ function BridgeTransactionHistory() {
               }}
             />
           </div>
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             Unclaimed only
             <input
               type="checkbox"
@@ -81,10 +87,14 @@ function BridgeTransactionHistory() {
                 })
               }
             />
-          </div>
+          </div> */}
         </div>
         <div className="bg-dark-800 rounded">
-          <HistoryTable data={data} loading={loading} onRefresh={refresh} />
+          <HistoryTable
+            data={data?.list || []}
+            loading={loading}
+            onRefresh={refresh}
+          />
         </div>
       </div>
     </div>

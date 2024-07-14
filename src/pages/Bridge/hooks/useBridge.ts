@@ -74,20 +74,22 @@ export default function useBridge(params?: {
 
   async function transfer(params: BridgeTransferParams) {
     setActionLoading(true);
-    const result = await bridgeServices
+    await bridgeServices
       .transfer({
         ...params,
         nearWalletSelector: wallet.NEAR.isSignedIn
           ? wallet?.NEAR?.selector
           : undefined,
       })
+      .then((res) => {
+        toast.success('Transaction Successful', { theme: 'dark' });
+        return res;
+      })
       .catch((err) => {
         console.error(err.message);
         toast.error(err.message.substring(0, 100), { theme: 'dark' });
-      });
-    setActionLoading(false);
-    logger.log('bridge: transfer result', result);
-    return result as BridgeModel.BridgeTransaction;
+      })
+      .finally(() => setActionLoading(false));
   }
   async function callAction(id: string) {
     setActionLoading(true);

@@ -5,7 +5,7 @@ import SvgIcon from './SvgIcon';
 import Button from './Button';
 import { useRouter } from '../hooks/useRouter';
 import useBridge from '../hooks/useBridge';
-import { formatTxExplorerUrl } from '../utils/format';
+import { formatFileUrl, formatTxExplorerUrl } from '../utils/format';
 import rainbowBridgeService from '../services/bridge/rainbow';
 import { BridgeConfig } from '../config';
 import moment from 'moment';
@@ -72,13 +72,11 @@ export default function BridgeTransactionStatusModal({
           </Button>
         </div>
         <div className="flex items-center justify-center my-8 gap-2">
-          <SvgIcon
-            name={
-              transaction.sourceNetwork === 'ethereum'
-                ? 'IconChainEthereum'
-                : 'IconChainNear'
-            }
-            className="text-2xl"
+          <img
+            src={formatFileUrl(
+              `/chain/${transaction.sourceNetwork.toLowerCase()}.svg`
+            )}
+            className="w-7 h-7"
           />
           <div className="bridge-status-process">
             {transaction.status === 'completed' ? (
@@ -90,13 +88,11 @@ export default function BridgeTransactionStatusModal({
               />
             )}
           </div>
-          <SvgIcon
-            name={
-              transaction.sourceNetwork === 'near'
-                ? 'IconChainEthereum'
-                : 'IconChainNear'
-            }
-            className="text-2xl"
+          <img
+            src={formatFileUrl(
+              `/chain/${transaction.destinationNetwork.toLowerCase()}.svg`
+            )}
+            className="w-7 h-7"
           />
         </div>
         <div className="my-6 text-center text-white">

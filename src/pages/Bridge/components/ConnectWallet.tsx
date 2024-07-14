@@ -12,11 +12,19 @@ import { CONST_ACKNOWLEDGE_WALLET_RISK } from 'src/constants/constLocalStorage';
 
 type Props = {
   currentChain: BridgeModel.BridgeSupportChain;
+  hideChainSelector?: boolean;
   className?: string;
+  connectPlaceholder?: string;
   onChangeChain?: (chain: BridgeModel.BridgeSupportChain) => void;
 };
 
-function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
+function ConnectWallet({
+  currentChain,
+  className,
+  connectPlaceholder,
+  hideChainSelector,
+  onChangeChain,
+}: Props) {
   const { getWallet } = useWalletConnectContext();
   const { isSignedIn, accountId, open, disconnect } = getWallet(currentChain);
 
@@ -37,20 +45,23 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
 
   return (
     <div className={`inline-flex items-center ${className}`}>
-      <select
-        className="bg-transparent text-white mr-3"
-        value={currentChain}
-        onChange={(e) =>
-          onChangeChain?.(e.target.value as BridgeModel.BridgeSupportChain)
-        }
-        onFocus={(e) => e.target.blur()}
-      >
-        {SupportChains.map((v) => (
-          <option key={v} value={v}>
-            {v}
-          </option>
-        ))}
-      </select>
+      {!hideChainSelector && (
+        <select
+          className="bg-transparent text-white mr-3"
+          value={currentChain}
+          onChange={(e) =>
+            onChangeChain?.(e.target.value as BridgeModel.BridgeSupportChain)
+          }
+          onFocus={(e) => e.target.blur()}
+        >
+          {SupportChains.map((v) => (
+            <option key={v} value={v}>
+              {v}
+            </option>
+          ))}
+        </select>
+      )}
+
       {isSignedIn ? (
         <Button
           rounded
@@ -82,7 +93,7 @@ function ConnectWallet({ currentChain, className, onChangeChain }: Props) {
         </Button>
       ) : (
         <Button type="primary" text onClick={() => handleOpenWalletModal()}>
-          Connect
+          {connectPlaceholder || 'Connect'}
         </Button>
       )}
       {currentChain === 'NEAR' && (

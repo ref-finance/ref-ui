@@ -2,13 +2,14 @@ import React, { useEffect, useMemo } from 'react';
 import SvgIcon from './SvgIcon';
 import {
   formatAmount,
+  formatFileUrl,
   formatSortAddress,
   formatTimestamp,
   formatTxExplorerUrl,
 } from '../utils/format';
 import Button from './Button';
 import useBridge from '../hooks/useBridge';
-import { getTokenMeta } from '../utils/token';
+import { getTokenByAddress, getTokenMeta } from '../utils/token';
 
 const columns = [
   { label: 'Time', prop: 'time', width: '15%' },
@@ -23,89 +24,91 @@ function TableItem({
   item: transaction,
   onRefresh,
 }: {
-  item: BridgeModel.BridgeTransaction;
+  item: BridgeModel.BridgeHistory;
   onRefresh?: () => void;
 }) {
-  const { callAction, actionLoading } = useBridge();
-
-  const token = useMemo(
-    () => getTokenMeta(transaction.symbol),
-    [transaction.symbol]
+  const tokenMeta = useMemo(
+    () => getTokenByAddress(transaction.token, transaction.chain),
+    [transaction.token, transaction.chain]
   );
 
-  async function handleAction() {
-    await callAction(transaction.id);
-    onRefresh();
-  }
+  // const { callAction, actionLoading } = useBridge();
+  // async function handleAction() {
+  //   await callAction(transaction.id);
+  //   onRefresh();
+  // }
   return (
     <tr>
-      <td>{formatTimestamp(transaction.startTime)}</td>
+      <td>{formatTimestamp(transaction.created_time)}</td>
       <td>
         <div className="flex items-center gap-2">
-          <SvgIcon
-            name={
-              transaction.sourceNetwork === 'ethereum'
-                ? 'IconChainEthereum'
-                : 'IconChainNear'
-            }
-            className="text-2xl"
+          <img
+            src={formatFileUrl(
+              `/chain/${transaction.from_chain.toLowerCase()}.svg`
+            )}
+            className="w-7 h-7"
           />
           <SvgIcon name="IconDirection" />
-          <SvgIcon
-            name={
-              transaction.sourceNetwork === 'near'
-                ? 'IconChainEthereum'
-                : 'IconChainNear'
-            }
-            className="text-2xl"
+          <img
+            src={formatFileUrl(
+              `/chain/${transaction.to_chain.toLowerCase()}.svg`
+            )}
+            className="w-7 h-7"
           />
         </div>
       </td>
       <td>
         <div className="flex items-center gap-2">
-          <img className="w-5 h-5 rounded-full" src={token?.icon} />
-          {formatAmount(transaction.amount, transaction.decimals)}
-          <span className="text-gray-400">{token?.symbol}</span>
+          <img className="w-5 h-5 rounded-full" src={tokenMeta?.icon} />
+          {formatAmount(transaction.volume, tokenMeta.decimals)}
+          <span className="text-gray-400">{tokenMeta?.symbol}</span>
         </div>
       </td>
       <td>
-        <div>{formatSortAddress(transaction.sender)}</div>
+        <div>{formatSortAddress(transaction.from)}</div>
         <a
           href={formatTxExplorerUrl(
-            transaction.sourceNetwork,
-            transaction.burnHashes?.[0] ||
-              transaction.lockHashes?.[0] ||
-              transaction.unlockHashes?.[0]
+            transaction.from_chain,
+            transaction.from_chain_hash
           )}
           target="_blank"
           rel="noreferrer"
           style={{ color: '#99B0FF' }}
           className="hover:underline"
         >
-          {formatSortAddress(
-            transaction.burnHashes?.[0] ||
-              transaction.lockHashes?.[0] ||
-              transaction.unlockHashes?.[0]
-          )}
+          {formatSortAddress(transaction.from_chain_hash)}
         </a>
       </td>
       <td>
-        <div>{formatSortAddress(transaction.recipient)}</div>
+        <div>{formatSortAddress(transaction.to)}</div>
         <a
           href={formatTxExplorerUrl(
-            transaction.sourceNetwork === 'near' ? 'ethereum' : 'near',
-            transaction.mintHashes?.[0]
+            transaction.to_chain,
+            transaction.to_chain_hash
           )}
           target="_blank"
           rel="noreferrer"
           style={{ color: '#99B0FF' }}
           className="hover:underline"
         >
-          {formatSortAddress(transaction.mintHashes?.[0])}
+          {formatSortAddress(transaction.to_chain_hash)}
         </a>
       </td>
       <td>
-        {transaction.status === 'action-needed' && transaction.callToAction ? (
+        <div className="flex items-center">
+          {transaction.status === 'DELIVERED' ? (
+            <>
+              <SvgIcon
+                name="IconSuccess"
+                className="text-primary text-sm mr-2"
+              />
+              Completed
+            </>
+          ) : (
+            <>Pending</>
+          )}
+        </div>
+        {/* {transaction.status === 'action-needed' && transaction.callToAction ? (
           <Button
             loading={actionLoading}
             type="primary"
@@ -124,14 +127,14 @@ function TableItem({
             )}
             {transaction.status}
           </div>
-        )}
+        )} */}
       </td>
     </tr>
   );
 }
 
 type Props = {
-  data?: BridgeModel.BridgeTransaction[];
+  data?: BridgeModel.BridgeHistory[];
   loading?: boolean;
   onRefresh?: () => void;
 };

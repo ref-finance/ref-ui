@@ -85,7 +85,7 @@ export default function BridgePreviewModal({
       sender,
       channel: bridgeChannel,
     });
-    openBridgeTransactionStatusModal(result);
+    // openBridgeTransactionStatusModal(result);
     toggleOpenModal();
   }
   return (
