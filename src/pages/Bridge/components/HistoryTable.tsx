@@ -28,8 +28,8 @@ function TableItem({
   onRefresh?: () => void;
 }) {
   const tokenMeta = useMemo(
-    () => getTokenByAddress(transaction.token, transaction.chain),
-    [transaction.token, transaction.chain]
+    () => getTokenByAddress(transaction.token, transaction.from_chain),
+    [transaction.token, transaction.from_chain]
   );
 
   // const { callAction, actionLoading } = useBridge();

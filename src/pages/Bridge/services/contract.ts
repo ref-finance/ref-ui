@@ -505,7 +505,7 @@ export const tokenServices = {
     const res = await request<{ price: string }>(
       `https://${
         IS_MAINNET ? 'indexer.ref.finance' : 'mainnet-indexer.ref-finance.com'
-      }/get-token-price?token_id=${token.addresses.NEAR}`
+      }/get-token-price?token_id=${token.addresses.NEAR}`,{cacheTimeout: 1000 * 60 * 2}
     );
     return Number.isNaN(+res.price) ? '0' : res.price;
   },

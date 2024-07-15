@@ -7,7 +7,7 @@ const bridgeHistoryService = {
   async query(params?: {
     onlyUnclaimed?: boolean;
     hash?: string;
-    chain?: string;
+    chain?: BridgeModel.BridgeSupportChain;
     accountAddress: string;
   }) {
     const { accountAddress: account_id, hash, chain } = params;
@@ -17,22 +17,22 @@ const bridgeHistoryService = {
       generateUrl(`https://test.api.cclp.finance/v3/bridge/list`, {
         account_id,
         hash,
-        chain,
+        chain: chain === 'NEAR' ? 'aurora' : chain.toLowerCase(),
         limit: 1000,
         offset: 0,
       })
     );
-    console.log('bridgeHistoryService.query', data);
-    data.list = data.list.map(
-      (v) =>
-        ({
-          ...v,
-          chain: capitalize(v.chain),
-          type: capitalize(v.type),
-          from_chain: capitalize(v.from_chain),
-          to_chain: capitalize(v.to_chain),
-        } as BridgeModel.BridgeHistory)
-    );
+    data.list =
+      data.list?.map(
+        (v) =>
+          ({
+            ...v,
+            chain: capitalize(v.chain),
+            type: capitalize(v.type),
+            from_chain: capitalize(v.from_chain),
+            to_chain: capitalize(v.to_chain),
+          } as BridgeModel.BridgeHistory)
+      ) || [];
 
     // const result = await rainbowBridgeService.query({
     //   filter: (v) => {

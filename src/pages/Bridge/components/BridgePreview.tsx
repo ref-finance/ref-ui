@@ -30,6 +30,7 @@ export default function BridgePreviewModal({
     bridgeChannel,
     estimatedGasFee,
     channelInfoMap,
+    slippageTolerance,
   } = useBridgeFormContext();
 
   const [loading, setLoading] = useAutoResetState(false, 1000);
@@ -84,6 +85,7 @@ export default function BridgePreviewModal({
       recipient,
       sender,
       channel: bridgeChannel,
+      slippage: slippageTolerance,
     });
     // openBridgeTransactionStatusModal(result);
     toggleOpenModal();

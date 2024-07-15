@@ -116,6 +116,8 @@ export function formatTxExplorerUrl(
       return `${EVMConfig.Ethereum.explorerUrl}/tx/${hash}`;
     case 'arbitrum':
       return `${EVMConfig.Arbitrum.explorerUrl}/tx/${hash}`;
+    case 'aurora':
+      return `${EVMConfig.Aurora.explorerUrl}/tx/${hash}`;
     case 'near':
       return `${NearConfig.explorerUrl}/tx/${hash}`;
     default:

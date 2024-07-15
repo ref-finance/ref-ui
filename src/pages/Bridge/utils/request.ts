@@ -2,11 +2,12 @@ interface RequestOptions extends RequestInit {
   body?: RequestInit['body'] | any;
   retryCount?: number;
   timeout?: number;
+  cacheTimeout?: number;
 }
 
 const cache = new Map<string, { timestamp: number; data: any }>();
 
-const cacheTimeout = 3000;
+const defaultCacheTimeout = 3000;
 
 export default async function request<T>(
   url: string,
@@ -15,6 +16,8 @@ export default async function request<T>(
   const defaultHeaders = {
     'Content-Type': 'application/json',
   };
+
+  const cacheTimeout = options?.cacheTimeout || defaultCacheTimeout;
 
   const headers = {
     ...defaultHeaders,

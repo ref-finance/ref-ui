@@ -14,7 +14,6 @@ import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 import { useAutoResetState } from '../hooks/useHooks';
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { getTokenMeta } from '../utils/token';
-import { BridgeTokenList, BridgeTokenRoutes } from '../config';
 
 function FormHeader() {
   const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
@@ -30,8 +29,8 @@ function FormHeader() {
           />
         </Button>
         <SlippageSelector
-          slippageTolerance={slippageTolerance}
-          onChange={(val) => setSlippageTolerance(val)}
+          slippageTolerance={(slippageTolerance || 0) * 100}
+          onChange={(val) => setSlippageTolerance((val || 0) / 100)}
         >
           <Button size="small" plain>
             <SvgIcon name="IconSetting" />

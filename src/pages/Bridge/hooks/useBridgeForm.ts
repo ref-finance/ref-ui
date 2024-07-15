@@ -10,13 +10,6 @@ import { getTokenMeta } from '../utils/token';
 import bridgeServices from '../services/bridge';
 import { formatAmount } from '../utils/format';
 
-interface BridgeForm {
-  fromChain: BridgeModel.BridgeSupportChain;
-  toChain: BridgeModel.BridgeSupportChain;
-  fromToken: string;
-  toToken: string;
-}
-
 export default function useBridgeForm() {
   const [bridgeFromValue, setBridgeFromValue] = useStorageState<
     BridgeModel.BridgeTransferFormData['from']
@@ -35,6 +28,8 @@ export default function useBridgeForm() {
     isCustomAccountAddress: false,
     customAccountAddress: undefined,
   });
+
+  const [slippageTolerance, setSlippageTolerance] = useState(0.005);
 
   const [bridgeChannel, setBridgeChannel] =
     useState<BridgeModel.BridgeSupportChannel>();
@@ -55,23 +50,6 @@ export default function useBridgeForm() {
     return symbols;
   }, [bridgeFromValue.chain, bridgeToValue.chain]);
 
-  const supportToTokenSymbols = useMemo(() => {
-    if (
-      bridgeFromValue.chain === 'Ethereum' &&
-      bridgeToValue.chain === 'NEAR' &&
-      bridgeFromValue.tokenMeta?.symbol === 'USDC'
-    ) {
-      return [bridgeFromValue.tokenMeta?.symbol, 'USDC.e'];
-    }
-    return supportFromTokenSymbols.filter(
-      (v) => v === bridgeFromValue.tokenMeta?.symbol
-    );
-  }, [
-    bridgeFromValue.chain,
-    bridgeToValue.chain,
-    bridgeFromValue.tokenMeta?.symbol,
-  ]);
-
   const supportBridgeChannels = useMemo(() => {
     logger.log('BridgeTokenRoutes', bridgeToValue.tokenMeta?.symbol);
     const channels = BridgeTokenRoutes.filter(
@@ -85,6 +63,24 @@ export default function useBridgeForm() {
     bridgeFromValue.chain,
     bridgeToValue.chain,
     bridgeToValue.tokenMeta?.symbol,
+  ]);
+
+  const supportToTokenSymbols = useMemo(() => {
+    if (
+      bridgeFromValue.chain === 'Ethereum' &&
+      bridgeToValue.chain === 'NEAR' &&
+      bridgeFromValue.tokenMeta?.symbol === 'USDC' &&
+      supportBridgeChannels.includes('Rainbow')
+    ) {
+      return [bridgeFromValue.tokenMeta?.symbol, 'USDC.e'];
+    }
+    return supportFromTokenSymbols.filter(
+      (v) => v === bridgeFromValue.tokenMeta?.symbol
+    );
+  }, [
+    bridgeFromValue.chain,
+    bridgeToValue.chain,
+    bridgeFromValue.tokenMeta?.symbol,
   ]);
 
   const { data: estimatedGasFee = '0' } = useRequest(() =>
@@ -112,6 +108,7 @@ export default function useBridgeForm() {
               : bridgeToValue.accountAddress,
           sender: bridgeFromValue.accountAddress,
           channel,
+          slippage: slippageTolerance,
         });
       }
       logger.log('channelInfoMap', result);
@@ -123,6 +120,7 @@ export default function useBridgeForm() {
         bridgeFromValue.tokenMeta,
         bridgeFromValue.amount,
         supportBridgeChannels,
+        slippageTolerance,
       ],
       debounceOptions: 500,
     }
@@ -232,8 +230,6 @@ export default function useBridgeForm() {
       pollingInterval: 10000,
     }
   );
-
-  const [slippageTolerance, setSlippageTolerance] = useState(0.5);
 
   const bridgeSubmitStatus = useMemo<
     | 'unConnectForm'

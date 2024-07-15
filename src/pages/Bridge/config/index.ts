@@ -34,6 +34,12 @@ export const EVMConfig = {
     explorerUrl: 'https://arbiscan.io',
     chainId: 42161,
   },
+  Aurora:{
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://explorer.aurora.dev',
+    chainId: 1313161554,
+  },
 
   walletConnectProjectId: '669d1b9f59163a92d90a3c1ff78a7326',
   chains: [

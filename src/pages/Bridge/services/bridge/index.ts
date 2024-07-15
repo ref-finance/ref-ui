@@ -13,6 +13,7 @@ export interface BridgeTransferParams {
   to: BridgeModel.BridgeSupportChain;
   recipient: string;
   nearWalletSelector?: WalletSelector;
+  slippage?: number;
 }
 
 const bridgeServices = {
