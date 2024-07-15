@@ -59,7 +59,6 @@ import {
   USDTT_USDCC_USDT_USDC_POOL_ID,
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
-  DEGEN_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';

@@ -415,6 +415,7 @@ export default function getConfig(
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
         DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 2022,
+        DEGEN_POOL_ID1: process.env.DEGEN_POOL_ID1 || 2031,
         DEGEN_TOKEN_IDS: ['wrap.testnet', 'usdcc.ft.ref-labs.testnet'],
       };
     case 'testnet':
@@ -827,7 +828,7 @@ export function getExtraStablePoolConfig(
           'usdtt.fakes.testnet': 1,
         },
         RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1843'],
-        DEGEN_POOLS_IDS: ['2022'],
+        DEGEN_POOLS_IDS: ['2022', '2031'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdtt.fakes.testnet': 0,
           '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 1,
@@ -840,6 +841,12 @@ export function getExtraStablePoolConfig(
         DEGEN_POOL_INDEX: {
           'wrap.testnet': 0,
           'usdcc.ft.ref-labs.testnet': 1,
+        },
+        DEGEN_POOL_INDEX1: {
+          'usdtt.ft.ref-labs.testnet': 0,
+          'usdcc.ft.ref-labs.testnet': 1,
+          'usdte.ft.ref-labs.testnet': 2,
+          'usdce.ft.ref-labs.testnet': 3,
         },
       };
     case 'testnet':

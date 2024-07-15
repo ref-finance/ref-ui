@@ -43,6 +43,7 @@ export const USDTT_USDCC_USDT_USDC_POOL_ID =
   config.USDTT_USDCC_USDT_USDC_POOL_ID;
 
 export const DEGEN_POOL_ID = config.DEGEN_POOL_ID;
+export const DEGEN_POOL_ID1 = config.DEGEN_POOL_ID1;
 
 export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 
@@ -80,6 +81,7 @@ export const {
   USDT_USDC_POOL_INDEX,
   FRAX_USDC_POOL_INDEX,
   DEGEN_POOL_INDEX,
+  DEGEN_POOL_INDEX1,
   USDC3E2,
   NEARUSDCC,
 } = getExtraStablePoolConfig();
@@ -134,6 +136,7 @@ export const ALL_STABLE_POOL_IDS = [
   USDT_POOL_ID,
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
+  DEGEN_POOL_ID1,
 ]
   .filter((_) => _)
   .map((id) => id.toString());
@@ -175,6 +178,8 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return USDTT_USDCC_USDT_USDC_POOL_INDEX;
     case DEGEN_POOL_ID.toString():
       return DEGEN_POOL_INDEX;
+    case DEGEN_POOL_ID1.toString():
+      return DEGEN_POOL_INDEX1;
     case USDT_USDC_POOL_ID.toString():
       return USDT_USDC_POOL_INDEX;
     case FRAX_USDC_POOL_ID.toString():
