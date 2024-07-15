@@ -30,7 +30,7 @@ export default function useBridgeForm() {
     BridgeModel.BridgeTransferFormData['to']
   >('bridgeToValue', {
     chain: SupportChains[1],
-    tokenMeta: getTokenMeta('NEAR'),
+    tokenMeta: getTokenMeta('USDC'),
     amount: undefined,
     isCustomAccountAddress: false,
     customAccountAddress: undefined,
