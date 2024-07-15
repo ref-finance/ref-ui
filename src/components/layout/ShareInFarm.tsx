@@ -30,7 +30,6 @@ export const ShareInFarm = ({
   version?: string;
   inStr?: string;
 }) => {
-  if (Number(farmStake) === 0) return null;
   const farmShare = Number(farmStake).toLocaleString('fullwide', {
     useGrouping: false,
   });
@@ -47,7 +46,7 @@ export const ShareInFarm = ({
 
   const hundredPercent = Number(farmSharePercent) === 100;
   const zeroPercent = Number(farmSharePercent) === 0;
-
+  if (Number(farmStake) === 0) return null;
   return (
     <div
       className={`items-center inline-flex text-xs  rounded-full py-0.5 border  ${

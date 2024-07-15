@@ -1393,7 +1393,6 @@ export const useYourliquidity = (poolId: number) => {
   const farmStakeV2Ori = useFarmStake({ poolId, stakeList: v2StakeList });
   const farmerSeeds = useFarmerSeedsStore((state) => state.farmerSeeds);
   const poolSeed = farmerSeeds[poolId];
-
   const farmStakeV2 = poolSeed
     ? new BigNumber(poolSeed.free_amount).plus(poolSeed.shadow_amount).toFixed()
     : farmStakeV2Ori || '0';

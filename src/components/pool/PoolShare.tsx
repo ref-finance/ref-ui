@@ -380,7 +380,7 @@ export const PoolAvailableAmount = ({ pool, shares, className = '' }) => {
   const { newPool } = useNewPoolData({ pool, shares });
   return (
     <span className={className} title={newPool?.availableShareNonDivisible}>
-      {toPrecision(newPool?.availableShare, 2)}
+      {toPrecision(newPool?.availableShare, 3)}
     </span>
   );
 };

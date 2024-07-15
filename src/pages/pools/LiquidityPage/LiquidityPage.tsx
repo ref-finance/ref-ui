@@ -17,6 +17,7 @@ import {
   Seed,
   get_shadow_records,
   getStakedListByAccountId,
+  list_farmer_seeds,
 } from '../../../services/farm';
 import { ArrowDownLarge, TokenRisk } from '../../../components/icon';
 import { useHistory } from 'react-router';
@@ -163,6 +164,7 @@ import {
 } from './constLiquidityPage';
 import { useRiskTokens } from '../../../state/token';
 import {
+  useFarmerSeedsStore,
   useShadowRecordStore,
   useStakeListStore,
 } from 'src/stores/liquidityStores';
@@ -2934,7 +2936,12 @@ function StablePoolList({
   const [sortBy, setSortBy] = useState<string>('tvl');
 
   const [clicked, setClicked] = useState<boolean>(false);
-
+  const setFarmerSeeds = useFarmerSeedsStore((state) => state.setFarmerSeeds);
+  useEffect(() => {
+    list_farmer_seeds().then((res) => {
+      setFarmerSeeds(res);
+    });
+  }, []);
   let allStablePoolData = useAllStablePoolData();
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
