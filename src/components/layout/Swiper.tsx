@@ -47,6 +47,40 @@ export default function AdSwiper() {
               <div
                 className="relative cursor-pointer"
                 onClick={() => {
+                  window.open(
+                    'https://app.burrow.finance/tokenDetail/shadow_ref_v1-4179/'
+                  );
+                }}
+              >
+                {is_mobile ? <LPTOKENMOBILE /> : <LPTOKENPC />}
+              </div>
+            </SwiperSlide>
+            <SwiperSlide>
+              <div
+                onClick={closePop}
+                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
+              >
+                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
+              </div>
+              <div
+                className="relative cursor-pointer"
+                onClick={() => {
+                  window.open('https://www.deltatrade.ai/activity/home');
+                }}
+              >
+                {is_mobile ? <DeltaMobile /> : <DeltaPC />}
+              </div>
+            </SwiperSlide>
+            <SwiperSlide>
+              <div
+                onClick={closePop}
+                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
+              >
+                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
+              </div>
+              <div
+                className="relative cursor-pointer"
+                onClick={() => {
                   window.open('/v2farms/4179-r');
                 }}
               >
@@ -67,41 +101,6 @@ export default function AdSwiper() {
                 }}
               >
                 {is_mobile ? <FRAXUSDCFARMMobile /> : <FRAXUSDCFARM />}
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <div
-                onClick={closePop}
-                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
-              >
-                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
-              </div>
-              <div
-                className="relative cursor-pointer"
-                onClick={() => {
-                  window.open('https://www.deltatrade.ai/activity/home');
-                }}
-              >
-                {is_mobile ? <DeltaMobile /> : <DeltaPC />}
-              </div>
-            </SwiperSlide>
-
-            <SwiperSlide>
-              <div
-                onClick={closePop}
-                className="flex justify-end items-center absolute top-0 right-0 cursor-pointer z-10"
-              >
-                <SwiperCloseButton className="cursor-pointer"></SwiperCloseButton>
-              </div>
-              <div
-                className="relative cursor-pointer"
-                onClick={() => {
-                  window.open(
-                    'https://app.burrow.finance/tokenDetail/shadow_ref_v1-4179/'
-                  );
-                }}
-              >
-                {is_mobile ? <LPTOKENMOBILE /> : <LPTOKENPC />}
               </div>
             </SwiperSlide>
           </Swiper>
