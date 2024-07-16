@@ -48,7 +48,7 @@ function BridgeRouteItem({
           <div className="flex items-center gap-2">
             <div className="px-2 py-0.5 bg-black rounded-md">
               <div className="text-10px " style={{ color: '#6AFFE4' }}>
-                Best Return
+                Optimal Path
               </div>
             </div>
             <div className="px-2 py-0.5 bg-black rounded-md">
@@ -110,9 +110,7 @@ function BridgeSelectRoutesModal({
     <Modal {...props} onRequestClose={toggleOpenModal}>
       <div className="bridge-modal" style={{ width: '428px' }}>
         <div className="flex items-center justify-between">
-          <span className="text-base text-white font-medium">
-            {supportBridgeChannels.length} Bridge Routes
-          </span>
+          <span className="text-base text-white font-medium">Bridge Route</span>
           <Button text onClick={toggleOpenModal}>
             <SvgIcon name="IconClose" />
           </Button>
@@ -163,7 +161,12 @@ function BridgeRoutes() {
             text
             onClick={toggleOpenModal}
           >
-            {hasAmount ? `${supportBridgeChannels.length} Routes` : '-'}
+            {hasAmount
+              ? `${supportBridgeChannels.length} Route${
+                  supportBridgeChannels.length > 1 ? 's' : ''
+                } 
+            `
+              : '-'}
             <SvgIcon
               name="IconArrowDown"
               className="transform -rotate-90 ml-2"
