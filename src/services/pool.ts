@@ -462,7 +462,10 @@ export const getPoolsByTokens = async ({
     });
   return { filteredPools, pool_protocol };
 };
-export const getAllPoolsByTokens = async (): Promise<{
+// for server
+export const getAllPoolsByTokens = async (
+  needCheckExpiration?: boolean
+): Promise<{
   filteredPools: Pool[];
 }> => {
   let pools;
@@ -473,18 +476,36 @@ export const getAllPoolsByTokens = async (): Promise<{
     );
   };
   try {
-    const cachedPoolProtocol = sessionStorage.getItem(REF_FI_POOL_PROTOCOL);
-
+    const cachedPoolProtocol =
+      sessionStorage.getItem(REF_FI_POOL_PROTOCOL) || 'indexer';
     if (cachedPoolProtocol === 'rpc') {
       pools = await db.getAllPoolsTokens();
-
-      if (!pools || pools.length === 0) {
+      const validCache = await db.checkPoolsTokens();
+      if (
+        !pools ||
+        pools.length === 0 ||
+        (needCheckExpiration && !validCache)
+      ) {
         pools = await fetchPoolsRPC();
         await cachePools(pools);
       }
     } else {
       const poolsRaw = await db.queryTopPools();
-      if (poolsRaw && poolsRaw?.length > 0) {
+      const validCache = await db.checkTopPools();
+      if (!poolsRaw?.length || (needCheckExpiration && !validCache)) {
+        const poolsRaw = await fetchPoolsIndexer();
+
+        await db.cacheTopPools(poolsRaw);
+
+        pools = poolsRaw.map((p: any) => {
+          return {
+            ...parsePool(p),
+            Dex: 'ref',
+          };
+        });
+
+        await cachePools(pools);
+      } else {
         pools = poolsRaw.map((p) => {
           const parsedP = parsePool({
             ...p,
@@ -498,19 +519,6 @@ export const getAllPoolsByTokens = async (): Promise<{
             Dex: 'ref',
           };
         });
-      } else {
-        const poolsRaw = await fetchPoolsIndexer();
-
-        await db.cacheTopPools(poolsRaw);
-
-        pools = poolsRaw.map((p: any) => {
-          return {
-            ...parsePool(p),
-            Dex: 'ref',
-          };
-        });
-
-        await cachePools(pools);
       }
     }
   } catch (error) {
@@ -1555,6 +1563,81 @@ export const getAllStablePoolsFromCache = async (loadingTriger?: boolean) => {
     ALL_STABLE_POOL_IDS.filter((id) => {
       return !BLACKLIST_POOL_IDS.includes(id.toString());
     }).map((id) => getStablePoolFromCache(id.toString(), loadingTriger))
+  );
+
+  const allStablePoolsById = res.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur[0].id]: cur,
+    };
+  }, {}) as {
+    [id: string]: [Pool, StablePool];
+  };
+  const allStablePools = Object.values(allStablePoolsById).map((p) => p[0]);
+  const allStablePoolsInfo = Object.values(allStablePoolsById).map((p) => p[1]);
+
+  return {
+    allStablePoolsById,
+    allStablePools,
+    allStablePoolsInfo,
+  };
+};
+
+// for server router
+export const getStablePoolFromCacheForServer = async (id: string) => {
+  const stable_pool_id = id;
+
+  const pool_key = getStablePoolKey(stable_pool_id);
+
+  const info = getStablePoolInfoKey(stable_pool_id);
+
+  const stablePoolCache = JSON.parse(localStorage.getItem(pool_key));
+
+  const stablePoolInfoCache = JSON.parse(localStorage.getItem(info));
+
+  const isStablePoolCached = !!stablePoolCache;
+
+  const isStablePoolInfoCached = !!stablePoolInfoCache;
+
+  const stablePool = isStablePoolCached
+    ? stablePoolCache
+    : await getPool(Number(stable_pool_id));
+
+  const stablePoolInfo = isStablePoolInfoCached
+    ? stablePoolInfoCache
+    : await getStablePool(Number(stable_pool_id));
+
+  if (!isStablePoolCached) {
+    localStorage.setItem(
+      pool_key,
+      JSON.stringify({ ...stablePool, update_time: moment().unix() })
+    );
+  }
+
+  if (!isStablePoolInfoCached) {
+    localStorage.setItem(
+      info,
+      JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
+    );
+  }
+  stablePool.rates = stablePoolInfo.token_account_ids.reduce(
+    (acc: any, cur: any, i: number) => ({
+      ...acc,
+      [cur]: toReadableNumber(
+        getStablePoolDecimal(stablePool.id),
+        stablePoolInfo.rates[i]
+      ),
+    }),
+    {}
+  );
+
+  return [stablePool, stablePoolInfo];
+};
+export const getAllStablePoolsFromCacheForServer = async () => {
+  const res = await Promise.all(
+    ALL_STABLE_POOL_IDS.filter((id) => {
+      return !BLACKLIST_POOL_IDS.includes(id.toString());
+    }).map((id) => getStablePoolFromCacheForServer(id.toString()))
   );
 
   const allStablePoolsById = res.reduce((pre, cur, i) => {
