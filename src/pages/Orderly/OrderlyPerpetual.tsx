@@ -428,7 +428,7 @@ function OrderlyPerpetual() {
   );
 }
 export default function OrderBookPerp() {
-  const disbaledWallet = ['okx-wallet'];
+  const disbaledWallet = ['okx-wallet', 'wallet-connect'];
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
   const isBlock = disbaledWallet.includes(selectedWalletId);
   if (isBlock) return <BlockOrderBookTip />;
