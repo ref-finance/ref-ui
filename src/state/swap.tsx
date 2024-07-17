@@ -76,6 +76,7 @@ import {
   IEstimateSwapServerView,
   getAvgFeeFromServer,
   getPriceImpactFromServer,
+  getAllPoolsFromCache,
 } from '../services/smartRouterFromServer';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -607,7 +608,9 @@ export const useSwap = ({
         setTag(`${tokenIn?.id}|${tokenOut?.id}|${tokenInAmount}`);
       });
   };
-
+  useEffect(() => {
+    getAllPoolsFromCache(true);
+  }, []);
   useEffect(() => {
     if (
       tokenIn?.id &&

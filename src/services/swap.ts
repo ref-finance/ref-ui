@@ -67,6 +67,7 @@ import {
   getUsedTokens,
 } from './smartRouterFromServer';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
+import { getTokenPriceListFromCacheForServer } from '../services/smartRouterFromServer';
 
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 const { NO_REQUIRED_REGISTRATION_TOKEN_IDS } = getConfigV2();
@@ -368,7 +369,10 @@ export const estimateSwap = async ({
         }
       } catch (error) {}
       try {
-        poolsMap = await getUsedPools(routes);
+        const prices = await getTokenPriceListFromCacheForServer();
+        const isLosePrice =
+          !prices?.[tokenIn.id]?.price || !prices?.[tokenOut.id]?.price;
+        poolsMap = await getUsedPools(routes, isLosePrice);
       } catch (error) {}
       try {
         tokensMap = await getUsedTokens(routes);

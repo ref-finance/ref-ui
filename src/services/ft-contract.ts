@@ -163,6 +163,14 @@ export const ftGetTokenMetadata = async (
   id: string,
   accountPage?: boolean
 ): Promise<TokenMetadata> => {
+  if (!id)
+    return {
+      id,
+      name: id,
+      symbol: id?.split('.')[0].slice(0, 8),
+      decimals: 6,
+      icon: null,
+    };
   try {
     let metadata = await db.allTokens().where({ id }).first();
     if (!metadata) {
