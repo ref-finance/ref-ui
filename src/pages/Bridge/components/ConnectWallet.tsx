@@ -15,6 +15,7 @@ type Props = {
   hideChainSelector?: boolean;
   className?: string;
   connectPlaceholder?: string;
+  buttonProps?: React.ComponentProps<typeof Button>;
   onChangeChain?: (chain: BridgeModel.BridgeSupportChain) => void;
 };
 
@@ -23,6 +24,7 @@ function ConnectWallet({
   className,
   connectPlaceholder,
   hideChainSelector,
+  buttonProps,
   onChangeChain,
 }: Props) {
   const { getWallet } = useWalletConnectContext();
@@ -44,7 +46,7 @@ function ConnectWallet({
   }
 
   return (
-    <div className={`inline-flex items-center ${className}`}>
+    <div className={`flex items-center ${className}`}>
       {!hideChainSelector && (
         <select
           className="bg-transparent text-white mr-3"
@@ -92,7 +94,10 @@ function ConnectWallet({
           }
         </Button>
       ) : (
-        <Button type="primary" text onClick={() => handleOpenWalletModal()}>
+        <Button
+          {...(buttonProps || { type: 'primary', text: true })}
+          onClick={() => handleOpenWalletModal()}
+        >
           {connectPlaceholder || 'Connect'}
         </Button>
       )}

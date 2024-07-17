@@ -144,10 +144,8 @@ export default function useBridgeForm() {
       logger.log('useBridgeForm', fromValue, toValue);
 
       // sync account address
-      if (getWallet(fromValue.chain)?.accountId)
-        fromValue.accountAddress = getWallet(fromValue.chain)?.accountId;
-      if (getWallet(bridgeToValue.chain)?.accountId)
-        toValue.accountAddress = getWallet(bridgeToValue.chain)?.accountId;
+      fromValue.accountAddress = getWallet(fromValue.chain)?.accountId;
+      toValue.accountAddress = getWallet(bridgeToValue.chain)?.accountId;
 
       setBridgeFromValue(fromValue);
       setBridgeToValue(toValue);
@@ -196,36 +194,42 @@ export default function useBridgeForm() {
   }, [channelInfoMap, bridgeChannel]);
 
   const { data: bridgeFromBalance = '0' } = useRequest(
-    () =>
-      tokenServices.getBalance(
+    async () => {
+      if (!bridgeFromValue.accountAddress) return '0';
+      return tokenServices.getBalance(
         bridgeFromValue.chain,
         bridgeFromValue.tokenMeta,
         true
-      ),
+      );
+    },
     {
-      refreshDeps: [bridgeFromValue.chain, bridgeFromValue.tokenMeta],
-      before: () =>
-        !!bridgeFromValue.chain &&
-        !!bridgeFromValue.tokenMeta &&
-        !!getWallet(bridgeFromValue.chain)?.accountId,
+      refreshDeps: [
+        bridgeFromValue.chain,
+        bridgeFromValue.tokenMeta,
+        bridgeFromValue.accountAddress,
+      ],
+      before: () => !!bridgeFromValue.chain && !!bridgeFromValue.tokenMeta,
       debounceOptions: 200,
       pollingInterval: 10000,
     }
   );
 
   const { data: bridgeToBalance = '0' } = useRequest(
-    () =>
-      tokenServices.getBalance(
+    async () => {
+      if (!bridgeToValue.accountAddress) return '0';
+      return tokenServices.getBalance(
         bridgeToValue.chain,
         bridgeToValue.tokenMeta,
         true
-      ),
+      );
+    },
     {
-      refreshDeps: [bridgeToValue.chain, bridgeToValue.tokenMeta],
-      before: () =>
-        !!bridgeToValue.chain &&
-        !!bridgeToValue.tokenMeta &&
-        !!getWallet(bridgeToValue.chain)?.accountId,
+      refreshDeps: [
+        bridgeToValue.chain,
+        bridgeToValue.tokenMeta,
+        bridgeToValue.accountAddress,
+      ],
+      before: () => !!bridgeToValue.chain && !!bridgeToValue.tokenMeta,
       debounceOptions: 200,
       pollingInterval: 10000,
     }

@@ -1,8 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import BridgePreviewModal from '../components/BridgePreview';
 import useBridgeForm from './../hooks/useBridgeForm';
-import { useWalletConnectContext } from './walletConcent';
 
 type Props = ReturnType<typeof useBridgeForm> & {
   openPreviewModal: () => void;
@@ -19,18 +24,21 @@ export default function BridgeFormProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const {
-    NEAR: { isSignedIn: isNEARSignedIn },
-    EVM: { isSignedIn: isEVMSignedIn },
-  } = useWalletConnectContext();
-
   const { bridgeFromValue, bridgeToValue, ...restHooks } = useBridgeForm();
+
+  const canPreview = useMemo(
+    () =>
+      bridgeFromValue.accountAddress &&
+      (bridgeToValue.accountAddress || bridgeToValue.customAccountAddress),
+    [bridgeFromValue, bridgeToValue]
+  );
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   function toggleOpen() {
     setPreviewModalOpen(!previewModalOpen);
   }
   function openPreviewModal() {
+    console.log('openPreviewModal');
     setPreviewModalOpen(true);
   }
 
@@ -38,14 +46,13 @@ export default function BridgeFormProvider({
     ...restHooks,
     bridgeFromValue,
     bridgeToValue,
-
     openPreviewModal,
   };
 
   return (
     <BridgeFormContext.Provider value={exposes}>
       {children}
-      {isNEARSignedIn && isEVMSignedIn && (
+      {canPreview && (
         <BridgePreviewModal
           isOpen={previewModalOpen}
           toggleOpenModal={toggleOpen}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import BridgeRoutes from '../components/BridgeRoutes';
 import Button from '../components/Button';
@@ -47,6 +47,12 @@ function CustomAccountAddress() {
     bridgeToValue.customAccountAddress
   );
   const [isValidCustomAddress, setIsValidCustomAddress] = useState(false);
+
+  useEffect(() => {
+    if (bridgeToValue.customAccountAddress !== customAccountAddress) {
+      handleChangeAddress(bridgeToValue.customAccountAddress);
+    }
+  }, [bridgeToValue.customAccountAddress]);
 
   function handleChangeAddress(value: string) {
     const isValid =
@@ -157,15 +163,6 @@ function BridgeEntry() {
     router.push('/bridge/history');
   }
 
-  const { getWallet } = useWalletConnectContext();
-  function handleConfirm() {
-    if (bridgeSubmitStatus === 'unConnectForm')
-      return getWallet(bridgeFromValue.chain)?.open();
-    else if (bridgeSubmitStatus === 'unConnectTo')
-      return getWallet(bridgeToValue.chain)?.open();
-    else openPreviewModal();
-  }
-
   return (
     <div className="bridge-entry-container">
       <form className="bridge-plane shadow-4xl">
@@ -228,17 +225,34 @@ function BridgeEntry() {
         </InputToken>
         <CustomAccountAddress />
         <BridgeRoutes />
-        <Button
-          type="primary"
-          size="large"
-          className="w-full"
-          disabled={['insufficientBalance', 'enterAmount'].includes(
-            bridgeSubmitStatus
-          )}
-          onClick={handleConfirm}
-        >
-          {bridgeSubmitStatusText}
-        </Button>
+        {['unConnectForm', 'unConnectTo'].includes(bridgeSubmitStatus) ? (
+          <ConnectWallet
+            hideChainSelector
+            buttonProps={{
+              type: 'primary',
+              size: 'large',
+              className: 'w-full',
+            }}
+            currentChain={
+              bridgeSubmitStatus === 'unConnectForm'
+                ? bridgeFromValue.chain
+                : bridgeToValue.chain
+            }
+            connectPlaceholder={bridgeSubmitStatusText}
+          />
+        ) : (
+          <Button
+            type="primary"
+            size="large"
+            className="w-full"
+            disabled={['insufficientBalance', 'enterAmount'].includes(
+              bridgeSubmitStatus
+            )}
+            onClick={openPreviewModal}
+          >
+            {bridgeSubmitStatusText}
+          </Button>
+        )}
       </form>
       <div className="mt-4 flex items-center justify-between">
         <Button text onClick={handleOpenHistory}>
