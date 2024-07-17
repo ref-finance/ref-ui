@@ -107,7 +107,11 @@ function BridgeSelectRoutesModal({
   }
 
   return (
-    <Modal {...props} onRequestClose={toggleOpenModal}>
+    <Modal
+      {...props}
+      overlayClassName="modal-overlay"
+      onRequestClose={toggleOpenModal}
+    >
       <div className="bridge-modal" style={{ width: '428px' }}>
         <div className="flex items-center justify-between">
           <span className="text-base text-white font-medium">Bridge Route</span>

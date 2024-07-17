@@ -28,6 +28,7 @@ const IconSets = {
 
 export default function SvgIcon({
   name,
+  className,
   ...props
 }: {
   name: IconName;
@@ -35,5 +36,9 @@ export default function SvgIcon({
   style?: React.CSSProperties;
 }) {
   const Icon = IconSets[name];
-  return <Icon {...props} style={{ width: '1em', height: '1em' }} />;
+  return (
+    <i className={`svg-icon-wrapper  ${className || ''}`} {...props}>
+      <Icon className="svg-icon" />
+    </i>
+  );
 }

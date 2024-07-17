@@ -34,7 +34,7 @@ export const EVMConfig = {
     explorerUrl: 'https://arbiscan.io',
     chainId: 42161,
   },
-  Aurora:{
+  Aurora: {
     network: 'mainnet',
     infuraKey: INFURA_KEY,
     explorerUrl: 'https://explorer.aurora.dev',
@@ -138,13 +138,13 @@ export const BridgeConfig = {
       },
       Aurora: {
         send: '',
+        receive: '0xBafAB363F04A4D2E7239f9E3942E768d76Baf0f3',
         pool: {
           USDC: '0x81F6138153d473E8c5EcebD3DC8Cd4903506B075',
         },
         eid: '30211',
       },
       EndpointV2: '0x1a44076050125825900e736c501f859c50fE728c',
-      auroraReceive: '0xBafAB363F04A4D2E7239f9E3942E768d76Baf0f3',
     },
   },
 } as const;

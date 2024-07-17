@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import BridgeRoutes from '../components/BridgeRoutes';
 import Button from '../components/Button';
@@ -12,7 +12,6 @@ import { useRouter } from '../hooks/useRouter';
 import { isValidEthereumAddress, isValidNearAddress } from '../utils/validate';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 import { useAutoResetState } from '../hooks/useHooks';
-import { useWalletConnectContext } from '../providers/walletConcent';
 import { getTokenMeta } from '../utils/token';
 
 function FormHeader() {
@@ -46,36 +45,31 @@ function CustomAccountAddress() {
   const [customAccountAddress, setCustomAccountAddress] = useState(
     bridgeToValue.customAccountAddress
   );
-  const [isValidCustomAddress, setIsValidCustomAddress] = useState(false);
+  const [isFocus, setIsFocus] = useState(false);
+
+  const isValidCustomAddress = useMemo(
+    () =>
+      !customAccountAddress ||
+      (bridgeToValue.chain === 'NEAR'
+        ? isValidNearAddress(customAccountAddress)
+        : isValidEthereumAddress(customAccountAddress)),
+    [customAccountAddress, bridgeToValue.chain]
+  );
 
   useEffect(() => {
-    if (bridgeToValue.customAccountAddress !== customAccountAddress) {
-      handleChangeAddress(bridgeToValue.customAccountAddress);
-    }
-  }, [bridgeToValue.customAccountAddress]);
-
-  function handleChangeAddress(value: string) {
-    const isValid =
-      !value ||
-      (bridgeToValue.chain === 'NEAR'
-        ? isValidNearAddress(value)
-        : isValidEthereumAddress(value));
-
-    setCustomAccountAddress(value);
-    setIsValidCustomAddress(isValid);
-    if (isValid) {
+    if (isValidCustomAddress) {
       setBridgeToValue({
         ...bridgeToValue,
-        customAccountAddress: value,
+        customAccountAddress,
       });
     }
-  }
+  }, [isValidCustomAddress]);
 
   function handlePasteAddress() {
     navigator.clipboard
       .readText()
       .then((text) => {
-        handleChangeAddress(text);
+        setCustomAccountAddress(text);
       })
       .catch((err) => {
         console.warn('Failed to read clipboard contents: ', err);
@@ -106,7 +100,9 @@ function CustomAccountAddress() {
             className="bridge-input w-full"
             placeholder="Destination address"
             value={customAccountAddress ?? ''}
-            onChange={(e) => handleChangeAddress(e.target.value)}
+            onChange={(e) => setCustomAccountAddress(e.target.value)}
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => setIsFocus(false)}
           />
           <div
             className="absolute top-1/2 right-3 transform -translate-y-1/2"
@@ -122,13 +118,15 @@ function CustomAccountAddress() {
                 Paste
               </Button>
             ) : (
-              <SvgIcon
-                name={
-                  isValidCustomAddress
-                    ? 'IconSuccessCircleFill'
-                    : 'IconErrorCircleFill'
-                }
-              />
+              !isFocus && (
+                <SvgIcon
+                  name={
+                    isValidCustomAddress
+                      ? 'IconSuccessCircleFill'
+                      : 'IconErrorCircleFill'
+                  }
+                />
+              )
             )}
           </div>
         </div>

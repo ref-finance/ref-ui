@@ -16,7 +16,7 @@ const bridgeHistoryService = {
     }>(
       generateUrl(`https://test.api.cclp.finance/v3/bridge/list`, {
         account_id,
-        hash,
+        tx_hash: hash,
         chain: chain === 'NEAR' ? 'aurora' : chain.toLowerCase(),
         limit: 1000,
         offset: 0,

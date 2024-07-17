@@ -35,7 +35,7 @@ function BridgeTransactionHistory() {
         accountAddress: getWallet(historyFilter.chain)?.accountId,
       }),
     {
-      refreshDeps: [historyFilter, getWallet(historyFilter.chain).isSignedIn],
+      refreshDeps: [historyFilter, getWallet(historyFilter.chain)?.accountId],
       before: () => getWallet(historyFilter.chain).isSignedIn,
       debounceOptions: 1000,
     }
@@ -55,18 +55,28 @@ function BridgeTransactionHistory() {
               <span className="text-base ml-2">Bridge Transaction History</span>
             </Button>
           </div>
-          <input
-            className="bridge-input w-1/2"
-            placeholder="Transaction Hash"
-            value={historyFilter.hash}
-            onChange={(e) =>
-              setHistoryFilter({ ...historyFilter, hash: e.target.value })
-            }
-          />
+          <div className="relative  w-1/2">
+            <input
+              className="bridge-input"
+              placeholder="Transaction Hash"
+              value={historyFilter.hash}
+              onChange={(e) =>
+                setHistoryFilter({ ...historyFilter, hash: e.target.value })
+              }
+            />
+            {historyFilter.hash && (
+              <div
+                className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer bg-gray-700 hover:bg-gray-500 hover:text-white w-5 h-5 text-xs flex items-center justify-center rounded-full"
+                onClick={() => setHistoryFilter({ ...historyFilter, hash: '' })}
+              >
+                <SvgIcon name="IconClose" className="transform scale-75" />
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <span className="mr-2">Account</span>
+          <div className="flex items-center gap-2">
+            <span>Account</span>
             <ConnectWallet
               currentChain={historyFilter.chain}
               onChangeChain={(val) => {

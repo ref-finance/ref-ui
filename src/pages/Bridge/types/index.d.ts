@@ -21,7 +21,6 @@ declare namespace BridgeModel {
     chain: BridgeSupportChain;
     tokenMeta?: BridgeTokenMeta;
     amount?: string;
-    accountAddress?: string;
   };
   type BridgeTransaction = import('@near-eth/client').DecoratedTransfer & {
     amount?: string;

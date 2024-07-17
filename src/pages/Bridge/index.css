@@ -11,6 +11,23 @@
    
 }
 
+.svg-icon-wrapper{
+    @apply inline-flex fill-current items-center justify-center;
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    color: inherit;
+}
+.svg-icon{
+    width: 1em;
+    height: 1em;
+}
+
+.modal-overlay{
+    @apply fixed top-0 left-0 w-full h-full bg-black bg-opacity-80;
+    z-index: 1000;
+}
+
 /** reset toast style */
 .Toastify__toast-body > div:first-child{
     width: 20px;
@@ -57,7 +74,7 @@
 }
 
 .bridge-input{
-    @apply flex items-center text-white p-2 rounded-md border border-solid leading-5;
+    @apply flex items-center text-white p-2 pr-8 rounded-md border border-solid leading-5;
     background-color: rgba(11, 12, 19, 0.30);
     border-color: var(--bridge-border-color);
 }

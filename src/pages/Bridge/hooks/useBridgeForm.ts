@@ -83,6 +83,28 @@ export default function useBridgeForm() {
     bridgeFromValue.tokenMeta?.symbol,
   ]);
 
+  const {
+    getWallet,
+    EVM: { setChain },
+  } = useWalletConnectContext();
+
+  const fromAccountAddress = useMemo(
+    () => getWallet(bridgeFromValue.chain)?.accountId,
+    [getWallet(bridgeFromValue.chain)?.accountId]
+  );
+
+  const toAccountAddress = useMemo(
+    () =>
+      bridgeToValue.isCustomAccountAddress
+        ? bridgeToValue.customAccountAddress
+        : getWallet(bridgeToValue.chain)?.accountId,
+    [
+      getWallet(bridgeToValue.chain)?.accountId,
+      bridgeToValue.isCustomAccountAddress,
+      bridgeToValue.customAccountAddress,
+    ]
+  );
+
   const { data: estimatedGasFee = '0' } = useRequest(() =>
     evmServices.calculateGasInUSD('336847')
   );
@@ -101,12 +123,8 @@ export default function useBridgeForm() {
           amount: bridgeFromValue.amount,
           from: bridgeFromValue.chain,
           to: bridgeToValue.chain,
-          recipient:
-            bridgeToValue.isCustomAccountAddress &&
-            bridgeToValue.customAccountAddress
-              ? bridgeToValue.customAccountAddress
-              : bridgeToValue.accountAddress,
-          sender: bridgeFromValue.accountAddress,
+          recipient: toAccountAddress,
+          sender: fromAccountAddress,
           channel,
           slippage: slippageTolerance,
         });
@@ -126,11 +144,6 @@ export default function useBridgeForm() {
     }
   );
 
-  const {
-    getWallet,
-    EVM: { setChain },
-  } = useWalletConnectContext();
-
   useDebouncedEffect(
     () => {
       const fromValue = { ...bridgeFromValue };
@@ -142,10 +155,6 @@ export default function useBridgeForm() {
         setChain(EVMConfig[toValue.chain]?.chainId);
 
       logger.log('useBridgeForm', fromValue, toValue);
-
-      // sync account address
-      fromValue.accountAddress = getWallet(fromValue.chain)?.accountId;
-      toValue.accountAddress = getWallet(bridgeToValue.chain)?.accountId;
 
       setBridgeFromValue(fromValue);
       setBridgeToValue(toValue);
@@ -195,7 +204,7 @@ export default function useBridgeForm() {
 
   const { data: bridgeFromBalance = '0' } = useRequest(
     async () => {
-      if (!bridgeFromValue.accountAddress) return '0';
+      if (!fromAccountAddress) return '0';
       return tokenServices.getBalance(
         bridgeFromValue.chain,
         bridgeFromValue.tokenMeta,
@@ -206,7 +215,7 @@ export default function useBridgeForm() {
       refreshDeps: [
         bridgeFromValue.chain,
         bridgeFromValue.tokenMeta,
-        bridgeFromValue.accountAddress,
+        fromAccountAddress,
       ],
       before: () => !!bridgeFromValue.chain && !!bridgeFromValue.tokenMeta,
       debounceOptions: 200,
@@ -216,7 +225,7 @@ export default function useBridgeForm() {
 
   const { data: bridgeToBalance = '0' } = useRequest(
     async () => {
-      if (!bridgeToValue.accountAddress) return '0';
+      if (bridgeToValue.isCustomAccountAddress || !toAccountAddress) return '0';
       return tokenServices.getBalance(
         bridgeToValue.chain,
         bridgeToValue.tokenMeta,
@@ -227,7 +236,7 @@ export default function useBridgeForm() {
       refreshDeps: [
         bridgeToValue.chain,
         bridgeToValue.tokenMeta,
-        bridgeToValue.accountAddress,
+        toAccountAddress,
       ],
       before: () => !!bridgeToValue.chain && !!bridgeToValue.tokenMeta,
       debounceOptions: 200,
@@ -242,21 +251,8 @@ export default function useBridgeForm() {
     | 'preview'
     | 'insufficientBalance'
   >(() => {
-    if (
-      !(
-        bridgeFromValue.accountAddress ||
-        getWallet(bridgeFromValue.chain)?.accountId
-      )
-    )
-      return `unConnectForm`;
-    else if (
-      !(
-        bridgeToValue.accountAddress ||
-        getWallet(bridgeToValue.chain)?.accountId ||
-        bridgeToValue.customAccountAddress
-      )
-    )
-      return `unConnectTo`;
+    if (!fromAccountAddress) return `unConnectForm`;
+    else if (!toAccountAddress) return `unConnectTo`;
     else if (!bridgeFromValue.amount) return `enterAmount`;
     else if (
       new Big(bridgeFromBalance).eq(0) ||
@@ -265,13 +261,11 @@ export default function useBridgeForm() {
       return `insufficientBalance`;
     else return `preview`;
   }, [
-    bridgeFromValue.accountAddress,
     bridgeFromValue.chain,
     bridgeFromValue.amount,
-    bridgeToValue.accountAddress,
-    bridgeToValue.chain,
-    bridgeToValue.customAccountAddress,
     bridgeFromBalance,
+    fromAccountAddress,
+    toAccountAddress,
   ]);
 
   const bridgeSubmitStatusText = useMemo(() => {
@@ -322,15 +316,11 @@ export default function useBridgeForm() {
         setBridgeFromValue({
           chain,
           tokenMeta: oldFromTokenMeta,
-          accountAddress: getWallet(chain)?.accountId,
           amount: undefined,
         });
         setBridgeToValue({
           chain: chain === 'NEAR' ? SupportChains[0] : 'NEAR',
           tokenMeta: oldToTokenMeta,
-          accountAddress: getWallet(
-            chain === 'NEAR' ? SupportChains[0] : 'NEAR'
-          )?.accountId,
           amount: undefined,
           isCustomAccountAddress: false,
           customAccountAddress: undefined,
@@ -342,7 +332,6 @@ export default function useBridgeForm() {
         setBridgeToValue({
           chain,
           tokenMeta: oldToTokenMeta,
-          accountAddress: getWallet(chain)?.accountId,
           amount: undefined,
           isCustomAccountAddress: false,
           customAccountAddress: undefined,
@@ -350,9 +339,6 @@ export default function useBridgeForm() {
         setBridgeFromValue({
           chain: chain === 'NEAR' ? SupportChains[0] : 'NEAR',
           tokenMeta: oldFromTokenMeta,
-          accountAddress: getWallet(
-            chain === 'NEAR' ? SupportChains[0] : 'NEAR'
-          )?.accountId,
           amount: undefined,
         });
       }
@@ -360,26 +346,16 @@ export default function useBridgeForm() {
   }
 
   function exchangeChain(restToken?: boolean) {
-    const {
-      chain: fromChain,
-      tokenMeta: fromTokenMeta,
-      accountAddress: fromAccount,
-    } = bridgeFromValue;
-    const {
-      chain: toChain,
-      tokenMeta: toTokenMeta,
-      accountAddress: toAccount,
-    } = bridgeToValue;
+    const { chain: fromChain, tokenMeta: fromTokenMeta } = bridgeFromValue;
+    const { chain: toChain, tokenMeta: toTokenMeta } = bridgeToValue;
 
     const fromValue = {
       chain: toChain,
       tokenMeta: toTokenMeta,
-      accountAddress: toAccount,
     };
     const toValue = {
       chain: fromChain,
       tokenMeta: fromTokenMeta,
-      accountAddress: fromAccount,
       isCustomAccountAddress: false,
       customAccountAddress: undefined,
     };
@@ -415,5 +391,7 @@ export default function useBridgeForm() {
     estimatedGasFee,
     channelInfoMap,
     channelInfoMapLoading,
+    fromAccountAddress,
+    toAccountAddress,
   };
 }

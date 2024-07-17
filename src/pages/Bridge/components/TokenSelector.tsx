@@ -135,7 +135,7 @@ export function TokenSelectorModal({
   return (
     <Modal
       {...props}
-      style={{ content: { transform: 'translate(-50%, -50%)' } }}
+      overlayClassName="modal-overlay"
       onRequestClose={handleCancel}
     >
       <div className="bridge-modal" style={{ width: '428px' }}>

@@ -10,6 +10,7 @@ import {
 import Button from './Button';
 import useBridge from '../hooks/useBridge';
 import { getTokenByAddress, getTokenMeta } from '../utils/token';
+import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const columns = [
   { label: 'Time', prop: 'time', width: '15%' },
@@ -59,9 +60,17 @@ function TableItem({
       </td>
       <td>
         <div className="flex items-center gap-2">
-          <img className="w-5 h-5 rounded-full" src={tokenMeta?.icon} />
+          <span
+            data-tooltip-id="token-symbol"
+            data-place="top"
+            data-class="reactTip"
+            data-tooltip-html={tokenMeta?.symbol}
+          >
+            <img className="w-5 h-5 rounded-full" src={tokenMeta?.icon} />
+
+            <CustomTooltip id="token-symbol" />
+          </span>
           {formatAmount(transaction.volume, tokenMeta.decimals)}
-          <span className="text-gray-400">{tokenMeta?.symbol}</span>
         </div>
       </td>
       <td>

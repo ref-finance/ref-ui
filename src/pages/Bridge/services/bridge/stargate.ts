@@ -22,7 +22,7 @@ const stargateBridgeService = {
     if (!stargateBridgeService.auroraReceiveContract) {
       stargateBridgeService.auroraReceiveContract =
         await auroraServices.getAuroraContract(
-          BridgeConfig.Stargate.bridgeParams.auroraReceive,
+          BridgeConfig.Stargate.bridgeParams.Aurora.receive,
           StargateAbi
         );
     }
@@ -128,12 +128,19 @@ const stargateBridgeService = {
         BridgeConfig.Stargate.bridgeParams[from].send,
         StargateAbi
       );
+      console.log(
+        'recipient',
+        `0x${Buffer.from(recipient || '', 'utf-8').toString('hex')}`
+      );
       const { valueToSend, sendParam, messagingFee } =
         await sendContract.prepareTakeTaxiStargate(
           BridgeConfig.Stargate.bridgeParams.Aurora.eid,
           rawAmount,
-          BridgeConfig.Stargate.bridgeParams.auroraReceive,
-          `0x${Buffer.from(recipient, 'utf-8').toString('hex')}`
+          BridgeConfig.Stargate.bridgeParams.Aurora.receive,
+          `0x${Buffer.from(
+            recipient || `0x` + `0`.repeat(64),
+            'utf-8'
+          ).toString('hex')}`
         );
       logger.log('prepareTakeTaxiStargate', {
         valueToSend,
@@ -184,7 +191,7 @@ const stargateBridgeService = {
       const actionParams = await auroraServices.checkErc20Approve(
         auroraAccount,
         auroraTokenAddress,
-        BridgeConfig.Stargate.bridgeParams.auroraReceive,
+        BridgeConfig.Stargate.bridgeParams.Aurora.receive,
         formatAmount(rawTotalAmount, tokenIn.decimals),
         tokenIn.decimals
       );
@@ -206,7 +213,7 @@ const stargateBridgeService = {
     logger.log('bridge: sendInput', sendInput);
     logger.log('bridge: valueToSend', valueToSend);
     const sendActionParams = auroraCallToAction(
-      toAddress(BridgeConfig.Stargate.bridgeParams.auroraReceive),
+      toAddress(BridgeConfig.Stargate.bridgeParams.Aurora.receive),
       sendInput
       // valueToSend
     );

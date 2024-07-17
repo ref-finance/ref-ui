@@ -24,13 +24,12 @@ export default function BridgeFormProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { bridgeFromValue, bridgeToValue, ...restHooks } = useBridgeForm();
+  const { fromAccountAddress, toAccountAddress, ...restHooks } =
+    useBridgeForm();
 
   const canPreview = useMemo(
-    () =>
-      bridgeFromValue.accountAddress &&
-      (bridgeToValue.accountAddress || bridgeToValue.customAccountAddress),
-    [bridgeFromValue, bridgeToValue]
+    () => fromAccountAddress && toAccountAddress,
+    [fromAccountAddress, toAccountAddress]
   );
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
@@ -44,8 +43,8 @@ export default function BridgeFormProvider({
 
   const exposes = {
     ...restHooks,
-    bridgeFromValue,
-    bridgeToValue,
+    fromAccountAddress,
+    toAccountAddress,
     openPreviewModal,
   };
 

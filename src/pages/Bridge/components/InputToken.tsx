@@ -89,7 +89,7 @@ function InputToken({
               }`}
               onClick={handleAllAmount}
             >
-              {formatNumber(balance)}
+              {formatNumber(balance, { rm: Big.roundDown })}
             </a>
           </span>
         </div>

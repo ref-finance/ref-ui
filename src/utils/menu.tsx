@@ -446,7 +446,7 @@ export const useMenus = (cb?: () => void) => {
       ],
     },
     {
-      id: '4',
+      id: 'bridge',
       label: (
         <>
           <FormattedMessage id="bridge_pure" />

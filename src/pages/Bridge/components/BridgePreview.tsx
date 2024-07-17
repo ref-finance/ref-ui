@@ -25,6 +25,8 @@ export default function BridgePreviewModal({
   const { actionLoading, transfer } = useBridge();
 
   const {
+    fromAccountAddress,
+    toAccountAddress,
     bridgeFromValue,
     bridgeToValue,
     bridgeChannel,
@@ -37,11 +39,8 @@ export default function BridgePreviewModal({
 
   const { openBridgeTransactionStatusModal } = useBridgeTransactionContext();
 
-  const sender = bridgeFromValue?.accountAddress;
-  const recipient =
-    bridgeToValue.isCustomAccountAddress && bridgeToValue.customAccountAddress
-      ? bridgeToValue.customAccountAddress
-      : bridgeToValue.accountAddress;
+  const sender = fromAccountAddress;
+  const recipient = toAccountAddress;
 
   const confirmInfo = useMemo(
     () => ({
@@ -55,10 +54,6 @@ export default function BridgePreviewModal({
       bridgeFee: new Big(estimatedGasFee)
         .plus(channelInfoMap?.[bridgeChannel]?.usdFee || 0)
         .toString(),
-      output: formatAmount(
-        channelInfoMap?.[bridgeChannel]?.minAmount,
-        bridgeFromValue.tokenMeta.decimals
-      ),
       minimumReceived: formatAmount(
         channelInfoMap?.[bridgeChannel]?.minAmount,
         bridgeFromValue.tokenMeta.decimals
@@ -92,7 +87,11 @@ export default function BridgePreviewModal({
   }
   return (
     <>
-      <Modal {...props} onRequestClose={toggleOpenModal}>
+      <Modal
+        {...props}
+        overlayClassName="modal-overlay"
+        onRequestClose={toggleOpenModal}
+      >
         <div className="bridge-modal" style={{ width: '428px' }}>
           <div className="flex items-center justify-between mb-4">
             <span className="text-base text-white font-medium">Preview</span>
@@ -146,15 +145,6 @@ export default function BridgePreviewModal({
               </div>
             </div>
             <div className="flex flex-col gap-5">
-              <div className="flex justify-between">
-                <div>Est. Output</div>
-                <div>
-                  <div className="text-white text-right">
-                    {confirmInfo.output} {confirmInfo?.tokenMeta?.symbol}
-                  </div>
-                  {/* <div className="text-xs text-right">(~$1885.23)</div> */}
-                </div>
-              </div>
               <div className="flex justify-between">
                 <div>Bridge Fee</div>
                 <div>
