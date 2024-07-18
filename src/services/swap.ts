@@ -48,7 +48,7 @@ import {
   StablePool,
 } from './pool';
 
-import { cacheAllDCLPools } from './swapV3';
+import { cacheAllDCLPools, checkCacheDCLPools } from './swapV3';
 import {
   createSmartRouteLogicWorker,
   transformWorkerResult,
@@ -364,7 +364,8 @@ export const estimateSwap = async ({
       let poolsMap = {};
       let tokensMap = {};
       try {
-        if (!localStorage.getItem(REF_DCL_POOL_CACHE_KEY)) {
+        const isValidCached = checkCacheDCLPools();
+        if (!isValidCached) {
           await cacheAllDCLPools();
         }
       } catch (error) {}
