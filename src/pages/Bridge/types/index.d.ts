@@ -1,5 +1,15 @@
 declare namespace BridgeModel {
-  type BridgeSupportChain = 'Ethereum' | 'Arbitrum' | 'NEAR' | 'Aurora';
+  type BridgeSupportChain =
+    | 'Ethereum'
+    | 'Arbitrum'
+    | 'NEAR'
+    | 'Aurora'
+    | 'Avalanche'
+    | 'Base'
+    | 'Mantle'
+    | 'Optimism'
+    | 'Polygon'
+    | 'Scroll';
   type BridgeSupportChannel = 'Rainbow' | 'Stargate';
   type BridgeTokenMeta = {
     symbol: string;

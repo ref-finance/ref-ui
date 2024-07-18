@@ -35,55 +35,96 @@ const stargateBridgeService = {
       return await stargateBridgeService.nearToEvm(params);
     }
   },
-  async query(params: BridgeTransferParams) {
-    if (new Big(params.amount || 0).eq(0)) return;
-    const feeRes = await stargateBridgeService.queryFee(params);
-    logger.log('queryFee', feeRes);
-    let readableMinAmount = new Big(params.amount)
-      .minus(params.from === 'NEAR' ? feeRes.readableFeeAmount : 0)
-      .times(1 - (params.slippage || 0))
-      .toString();
-    if (new Big(readableMinAmount).lt(0)) readableMinAmount = '0';
-    const minAmount = parseAmount(readableMinAmount, params.tokenIn.decimals);
-    return { ...feeRes, minAmount, readableMinAmount };
-  },
-  async queryFee(params: BridgeTransferParams): Promise<{
+  async query(params: BridgeTransferParams): Promise<{
+    minAmount: string;
+    readableMinAmount: string;
     feeAmount: string;
     readableFeeAmount: string;
     usdFee: string;
     discounted: boolean;
+    sendParam: any;
+    messagingFee: any;
+    valueToSend: string;
   }> {
     if (params.from === 'NEAR') {
+      const chainId = BridgeConfig.Stargate.bridgeParams[params.to].eid;
+      logger.log('chainId', chainId);
       const sendContract =
         await stargateBridgeService.initAuroraReceiveContract();
+      const [discountPools, { messagingFee, sendParam, valueToSend }] =
+        await Promise.all([
+          sendContract.discountPools(chainId),
+          stargateBridgeService.prepareTakeTaxiStargate(
+            params,
+            'prepareDiscountTransaction'
+          ),
+        ]);
+      logger.log('discountPools', discountPools);
+      logger.log('messagingFee', messagingFee);
+      logger.log('sendParam', sendParam);
 
-      const res = await Promise.all<[Big, Big, Big, Big]>([
-        sendContract.discountPoolETH(),
-        sendContract.decrementPerTransactionETH(),
-        sendContract.discountedFeeUSD(),
-        sendContract.currentFeeUSD(),
-      ]);
-      const [
-        discountPoolETH,
-        decrementPerTransactionETH,
-        discountedFeeUSD,
-        currentFeeUSD,
-      ] = res.map((v) => new Big(v.toString()));
+      const { discountedFeeUSD, fullFeeUSD } = await sendContract.calculateFee(
+        messagingFee.nativeFee,
+        chainId
+      );
+      logger.log('discountedFeeUSD', discountedFeeUSD.toString());
+      logger.log('fullFeeUSD', fullFeeUSD.toString());
 
-      const discounted = discountPoolETH.gte(decrementPerTransactionETH);
+      const calculateDiscount = await sendContract.calculateDiscount(
+        messagingFee.nativeFee,
+        chainId
+      );
+      logger.log('calculateDiscount', calculateDiscount.toString());
+
+      const discounted = discountPools.gte(calculateDiscount);
       const feeAmount = discounted
         ? discountedFeeUSD.toString()
-        : currentFeeUSD.toString();
+        : fullFeeUSD.toString();
       const readableFeeAmount = formatAmount(
         feeAmount,
-        params.tokenOut.decimals
+        params.tokenIn.decimals
       );
-      const usdFee = formatAmount(feeAmount, params.tokenOut.decimals);
-      return { feeAmount, readableFeeAmount, usdFee, discounted };
+      const usdFee = readableFeeAmount;
+      if (discounted) {
+        const minAmount = sendParam.minAmountLD.toString();
+        const readableMinAmount = formatAmount(
+          minAmount,
+          params.tokenIn.decimals
+        );
+        return {
+          minAmount,
+          readableMinAmount,
+          feeAmount,
+          readableFeeAmount,
+          usdFee,
+          discounted,
+          sendParam,
+          messagingFee,
+          valueToSend,
+        };
+      } else {
+        const { sendParam, messagingFee, valueToSend } =
+          await stargateBridgeService.prepareTakeTaxiStargate(params);
+        const minAmount = sendParam.minAmountLD.toString();
+        const readableMinAmount = formatAmount(
+          minAmount,
+          params.tokenIn.decimals
+        );
+        return {
+          minAmount,
+          readableMinAmount,
+          feeAmount,
+          readableFeeAmount,
+          usdFee,
+          discounted,
+          sendParam,
+          messagingFee,
+          valueToSend,
+        };
+      }
     } else {
-      const { messagingFee } =
+      const { sendParam, messagingFee, valueToSend } =
         await stargateBridgeService.prepareTakeTaxiStargate(params);
-      console.log('messagingFee.nativeFee', messagingFee.nativeFee);
       const { nativeFee, lzTokenFee } = messagingFee;
       const feeAmount = new Big(nativeFee).plus(lzTokenFee).toString();
       const readableFeeAmount = formatAmount(
@@ -92,37 +133,56 @@ const stargateBridgeService = {
       );
       const ethPriceInUSD = await tokenServices.getPrice(getTokenMeta('ETH'));
       const usdFee = new Big(readableFeeAmount).times(ethPriceInUSD).toFixed(4);
+
+      const minAmount = sendParam.minAmountLD.toString();
+      const readableMinAmount = formatAmount(
+        minAmount,
+        params.tokenIn.decimals
+      );
       return {
+        minAmount,
+        readableMinAmount,
         feeAmount,
         readableFeeAmount,
         usdFee,
         discounted: false,
+        sendParam,
+        messagingFee,
+        valueToSend,
       };
     }
   },
-  async prepareTakeTaxiStargate(params: BridgeTransferParams) {
+  async prepareTakeTaxiStargate(
+    params: BridgeTransferParams,
+    method:
+      | 'prepareTakeTaxiStargate'
+      | 'prepareDiscountTransaction'
+      | 'orchestrateTransaction' = 'prepareTakeTaxiStargate'
+  ) {
     const { from, to, tokenIn, amount, recipient } = params;
     const rawAmount = parseAmount(amount, tokenIn.decimals);
     if (from === 'NEAR') {
-      const sendContract =
-        await stargateBridgeService.initAuroraReceiveContract();
-
-      const { feeAmount } = await stargateBridgeService.query(params);
-      const _amount = Big(rawAmount).minus(feeAmount).toString();
-      const { valueToSend, sendParam, messagingFee } =
-        await sendContract.prepareTakeTaxiStargate(
+      try {
+        const sendContract =
+          await stargateBridgeService.initAuroraReceiveContract();
+        const { valueToSend, sendParam, messagingFee } = await sendContract[
+          method
+        ](
           BridgeConfig.Stargate.bridgeParams[to].eid,
-          _amount,
+          rawAmount,
           recipient,
           `0x`
         );
 
-      logger.log('prepareTakeTaxiStargate', {
-        valueToSend,
-        sendParam,
-        messagingFee,
-      });
-      return { valueToSend, sendParam, messagingFee };
+        logger.log(method, {
+          valueToSend,
+          sendParam,
+          messagingFee,
+        });
+        return { valueToSend, sendParam, messagingFee };
+      } catch (error) {
+        console.error(method, error);
+      }
     } else {
       const sendContract = await evmServices.getEvmContract(
         BridgeConfig.Stargate.bridgeParams[from].send,
@@ -156,7 +216,6 @@ const stargateBridgeService = {
     const nearTokenAddress = tokenIn.addresses.NEAR;
     const auroraTokenAddress = tokenIn.addresses.Aurora;
     const rawTotalAmount = parseAmount(amount, tokenIn.decimals);
-    const { discounted } = await stargateBridgeService.queryFee(params);
 
     const transferTransaction = {
       receiverId: nearTokenAddress,
@@ -201,17 +260,15 @@ const stargateBridgeService = {
           params: actionParams as any,
         });
     }
-    const { valueToSend, sendParam, messagingFee } =
-      await stargateBridgeService.prepareTakeTaxiStargate(params);
+
+    const { discounted, messagingFee, sendParam } =
+      await stargateBridgeService.query(params);
 
     const sendInput = buildInput(
       StargateAbi,
       discounted ? 'sendStargateWithDiscount' : 'sendStargate',
       [sendParam, messagingFee, auroraAccount, rawTotalAmount]
     );
-    logger.log('bridge: sendParam', sendParam);
-    logger.log('bridge: sendInput', sendInput);
-    logger.log('bridge: valueToSend', valueToSend);
     const sendActionParams = auroraCallToAction(
       toAddress(BridgeConfig.Stargate.bridgeParams.Aurora.receive),
       sendInput
@@ -244,7 +301,7 @@ const stargateBridgeService = {
     });
 
     const { valueToSend, sendParam, messagingFee } =
-      await stargateBridgeService.prepareTakeTaxiStargate(params);
+      await stargateBridgeService.query(params);
 
     const stargatePoolContract = await evmServices.getEvmContract(
       poolAddress,

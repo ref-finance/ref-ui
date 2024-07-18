@@ -5,7 +5,6 @@ import auroraErc20Abi from './../abi/auroraErc20.json';
 import etherCustodianAbi from './../abi/etherCustodian.json';
 import eNEARAbi from './../abi/eNEAR.json';
 import { formatFileUrl } from '../utils/format';
-import { send } from 'process';
 
 export const APPID = 'ref-finance';
 export const APP_HOST = 'https://app.ref.finance';
@@ -40,6 +39,42 @@ export const EVMConfig = {
     explorerUrl: 'https://explorer.aurora.dev',
     chainId: 1313161554,
   },
+  Avalanche: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://cchain.explorer.avax.network',
+    chainId: 43114,
+  },
+  Base: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://explorer.base.org',
+    chainId: 8453,
+  },
+  Mantle: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://explorer.mantle.xyz',
+    chainId: 5000,
+  },
+  Optimism: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://optimistic.etherscan.io',
+    chainId: 10,
+  },
+  Polygon: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://polygonscan.com',
+    chainId: 137,
+  },
+  Scroll: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://scrollscan.com',
+    chainId: 534352,
+  },
 
   walletConnectProjectId: '669d1b9f59163a92d90a3c1ff78a7326',
   chains: [
@@ -50,16 +85,59 @@ export const EVMConfig = {
       rpcUrl: `https://${EVM_NETWORK}.infura.io/v3/${INFURA_KEY}`,
     },
     {
-      id: '0x2105',
-      token: 'ETH',
-      label: 'Base',
-      rpcUrl: `https://${EVM_NETWORK}.base.org`,
-    },
-    {
       id: '0xA4B1',
       token: 'ARB-ETH',
       label: 'Arbitrum',
       rpcUrl: 'https://rpc.ankr.com/arbitrum',
+    },
+    //Aurora
+    {
+      id: '0x4e454152',
+      token: 'ETH',
+      label: 'Aurora',
+      rpcUrl: 'https://1rpc.io/aurora',
+    },
+    //Avalanche
+    {
+      id: '0xa86a',
+      token: 'AVAX',
+      label: 'Avalanche',
+      rpcUrl: 'https://avalanche.drpc.org',
+    },
+    //Base
+    {
+      id: '0x2105',
+      token: 'ETH',
+      label: 'Base',
+      rpcUrl: 'https://mainnet.base.org',
+    },
+    //Mantle
+    {
+      id: '0x1388',
+      token: 'MNT',
+      label: 'Mantle',
+      rpcUrl: 'https://rpc.ankr.com/mantle',
+    },
+    //Optimism
+    {
+      id: '0xa',
+      token: 'ETH',
+      label: 'Optimism',
+      rpcUrl: 'https://mainnet.optimism.io',
+    },
+    //Polygon
+    {
+      id: '0x89',
+      token: 'MATIC',
+      label: 'Polygon',
+      rpcUrl: 'https://polygon.drpc.org',
+    },
+    //Scroll
+    {
+      id: '0x82750',
+      token: 'ETH',
+      label: 'Scroll',
+      rpcUrl: 'https://rpc.ankr.com/scroll',
     },
   ],
 };
@@ -138,11 +216,53 @@ export const BridgeConfig = {
       },
       Aurora: {
         send: '',
-        receive: '0xBafAB363F04A4D2E7239f9E3942E768d76Baf0f3',
+        receive: '0x7D500416d295E08A3894Ae41de34b0cFD7443D5c',
         pool: {
           USDC: '0x81F6138153d473E8c5EcebD3DC8Cd4903506B075',
         },
         eid: '30211',
+      },
+      Avalanche: {
+        send: '0x8cE17C7A6E7c53EbD8919D7C6E54a68BA3D1d3Ad',
+        pool: {
+          USDC: '0x5634c4a5FEd09819E3c46D86A965Dd9447d86e47',
+        },
+        eid: '30106',
+      },
+      Base: {
+        send: '0x5149434074bC009C8269376390ca722a552A8F47',
+        pool: {
+          USDC: '0x27a16dc786820B16E5c9028b75B99F6f604b5d26',
+        },
+        eid: '30184',
+      },
+      Mantle: {
+        send: '0x78F942F8F9110067c08183183c45903e5Dc2763A',
+        pool: {
+          USDC: '0xAc290Ad4e0c891FDc295ca4F0a6214cf6dC6acDC',
+        },
+        eid: '30181',
+      },
+      Optimism: {
+        send: '0xd560B0782bB20356F2892828022D328a1ACe2566',
+        pool: {
+          USDC: '0xcE8CcA271Ebc0533920C83d39F417ED6A0abB7D0',
+        },
+        eid: '30111',
+      },
+      Polygon: {
+        send: '0x9571566D7ECb2fc899477bF295248a20FF4Adb61',
+        pool: {
+          USDC: '0x9Aa02D4Fae7F58b8E8f34c66E756cC734DAc7fe4',
+        },
+        eid: '30109',
+      },
+      Scroll: {
+        send: '0xC929F538632f4F813c29b3Cc54Beb67bE25F65FB',
+        pool: {
+          USDC: '0x3Fc69CC4A842838bCDC9499178740226062b14E4',
+        },
+        eid: '30214',
       },
       EndpointV2: '0x1a44076050125825900e736c501f859c50fE728c',
     },
@@ -204,6 +324,12 @@ export const BridgeTokenList: (BridgeModel.BridgeTokenMeta & {
       Ethereum: IS_MAINNET ? '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' : '',
       Arbitrum: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
       Aurora: '0x368EBb46ACa6b8D0787C96B2b20bD3CC3F2c45F7',
+      Avalanche: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+      Base: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      Mantle: '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9',
+      Optimism: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+      Polygon: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
+      Scroll: '0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4',
     },
   },
   {
@@ -277,6 +403,13 @@ export const BridgeTokenRoutes: {
   // },
   // { from: 'NEAR', to: 'Ethereum', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Arbitrum', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'Ethereum', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'Avalanche', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'Base', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'Mantle', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'Optimism', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'Polygon', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'Scroll', channel: 'Stargate', symbols: ['USDC'] },
   // {
   //   from: 'Ethereum',
   //   to: 'NEAR',
@@ -285,6 +418,13 @@ export const BridgeTokenRoutes: {
   // },
   // { from: 'Ethereum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Arbitrum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'Ethereum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'Avalanche', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'Base', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'Mantle', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'Optimism', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'Polygon', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'Scroll', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
 ];
 
 export const BridgeTokenSortRule = [
