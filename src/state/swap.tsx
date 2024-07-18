@@ -48,6 +48,7 @@ import {
 } from '../services/swap';
 import { EstimateSwapView, swap, swapFromServer } from '../services/swap';
 import {
+  cacheAllDCLPools,
   get_pool,
   PoolInfo,
   quote,
@@ -810,6 +811,9 @@ export const useSwapV3 = ({
   const bestFee = bestEstimate?.tag?.split('|')?.[1]
     ? Number(bestEstimate?.tag?.split('|')?.[1])
     : null;
+  useEffect(() => {
+    cacheAllDCLPools();
+  }, []);
   useEffect(() => {
     if (!bestFee || wrapOperation) return;
 
