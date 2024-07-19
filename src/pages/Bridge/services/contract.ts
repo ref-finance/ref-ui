@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import erc20Abi from '../abi/erc20.json';
 import request from '../utils/request';
-import { IS_MAINNET } from '../config';
+import { EVMConfig, IS_MAINNET } from '../config';
 import Big from 'big.js';
 import getConfig from 'src/services/config';
 import { connect, keyStores, providers } from 'near-api-js';
@@ -35,11 +35,17 @@ import {
 export const evmServices = {
   async getEvmContract(
     address: string,
-    contractInterface: ethers.ContractInterface
+    contractInterface: ethers.ContractInterface,
+    chain?
   ) {
     const signer = await window.ethWeb3Provider?.getSigner();
-    const evmContract = new ethers.Contract(address, contractInterface, signer);
-    return evmContract;
+    if (signer) {
+      return new ethers.Contract(address, contractInterface, signer);
+    }
+    const provider = new ethers.providers.JsonRpcProvider(
+      EVMConfig.chains.find((v) => v.label === chain)?.rpcUrl
+    );
+    return new ethers.Contract(address, contractInterface, provider);
   },
   async checkErc20Approve({
     token,
@@ -59,11 +65,6 @@ export const evmServices = {
     const unAllowance = new Big(amountIn).minus(allowance).abs();
 
     if (unAllowance.gt(0)) {
-      console.log(
-        'checkErc20Approve',
-        allowance.toString(),
-        unAllowance.toString()
-      );
       const tx = await erc20Contract.approve(spender, unAllowance.toString());
       await tx.wait();
     }
@@ -111,23 +112,23 @@ export const evmServices = {
       .times(ethPriceInUSD)
       .toFixed(4);
     logger.log(
-      `bridge: Gas Price: ${ethers.utils.formatUnits(gasPrice, 'gwei')} GWei`
+      `bridge: Gas Price: ${ethers.utils.formatUnits(gasPrice, 'gwei')} GWei`,
+      `bridge: Gas Limit: ${gasLimit.toString()}`,
+      `bridge: Total Gas Cost: ${totalGasCostEth} ETH`,
+      `bridge: Total Gas Cost: ${totalGasCostUSD} USD`
     );
-    logger.log(`bridge: Gas Limit: ${gasLimit.toString()}`);
-    logger.log(`bridge: Total Gas Cost: ${totalGasCostEth} ETH`);
-    logger.log(`bridge: Total Gas Cost: ${totalGasCostUSD} USD`);
     return totalGasCostUSD;
   },
 };
+
+const auroraRPCUrl = EVMConfig.chains.find((v) => v.label === 'Aurora')?.rpcUrl;
 
 export const auroraServices = {
   async getAuroraContract(
     address: string,
     contractInterface: ethers.ContractInterface
   ) {
-    const provider = new ethers.providers.JsonRpcProvider(
-      'https://1rpc.io/aurora'
-    );
+    const provider = new ethers.providers.JsonRpcProvider(auroraRPCUrl);
     const contract = new ethers.Contract(address, contractInterface, provider);
     return contract;
   },
@@ -244,7 +245,7 @@ export const nearServices = {
     try {
       const config = this.getNearConnectionConfig();
       const provider = new providers.JsonRpcProvider({ url: config.nodeUrl });
-      logger.log(`${method} args`, args);
+      // logger.log(`${method} args`, args);
       const res = await provider.query({
         request_type: 'call_function',
         account_id: contractId,
@@ -257,7 +258,7 @@ export const nearServices = {
           (res as QueryResponseKind & { result: number[] }).result
         ).toString()
       ) as T;
-      logger.log(`${method} result`, result);
+      // logger.log(`${method} result`, result);
       return result;
     } catch (error) {
       console.error(`${method} error`, error);
@@ -271,7 +272,7 @@ export const nearServices = {
         await this.transformTransactionActions([params])
       )?.[0]
     );
-    console.log('sendTransactions outcome', res);
+    logger.log('sendTransactions outcome', res);
     const transformedRes =
       typeof res === 'object' ? this.handleTransactionResult(res) : undefined;
     if (!transformedRes || window.nearWallet.id === 'my-near-wallet')
@@ -286,7 +287,7 @@ export const nearServices = {
     const res = await window.nearWallet.signAndSendTransactions({
       transactions: await this.transformTransactionActions(params),
     });
-    console.log('sendTransactions outcomes', res);
+    logger.log('sendTransactions outcomes', res);
     const transformedRes =
       typeof res === 'object' ? this.handleTransactionResult(res) : undefined;
     if (!transformedRes || window.nearWallet.id === 'my-near-wallet')
@@ -356,7 +357,7 @@ export const nearServices = {
         result.push(transaction);
       }
     }
-    console.log('transformTransactionActions', result);
+    logger.log('transformTransactionActions', result);
     return result;
   },
 
@@ -383,11 +384,11 @@ export const nearServices = {
   },
 
   async getTransactionResult(txhash: string) {
-    console.log('getTransactionResult', txhash);
+    logger.log('getTransactionResult', txhash);
     const config = this.getNearConnectionConfig();
     const provider = new providers.JsonRpcProvider({ url: config.nodeUrl });
     const result = await provider.txStatus(txhash, 'unnused');
-    console.log('getTransactionResult', result);
+    logger.log('getTransactionResult', result);
     return this.handleTransactionResult(result);
   },
   getNearAccountId(catchError?: boolean) {
@@ -460,8 +461,6 @@ export const nearServices = {
       let balance = '0';
       if (address === getTokenAddress('NEAR')) {
         balance = (await account.getAccountBalance()).available;
-        console.log('getBalance', tokenAddress, balance);
-        console.log('getBalance2', await nearServices.getNearBalance());
       } else {
         balance =
           (await nearServices.query<string>({
@@ -472,7 +471,6 @@ export const nearServices = {
       }
       const _decimals =
         decimals || getTokenByAddress(address)?.decimals || NEAR_DECIMALS;
-
       return formatAmount(balance, _decimals);
     } catch (error) {
       console.error(error);

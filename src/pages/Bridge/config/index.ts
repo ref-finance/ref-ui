@@ -17,7 +17,7 @@ export const IS_TESTNET = ['testnet', 'pub-testnet'].includes(
 );
 
 const INFURA_KEY = '45ad2962c1b5465bb6fe62db0d35b42f';
-const EVM_NETWORK = IS_MAINNET ? 'mainnet' : 'testnet';
+
 export const EVMConfig = {
   Ethereum: {
     network: IS_MAINNET ? 'mainnet' : 'sepolia',
@@ -81,8 +81,10 @@ export const EVMConfig = {
     {
       id: IS_MAINNET ? '0x1' : '0xaa36a7',
       token: 'ETH',
-      label: `Ethereum ${EVM_NETWORK}`,
-      rpcUrl: `https://${EVM_NETWORK}.infura.io/v3/${INFURA_KEY}`,
+      label: `Ethereum`,
+      rpcUrl: IS_MAINNET
+        ? 'https://eth.drpc.org/'
+        : `https://testnet.infura.io/v3/${INFURA_KEY}`,
     },
     {
       id: '0xA4B1',
@@ -95,14 +97,7 @@ export const EVMConfig = {
       id: '0x4e454152',
       token: 'ETH',
       label: 'Aurora',
-      rpcUrl: 'https://1rpc.io/aurora',
-    },
-    //Avalanche
-    {
-      id: '0xa86a',
-      token: 'AVAX',
-      label: 'Avalanche',
-      rpcUrl: 'https://avalanche.drpc.org',
+      rpcUrl: 'https://mainnet.aurora.dev',
     },
     //Base
     {
@@ -111,19 +106,19 @@ export const EVMConfig = {
       label: 'Base',
       rpcUrl: 'https://mainnet.base.org',
     },
-    //Mantle
-    {
-      id: '0x1388',
-      token: 'MNT',
-      label: 'Mantle',
-      rpcUrl: 'https://rpc.ankr.com/mantle',
-    },
     //Optimism
     {
       id: '0xa',
       token: 'ETH',
       label: 'Optimism',
       rpcUrl: 'https://mainnet.optimism.io',
+    },
+    //Scroll
+    {
+      id: '0x82750',
+      token: 'ETH',
+      label: 'Scroll',
+      rpcUrl: 'https://rpc.ankr.com/scroll',
     },
     //Polygon
     {
@@ -132,12 +127,19 @@ export const EVMConfig = {
       label: 'Polygon',
       rpcUrl: 'https://polygon.drpc.org',
     },
-    //Scroll
+    //Avalanche
     {
-      id: '0x82750',
-      token: 'ETH',
-      label: 'Scroll',
-      rpcUrl: 'https://rpc.ankr.com/scroll',
+      id: '0xa86a',
+      token: 'AVAX',
+      label: 'Avalanche',
+      rpcUrl: 'https://avalanche.drpc.org',
+    },
+    //Mantle
+    {
+      id: '0x1388',
+      token: 'MNT',
+      label: 'Mantle',
+      rpcUrl: 'https://rpc.ankr.com/mantle',
     },
   ],
 };
@@ -404,11 +406,11 @@ export const BridgeTokenRoutes: {
   // { from: 'NEAR', to: 'Ethereum', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Arbitrum', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Ethereum', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Avalanche', channel: 'Stargate', symbols: ['USDC'] },
+  // { from: 'NEAR', to: 'Avalanche', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Base', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Mantle', channel: 'Stargate', symbols: ['USDC'] },
+  // { from: 'NEAR', to: 'Mantle', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Optimism', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Polygon', channel: 'Stargate', symbols: ['USDC'] },
+  // { from: 'NEAR', to: 'Polygon', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Scroll', channel: 'Stargate', symbols: ['USDC'] },
   // {
   //   from: 'Ethereum',
@@ -419,11 +421,11 @@ export const BridgeTokenRoutes: {
   // { from: 'Ethereum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Arbitrum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Ethereum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Avalanche', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  // { from: 'Avalanche', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Base', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Mantle', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  // { from: 'Mantle', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Optimism', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Polygon', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  // { from: 'Polygon', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Scroll', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
 ];
 

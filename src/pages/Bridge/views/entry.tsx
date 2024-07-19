@@ -10,7 +10,7 @@ import { useBridgeFormContext } from '../providers/bridgeForm';
 import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';
 import { isValidEthereumAddress, isValidNearAddress } from '../utils/validate';
-import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
+
 import { useAutoResetState } from '../hooks/useHooks';
 import { getTokenMeta } from '../utils/token';
 
@@ -153,9 +153,6 @@ function BridgeEntry() {
     gasWarning,
   } = useBridgeFormContext();
 
-  const { unclaimedTransactions, openBridgeTransactionStatusModal } =
-    useBridgeTransactionContext();
-
   const router = useRouter();
   function handleOpenHistory() {
     router.push('/bridge/history');
@@ -256,23 +253,6 @@ function BridgeEntry() {
         <Button text onClick={handleOpenHistory}>
           Bridge Transaction History
         </Button>
-        {unclaimedTransactions.length ? (
-          <div
-            className="flex items-center rounded-lg px-2 py-1 cursor-pointer"
-            style={{
-              color: '#EBF479',
-              backgroundColor: 'rgba(235, 244, 121, 0.2)',
-            }}
-            onClick={() =>
-              unclaimedTransactions.length === 1
-                ? openBridgeTransactionStatusModal(unclaimedTransactions[0])
-                : handleOpenHistory()
-            }
-          >
-            <SvgIcon name="IconInfo" className="mr-2" />
-            {unclaimedTransactions.length} transactions to be claimed
-          </div>
-        ) : null}
       </div>
     </div>
   );

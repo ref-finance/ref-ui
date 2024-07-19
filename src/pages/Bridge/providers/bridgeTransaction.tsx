@@ -3,14 +3,15 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import BridgeTransactionStatusModal from '../components/BridgeTransactionStatus';
 import { useRoute, useRouter } from '../hooks/useRouter';
 import { toast } from 'react-toastify';
-import useBridge from '../hooks/useBridge';
-import bridgeHistoryService from '../services/history';
+import { BridgeTransferParams } from '../services/bridge';
+import { nearServices } from '../services/contract';
+import { storageStore } from '../utils/common';
 
 type Props = {
   openBridgeTransactionStatusModal: (
-    transaction: BridgeModel.BridgeTransaction
+    param: BridgeTransferParams,
+    hash: string
   ) => void;
-  unclaimedTransactions: BridgeModel.BridgeTransaction[];
 };
 
 const BridgeTransactionContext = createContext<Props>(null);
@@ -24,14 +25,6 @@ export default function BridgeTransactionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { setupRainbowBridge, unclaimedTransactions } = useBridge({
-    enableSubscribeUnclaimed: true,
-  });
-
-  useEffect(() => {
-    setupRainbowBridge();
-  }, [setupRainbowBridge]);
-
   const { query } = useRoute<{
     transactionHashes?: string;
     errorMessage?: string;
@@ -41,42 +34,59 @@ export default function BridgeTransactionProvider({
   const [isOpen, setIsOpen] = useState(false);
   function toggleOpen() {
     setIsOpen(!isOpen);
+    if (!isOpen) storageStore().remove('bridgeTransferParams');
   }
   function openBridgeTransactionStatusModal(
-    transaction: BridgeModel.BridgeTransaction
+    params: BridgeTransferParams,
+    hash: string
   ) {
-    setTransaction(transaction);
+    setTransaction({ params, hash });
     setIsOpen(true);
   }
 
   const [transaction, setTransaction] =
-    useState<BridgeModel.BridgeTransaction>();
+    useState<{ params: BridgeTransferParams; hash: string }>();
 
-  // useEffect(() => {
-  //   async function handleTransactionStatus() {
-  //     if (query.transactionHashes) {
-  //       const result = await bridgeHistoryService.getByHash(
-  //         query.transactionHashes
-  //       );
-  //       if (result) openBridgeTransactionStatusModal(result);
+  useEffect(() => {
+    async function handleTransactionStatus() {
+      if (query.transactionHashes) {
+        const txhash = query.transactionHashes.split(',');
+        const transactions = await Promise.all(
+          txhash.map(async (tx) => {
+            const res = await nearServices.getTransactionResult(tx);
+            return res;
+          })
+        );
+        const transaction = transactions.find(
+          (item) =>
+            item.transaction.receiver_id === 'aurora' &&
+            item.transaction.actions?.[0]?.FunctionCall?.method_name === 'call'
+        );
+        const tranferParams = storageStore().get<BridgeTransferParams>(
+          'bridgeTransferParams'
+        );
+        if (transaction?.transaction.hash && tranferParams)
+          openBridgeTransactionStatusModal(
+            tranferParams,
+            transaction?.transaction.hash
+          );
 
-  //       router.replace({ search: '' });
-  //     }
-  //     if (query.errorMessage) {
-  //       const errorMessage =
-  //         'Transaction Failed: ' + decodeURIComponent(query.errorMessage);
-  //       toast.error(errorMessage, {
-  //         theme: 'dark',
-  //       });
-  //       router.replace({ search: '' });
-  //     }
-  //   }
-  //   handleTransactionStatus();
-  // }, []);
+        router.replace({ search: '' });
+      }
+      if (query.errorMessage) {
+        const errorMessage =
+          'Transaction Failed: ' + decodeURIComponent(query.errorMessage);
+        toast.error(errorMessage, {
+          theme: 'dark',
+        });
+        router.replace({ search: '' });
+      }
+    }
+    handleTransactionStatus();
+  }, []);
 
   const exposes = {
     openBridgeTransactionStatusModal,
-    unclaimedTransactions,
   };
 
   return (
@@ -84,7 +94,7 @@ export default function BridgeTransactionProvider({
       {children}
       {transaction && (
         <BridgeTransactionStatusModal
-          transaction={transaction}
+          {...transaction}
           isOpen={isOpen}
           toggleOpenModal={toggleOpen}
         ></BridgeTransactionStatusModal>

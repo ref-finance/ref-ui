@@ -29,7 +29,10 @@ export default function useBridgeForm() {
     customAccountAddress: undefined,
   });
 
-  const [slippageTolerance, setSlippageTolerance] = useState(0.005);
+  const [slippageTolerance, setSlippageTolerance] = useStorageState(
+    'slippageTolerance',
+    0.005
+  );
 
   const [bridgeChannel, setBridgeChannel] =
     useState<BridgeModel.BridgeSupportChannel>();

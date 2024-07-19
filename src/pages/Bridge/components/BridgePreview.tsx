@@ -17,6 +17,8 @@ import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 import { useAutoResetState } from '../hooks/useHooks';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import Big from 'big.js';
+import { toast } from 'react-toastify';
+import { storageStore } from '../utils/common';
 
 export default function BridgePreviewModal({
   toggleOpenModal,
@@ -56,7 +58,7 @@ export default function BridgePreviewModal({
         .toString(),
       minimumReceived: formatAmount(
         channelInfoMap?.[bridgeChannel]?.minAmount,
-        bridgeFromValue.tokenMeta.decimals
+        bridgeFromValue.tokenMeta?.decimals
       ),
     }),
     [
@@ -71,7 +73,11 @@ export default function BridgePreviewModal({
   );
 
   async function handleTransfer() {
-    const result = await transfer({
+    if (new Big(channelInfoMap?.[bridgeChannel]?.minAmount || 0).eq(0)) {
+      toast.error(`Minimum Received is 0, can't transfer`);
+      return;
+    }
+    const params = {
       tokenIn: bridgeFromValue.tokenMeta,
       tokenOut: bridgeToValue.tokenMeta,
       amount: bridgeFromValue.amount,
@@ -81,8 +87,15 @@ export default function BridgePreviewModal({
       sender,
       channel: bridgeChannel,
       slippage: slippageTolerance,
+    };
+    storageStore().set('bridgeTransferParams', params);
+    const result = await transfer(params).catch((err) => {
+      console.error(err.message);
+      storageStore().remove('bridgeTransferParams');
     });
-    // openBridgeTransactionStatusModal(result);
+    if (typeof result === 'string') {
+      openBridgeTransactionStatusModal(params, result);
+    }
     toggleOpenModal();
   }
   return (

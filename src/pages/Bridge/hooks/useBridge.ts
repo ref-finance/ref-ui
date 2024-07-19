@@ -73,23 +73,21 @@ export default function useBridge(params?: {
   }, [params?.enableSubscribeUnclaimed]);
 
   async function transfer(params: BridgeTransferParams) {
-    setActionLoading(true);
-    await bridgeServices
-      .transfer({
+    try {
+      setActionLoading(true);
+      const res = await bridgeServices.transfer({
         ...params,
         nearWalletSelector: wallet.NEAR.isSignedIn
           ? wallet?.NEAR?.selector
           : undefined,
-      })
-      .then((res) => {
-        toast.success('Transaction Successful', { theme: 'dark' });
-        return res;
-      })
-      .catch((err) => {
-        console.error(err.message);
-        toast.error(err.message.substring(0, 100), { theme: 'dark' });
-      })
-      .finally(() => setActionLoading(false));
+      });
+      return res;
+    } catch (error) {
+      console.error(error.message);
+      toast.error(error.message.substring(0, 100), { theme: 'dark' });
+    } finally {
+      setActionLoading(false);
+    }
   }
   async function callAction(id: string) {
     setActionLoading(true);

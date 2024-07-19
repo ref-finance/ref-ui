@@ -22,8 +22,8 @@ const bridgeServices = {
     switch (params.channel) {
       case 'Stargate':
         return stargateBridgeService.transfer(params);
-      case 'Rainbow':
-        return rainbowBridgeService.transfer(params);
+      // case 'Rainbow':
+      //   return rainbowBridgeService.transfer(params);
       default:
         throw new Error('Unsupported bridge channel');
     }

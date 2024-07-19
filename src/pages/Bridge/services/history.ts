@@ -1,15 +1,16 @@
 import { capitalize } from 'lodash';
 import { generateUrl } from '../utils/common';
 import request from '../utils/request';
-import rainbowBridgeService from './bridge/rainbow';
+
+type QueryParams = {
+  onlyUnclaimed?: boolean;
+  hash?: string;
+  chain?: BridgeModel.BridgeSupportChain;
+  accountAddress: string;
+};
 
 const bridgeHistoryService = {
-  async query(params?: {
-    onlyUnclaimed?: boolean;
-    hash?: string;
-    chain?: BridgeModel.BridgeSupportChain;
-    accountAddress: string;
-  }) {
+  async query(params: QueryParams) {
     const { accountAddress: account_id, hash, chain } = params;
     const { data } = await request<{
       data: { list?: BridgeModel.BridgeHistory[]; total?: number };
@@ -68,8 +69,9 @@ const bridgeHistoryService = {
     // });
     return data;
   },
-  async getByHash(hash: string) {
-    return rainbowBridgeService.getByHash(hash);
+  async queryByHash(params: QueryParams) {
+    const res = await bridgeHistoryService.query(params);
+    return res?.list?.[0];
   },
 };
 
