@@ -8,6 +8,7 @@ import {
   USDTT_USDCC_USDT_USDC_POOL_ID,
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
+  USDCW_POOL_ID,
 } from 'src/services/near';
 import _, { find } from 'lodash';
 import { FormattedMessage } from 'react-intl';
@@ -355,7 +356,8 @@ function StablePoolCard({
   const is_new_pool =
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
-    poolData.pool.id == FRAX_USDC_POOL_ID;
+    poolData.pool.id == FRAX_USDC_POOL_ID ||
+    poolData.pool.id == USDCW_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -782,7 +784,7 @@ function TokenChart({
     return {
       name: token.symbol,
       value: Number(coinsAmounts[token.id]),
-      token: token,
+      token,
       displayV: tokensData[token.id].display2,
     };
   });
@@ -824,9 +826,9 @@ function TokenChart({
     USDt: '#0E8585',
   };
 
-  let innerRadius = 30;
-  let outerRadius = 40;
-  let width = 80;
+  const innerRadius = 30;
+  const outerRadius = 40;
+  const width = 80;
 
   const renderActiveShape = (props: any) => {
     const RADIAN = Math.PI / 180;
@@ -909,7 +911,7 @@ const calculateTokenValueAndShare = (
   coinsAmounts: { [id: string]: BigNumber },
   tokensMap: { [id: string]: TokenMetadata }
 ): Record<string, any> => {
-  let result: Record<string, any> = {};
+  const result: Record<string, any> = {};
   const totalShares = _.sumBy(Object.values(coinsAmounts), (o) => Number(o));
 
   let otherTokenNumber = '0';

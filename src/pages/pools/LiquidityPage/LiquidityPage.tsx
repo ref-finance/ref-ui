@@ -59,6 +59,7 @@ import {
   USDTT_USDCC_USDT_USDC_POOL_ID,
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
+  USDCW_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -158,6 +159,7 @@ import {
 } from './constLiquidityPage';
 import { useRiskTokens } from '../../../state/token';
 import { format_apy } from '../../../utils/uiNumber';
+import { USDCWIcon } from 'src/components/icon/Common';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -2313,6 +2315,7 @@ function TokenChart({
     'USDC.e': '#2B6EB7',
     USDC: '#2FA7DB',
     USDt: '#45D0C0',
+    'USD Coin': '#2FA7DB',
   };
 
   const colorLight = {
@@ -2332,6 +2335,7 @@ function TokenChart({
     NearXC: '#4d5971',
     NearX: '#00676D',
     USDt: '#0E8585',
+    'USD Coin': 'rgba(0, 163, 255, 1)',
   };
 
   const innerRadius = 30;
@@ -2450,11 +2454,15 @@ const RenderDisplayTokensAmounts = ({
               }`}
             >
               <span className="mr-1.5 flex-shrink-0">
-                <img
-                  src={token.icon}
-                  alt=""
-                  className="w-4 h-4 border border-gradientFrom rounded-full flex-1 flex-shrink-0"
-                />
+                {token.id == '16.contract.portalbridge.near' ? (
+                  <USDCWIcon className="w-4 h-4 border border-gradientFrom rounded-full flex-1 flex-shrink-0" />
+                ) : (
+                  <img
+                    src={token.icon}
+                    alt=""
+                    className="w-4 h-4 border border-gradientFrom rounded-full flex-1 flex-shrink-0"
+                  />
+                )}
               </span>
 
               <span
@@ -2537,7 +2545,8 @@ function StablePoolCard({
   const is_new_pool =
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
-    poolData.pool.id == FRAX_USDC_POOL_ID;
+    poolData.pool.id == FRAX_USDC_POOL_ID ||
+    poolData.pool.id == USDCW_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -2886,6 +2895,7 @@ function StablePoolList({
   const [clicked, setClicked] = useState<boolean>(false);
 
   let allStablePoolData = useAllStablePoolData();
+  console.log(allStablePoolData);
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
   allStablePoolData = _.filter(allStablePoolData, (pool) =>
@@ -2906,7 +2916,12 @@ function StablePoolList({
 
     return b1 && b2;
   };
-  const pinned_pool_ids = [USDTT_USDCC_USDT_USDC_POOL_ID, FRAX_USDC_POOL_ID];
+  const pinned_pool_ids = [
+    USDTT_USDCC_USDT_USDC_POOL_ID,
+    FRAX_USDC_POOL_ID,
+    USDCW_POOL_ID,
+  ];
+
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
     const v1 = Number(p1?.poolTVL?.toString() || 0);
     const v2 = Number(p2?.poolTVL?.toString() || 0);
@@ -2931,8 +2946,26 @@ function StablePoolList({
     const is_p1_sort_top = pinned_pool_ids.includes(p1.pool.id);
     const is_p2_sort_top = pinned_pool_ids.includes(p2.pool.id);
 
+    const p1_pinned_index = is_p1_sort_top
+      ? pinned_pool_ids.indexOf(p1.pool.id)
+      : p1.pool.id === USDCW_POOL_ID
+      ? 2
+      : Number.MAX_SAFE_INTEGER;
+    const p2_pinned_index = is_p2_sort_top
+      ? pinned_pool_ids.indexOf(p2.pool.id)
+      : p2.pool.id === USDCW_POOL_ID
+      ? 2
+      : Number.MAX_SAFE_INTEGER;
+
+    if (is_p1_sort_top && is_p2_sort_top) {
+      return p1_pinned_index - p2_pinned_index;
+    }
+
     if (is_p1_sort_top) return -1;
     if (is_p2_sort_top) return 1;
+
+    if (p1_pinned_index === 2) return -1;
+    if (p2_pinned_index === 2) return 1;
 
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
