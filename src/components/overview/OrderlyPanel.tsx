@@ -250,7 +250,7 @@ function validContract() {
 }
 export default function OrderlyPanelContainer() {
   const { is_mobile } = useContext(OverviewData);
-  const disbaledWallet = ['okx-wallet'];
+  const disbaledWallet = ['okx-wallet', 'wallet-connect'];
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
   const isBlock = disbaledWallet.includes(selectedWalletId);
   if (isBlock)

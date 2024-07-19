@@ -511,6 +511,18 @@ class RefDatabase extends Dexie {
       )
     );
   }
+  public async checkPoolsTokens() {
+    const items = await this.poolsTokens.limit(10).toArray();
+    return (
+      items.length > 0 &&
+      items.every(
+        (item) =>
+          Number(item.update_time) >=
+          Number(moment().unix()) -
+            Number(getConfig().TOP_POOLS_TOKEN_REFRESH_INTERVAL)
+      )
+    );
+  }
 
   public async queryTopPools() {
     const pools = await this.topPools.toArray();

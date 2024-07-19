@@ -1,5 +1,5 @@
 import { TokenMetadata, ftGetStorageBalance } from './ft-contract';
-
+import moment from 'moment';
 import { utils } from 'near-api-js';
 
 import {
@@ -1623,8 +1623,23 @@ export const listPools = async () => {
 
 export const cacheAllDCLPools = async () => {
   const pools = await listPools();
-
-  localStorage.setItem(REF_DCL_POOL_CACHE_KEY, JSON.stringify(pools));
+  const pools_latest = pools.map((p) => {
+    return {
+      ...p,
+      update_time: moment().unix(),
+    };
+  });
+  localStorage.setItem(REF_DCL_POOL_CACHE_KEY, JSON.stringify(pools_latest));
+};
+export const checkCacheDCLPools = () => {
+  const cachedPools = localStorage.getItem(REF_DCL_POOL_CACHE_KEY);
+  if (cachedPools) {
+    const pools = JSON.parse(cachedPools);
+    return (
+      Number(pools[0]?.update_time || 0) > Number(moment().unix() - Number(60))
+    );
+  }
+  return false;
 };
 
 export interface UserStorageDetail {
