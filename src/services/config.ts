@@ -374,6 +374,7 @@ export default function getConfig(
           'usdc.fakes.testnet': 1,
           'dai.fakes.testnet': 2,
         },
+
         TOTAL_PLATFORM_FEE_REVENUE:
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
         CUMULATIVE_REF_BUYBACK:
@@ -404,6 +405,11 @@ export default function getConfig(
           '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
           'usdt.fakes.testnet',
           'usdc.fakes.testnet',
+        ],
+        USDCW_POOL_ID: process.env.USDCW_POOL_ID || 5219,
+        USDCW_TOKEN_IDS: [
+          '16.contract.portalbridge.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
         FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID,
@@ -822,7 +828,7 @@ export function getExtraStablePoolConfig(
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1843'],
+        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1843', '5219'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdtt.fakes.testnet': 0,
           '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 1,
@@ -831,6 +837,10 @@ export function getExtraStablePoolConfig(
         },
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
+        USDCW_TOKEN_INDEX: {
+          '16.contract.portalbridge.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
       };
     case 'testnet':
       return {
