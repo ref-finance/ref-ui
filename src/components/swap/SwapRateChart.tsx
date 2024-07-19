@@ -32,7 +32,11 @@ import { OrderlyLoading } from '../../pages/Orderly/components/Common/Icons';
 import { numberWithCommas } from '../../pages/Orderly/utiles';
 import { useClientMobile } from '../../utils/device';
 import { SwapProContext } from '../../pages/SwapPage';
-import { scientificNotationToString, toPrecision } from '../../utils/numbers';
+import {
+  scientificNotationToString,
+  toPrecision,
+  toInternationalCurrencySystemLongString,
+} from '../../utils/numbers';
 import Big from 'big.js';
 import { toRealSymbol } from '../../utils/token';
 import SwapProTab from './SwapProTab';
@@ -44,6 +48,9 @@ export interface SwapRateChartProps {
 type Dimensions = '24H' | '7D' | '1M' | '1Y' | 'All';
 
 const priceFormatter = (price: string | number) => {
+  if (Number(price) >= 1000000) {
+    return toInternationalCurrencySystemLongString(price.toString());
+  }
   return numberWithCommas(
     Number(price) === 0
       ? 0

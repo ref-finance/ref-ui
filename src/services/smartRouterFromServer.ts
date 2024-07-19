@@ -1,12 +1,18 @@
 import Big from 'big.js';
+import db from '../store/RefDatabase';
 import {
   toNonDivisibleNumber,
   scientificNotationToString,
   calculateMarketPrice,
 } from '../utils/numbers';
 import { TokenMetadata, ftGetTokenMetadata } from './ft-contract';
-import { getAllPoolsByTokens, getAllStablePoolsFromCache, Pool } from './pool';
+import {
+  getAllPoolsByTokens,
+  getAllStablePoolsFromCacheForServer,
+  Pool,
+} from './pool';
 import { isStablePool } from '../services/near';
+import { getTokenPriceList } from '../services/indexer';
 export interface IEstimateSwapServerView {
   amount_in: string;
   amount_out: string;
@@ -92,8 +98,13 @@ export async function getAvgFeeFromServer({
   });
   setAvgFee(avgFee);
 }
-export async function getUsedPools(routes: IServerRoute[]) {
-  const { topPools, stablePools } = await getAllPoolsFromCache();
+export async function getUsedPools(
+  routes: IServerRoute[],
+  needCheckExpiration?: boolean
+) {
+  const { topPools, stablePools } = await getAllPoolsFromCache(
+    needCheckExpiration
+  );
   const pools: Record<string, Pool> = {};
   routes.forEach((route) => {
     route.pools.forEach((cur) => {
@@ -132,9 +143,11 @@ export async function getTokensOfRoute(route: IServerRoute) {
   const tokens = await Promise.all(pending);
   return tokens as TokenMetadata[];
 }
-export async function getAllPoolsFromCache() {
-  const { filteredPools: topPools } = await getAllPoolsByTokens();
-  const { allStablePools } = await getAllStablePoolsFromCache();
+export async function getAllPoolsFromCache(needCheckExpiration?: boolean) {
+  const { filteredPools: topPools } = await getAllPoolsByTokens(
+    needCheckExpiration
+  );
+  const { allStablePools } = await getAllStablePoolsFromCacheForServer();
   const topPoolsMap = topPools.reduce((acc, p) => {
     acc[p.id] = p;
     return acc;
@@ -224,3 +237,19 @@ export async function getPriceImpactFromServer({
     setPriceImpactValue('0');
   }
 }
+export const getTokenPriceListFromCacheForServer = async () => {
+  let prices;
+  prices = await db.queryTokenPrices();
+  const validCache = await db.checkTokenPrices();
+  if (!prices?.length || !validCache) {
+    prices = await getTokenPriceList();
+    db.cacheTokenPrices(prices);
+  }
+  const map = prices?.reduce((acc, cur) => {
+    return {
+      ...acc,
+      [cur.id]: cur,
+    };
+  }, {});
+  return map || {};
+};

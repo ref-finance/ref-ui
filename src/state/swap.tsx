@@ -48,6 +48,7 @@ import {
 } from '../services/swap';
 import { EstimateSwapView, swap, swapFromServer } from '../services/swap';
 import {
+  cacheAllDCLPools,
   get_pool,
   PoolInfo,
   quote,
@@ -76,6 +77,7 @@ import {
   IEstimateSwapServerView,
   getAvgFeeFromServer,
   getPriceImpactFromServer,
+  getAllPoolsFromCache,
 } from '../services/smartRouterFromServer';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -607,7 +609,9 @@ export const useSwap = ({
         setTag(`${tokenIn?.id}|${tokenOut?.id}|${tokenInAmount}`);
       });
   };
-
+  useEffect(() => {
+    getAllPoolsFromCache(true);
+  }, []);
   useEffect(() => {
     if (
       tokenIn?.id &&
@@ -807,6 +811,9 @@ export const useSwapV3 = ({
   const bestFee = bestEstimate?.tag?.split('|')?.[1]
     ? Number(bestEstimate?.tag?.split('|')?.[1])
     : null;
+  useEffect(() => {
+    cacheAllDCLPools();
+  }, []);
   useEffect(() => {
     if (!bestFee || wrapOperation) return;
 
