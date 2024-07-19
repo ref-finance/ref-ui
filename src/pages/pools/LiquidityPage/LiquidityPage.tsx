@@ -2316,6 +2316,7 @@ function TokenChart({
     USDC: '#2FA7DB',
     USDt: '#45D0C0',
     'USD Coin': '#2FA7DB',
+    'USDC.w': '#2B6EB7',
   };
 
   const colorLight = {
