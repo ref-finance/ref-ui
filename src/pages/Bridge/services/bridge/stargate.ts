@@ -185,9 +185,10 @@ const stargateBridgeService = {
       messagingFee.nativeFee,
       chainId
     );
+    logger.log('discountPools', discountPools.toString());
     logger.log('calculateDiscount', calculateDiscount.toString());
 
-    const discounted = discountPools.gte(calculateDiscount);
+    const discounted = discountPools.gt(calculateDiscount);
     logger.log('discounted', discounted);
     stargateBridgeService.cacheDiscount[params.tokenIn.symbol] = { discounted };
     return { discounted };
