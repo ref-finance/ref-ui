@@ -60,10 +60,12 @@ const stargateBridgeService = {
       const feeAmount = discounted
         ? discountedFeeUSD.toString()
         : fullFeeUSD.toString();
+      logger.log('feeAmount', feeAmount);
       const readableFeeAmount = formatAmount(
         feeAmount,
         params.tokenIn.decimals
       );
+      logger.log('readableFeeAmount', readableFeeAmount);
       const usdFee = readableFeeAmount;
       if (Number(params.amount) < Number(readableFeeAmount))
         return {

@@ -108,8 +108,18 @@ export default function useBridgeForm() {
     ]
   );
 
-  const { data: estimatedGasFee = '0' } = useRequest(() =>
-    evmServices.calculateGasInUSD('336847')
+  const { data: estimatedGasFee = '0' } = useRequest(
+    async () =>
+      bridgeToValue.chain === 'NEAR'
+        ? evmServices.calculateGasInUSD('336847')
+        : '0',
+    {
+      refreshDeps: [
+        bridgeFromValue.chain,
+        bridgeToValue.chain,
+        bridgeFromValue.amount,
+      ],
+    }
   );
 
   const { data: channelInfoMap, loading: channelInfoMapLoading } = useRequest(
