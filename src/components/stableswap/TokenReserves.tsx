@@ -85,6 +85,7 @@ function TokenChart({
     'USDC.e': '#2B6EB7',
     USDC: '#2FA7DB',
     USDt: '#45D0C0',
+    'USDC.w': '#2B6EB7',
   };
 
   const noBorderTokens = ['LINEAR', 'USDt'];
