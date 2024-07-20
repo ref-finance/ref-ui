@@ -2896,7 +2896,6 @@ function StablePoolList({
   const [clicked, setClicked] = useState<boolean>(false);
 
   let allStablePoolData = useAllStablePoolData();
-  console.log(allStablePoolData);
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
   allStablePoolData = _.filter(allStablePoolData, (pool) =>
