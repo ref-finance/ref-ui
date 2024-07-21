@@ -138,3 +138,8 @@ const AssetsCDN = 'https://assets.deltatrade.ai';
 export function formatFileUrl(key: string) {
   return `${AssetsCDN}/assets${key}`;
 }
+
+export function formatChainIcon(chain: BridgeModel.BridgeSupportChain) {
+  const _chain = chain === 'Aurora' ? 'NEAR' : chain;
+  return formatFileUrl(`/chain/${_chain.toLowerCase()}.svg`);
+}

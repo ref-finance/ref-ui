@@ -20,7 +20,6 @@ import { Optional, Transaction } from '@near-wallet-selector/core';
 import { BridgeConfig } from '../../config';
 import { getTokenMeta } from '../../utils/token';
 import Big from 'big.js';
-import { toast } from 'react-toastify';
 
 const stargateBridgeService = {
   auroraReceiveContract: null as any,
@@ -236,6 +235,7 @@ const stargateBridgeService = {
       const sendContract = await evmServices.getEvmContract(
         BridgeConfig.Stargate.bridgeParams[from].send,
         StargateAbi,
+        'view',
         from
       );
 
@@ -363,7 +363,8 @@ const stargateBridgeService = {
 
     const stargatePoolContract = await evmServices.getEvmContract(
       poolAddress,
-      StargatePoolAbi
+      StargatePoolAbi,
+      'call'
     );
     const tx = await stargatePoolContract.send(
       sendParam,

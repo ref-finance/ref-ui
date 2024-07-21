@@ -4,7 +4,11 @@ import Modal from 'react-modal';
 import SvgIcon from './SvgIcon';
 import Button from './Button';
 import { useRouter } from '../hooks/useRouter';
-import { formatFileUrl, formatTxExplorerUrl } from '../utils/format';
+import {
+  formatChainIcon,
+  formatFileUrl,
+  formatTxExplorerUrl,
+} from '../utils/format';
 import { BridgeConfig } from '../config';
 import moment from 'moment';
 import { BridgeTransferParams } from '../services/bridge';
@@ -93,9 +97,7 @@ export default function BridgeTransactionStatusModal({
           </div>
           <div className="flex items-center justify-center my-8 gap-2">
             <img
-              src={formatFileUrl(
-                `/chain/${transaction.from_chain.toLowerCase()}.svg`
-              )}
+              src={formatChainIcon(transaction.from_chain)}
               className="w-7 h-7"
             />
             <div className="bridge-status-process">
@@ -109,9 +111,7 @@ export default function BridgeTransactionStatusModal({
               )}
             </div>
             <img
-              src={formatFileUrl(
-                `/chain/${transaction.to_chain.toLowerCase()}.svg`
-              )}
+              src={formatChainIcon(transaction.to_chain)}
               className="w-7 h-7"
             />
           </div>

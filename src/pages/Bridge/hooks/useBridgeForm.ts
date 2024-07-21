@@ -322,8 +322,11 @@ export default function useBridgeForm() {
     type: 'from' | 'to',
     chain: BridgeModel.BridgeSupportChain
   ) {
-    const { chain: oldFromChain, tokenMeta: oldFromTokenMeta } =
-      bridgeFromValue;
+    const {
+      chain: oldFromChain,
+      tokenMeta: oldFromTokenMeta,
+      amount,
+    } = bridgeFromValue;
     const { chain: oldToChain, tokenMeta: oldToTokenMeta } = bridgeToValue;
     if (type === 'from') {
       if (oldToChain === chain) exchangeChain(true);
@@ -331,42 +334,41 @@ export default function useBridgeForm() {
         setBridgeFromValue({
           chain,
           tokenMeta: oldFromTokenMeta,
-          amount: undefined,
+          amount,
         });
         setBridgeToValue({
           chain: chain === 'NEAR' ? SupportChains[0] : 'NEAR',
           tokenMeta: oldToTokenMeta,
-          amount: undefined,
-          isCustomAccountAddress: false,
-          customAccountAddress: undefined,
         });
       }
     } else {
       if (oldFromChain === chain) exchangeChain(true);
       else {
-        setBridgeToValue({
-          chain,
-          tokenMeta: oldToTokenMeta,
-          amount: undefined,
-          isCustomAccountAddress: false,
-          customAccountAddress: undefined,
-        });
         setBridgeFromValue({
           chain: chain === 'NEAR' ? SupportChains[0] : 'NEAR',
           tokenMeta: oldFromTokenMeta,
-          amount: undefined,
+          amount,
+        });
+        setBridgeToValue({
+          chain,
+          tokenMeta: oldToTokenMeta,
         });
       }
     }
   }
 
   function exchangeChain(restToken?: boolean) {
-    const { chain: fromChain, tokenMeta: fromTokenMeta } = bridgeFromValue;
+    const {
+      chain: fromChain,
+      tokenMeta: fromTokenMeta,
+      amount,
+    } = bridgeFromValue;
     const { chain: toChain, tokenMeta: toTokenMeta } = bridgeToValue;
 
     const fromValue = {
       chain: toChain,
       tokenMeta: toTokenMeta,
+      amount,
     };
     const toValue = {
       chain: fromChain,

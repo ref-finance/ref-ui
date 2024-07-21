@@ -4,7 +4,12 @@ import Modal from 'react-modal';
 import Button from './Button';
 import SvgIcon from './SvgIcon';
 import { useRequest } from '../hooks/useHooks';
-import { formatChainName, formatFileUrl, formatNumber } from '../utils/format';
+import {
+  formatChainIcon,
+  formatChainName,
+  formatFileUrl,
+  formatNumber,
+} from '../utils/format';
 import { tokenServices } from '../services/contract';
 import { getTokenMeta } from '../utils/token';
 import { BridgeTokenSortRule } from '../config';
@@ -219,7 +224,7 @@ function TokenSelectorItem({
             src={displayToken.icon}
           />
           <img
-            src={formatFileUrl(`/chain/${chain.toLowerCase()}.svg`)}
+            src={formatChainIcon(chain)}
             className="absolute right-0 bottom-0 w-3.5 h-3.5"
           />
         </div>

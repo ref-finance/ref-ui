@@ -38,11 +38,13 @@ function InputToken({
   const [isInputFocus, setIsInputFocus] = useState(false);
 
   function handleAllAmount() {
-    !inputReadonly &&
+    if (!inputReadonly) {
+      const amount = new Big(balance).round(8, Big.roundDown).toString();
       onChange?.({
         ...model,
-        amount: balance,
+        amount,
       });
+    }
   }
 
   return (

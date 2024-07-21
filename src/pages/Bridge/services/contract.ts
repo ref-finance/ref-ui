@@ -36,16 +36,18 @@ export const evmServices = {
   async getEvmContract(
     address: string,
     contractInterface: ethers.ContractInterface,
-    chain?
+    type?: 'view' | 'call',
+    chain?: BridgeModel.BridgeSupportChain
   ) {
-    const signer = await window.ethWeb3Provider?.getSigner();
-    if (signer) {
+    if (type == 'call') {
+      const signer = await window.ethWeb3Provider?.getSigner();
       return new ethers.Contract(address, contractInterface, signer);
+    } else {
+      const provider = new ethers.providers.JsonRpcProvider(
+        EVMConfig.chains.find((v) => v.label === chain)?.rpcUrl
+      );
+      return new ethers.Contract(address, contractInterface, provider);
     }
-    const provider = new ethers.providers.JsonRpcProvider(
-      EVMConfig.chains.find((v) => v.label === chain)?.rpcUrl
-    );
-    return new ethers.Contract(address, contractInterface, provider);
   },
   async checkErc20Approve({
     token,
@@ -58,7 +60,11 @@ export const evmServices = {
     owner: string;
     spender: string;
   }) {
-    const erc20Contract = await evmServices.getEvmContract(token, erc20Abi);
+    const erc20Contract = await evmServices.getEvmContract(
+      token,
+      erc20Abi,
+      'call'
+    );
     const allowance = await erc20Contract.allowance(owner, spender);
     const decimals = await erc20Contract.decimals();
     const amountIn = new Big(amount).times(10 ** decimals).toFixed();

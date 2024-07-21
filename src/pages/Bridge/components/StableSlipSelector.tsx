@@ -24,15 +24,19 @@ function SlippageSelector({
   const symbolsArr = ['e', 'E', '+', '-'];
 
   const showStatus = useMemo(() => {
-    if (innerValue > 0 && innerValue <= 1) return 'normal';
+    if (innerValue >= 0.1 && innerValue <= 1) return 'normal';
     else if (innerValue > 1 && innerValue < 100) return 'warn';
     else return 'invalid';
   }, [innerValue]);
 
+  function validateSlippage(value: number) {
+    if (value >= 0.1 && value < 100) return true;
+    return false;
+  }
+
   const handleChange = (amount: string | number) => {
     setInnerValue(Number(amount));
-    if (showStatus === 'invalid') return;
-    onChange(Number(amount));
+    validateSlippage(Number(amount)) && onChange(Number(amount));
   };
 
   useEffect(() => {

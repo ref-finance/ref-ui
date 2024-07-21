@@ -61,12 +61,10 @@ function CustomAccountAddress() {
   );
 
   useEffect(() => {
-    if (isValidCustomAddress) {
-      setBridgeToValue({
-        ...bridgeToValue,
-        customAccountAddress,
-      });
-    }
+    setBridgeToValue({
+      ...bridgeToValue,
+      customAccountAddress: isValidCustomAddress ? customAccountAddress : '',
+    });
   }, [isValidCustomAddress, customAccountAddress]);
 
   function handlePasteAddress() {
@@ -225,23 +223,7 @@ function BridgeEntry() {
         </InputToken>
         <CustomAccountAddress />
         <BridgeRoutes />
-        {['unConnectForm', 'unConnectTo'].includes(bridgeSubmitStatus) ? (
-          <ConnectWallet
-            hideChainSelector
-            buttonProps={{
-              type: 'primary',
-              size: 'large',
-              className: 'w-full',
-              loading: channelInfoMapLoading,
-            }}
-            currentChain={
-              bridgeSubmitStatus === 'unConnectForm'
-                ? bridgeFromValue.chain
-                : bridgeToValue.chain
-            }
-            connectPlaceholder={bridgeSubmitStatusText}
-          />
-        ) : (
+        {
           <Button
             type="primary"
             loading={channelInfoMapLoading}
@@ -254,7 +236,7 @@ function BridgeEntry() {
           >
             {bridgeSubmitStatusText}
           </Button>
-        )}
+        }
       </form>
       <div className="mt-4 flex items-center justify-between">
         <Button text onClick={handleOpenHistory}>

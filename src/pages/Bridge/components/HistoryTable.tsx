@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import SvgIcon from './SvgIcon';
 import {
   formatAmount,
+  formatChainIcon,
   formatFileUrl,
   formatSortAddress,
   formatTimestamp,
@@ -44,16 +45,12 @@ function TableItem({
       <td>
         <div className="flex items-center gap-2">
           <img
-            src={formatFileUrl(
-              `/chain/${transaction.from_chain.toLowerCase()}.svg`
-            )}
+            src={formatChainIcon(transaction.from_chain)}
             className="w-7 h-7"
           />
           <SvgIcon name="IconDirection" />
           <img
-            src={formatFileUrl(
-              `/chain/${transaction.to_chain.toLowerCase()}.svg`
-            )}
+            src={formatChainIcon(transaction.to_chain)}
             className="w-7 h-7"
           />
         </div>
