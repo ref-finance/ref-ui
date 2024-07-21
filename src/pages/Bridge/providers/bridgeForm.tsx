@@ -37,7 +37,6 @@ export default function BridgeFormProvider({
     setPreviewModalOpen(!previewModalOpen);
   }
   function openPreviewModal() {
-    console.log('openPreviewModal');
     setPreviewModalOpen(true);
   }
 

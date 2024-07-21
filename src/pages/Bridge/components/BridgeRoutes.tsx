@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Modal from 'react-modal';
 
 import Button from './Button';
@@ -144,9 +144,16 @@ function BridgeRoutes() {
     bridgeChannel,
     setBridgeChannel,
     supportBridgeChannels,
+    channelInfoMapLoading,
   } = useBridgeFormContext();
 
-  const hasAmount = bridgeFromValue.amount && bridgeFromValue.amount !== '0';
+  const showRoute = useMemo(
+    () =>
+      !channelInfoMapLoading &&
+      bridgeFromValue.amount &&
+      bridgeFromValue.amount !== '0',
+    [channelInfoMapLoading, bridgeFromValue.amount]
+  );
 
   useEffect(() => {
     if (!supportBridgeChannels.includes(bridgeChannel)) {
@@ -165,7 +172,7 @@ function BridgeRoutes() {
             text
             onClick={toggleOpenModal}
           >
-            {hasAmount
+            {showRoute
               ? `${supportBridgeChannels.length} Route${
                   supportBridgeChannels.length > 1 ? 's' : ''
                 } 
@@ -177,7 +184,7 @@ function BridgeRoutes() {
             />
           </Button>
         </div>
-        {hasAmount && supportBridgeChannels.length > 0 && (
+        {showRoute && supportBridgeChannels.length > 0 && (
           <BridgeRouteItem channel={bridgeChannel} className="mt-4" />
         )}
       </div>

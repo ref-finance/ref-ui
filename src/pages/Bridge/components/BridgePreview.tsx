@@ -93,6 +93,7 @@ export default function BridgePreviewModal({
       console.error(err.message);
       storageStore().remove('bridgeTransferParams');
     });
+
     if (typeof result === 'string') {
       openBridgeTransactionStatusModal(params, result);
     }

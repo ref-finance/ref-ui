@@ -1,6 +1,7 @@
 import Big from 'big.js';
 import moment from 'moment';
 import { EVMConfig, NearConfig } from '../config';
+import { capitalize } from 'lodash';
 
 export function formatTimestamp(timestamp: string | number | Date) {
   return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
@@ -112,16 +113,12 @@ export function formatTxExplorerUrl(
 ) {
   const _chain = chain.toLowerCase();
   switch (_chain) {
-    case 'ethereum':
-      return `${EVMConfig.Ethereum.explorerUrl}/tx/${hash}`;
-    case 'arbitrum':
-      return `${EVMConfig.Arbitrum.explorerUrl}/tx/${hash}`;
     case 'aurora':
       return `${EVMConfig.Aurora.explorerUrl}/tx/${hash}`;
     case 'near':
       return `${NearConfig.explorerUrl}/tx/${hash}`;
     default:
-      return '';
+      return `${EVMConfig[capitalize(_chain)]?.explorerUrl}/tx/${hash}`;
   }
 }
 

@@ -266,7 +266,7 @@ export const nearServices = {
   },
 
   async sendTransaction(params: TransactionParams) {
-    if (!window.nearWallet) throw new Error('Wallet not found');
+    if (!window.nearWallet) throw new Error('Please connect wallet');
     const res = await window.nearWallet.signAndSendTransaction(
       (
         await this.transformTransactionActions([params])
@@ -282,7 +282,7 @@ export const nearServices = {
   },
 
   async sendTransactions(params: TransactionParams[]) {
-    if (!window.nearWallet) throw new Error('Wallet not found');
+    if (!window.nearWallet) throw new Error('Please connect wallet');
 
     const res = await window.nearWallet.signAndSendTransactions({
       transactions: await this.transformTransactionActions(params),
@@ -404,16 +404,16 @@ export const nearServices = {
     }
   },
 
-  async checkFTStorageBalance(FTContractId: string) {
+  async checkFTStorageBalance(FTContractId: string, accountId?: string) {
     if (!window.selector) throw new Error('Wallet Selector not found');
-    const accountId = this.getNearAccountId();
+    const account_id = accountId || nearServices.getNearAccountId();
     const res = await nearServices.query<{
       available: string;
       total: string;
     }>({
       contractId: FTContractId,
       method: 'storage_balance_of',
-      args: { account_id: accountId },
+      args: { account_id },
     });
     if (!res?.available) {
       return {
@@ -422,7 +422,7 @@ export const nearServices = {
           {
             method: 'storage_deposit',
             args: {
-              account_id: nearServices.getNearAccountId(),
+              account_id,
               registration_only: true,
             },
             deposit: STORAGE_DEPOSIT_FEE,

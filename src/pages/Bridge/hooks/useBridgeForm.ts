@@ -96,17 +96,15 @@ export default function useBridgeForm() {
     [getWallet(bridgeFromValue.chain)?.accountId]
   );
 
-  const toAccountAddress = useMemo(
-    () =>
-      bridgeToValue.isCustomAccountAddress
-        ? bridgeToValue.customAccountAddress
-        : getWallet(bridgeToValue.chain)?.accountId,
-    [
-      getWallet(bridgeToValue.chain)?.accountId,
-      bridgeToValue.isCustomAccountAddress,
-      bridgeToValue.customAccountAddress,
-    ]
-  );
+  const toAccountAddress = useMemo(() => {
+    return bridgeToValue.isCustomAccountAddress
+      ? bridgeToValue.customAccountAddress
+      : getWallet(bridgeToValue.chain)?.accountId;
+  }, [
+    getWallet(bridgeToValue.chain)?.accountId,
+    bridgeToValue.isCustomAccountAddress,
+    bridgeToValue.customAccountAddress,
+  ]);
 
   const { data: estimatedGasFee = '0' } = useRequest(
     async () =>
@@ -122,7 +120,11 @@ export default function useBridgeForm() {
     }
   );
 
-  const { data: channelInfoMap, loading: channelInfoMapLoading } = useRequest(
+  const {
+    data: channelInfoMap,
+    loading: channelInfoMapLoading,
+    run: refreshChannelInfoMap,
+  } = useRequest(
     async () => {
       const result = {} as Record<
         BridgeModel.BridgeSupportChannel,
@@ -404,6 +406,7 @@ export default function useBridgeForm() {
     estimatedGasFee,
     channelInfoMap,
     channelInfoMapLoading,
+    refreshChannelInfoMap,
     fromAccountAddress,
     toAccountAddress,
   };
