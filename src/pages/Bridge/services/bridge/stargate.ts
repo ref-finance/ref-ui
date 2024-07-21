@@ -60,10 +60,12 @@ const stargateBridgeService = {
       const feeAmount = discounted
         ? discountedFeeUSD.toString()
         : fullFeeUSD.toString();
+      logger.log('feeAmount', feeAmount);
       const readableFeeAmount = formatAmount(
         feeAmount,
         params.tokenIn.decimals
       );
+      logger.log('readableFeeAmount', readableFeeAmount);
       const usdFee = readableFeeAmount;
       if (Number(params.amount) < Number(readableFeeAmount))
         return {
@@ -142,13 +144,15 @@ const stargateBridgeService = {
       };
     }
   },
+  //cacheFeeUSD key fromChain_toChain_symbol
   cacheFeeUSD: {} as Record<
     string,
     { discountedFeeUSD: string; fullFeeUSD: string } | undefined
   >,
   async queryFeeUSD(params: BridgeTransferParams) {
-    if (stargateBridgeService.cacheFeeUSD[params.tokenIn.symbol])
-      return stargateBridgeService.cacheFeeUSD[params.tokenIn.symbol];
+    const cacheKey = `${params.from}_${params.to}_${params.tokenIn.symbol}`;
+    if (stargateBridgeService.cacheFeeUSD[cacheKey])
+      return stargateBridgeService.cacheFeeUSD[cacheKey];
     const { messagingFee } =
       await stargateBridgeService.prepareTakeTaxiStargate(params);
     const sendContract =
@@ -160,16 +164,18 @@ const stargateBridgeService = {
     );
     logger.log('discountedFeeUSD', discountedFeeUSD.toString());
     logger.log('fullFeeUSD', fullFeeUSD.toString());
-    stargateBridgeService.cacheFeeUSD[params.tokenIn.symbol] = {
+    stargateBridgeService.cacheFeeUSD[cacheKey] = {
       discountedFeeUSD,
       fullFeeUSD,
     };
     return { discountedFeeUSD, fullFeeUSD };
   },
+  //cacheDiscount key fromChain_toChain_symbol
   cacheDiscount: {} as Record<string, { discounted: boolean }>,
   async queryDiscount(params: BridgeTransferParams) {
-    if (stargateBridgeService.cacheDiscount[params.tokenIn.symbol])
-      return stargateBridgeService.cacheDiscount[params.tokenIn.symbol];
+    const cacheKey = `${params.from}_${params.to}_${params.tokenIn.symbol}`;
+    if (stargateBridgeService.cacheDiscount[cacheKey])
+      return stargateBridgeService.cacheDiscount[cacheKey];
 
     const chainId = BridgeConfig.Stargate.bridgeParams[params.to].eid;
     const sendContract =
@@ -190,7 +196,7 @@ const stargateBridgeService = {
 
     const discounted = discountPools.gt(calculateDiscount);
     logger.log('discounted', discounted);
-    stargateBridgeService.cacheDiscount[params.tokenIn.symbol] = { discounted };
+    stargateBridgeService.cacheDiscount[cacheKey] = { discounted };
     return { discounted };
   },
 
@@ -232,7 +238,6 @@ const stargateBridgeService = {
         StargateAbi,
         from
       );
-      console.log('prepareTakeTaxiStargate sendContract');
 
       const { valueToSend, sendParam, messagingFee } =
         await sendContract.prepareTakeTaxiStargate(
@@ -336,7 +341,8 @@ const stargateBridgeService = {
   async evmToNear(params: BridgeTransferParams) {
     const { tokenIn, tokenOut, amount, sender, recipient, from } = params;
     const registerTokenTransaction = await nearServices.checkFTStorageBalance(
-      tokenOut.addresses.NEAR
+      tokenOut.addresses.NEAR,
+      recipient
     );
     if (registerTokenTransaction) {
       await nearServices.sendTransaction(registerTokenTransaction);

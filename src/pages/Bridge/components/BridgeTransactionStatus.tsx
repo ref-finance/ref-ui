@@ -21,7 +21,7 @@ export default function BridgeTransactionStatusModal({
   hash: string;
   toggleOpenModal: () => void;
 }) {
-  const { data: transaction, clearPolling } = useRequest(
+  const { data: transaction } = useRequest(
     async () => {
       const res = await bridgeHistoryService.queryByHash({
         hash,
@@ -55,12 +55,12 @@ export default function BridgeTransactionStatusModal({
 
   function handleOpenHistory() {
     toggleOpenModal();
-    router.push('/bridge/history');
+    setTimeout(() => router.push('/bridge/history'), 0);
   }
 
   function handleNewTransfer() {
     toggleOpenModal();
-    router.push('/bridge');
+    setTimeout(() => router.push('/bridge'), 0);
   }
 
   function handleOpenTx() {

@@ -9,6 +9,7 @@ import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { SupportChains } from '../config';
+import { storageStore } from '../utils/common';
 
 type BridgeHistoryFilter = {
   chain: BridgeModel.BridgeSupportChain;
@@ -17,11 +18,13 @@ type BridgeHistoryFilter = {
 };
 
 function BridgeTransactionHistory() {
-  const [historyFilter, setHistoryFilter] =
-    useStorageState<BridgeHistoryFilter>('historyFilter', {
-      chain: SupportChains?.[0],
-      onlyUnclaimed: false,
-    });
+  const [historyFilter, setHistoryFilter] = useState<BridgeHistoryFilter>({
+    chain:
+      storageStore().get<BridgeModel.BridgeTransferFormData['from']>(
+        'bridgeFromValue'
+      )?.chain || SupportChains?.[0],
+    onlyUnclaimed: false,
+  });
   const { getWallet } = useWalletConnectContext();
 
   const {
@@ -43,7 +46,7 @@ function BridgeTransactionHistory() {
 
   const router = useRouter();
   function handleOpenHistory() {
-    router.goBack();
+    router.replace('/bridge');
   }
   return (
     <div className="bridge-history-container">

@@ -11,20 +11,24 @@ import SvgIcon from '../components/SvgIcon';
 import { useRouter } from '../hooks/useRouter';
 import { isValidEthereumAddress, isValidNearAddress } from '../utils/validate';
 
-import { useAutoResetState } from '../hooks/useHooks';
 import { getTokenMeta } from '../utils/token';
+import { useWalletConnectContext } from '../providers/walletConcent';
 
 function FormHeader() {
-  const { slippageTolerance, setSlippageTolerance } = useBridgeFormContext();
-  const [loading, setLoading] = useAutoResetState(false, 1000);
+  const {
+    slippageTolerance,
+    setSlippageTolerance,
+    channelInfoMapLoading,
+    refreshChannelInfoMap,
+  } = useBridgeFormContext();
   return (
     <div className="flex items-center justify-between mb-5">
       <div className="text-base text-white">Bridge</div>
       <div className="flex items-center gap-3">
-        <Button size="small" plain onClick={() => setLoading(true)}>
+        <Button size="small" plain onClick={refreshChannelInfoMap}>
           <SvgIcon
             name="IconRefresh"
-            className={loading ? 'animate-spin text-primary' : ''}
+            className={channelInfoMapLoading ? 'animate-spin text-primary' : ''}
           />
         </Button>
         <SlippageSelector
@@ -63,7 +67,7 @@ function CustomAccountAddress() {
         customAccountAddress,
       });
     }
-  }, [isValidCustomAddress]);
+  }, [isValidCustomAddress, customAccountAddress]);
 
   function handlePasteAddress() {
     navigator.clipboard
@@ -151,6 +155,7 @@ function BridgeEntry() {
     bridgeSubmitStatusText,
     openPreviewModal,
     gasWarning,
+    channelInfoMapLoading,
   } = useBridgeFormContext();
 
   const router = useRouter();
@@ -227,6 +232,7 @@ function BridgeEntry() {
               type: 'primary',
               size: 'large',
               className: 'w-full',
+              loading: channelInfoMapLoading,
             }}
             currentChain={
               bridgeSubmitStatus === 'unConnectForm'
@@ -238,6 +244,7 @@ function BridgeEntry() {
         ) : (
           <Button
             type="primary"
+            loading={channelInfoMapLoading}
             size="large"
             className="w-full"
             disabled={['insufficientBalance', 'enterAmount'].includes(

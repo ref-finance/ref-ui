@@ -29,7 +29,7 @@ export function storageStore(
   options?: { storage?: Storage }
 ) {
   if (typeof window === 'undefined') return;
-  const _namespace = namespace || 'default';
+  const _namespace = namespace || 'REF_DEFAULT';
   const storage = options?.storage || window?.localStorage;
   const namespaceKey = (key: string) => {
     return _namespace + ':' + key;

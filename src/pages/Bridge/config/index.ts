@@ -200,7 +200,7 @@ export const BridgeConfig = {
         },
   },
   Stargate: {
-    wait: 5,
+    wait: 3,
     bridgeParams: {
       Arbitrum: {
         send: '0x9affc062e3cbe2806334355b92059e3d8f4c4657',
