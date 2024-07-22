@@ -50,7 +50,6 @@ const stargateBridgeService = {
     sendParam: any;
     messagingFee: any;
     valueToSend: string;
-    estimateGasPrice?: string;
   }> {
     if (!params.amount) return;
     if (params.from === 'NEAR') {
@@ -133,10 +132,6 @@ const stargateBridgeService = {
         params.tokenIn.decimals
       );
 
-      const estimateGasPrice = await stargateBridgeService.estimateGasFee(
-        params
-      );
-
       return {
         minAmount,
         readableMinAmount,
@@ -147,7 +142,6 @@ const stargateBridgeService = {
         sendParam: newSendParam,
         messagingFee,
         valueToSend,
-        estimateGasPrice,
       };
     }
   },
@@ -261,13 +255,6 @@ const stargateBridgeService = {
       });
       return { valueToSend, sendParam, messagingFee };
     }
-  },
-  async estimateGasFee(params: BridgeTransferParams) {
-    const estimateGasPrice = await evmServices.calculateGasInUSD(
-      params.from,
-      '336847'
-    );
-    return estimateGasPrice;
   },
   async nearToEvm(params: BridgeTransferParams) {
     const { from, tokenIn, amount, sender } = params;

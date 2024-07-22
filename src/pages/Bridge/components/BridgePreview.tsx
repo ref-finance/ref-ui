@@ -52,9 +52,7 @@ export default function BridgePreviewModal({
       recipient,
       sender,
       constTime: BridgeConfig[bridgeChannel]?.wait,
-      bridgeFee: new Big(channelInfoMap?.[bridgeChannel]?.estimateGasPrice || 0)
-        .plus(channelInfoMap?.[bridgeChannel]?.usdFee || 0)
-        .toString(),
+      bridgeFee: channelInfoMap?.[bridgeChannel]?.usdFee,
       minimumReceived: formatAmount(
         channelInfoMap?.[bridgeChannel]?.minAmount,
         bridgeFromValue.tokenMeta?.decimals
@@ -161,22 +159,8 @@ export default function BridgePreviewModal({
                 <div>Bridge Fee</div>
                 <div>
                   <div className="text-white text-right">
-                    <span
-                      className="underline cursor-pointer ml-1"
-                      data-tooltip-id="bridge-gas-fee"
-                      data-place="right"
-                      data-class="reactTip"
-                      data-tooltip-html={`
-                        <div>${formatUSDCurrency(
-                          channelInfoMap?.[bridgeChannel]?.estimateGasPrice,
-                          '0.01'
-                        )} Gas + </div>
-                        <div>${formatUSDCurrency(
-                          channelInfoMap?.[bridgeChannel]?.usdFee || 0
-                        )} ${bridgeChannel} fee</div>`}
-                    >
+                    <span className="ml-1">
                       {formatUSDCurrency(confirmInfo.bridgeFee, '0.01')}
-                      <CustomTooltip id="bridge-gas-fee" />
                     </span>
                   </div>
                 </div>

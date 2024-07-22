@@ -68,26 +68,8 @@ function BridgeRouteItem({
           </div>
           <div className="text-right text-slate-500 text-xs font-normal ">
             ~{route.wait} mins ｜Bridge fee{' '}
-            <span
-              className="underline cursor-pointer ml-1"
-              data-tooltip-id="bridge-gas-fee"
-              data-place="right"
-              data-class="reactTip"
-              data-tooltip-html={`
-                <div>${formatUSDCurrency(
-                  channelInfoMap?.[channel]?.estimateGasPrice,
-                  '0.01'
-                )} Gas + </div>
-                <div>${formatUSDCurrency(
-                  channelInfoMap?.[channel]?.usdFee || 0
-                )} ${channel} fee</div>`}
-            >
-              {formatUSDCurrency(
-                new Big(channelInfoMap?.[channel]?.estimateGasPrice || 0)
-                  .plus(channelInfoMap?.[channel]?.usdFee || 0)
-                  .toString(),
-                '0.01'
-              )}
+            <span className="ml-1">
+              {formatUSDCurrency(channelInfoMap?.[channel]?.usdFee, '0.01')}
               <CustomTooltip id="bridge-gas-fee" />
             </span>
           </div>
