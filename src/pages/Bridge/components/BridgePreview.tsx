@@ -32,7 +32,6 @@ export default function BridgePreviewModal({
     bridgeFromValue,
     bridgeToValue,
     bridgeChannel,
-    estimatedGasFee,
     channelInfoMap,
     slippageTolerance,
   } = useBridgeFormContext();
@@ -53,7 +52,7 @@ export default function BridgePreviewModal({
       recipient,
       sender,
       constTime: BridgeConfig[bridgeChannel]?.wait,
-      bridgeFee: new Big(estimatedGasFee)
+      bridgeFee: new Big(channelInfoMap?.[bridgeChannel]?.estimateGasPrice || 0)
         .plus(channelInfoMap?.[bridgeChannel]?.usdFee || 0)
         .toString(),
       minimumReceived: formatAmount(
@@ -65,7 +64,6 @@ export default function BridgePreviewModal({
       bridgeFromValue,
       bridgeToValue,
       bridgeChannel,
-      estimatedGasFee,
       channelInfoMap,
       sender,
       recipient,
@@ -170,7 +168,7 @@ export default function BridgePreviewModal({
                       data-class="reactTip"
                       data-tooltip-html={`
                         <div>${formatUSDCurrency(
-                          estimatedGasFee,
+                          channelInfoMap?.[bridgeChannel]?.estimateGasPrice,
                           '0.01'
                         )} Gas + </div>
                         <div>${formatUSDCurrency(

@@ -161,6 +161,16 @@ function BridgeEntry() {
     router.push('/bridge/history');
   }
 
+  const { getWallet } = useWalletConnectContext();
+
+  function handleConfirm() {
+    if (bridgeSubmitStatus === 'unConnectForm')
+      return getWallet(bridgeFromValue.chain)?.open();
+    else if (bridgeSubmitStatus === 'unConnectTo')
+      return getWallet(bridgeToValue.chain)?.open();
+    else openPreviewModal();
+  }
+
   return (
     <div className="bridge-entry-container">
       <form className="bridge-plane shadow-4xl">
@@ -229,10 +239,10 @@ function BridgeEntry() {
             loading={channelInfoMapLoading}
             size="large"
             className="w-full"
-            disabled={['insufficientBalance', 'enterAmount'].includes(
+            disabled={['enterAmount', 'insufficientBalance'].includes(
               bridgeSubmitStatus
             )}
-            onClick={openPreviewModal}
+            onClick={handleConfirm}
           >
             {bridgeSubmitStatusText}
           </Button>

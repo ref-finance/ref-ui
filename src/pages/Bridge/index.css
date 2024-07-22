@@ -125,7 +125,7 @@
     @apply text-left text-sm p-2;
 }
 .bridge-table td{
-    @apply text-left text-sm px-2 py-3 text-white;
+    @apply text-left text-sm px-2 py-3 text-white min-w-24;
 }
 
 
@@ -172,4 +172,3 @@
         opacity: 1;
     }
 }
-

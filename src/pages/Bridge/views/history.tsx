@@ -10,6 +10,7 @@ import { useRouter } from '../hooks/useRouter';
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { SupportChains } from '../config';
 import { storageStore } from '../utils/common';
+import { isMobile } from 'src/utils/device';
 
 type BridgeHistoryFilter = {
   chain: BridgeModel.BridgeSupportChain;
@@ -51,17 +52,19 @@ function BridgeTransactionHistory() {
   return (
     <div className="bridge-history-container">
       <div className="bridge-plane shadow-4xl">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6 ">
           <div className="flex items-center ">
             <Button text onClick={handleOpenHistory}>
               <SvgIcon name="IconArrowDown" className="transform rotate-90" />
-              <span className="text-base ml-2">Bridge Transaction History</span>
+              <span className="text-base ml-2">
+                {isMobile() ? 'History' : 'Bridge Transaction History'}
+              </span>
             </Button>
           </div>
           <div className="relative  w-1/2">
             <input
               className="bridge-input"
-              placeholder="Transaction Hash"
+              placeholder="Tx Hash"
               value={historyFilter.hash}
               onChange={(e) =>
                 setHistoryFilter({ ...historyFilter, hash: e.target.value })

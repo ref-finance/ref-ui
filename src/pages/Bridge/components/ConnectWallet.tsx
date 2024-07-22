@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { formatSortAddress } from '../utils/format';
@@ -48,20 +48,11 @@ function ConnectWallet({
   return (
     <div className={`flex items-center ${className}`}>
       {!hideChainSelector && (
-        <select
-          className="bg-transparent text-white mr-3"
+        <ChainSelector
           value={currentChain}
-          onChange={(e) =>
-            onChangeChain?.(e.target.value as BridgeModel.BridgeSupportChain)
-          }
-          onFocus={(e) => e.target.blur()}
-        >
-          {SupportChains.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
+          onChange={onChangeChain}
+          options={SupportChains}
+        />
       )}
 
       {isSignedIn ? (
@@ -111,6 +102,68 @@ function ConnectWallet({
           }}
           onClose={() => setShowWalletRisk(false)}
         />
+      )}
+    </div>
+  );
+}
+
+function ChainSelector({
+  value,
+  onChange,
+  options,
+}: {
+  value: BridgeModel.BridgeSupportChain;
+  onChange: (chain: BridgeModel.BridgeSupportChain) => void;
+  options: BridgeModel.BridgeSupportChain[];
+}) {
+  const [showOptions, setShowOptions] = useState(false);
+
+  function handleOptionClick(option: BridgeModel.BridgeSupportChain) {
+    onChange(option);
+    setShowOptions;
+  }
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (showOptions) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.chain-selector')) {
+          setShowOptions(false);
+        }
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showOptions]);
+
+  return (
+    <div className="relative">
+      <div
+        className="chain-selector flex items-center cursor-pointer"
+        onClick={() => setShowOptions(true)}
+      >
+        <span className="text-white">{value}</span>
+        <SvgIcon name="IconArrowDown" className="text-xs ml-2" />
+      </div>
+      {showOptions && (
+        <div className="absolute z-50 py-2 px-1.5 rounded-lg border border-borderC text-sm bg-darkBg text-white shadow-lg">
+          {options.map((option) => (
+            <div
+              key={option}
+              className="hover:bg-symbolHover2 transition-colors py-2 px-4 flex items-center gap-2 cursor-pointer"
+              onClick={() => handleOptionClick(option)}
+            >
+              <div className="min-w-20">{option}</div>
+              {value === option && (
+                <SvgIcon
+                  name="IconSuccess"
+                  className="inline-block text-primary"
+                />
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -25,8 +25,7 @@ function BridgeRouteItem({
   className?: string;
   onClick?: () => void;
 }) {
-  const { bridgeToValue, estimatedGasFee, channelInfoMap } =
-    useBridgeFormContext();
+  const { bridgeToValue, channelInfoMap } = useBridgeFormContext();
   const route = routeConfig[channel];
 
   return (
@@ -75,13 +74,16 @@ function BridgeRouteItem({
               data-place="right"
               data-class="reactTip"
               data-tooltip-html={`
-                <div>${formatUSDCurrency(estimatedGasFee, '0.01')} Gas + </div>
+                <div>${formatUSDCurrency(
+                  channelInfoMap?.[channel]?.estimateGasPrice,
+                  '0.01'
+                )} Gas + </div>
                 <div>${formatUSDCurrency(
                   channelInfoMap?.[channel]?.usdFee || 0
                 )} ${channel} fee</div>`}
             >
               {formatUSDCurrency(
-                new Big(estimatedGasFee)
+                new Big(channelInfoMap?.[channel]?.estimateGasPrice || 0)
                   .plus(channelInfoMap?.[channel]?.usdFee || 0)
                   .toString(),
                 '0.01'

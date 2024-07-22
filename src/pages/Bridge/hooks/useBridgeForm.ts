@@ -106,20 +106,6 @@ export default function useBridgeForm() {
     bridgeToValue.customAccountAddress,
   ]);
 
-  const { data: estimatedGasFee = '0' } = useRequest(
-    async () =>
-      bridgeToValue.chain === 'NEAR'
-        ? evmServices.calculateGasInUSD('336847')
-        : '0',
-    {
-      refreshDeps: [
-        bridgeFromValue.chain,
-        bridgeToValue.chain,
-        bridgeFromValue.amount,
-      ],
-    }
-  );
-
   const {
     data: channelInfoMap,
     loading: channelInfoMapLoading,
@@ -130,7 +116,7 @@ export default function useBridgeForm() {
         BridgeModel.BridgeSupportChannel,
         Awaited<ReturnType<typeof bridgeServices.query>>
       >;
-      setBridgeToValue({ ...bridgeToValue, amount: undefined });
+
       for (const channel of supportBridgeChannels) {
         result[channel] = await bridgeServices.query({
           tokenIn: bridgeFromValue.tokenMeta,
@@ -288,7 +274,7 @@ export default function useBridgeForm() {
       case `unConnectForm`:
         return `Connect Wallet`;
       case `unConnectTo`:
-        return `Connect / Enter destination address`;
+        return `Connect Wallet`;
       case `enterAmount`:
         return `Enter amount`;
       case `insufficientBalance`:
@@ -405,7 +391,6 @@ export default function useBridgeForm() {
     gasWarning,
     slippageTolerance,
     setSlippageTolerance,
-    estimatedGasFee,
     channelInfoMap,
     channelInfoMapLoading,
     refreshChannelInfoMap,

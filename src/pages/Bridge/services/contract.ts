@@ -33,6 +33,11 @@ import {
 } from 'src/utils/numbers';
 
 export const evmServices = {
+  getEvmJSONProvider(chain: BridgeModel.BridgeSupportChain) {
+    return new ethers.providers.JsonRpcProvider(
+      EVMConfig.chains.find((v) => v.label === chain)?.rpcUrl
+    );
+  },
   async getEvmContract(
     address: string,
     contractInterface: ethers.ContractInterface,
@@ -43,9 +48,7 @@ export const evmServices = {
       const signer = await window.ethWeb3Provider?.getSigner();
       return new ethers.Contract(address, contractInterface, signer);
     } else {
-      const provider = new ethers.providers.JsonRpcProvider(
-        EVMConfig.chains.find((v) => v.label === chain)?.rpcUrl
-      );
+      const provider = evmServices.getEvmJSONProvider(chain || 'Ethereum');
       return new ethers.Contract(address, contractInterface, provider);
     }
   },
@@ -107,9 +110,12 @@ export const evmServices = {
       return '0';
     }
   },
-  async calculateGasInUSD(gas: string | number) {
-    if (!window.ethWeb3Provider) return '0';
-    const gasPrice = await window.ethWeb3Provider.getGasPrice();
+  async calculateGasInUSD(
+    chain: BridgeModel.BridgeSupportChain,
+    gas: string | number
+  ) {
+    const provider = evmServices.getEvmJSONProvider(chain);
+    const gasPrice = await provider.getGasPrice();
     const gasLimit = ethers.BigNumber.from(gas);
     const totalGasCostWei = gasPrice.mul(gasLimit);
     const totalGasCostEth = ethers.utils.formatEther(totalGasCostWei);
@@ -127,14 +133,12 @@ export const evmServices = {
   },
 };
 
-const auroraRPCUrl = EVMConfig.chains.find((v) => v.label === 'Aurora')?.rpcUrl;
-
 export const auroraServices = {
   async getAuroraContract(
     address: string,
     contractInterface: ethers.ContractInterface
   ) {
-    const provider = new ethers.providers.JsonRpcProvider(auroraRPCUrl);
+    const provider = evmServices.getEvmJSONProvider('Aurora');
     const contract = new ethers.Contract(address, contractInterface, provider);
     return contract;
   },

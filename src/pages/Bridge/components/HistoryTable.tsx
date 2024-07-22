@@ -43,7 +43,7 @@ function TableItem({
     <tr>
       <td>{formatTimestamp(transaction.created_time)}</td>
       <td>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center w-full gap-2">
           <img
             src={formatChainIcon(transaction.from_chain)}
             className="w-7 h-7"
@@ -58,6 +58,7 @@ function TableItem({
       <td>
         <div className="flex items-center gap-2">
           <span
+            className="flex-shrink-0"
             data-tooltip-id="token-symbol"
             data-place="top"
             data-class="reactTip"
