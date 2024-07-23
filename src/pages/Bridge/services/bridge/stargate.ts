@@ -126,6 +126,9 @@ const stargateBridgeService = {
           .mul(1 - params.slippage)
           .toFixed(0)
       );
+      logger.log('amountLD', sendParam.amountLD.toString());
+      logger.log('origin minAmount', sendParam.minAmountLD.toString());
+      logger.log('new minAmount', newSendParam.minAmountLD.toString());
       const minAmount = newSendParam.minAmountLD.toString();
       const readableMinAmount = formatAmount(
         minAmount,
@@ -353,6 +356,7 @@ const stargateBridgeService = {
     const poolAddress =
       BridgeConfig.Stargate.bridgeParams[from].pool[tokenOut.symbol];
     if (!poolAddress) throw new Error('Invalid pool address');
+
     await evmServices.checkErc20Approve({
       token: erc20Address,
       amount,
@@ -372,7 +376,7 @@ const stargateBridgeService = {
       sendParam,
       messagingFee,
       sender,
-      { value: valueToSend, gasLimit: ethers.utils.hexlify(3000000) }
+      { value: valueToSend, gasLimit: ethers.utils.hexlify(1000000) }
     );
     await tx.wait();
     console.log('bridge: send success', tx);

@@ -68,13 +68,13 @@ export const evmServices = {
       erc20Abi,
       'call'
     );
-    const allowance = await erc20Contract.allowance(owner, spender);
+    const allowanceRaw = await erc20Contract.allowance(owner, spender);
     const decimals = await erc20Contract.decimals();
     const amountIn = new Big(amount).times(10 ** decimals).toFixed();
-    const unAllowance = new Big(amountIn).minus(allowance).abs();
-
+    const allowance = allowanceRaw.toString();
+    const unAllowance = new Big(amountIn).minus(allowance);
     if (unAllowance.gt(0)) {
-      const tx = await erc20Contract.approve(spender, unAllowance.toString());
+      const tx = await erc20Contract.approve(spender, unAllowance.toFixed());
       await tx.wait();
     }
   },
