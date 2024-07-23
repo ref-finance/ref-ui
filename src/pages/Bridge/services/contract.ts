@@ -102,7 +102,6 @@ export const evmServices = {
         balance = Interface.decodeFunctionResult('balanceOf', rawBalance)[0];
       }
       const formattedBalance = formatAmount(balance, token.decimals);
-      logger.log(`bridge: ${token.symbol} balance on eth`, formattedBalance);
       return formattedBalance;
     } catch (error) {
       console.error(error);
@@ -496,17 +495,21 @@ export const tokenServices = {
     token: BridgeModel.BridgeTokenMeta,
     isForce = false
   ) {
-    const balance = tokenServices.balances[token.addresses[chain]];
+    
+    const cacheKey = token.addresses[chain]||`${chain}`
+
+    const balance = tokenServices.balances[cacheKey];
     if (!isForce && balance && Date.now() - balance.timestamp < 1000 * 30) {
       return balance.value;
     }
     const res = await (chain === 'NEAR'
       ? nearServices.getBalance(token.addresses.NEAR, token.decimals)
       : evmServices.getBalance(chain, token));
-    tokenServices.balances[token.addresses[chain]] = {
+    tokenServices.balances[cacheKey] = {
       value: res,
       timestamp: Date.now(),
     };
+    logger.log(`bridge: ${chain} - ${token.symbol} balance`, res);
     return res;
   },
   async getPrice(token: BridgeModel.BridgeTokenMeta) {

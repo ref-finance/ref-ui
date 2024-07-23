@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useWalletConnectContext } from '../providers/walletConcent';
 import { useDebouncedEffect, useRequest, useStorageState } from './useHooks';
 import Big from 'big.js';
-import { evmServices, tokenServices } from '../services/contract';
+import { tokenServices } from '../services/contract';
 import { SupportChains, EVMConfig, BridgeTokenRoutes } from '../config';
 import { logger } from '../utils/common';
 import { getTokenMeta } from '../utils/token';
@@ -245,6 +245,23 @@ export default function useBridgeForm() {
     }
   );
 
+  const { data: gasTokenBalance = '0' } = useRequest(
+    async () => {
+      const res = await tokenServices.getBalance(
+        bridgeFromValue.chain,
+        getTokenMeta(bridgeFromValue.chain === 'NEAR' ? 'NEAR' : 'ETH'),
+        true
+      );
+      return res;
+    },
+    {
+      refreshDeps: [bridgeFromValue.chain],
+      before: () => !!bridgeFromValue.chain,
+      debounceOptions: 200,
+      pollingInterval: 10000,
+    }
+  );
+
   const bridgeSubmitStatus = useMemo<
     | 'unConnectForm'
     | 'unConnectTo'
@@ -287,21 +304,27 @@ export default function useBridgeForm() {
   }, [bridgeSubmitStatus]);
 
   const gasWarning = useMemo(() => {
-    if (!bridgeFromValue.amount || new Big(bridgeFromBalance).eq(0))
-      return false;
+    if (channelInfoMapLoading || new Big(bridgeFromValue.amount || 0).eq(0))
+      return;
     if (
-      (bridgeFromValue.chain === 'Ethereum' &&
-        bridgeFromValue.tokenMeta?.symbol === 'Ethereum') ||
-      (bridgeFromValue.chain === 'NEAR' &&
-        bridgeFromValue.tokenMeta?.symbol === 'NEAR')
-    )
-      return new Big(bridgeFromValue.amount).eq(bridgeFromBalance);
-    return false;
+      bridgeChannel === 'Stargate' &&
+      bridgeFromValue.chain === 'NEAR' &&
+      new Big(channelInfoMap?.[bridgeChannel].readableFeeAmount || 0).gte(
+        bridgeFromValue.amount
+      )
+    ) {
+      return `Your ${bridgeFromValue.tokenMeta.symbol} cannot cover the Bridge Fee`;
+    } else {
+      console.log('gasWarning gasTokenBalance', gasTokenBalance);
+      if (new Big(gasTokenBalance).eq(0)) return 'Not enough gas fee';
+    }
   }, [
     bridgeFromValue.amount,
+    bridgeChannel,
     bridgeFromValue.chain,
-    bridgeFromValue.tokenMeta?.symbol,
-    bridgeFromBalance,
+    channelInfoMap,
+    gasTokenBalance,
+    channelInfoMapLoading,
   ]);
 
   function changeBridgeChain(

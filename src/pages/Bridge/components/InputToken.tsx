@@ -12,15 +12,21 @@ type Props = {
   children?: React.ReactNode;
   style?: React.CSSProperties;
   inputReadonly?: boolean;
-  isError?: boolean;
+  errorMessage?: string;
   onChange?: (value: Props['model']) => void;
 };
 
-function GasFeeWarning({ className }: { className?: string }) {
+function ErrorMessage({
+  className,
+  text,
+}: {
+  className?: string;
+  text: string;
+}) {
   return (
     <div className={`flex items-center text-danger ${className ?? ''}`}>
       <SvgIcon name="IconWarning" className="mr-1" />
-      Not enough gas fee
+      {text}
     </div>
   );
 }
@@ -33,7 +39,7 @@ function InputToken({
   children,
   style,
   inputReadonly,
-  isError,
+  errorMessage,
 }: Props) {
   const [isInputFocus, setIsInputFocus] = useState(false);
 
@@ -51,7 +57,7 @@ function InputToken({
     <>
       <div
         className={`bridge-input bridge-input-token ${[
-          isError && 'is-error',
+          errorMessage && 'is-error',
           isInputFocus && 'is-focus',
           className,
         ].join(' ')}`}
@@ -96,7 +102,9 @@ function InputToken({
           </span>
         </div>
       </div>
-      {isError ? <GasFeeWarning className="animate-fadeIn mt-2" /> : null}
+      {errorMessage ? (
+        <ErrorMessage className="animate-fadeIn mt-2" text={errorMessage} />
+      ) : null}
     </>
   );
 }

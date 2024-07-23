@@ -186,7 +186,7 @@ function BridgeEntry() {
         <InputToken
           model={bridgeFromValue}
           balance={bridgeFromBalance}
-          isError={gasWarning}
+          errorMessage={gasWarning}
           onChange={setBridgeFromValue}
         >
           <TokenSelector
@@ -239,9 +239,11 @@ function BridgeEntry() {
             loading={channelInfoMapLoading}
             size="large"
             className="w-full"
-            disabled={['enterAmount', 'insufficientBalance'].includes(
-              bridgeSubmitStatus
-            )}
+            disabled={
+              ['enterAmount', 'insufficientBalance'].includes(
+                bridgeSubmitStatus
+              ) || !!gasWarning
+            }
             onClick={handleConfirm}
           >
             {bridgeSubmitStatusText}
