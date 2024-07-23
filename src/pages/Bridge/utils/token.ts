@@ -21,6 +21,7 @@ export function getTokenByAddress(
   chain?: BridgeModel.BridgeSupportChain
 ) {
   return Object.values(TOKENS).find(
-    (token) => token.addresses[chain || 'NEAR'] === address
+    (token) =>
+      token.addresses[chain || 'NEAR']?.toLowerCase() === address.toLowerCase()
   );
 }

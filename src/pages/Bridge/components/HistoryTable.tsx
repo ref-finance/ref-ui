@@ -68,7 +68,7 @@ function TableItem({
 
             <CustomTooltip id="token-symbol" />
           </span>
-          {formatAmount(transaction.volume, tokenMeta.decimals)}
+          {formatAmount(transaction.volume, tokenMeta?.decimals)}
         </div>
       </td>
       <td>
