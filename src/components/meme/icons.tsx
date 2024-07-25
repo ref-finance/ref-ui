@@ -2300,6 +2300,7 @@ export function CountdownFinish(props: any) {
 export function CountdownFinishMobile(props: any) {
   return (
     <svg
+      {...props}
       width="357"
       height="262"
       viewBox="0 0 357 262"
