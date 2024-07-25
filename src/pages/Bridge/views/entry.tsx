@@ -240,7 +240,7 @@ function BridgeEntry() {
             size="large"
             className="w-full"
             disabled={
-              ['enterAmount', 'insufficientBalance'].includes(
+              ['enterAmount', 'insufficientBalance', 'enterToAddress'].includes(
                 bridgeSubmitStatus
               ) || !!gasWarning
             }

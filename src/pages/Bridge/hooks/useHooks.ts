@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  type DependencyList,
-  type EffectCallback,
+  DependencyList,
+  EffectCallback,
   useCallback,
   useEffect,
   useMemo,
@@ -10,8 +10,12 @@ import {
   useRef,
   useLayoutEffect,
 } from 'react';
-import { debounce, type DebounceSettings } from 'lodash-es';
-import { safeJSONParse, safeJSONStringify, storageStore } from '../utils/common';
+import { debounce, DebounceSettings } from 'lodash';
+import {
+  safeJSONParse,
+  safeJSONStringify,
+  storageStore,
+} from '../utils/common';
 
 type DebounceOptions = number | ({ wait: number } & Partial<DebounceSettings>);
 type RequestOptions<T> = {
@@ -26,7 +30,10 @@ type RequestOptions<T> = {
   pollingInterval?: number;
 };
 
-export function useRequest<T>(request: () => Promise<T>, options?: RequestOptions<T>) {
+export function useRequest<T>(
+  request: () => Promise<T>,
+  options?: RequestOptions<T>
+) {
   const [data, setData] = useState<T | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | undefined>(undefined);
@@ -86,7 +93,15 @@ export function useRequest<T>(request: () => Promise<T>, options?: RequestOption
     if (pollingInterval) {
       pollingTimer.current = setTimeout(run, pollingInterval);
     }
-  }, [request, onSuccess, onError, retryCount, retryInterval, before, pollingInterval]);
+  }, [
+    request,
+    onSuccess,
+    onError,
+    retryCount,
+    retryInterval,
+    before,
+    pollingInterval,
+  ]);
 
   useDebouncedEffect(
     () => {
@@ -97,7 +112,7 @@ export function useRequest<T>(request: () => Promise<T>, options?: RequestOption
       return () => clearPolling();
     },
     [...refreshDeps, clearPolling],
-    debounceOptions,
+    debounceOptions
   );
 
   return {
@@ -115,11 +130,13 @@ export function useRequest<T>(request: () => Promise<T>, options?: RequestOption
 export function useDebouncedEffect(
   effect: EffectCallback,
   deps: React.DependencyList,
-  debounceOptions?: DebounceOptions,
+  debounceOptions?: DebounceOptions
 ) {
   useEffect(() => {
     const options =
-      typeof debounceOptions === 'number' ? { wait: debounceOptions } : debounceOptions;
+      typeof debounceOptions === 'number'
+        ? { wait: debounceOptions }
+        : debounceOptions;
     const debouncedEffect = debounce(
       () => {
         const cleanupFn = effect();
@@ -128,7 +145,7 @@ export function useDebouncedEffect(
         }
       },
       options?.wait,
-      options,
+      options
     );
 
     debouncedEffect();
@@ -145,7 +162,7 @@ export function useDebouncedEffect(
 export function useAsyncMemo<T>(
   factory: () => Promise<T> | undefined | null,
   deps: DependencyList,
-  initial?: T,
+  initial?: T
 ) {
   const [val, setVal] = useState<T | undefined>(initial);
   useDebouncedEffect(
@@ -163,7 +180,7 @@ export function useAsyncMemo<T>(
       };
     },
     deps,
-    300,
+    300
   );
   return val;
 }
@@ -278,7 +295,13 @@ export interface UseInfiniteScrollProps {
 }
 
 export function useInfiniteScroll(props: UseInfiniteScrollProps = {}) {
-  const { hasMore, distance = 250, isEnabled = true, shouldUseLoader = true, onLoadMore } = props;
+  const {
+    hasMore,
+    distance = 250,
+    isEnabled = true,
+    shouldUseLoader = true,
+    onLoadMore,
+  } = props;
 
   const scrollContainerRef = useRef<HTMLElement>(null);
   const loaderRef = useRef<HTMLElement>(null);
@@ -302,19 +325,21 @@ export function useInfiniteScroll(props: UseInfiniteScrollProps = {}) {
       };
 
       const listener = (entries: IntersectionObserverEntry[]) => {
-        entries.forEach(({ isIntersecting, intersectionRatio, boundingClientRect = {} }) => {
-          const y = boundingClientRect.y || 0;
+        entries.forEach(
+          ({ isIntersecting, intersectionRatio, boundingClientRect = {} }) => {
+            const y = boundingClientRect.y || 0;
 
-          if (
-            isIntersecting &&
-            intersectionRatio >= previousRatio.current &&
-            (!previousY.current || y < previousY.current)
-          ) {
-            onLoadMore?.();
+            if (
+              isIntersecting &&
+              intersectionRatio >= previousRatio.current &&
+              (!previousY.current || y < previousY.current)
+            ) {
+              onLoadMore?.();
+            }
+            previousY.current = y;
+            previousRatio.current = intersectionRatio;
           }
-          previousY.current = y;
-          previousRatio.current = intersectionRatio;
-        });
+        );
       };
 
       const observer = new IntersectionObserver(listener, options);
@@ -323,7 +348,9 @@ export function useInfiniteScroll(props: UseInfiniteScrollProps = {}) {
 
       return () => observer.disconnect();
     } else {
-      const debouncedOnLoadMore = onLoadMore ? debounce(onLoadMore, 200) : undefined;
+      const debouncedOnLoadMore = onLoadMore
+        ? debounce(onLoadMore, 200)
+        : undefined;
 
       const checkIfNearBottom = () => {
         if (
@@ -357,18 +384,16 @@ export function useCopyClipboard() {
         }, 2000);
       });
     },
-    [setCopied],
+    [setCopied]
   );
 
   return { copied, copy };
 }
 
-
-
 export function useStorageState<T>(
   key: string,
   defaultValue: T,
-  options?: { storage?: Storage; namespace?: string },
+  options?: { storage?: Storage; namespace?: string }
 ) {
   const { storage, namespace = 'REF_DEFAULT' } = options || {};
   const storageAPI = storageStore(namespace, { storage });

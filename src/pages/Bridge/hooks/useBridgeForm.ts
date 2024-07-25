@@ -141,7 +141,7 @@ export default function useBridgeForm() {
         supportBridgeChannels,
         slippageTolerance,
       ],
-      debounceOptions: 500,
+      debounceOptions: { wait: 500, leading: true },
     }
   );
 
@@ -205,7 +205,7 @@ export default function useBridgeForm() {
 
   const { data: bridgeFromBalance = '0' } = useRequest(
     async () => {
-      if (!fromAccountAddress) return '0';
+      if (!getWallet(bridgeFromValue.chain)?.accountId) return '0';
       return tokenServices.getBalance(
         bridgeFromValue.chain,
         bridgeFromValue.tokenMeta,
@@ -216,7 +216,7 @@ export default function useBridgeForm() {
       refreshDeps: [
         bridgeFromValue.chain,
         bridgeFromValue.tokenMeta,
-        fromAccountAddress,
+        getWallet(bridgeFromValue.chain)?.accountId,
       ],
       before: () => !!bridgeFromValue.chain && !!bridgeFromValue.tokenMeta,
       debounceOptions: 200,
@@ -226,7 +226,7 @@ export default function useBridgeForm() {
 
   const { data: bridgeToBalance = '0' } = useRequest(
     async () => {
-      if (bridgeToValue.isCustomAccountAddress || !toAccountAddress) return '0';
+      if (!getWallet(bridgeToValue.chain)?.accountId) return '0';
       return tokenServices.getBalance(
         bridgeToValue.chain,
         bridgeToValue.tokenMeta,
@@ -237,7 +237,7 @@ export default function useBridgeForm() {
       refreshDeps: [
         bridgeToValue.chain,
         bridgeToValue.tokenMeta,
-        toAccountAddress,
+        getWallet(bridgeToValue.chain)?.accountId,
       ],
       before: () => !!bridgeToValue.chain && !!bridgeToValue.tokenMeta,
       debounceOptions: 200,
@@ -265,12 +265,15 @@ export default function useBridgeForm() {
   const bridgeSubmitStatus = useMemo<
     | 'unConnectForm'
     | 'unConnectTo'
+    | 'enterToAddress'
     | 'enterAmount'
     | 'preview'
     | 'insufficientBalance'
   >(() => {
     if (!fromAccountAddress) return `unConnectForm`;
-    else if (!toAccountAddress) return `unConnectTo`;
+    else if (!getWallet(bridgeToValue.chain).isSignedIn) return `unConnectTo`;
+    else if (bridgeToValue.isCustomAccountAddress && !toAccountAddress)
+      return `enterToAddress`;
     else if (!bridgeFromValue.amount) return `enterAmount`;
     else if (
       new Big(bridgeFromBalance).eq(0) ||
@@ -292,6 +295,8 @@ export default function useBridgeForm() {
         return `Connect Wallet`;
       case `unConnectTo`:
         return `Connect Wallet`;
+      case `enterToAddress`:
+        return `Enter Destination Address`;
       case `enterAmount`:
         return `Enter amount`;
       case `insufficientBalance`:
@@ -304,12 +309,16 @@ export default function useBridgeForm() {
   }, [bridgeSubmitStatus]);
 
   const gasWarning = useMemo(() => {
-    if (channelInfoMapLoading || new Big(bridgeFromValue.amount || 0).eq(0))
+    if (
+      !getWallet(bridgeFromValue.chain).isSignedIn ||
+      channelInfoMapLoading ||
+      new Big(bridgeFromValue.amount || 0).eq(0)
+    )
       return;
     if (
       bridgeChannel === 'Stargate' &&
       bridgeFromValue.chain === 'NEAR' &&
-      new Big(channelInfoMap?.[bridgeChannel].readableFeeAmount || 0).gte(
+      new Big(channelInfoMap?.[bridgeChannel]?.readableFeeAmount || 0).gte(
         bridgeFromValue.amount
       )
     ) {
@@ -319,6 +328,7 @@ export default function useBridgeForm() {
       if (new Big(gasTokenBalance).eq(0)) return 'Not enough gas fee';
     }
   }, [
+    getWallet(bridgeFromValue.chain).isSignedIn,
     bridgeFromValue.amount,
     bridgeChannel,
     bridgeFromValue.chain,

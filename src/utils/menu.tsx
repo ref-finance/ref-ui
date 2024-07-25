@@ -452,9 +452,33 @@ export const useMenus = (cb?: () => void) => {
           <FormattedMessage id="bridge_pure" />
         </>
       ),
-      url: '/bridge',
+      url: '',
       isExternal: false,
       links: ['/bridge'],
+      children: [
+        {
+          id: 'bridge-1',
+          label: 'Aggregate Bridge',
+          logo: <BridgeIconMenu />,
+          url: '/bridge',
+          links: ['/bridge'],
+          isExternal: false,
+        },
+        {
+          id: 'bridge-2',
+          label: 'Rainbow Bridge',
+          logo: <Rainbow />,
+          url: 'https://rainbowbridge.app/transfer',
+          isExternal: true,
+        },
+        {
+          id: 'bridge-3',
+          label: 'CEX Bridge',
+          logo: <WalletCedeBridge />,
+          url: `https://send.cede.store/?tokenSymbol=NEAR&network=near&source=ref_finance`,
+          isExternal: true,
+        },
+      ],
     },
     {
       id: '3',
@@ -843,15 +867,39 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
       ],
     },
     {
-      id: '4',
+      id: 'bridge',
       label: (
         <>
           <FormattedMessage id="bridge_pure" />
         </>
       ),
-      url: '/bridge',
+      url: '',
       isExternal: false,
       links: ['/bridge'],
+      children: [
+        {
+          id: 'bridge-1',
+          label: 'Aggregate Bridge',
+          logo: <BridgeIconMenu />,
+          url: '/bridge',
+          links: ['/bridge'],
+          isExternal: false,
+        },
+        {
+          id: 'bridge-2',
+          label: 'Rainbow Bridge',
+          logo: <Rainbow />,
+          url: 'https://rainbowbridge.app/transfer',
+          isExternal: true,
+        },
+        {
+          id: 'bridge-3',
+          label: 'CEX Bridge',
+          logo: <WalletCedeBridge />,
+          url: `https://send.cede.store/?tokenSymbol=NEAR&network=near&source=ref_finance`,
+          isExternal: true,
+        },
+      ],
     },
     {
       id: '3',
@@ -961,219 +1009,6 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
   ];
   return menuData;
 };
-
-export const bridgeData: any[] = [
-  // {
-  //   name: (
-  //     <FormattedMessage
-  //       id="rainbow"
-  //       defaultMessage={'Rainbow'}
-  //     ></FormattedMessage>
-  //   ),
-  //   icon: Rainbow,
-  //   id: '0',
-  //   label: 'rainbow',
-
-  //   children: [
-  //     {
-  //       name: <FormattedMessage id="from_ethereum"></FormattedMessage>,
-  //       icon: Ethereum,
-  //       link: 'https://rainbowbridge.app/transfer',
-  //       id: '0-0',
-  //     },
-  //     {
-  //       name: <FormattedMessage id="from_aurora"></FormattedMessage>,
-  //       icon: Aurora,
-  //       link: 'https://rainbowbridge.app/transfer',
-  //       id: '0-1',
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   name: (
-  //     <FormattedMessage
-  //       id="electron_labs"
-  //       defaultMessage={'Electron Labs'}
-  //     ></FormattedMessage>
-  //   ),
-  //   icon: ElectronLabs,
-  //   id: '2',
-  //   label: 'electron_labs',
-
-  //   children: [
-  //     {
-  //       name: <FormattedMessage id="from_ethereum"></FormattedMessage>,
-  //       icon: Ethereum,
-  //       link: 'https://mainnet.electronlabs.org/bridge',
-  //       id: '2-0',
-  //     },
-  //   ],
-  // },
-  {
-    name: (
-      <FormattedMessage
-        id="rainbow"
-        defaultMessage={'Rainbow'}
-      ></FormattedMessage>
-    ),
-    icon: Rainbow,
-    id: '0',
-    label: 'rainbow',
-    link: 'https://rainbowbridge.app/transfer',
-  },
-  {
-    name: <>CEX Bridge</>,
-    icon: WalletCedeBridge,
-    link: `https://send.cede.store/?tokenSymbol=NEAR&network=near&source=ref_finance`,
-    label: ' CEX Bridge',
-    id: '2',
-    needAccountId: true,
-  },
-];
-export function BridgeButton() {
-  const [hover, setHover] = useState<boolean>(false);
-
-  const [hoverBridgeType, setHoverBridgeType] = useState<
-    'rainbow' | 'allbridge' | 'electron_labs'
-  >();
-  const [hoverSubBridge, setHoverSubBridge] = useState<string>();
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
-
-  return (
-    <div
-      className={` relative text-sm whitespace-nowrap rounded-md frcs gap-2 px-3 py-2  text-primaryText ${
-        hover ? 'bg-primaryText bg-opacity-30' : ''
-      }`}
-      onMouseEnter={() => {
-        setHover(true);
-      }}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
-    >
-      <BridgeIconMenu
-        className={hover ? 'text-white' : 'text-primaryText'}
-      ></BridgeIconMenu>
-
-      <span className={`whitespace-nowrap ${hover ? 'text-white' : ''}`}>
-        <FormattedMessage
-          id="bridge_pure"
-          defaultMessage={'Bridge'}
-        ></FormattedMessage>
-      </span>
-
-      {hover && (
-        <div className="absolute pt-4 top-6 right-1/2 transform translate-x-1/2">
-          <div className="bg-priceBoardColor p-2 rounded-2xl border border-menuMoreBoxBorderColor ">
-            {bridgeData.map((item) => {
-              if (!item.children) {
-                return (
-                  <div
-                    key={item.id}
-                    className={`flex flex-col py-2 rounded-md px-3.5 cursor-pointer ${
-                      hoverBridgeType === item.label
-                        ? 'bg-primaryText bg-opacity-20 text-white'
-                        : ''
-                    } `}
-                    style={{
-                      width: '146px',
-                    }}
-                    onMouseEnter={() => {
-                      setHoverBridgeType(item.label as any);
-                    }}
-                    onMouseLeave={() => {
-                      setHoverBridgeType(undefined);
-                    }}
-                    onClick={() => {
-                      let targetUrl = item.link;
-                      if (item.needAccountId && accountId) {
-                        targetUrl = `${targetUrl}&address=${accountId}`;
-                      }
-                      openUrl(targetUrl);
-                    }}
-                  >
-                    <div className="frcs gap-2">
-                      <item.icon
-                        className={
-                          hoverBridgeType === item.label
-                            ? 'text-white'
-                            : 'text-primaryText'
-                        }
-                      ></item.icon>
-                      {item.name}
-                    </div>
-                  </div>
-                );
-              } else {
-                return (
-                  <div
-                    key={item.id}
-                    className={`flex flex-col font-gothamBold py-2 rounded-xl px-2 ${
-                      hoverBridgeType === item.label
-                        ? 'bg-primaryText bg-opacity-20 text-white'
-                        : ''
-                    } `}
-                    style={{
-                      width: '146px',
-                    }}
-                    onMouseEnter={() => {
-                      setHoverBridgeType(item.label as any);
-                    }}
-                    onMouseLeave={() => {
-                      setHoverBridgeType(undefined);
-                    }}
-                  >
-                    <div className="frcs gap-2 mb-2  ">
-                      <item.icon
-                        className={
-                          hoverBridgeType === item.label
-                            ? 'text-white'
-                            : 'text-primaryText'
-                        }
-                      ></item.icon>
-                      {item.name}
-                    </div>
-
-                    {item.children.map((sub) => {
-                      return (
-                        <div
-                          key={sub.id}
-                          className={`font-gotham  py-2  rounded-md frcs gap-2 cursor-pointer${
-                            hoverSubBridge === sub.id
-                              ? 'px-2 bg-hoverSubBridge'
-                              : ''
-                          }`}
-                          onClick={() => {
-                            openUrl(sub.link);
-                          }}
-                          onMouseEnter={() => {
-                            setHoverSubBridge(sub.id);
-                          }}
-                          onMouseLeave={() => {
-                            setHoverSubBridge('');
-                          }}
-                        >
-                          <sub.icon
-                            className={
-                              hoverBridgeType === item.label ? '' : 'opacity-50'
-                            }
-                          ></sub.icon>
-
-                          {sub.name}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              }
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 export interface menuItemType {
   id?: string;
