@@ -108,8 +108,8 @@ export function TokenSelectorModal({
       _tokens.filter((item) => {
         return (
           item.addresses[chain]?.toLowerCase().includes(text.toLowerCase()) ||
-          item.symbol.toLowerCase().includes(text.toLowerCase()) ||
-          item.name.toLowerCase().includes(text.toLowerCase())
+          item.symbol?.toLowerCase().includes(text.toLowerCase()) ||
+          item.name?.toLowerCase().includes(text.toLowerCase())
         );
       }) || []
     );
