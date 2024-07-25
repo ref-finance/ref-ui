@@ -270,11 +270,6 @@ export default function useBridgeForm() {
     | 'preview'
     | 'insufficientBalance'
   >(() => {
-    console.log(
-      'bridgeToValue.isCustomAccountAddress',
-      bridgeToValue.isCustomAccountAddress,
-      bridgeToValue.customAccountAddress
-    );
     if (!fromAccountAddress) return `unConnectForm`;
     else if (
       bridgeToValue.isCustomAccountAddress &&
