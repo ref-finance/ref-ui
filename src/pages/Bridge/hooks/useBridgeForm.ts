@@ -270,10 +270,18 @@ export default function useBridgeForm() {
     | 'preview'
     | 'insufficientBalance'
   >(() => {
+    console.log(
+      'bridgeToValue.isCustomAccountAddress',
+      bridgeToValue.isCustomAccountAddress,
+      bridgeToValue.customAccountAddress
+    );
     if (!fromAccountAddress) return `unConnectForm`;
-    else if (!getWallet(bridgeToValue.chain).isSignedIn) return `unConnectTo`;
-    else if (bridgeToValue.isCustomAccountAddress && !toAccountAddress)
+    else if (
+      bridgeToValue.isCustomAccountAddress &&
+      !bridgeToValue.customAccountAddress
+    )
       return `enterToAddress`;
+    else if (!toAccountAddress) return `unConnectTo`;
     else if (!bridgeFromValue.amount) return `enterAmount`;
     else if (
       new Big(bridgeFromBalance).eq(0) ||
@@ -287,6 +295,8 @@ export default function useBridgeForm() {
     bridgeFromBalance,
     fromAccountAddress,
     toAccountAddress,
+    bridgeToValue.isCustomAccountAddress,
+    bridgeToValue.customAccountAddress,
   ]);
 
   const bridgeSubmitStatusText = useMemo(() => {

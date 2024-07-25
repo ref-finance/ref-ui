@@ -85,13 +85,12 @@ function CustomAccountAddress() {
           type="checkbox"
           className="bridge-checkbox mr-2"
           checked={bridgeToValue.isCustomAccountAddress}
-          onChange={(e) =>
+          onChange={(e) => {
             setBridgeToValue({
               ...bridgeToValue,
               isCustomAccountAddress: e.target.checked,
-              customAccountAddress: '',
-            })
-          }
+            });
+          }}
         />
         I&apos;m transferring to a destination address
       </label>
