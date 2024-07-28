@@ -220,6 +220,7 @@ function BridgeEntry() {
           balance={bridgeToBalance}
           style={{ backgroundColor: 'transparent' }}
           inputReadonly
+          disabled={bridgeToValue.isCustomAccountAddress}
           onChange={setBridgeToValue}
         >
           <TokenSelector

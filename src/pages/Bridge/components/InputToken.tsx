@@ -14,6 +14,7 @@ type Props = {
   children?: React.ReactNode;
   style?: React.CSSProperties;
   inputReadonly?: boolean;
+  disabled?: boolean;
   errorMessage?: string;
   onChange?: (value: Props['model']) => void;
 };
@@ -37,6 +38,7 @@ function InputToken({
   model,
   balance,
   className,
+  disabled,
   onChange,
   children,
   style,
@@ -63,6 +65,7 @@ function InputToken({
         className={`bridge-input bridge-input-token ${[
           errorMessage && 'is-error',
           isInputFocus && 'is-focus',
+          disabled && 'opacity-50 pointer-events-none',
           className,
         ].join(' ')}`}
         style={style}
@@ -111,13 +114,11 @@ function InputToken({
       ) : null}
       {!getWallet(model.chain).isSignedIn && (
         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center backdrop-filter backdrop-blur-md bg-black bg-opacity-10 bridge-input bridge-input-token">
-          
           <ConnectWallet
             currentChain={model.chain}
             connectPlaceholder={`Connect to ${model.chain}`}
             hideChainSelector={true}
           />
-         
         </div>
       )}
     </div>
