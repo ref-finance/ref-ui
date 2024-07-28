@@ -141,6 +141,7 @@ export default function useBridgeForm() {
         supportBridgeChannels,
         slippageTolerance,
       ],
+      before: () => !!fromAccountAddress,
       debounceOptions: { wait: 500, leading: true },
     }
   );
@@ -194,14 +195,21 @@ export default function useBridgeForm() {
   ]);
 
   useEffect(() => {
-    const amountOut = bridgeChannel
-      ? channelInfoMap?.[bridgeChannel]?.minAmount
-      : Object.values(channelInfoMap || {})[0]?.minAmount;
-    setBridgeToValue({
-      ...bridgeToValue,
-      amount: formatAmount(amountOut, bridgeToValue.tokenMeta?.decimals),
-    });
-  }, [channelInfoMap, bridgeChannel]);
+    if (!fromAccountAddress) {
+      setBridgeFromValue({
+        ...bridgeFromValue,
+        amount: undefined,
+      });
+    } else {
+      const amountOut = bridgeChannel
+        ? channelInfoMap?.[bridgeChannel]?.minAmount
+        : Object.values(channelInfoMap || {})[0]?.minAmount;
+      setBridgeToValue({
+        ...bridgeToValue,
+        amount: formatAmount(amountOut, bridgeToValue.tokenMeta?.decimals),
+      });
+    }
+  }, [fromAccountAddress, channelInfoMap, bridgeChannel]);
 
   const { data: bridgeFromBalance = '0' } = useRequest(
     async () => {
@@ -297,9 +305,9 @@ export default function useBridgeForm() {
   const bridgeSubmitStatusText = useMemo(() => {
     switch (bridgeSubmitStatus) {
       case `unConnectForm`:
-        return `Connect Wallet`;
+        return `Connect to ${bridgeFromValue.chain}`;
       case `unConnectTo`:
-        return `Connect Wallet`;
+        return `Connect to ${bridgeToValue.chain}`;
       case `enterToAddress`:
         return `Enter Destination Address`;
       case `enterAmount`:
@@ -311,7 +319,7 @@ export default function useBridgeForm() {
       default:
         return ``;
     }
-  }, [bridgeSubmitStatus]);
+  }, [bridgeSubmitStatus, bridgeFromValue.chain, bridgeToValue.chain]);
 
   const gasWarning = useMemo(() => {
     if (

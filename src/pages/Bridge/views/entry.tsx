@@ -89,7 +89,9 @@ function CustomAccountAddress() {
             setBridgeToValue({
               ...bridgeToValue,
               isCustomAccountAddress: e.target.checked,
+              customAccountAddress: undefined,
             });
+            setCustomAccountAddress('');
           }}
         />
         I&apos;m transferring to a destination address
@@ -178,6 +180,7 @@ function BridgeEntry() {
           <span className="mr-3">From</span>
           <ConnectWallet
             currentChain={bridgeFromValue.chain}
+            connectPlaceholder=" "
             className="flex-1 justify-between"
             onChangeChain={(chain) => changeBridgeChain('from', chain)}
           />
@@ -207,6 +210,7 @@ function BridgeEntry() {
           <span className="mr-3">To</span>
           <ConnectWallet
             currentChain={bridgeToValue.chain}
+            connectPlaceholder=" "
             className="flex-1 justify-between"
             onChangeChain={(chain) => changeBridgeChain('to', chain)}
           />
@@ -241,7 +245,8 @@ function BridgeEntry() {
             disabled={
               ['enterAmount', 'insufficientBalance', 'enterToAddress'].includes(
                 bridgeSubmitStatus
-              ) || !!gasWarning
+              ) ||
+              (bridgeSubmitStatus === 'preview' && !!gasWarning)
             }
             onClick={handleConfirm}
           >

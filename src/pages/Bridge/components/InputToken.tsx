@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import SvgIcon from './SvgIcon';
 import Big from 'big.js';
 import { formatNumber } from '../utils/format';
+import { useWalletConnectContext } from '../providers/walletConcent';
+import ConnectWallet from './ConnectWallet';
 
 type Props = {
   model?:
@@ -41,6 +43,8 @@ function InputToken({
   inputReadonly,
   errorMessage,
 }: Props) {
+  const { getWallet } = useWalletConnectContext();
+
   const [isInputFocus, setIsInputFocus] = useState(false);
 
   function handleAllAmount() {
@@ -54,7 +58,7 @@ function InputToken({
   }
 
   return (
-    <>
+    <div className="relative">
       <div
         className={`bridge-input bridge-input-token ${[
           errorMessage && 'is-error',
@@ -105,7 +109,18 @@ function InputToken({
       {errorMessage ? (
         <ErrorMessage className="animate-fadeIn mt-2" text={errorMessage} />
       ) : null}
-    </>
+      {!getWallet(model.chain).isSignedIn && (
+        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center backdrop-filter backdrop-blur-md bg-black bg-opacity-10 bridge-input bridge-input-token">
+          
+          <ConnectWallet
+            currentChain={model.chain}
+            connectPlaceholder={`Connect to ${model.chain}`}
+            hideChainSelector={true}
+          />
+         
+        </div>
+      )}
+    </div>
   );
 }
 export default InputToken;

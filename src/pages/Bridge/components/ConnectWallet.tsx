@@ -46,7 +46,7 @@ function ConnectWallet({
   }
 
   return (
-    <div className={`flex items-center ${className}`}>
+    <div className={`flex items-center gap-5 ${className}`}>
       {!hideChainSelector && (
         <ChainSelector
           value={currentChain}

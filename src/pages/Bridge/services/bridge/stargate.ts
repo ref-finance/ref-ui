@@ -260,6 +260,11 @@ const stargateBridgeService = {
     }
   },
   async nearToEvm(params: BridgeTransferParams) {
+    if (window.nearWallet.id === 'ledger') {
+      throw new Error(
+        'Ledger is not supported for this bridge, please use other wallet.'
+      );
+    }
     const { from, tokenIn, amount, sender } = params;
     const auroraAccount = auroraAddr(sender);
     const nearTokenAddress = tokenIn.addresses.NEAR;
