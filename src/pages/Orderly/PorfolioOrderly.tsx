@@ -824,7 +824,7 @@ function PortfolioOrderly() {
   );
 }
 export default function OrderBookPortfolio() {
-  const disbaledWallet = ['okx-wallet'];
+  const disbaledWallet = ['okx-wallet', 'wallet-connect'];
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
   const isBlock = disbaledWallet.includes(selectedWalletId);
   if (isBlock)

@@ -30,6 +30,7 @@ import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from '../icon/Common';
 import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
+import { USDCWIcon } from '../icon/Common';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -84,6 +85,7 @@ export const TknImages = ({
     : [...new Set<string>(tokens?.map((t) => t?.id))].map((id) =>
         tokens.find((t) => t?.id === id)
       );
+
   const is_vertical = layout == 'vertical' && displayTokens?.length == 4;
   return (
     <div
@@ -95,14 +97,17 @@ export const TknImages = ({
         displayTokens
           ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
           ?.map((token, index) => {
-            const icon = token?.icon;
+            const icon =
+              token.id == '16.contract.portalbridge.near'
+                ? 'usdcw'
+                : token?.icon;
             const id = token?.id;
             const isRisk = riskTokens.some((riskToken) => riskToken.id === id);
             if (icon)
               return (
                 <div
                   key={token?.id + index}
-                  className={`inline-block flex-shrink-0 ${
+                  className={`inline-block flex-shrink-0 frcc ${
                     is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
                   }  h-${size || 10} w-${size || 10} rounded-full ${
                     tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
@@ -111,20 +116,30 @@ export const TknImages = ({
                     border: borderStyle || 'none',
                   }}
                 >
-                  <img
-                    key={
-                      (id || 0) +
-                      '-' +
-                      index +
-                      '-' +
-                      token?.id +
-                      '-' +
-                      uId +
-                      Date.now()
-                    }
-                    src={icon}
-                    className="rounded-full"
-                  />
+                  {token.id == '16.contract.portalbridge.near' ? (
+                    <USDCWIcon
+                      className={`inline-block flex-shrink-0 frcc ${
+                        is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
+                      }  h-${size || 10} w-${size || 10} rounded-full ${
+                        tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
+                      } bg-cardBg`}
+                    />
+                  ) : (
+                    <img
+                      key={
+                        (id || 0) +
+                        '-' +
+                        index +
+                        '-' +
+                        token?.id +
+                        '-' +
+                        uId +
+                        Date.now()
+                      }
+                      src={icon}
+                      className="rounded-full"
+                    />
+                  )}
                   {isRisk && (
                     <div
                       className="absolute z-40"
@@ -205,10 +220,23 @@ export const Images = ({
         displayTokens
           ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
           ?.map((token, index) => {
-            const icon = token?.icon;
+            const icon =
+              token?.id == '16.contract.portalbridge.near'
+                ? '16.contract.portalbridge.near'
+                : token?.icon;
             const id = token?.id;
             if (icon)
-              return (
+              return icon == '16.contract.portalbridge.near' ? (
+                <USDCWIcon
+                  className={`inline-block flex-shrink-0 ${
+                    is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
+                  }  h-${size || 10} w-${size || 10} rounded-full border ${
+                    border ? 'border' : ''
+                  } border-gradientFromHover ${
+                    tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
+                  } bg-cardBg`}
+                />
+              ) : (
                 <img
                   key={
                     (id || 0) +
@@ -286,7 +314,9 @@ export const Symbols = ({
       {tokens?.map((token, index) => (
         <span key={token?.id + '-' + index}>
           {index ? separator || '-' : ''}
-          {toRealSymbol(token?.symbol || '')}
+          {token?.id == '16.contract.portalbridge.near'
+            ? 'USDC.w'
+            : toRealSymbol(token?.symbol || '')}
         </span>
       ))}
       {withArrow ? <span className="ml-1.5">{'>'}</span> : null}

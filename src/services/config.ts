@@ -311,6 +311,11 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
+        USDCW_POOL_ID: process.env.USDCW_POOL_ID || 5219,
+        USDCW_TOKEN_IDS: [
+          '16.contract.portalbridge.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
       };
     case 'pub-testnet':
       return {
@@ -374,6 +379,7 @@ export default function getConfig(
           'usdc.fakes.testnet': 1,
           'dai.fakes.testnet': 2,
         },
+
         TOTAL_PLATFORM_FEE_REVENUE:
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
@@ -405,6 +411,7 @@ export default function getConfig(
           'usdte.ft.ref-labs.testnet',
           'usdce.ft.ref-labs.testnet',
         ],
+
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
         FRAX_USDC_POOL_ID: process.env.FRAX_USDC_POOL_ID,
         USDT_USDC_TOKEN_IDS: [],
@@ -566,6 +573,11 @@ export default function getConfig(
           '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
           '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': 1,
         },
+        USDCW_POOL_ID: process.env.USDCW_POOL_ID || 5219,
+        USDCW_TOKEN_IDS: [
+          '16.contract.portalbridge.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
         STABLE_POOL_USN_ID: process.env.STABLE_POOL_USN_ID || 3020,
         STABLE_TOKEN_USN_IDS: [
           'usn',
@@ -760,6 +772,7 @@ export function getExtraStablePoolConfig(
           '4179',
           '4513',
           '4514',
+          '5219',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -773,6 +786,10 @@ export function getExtraStablePoolConfig(
         },
         FRAX_USDC_POOL_INDEX: {
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        USDCW_TOKEN_INDEX: {
+          '16.contract.portalbridge.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
         },
       };
@@ -948,6 +965,7 @@ export function getExtraStablePoolConfig(
           '4179',
           '4513',
           '4514',
+          '5219',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -961,6 +979,10 @@ export function getExtraStablePoolConfig(
         },
         FRAX_USDC_POOL_INDEX: {
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        USDCW_TOKEN_INDEX: {
+          '16.contract.portalbridge.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
         },
       };

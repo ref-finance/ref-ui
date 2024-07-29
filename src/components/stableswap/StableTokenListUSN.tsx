@@ -14,6 +14,7 @@ import { SmallWallet } from '../icon/SmallWallet';
 import { getMax } from '../../utils/numbers';
 import { NEARXIDS } from '../../services/near';
 import { WalletContext } from '../../utils/wallets-integration';
+import { USDCWIcon } from '../../components/icon/Common';
 
 export function Icon(props: {
   icon?: string;
@@ -74,12 +75,18 @@ export default function StableTokenListUSN(props: {
       </div>
       <div className="flex items-center ">
         <div className="flex items-center w-28 xs:w-24 md:w-24 xs:flex-shrink-0 md:xs:flex-shrink-0">
-          <Icon
-            icon={tokens[0].icon}
-            className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
-          />
+          {tokens[0].id == '16.contract.portalbridge.near' ? (
+            <USDCWIcon className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"></USDCWIcon>
+          ) : (
+            <Icon
+              icon={tokens[0].icon}
+              className="h-9 w-9 xs:h-7 md:h-7 xs:w-7 md:w-7 mr-2"
+            />
+          )}
           <div className="text-white text-base" title={tokens[0].id}>
-            {toRealSymbol(tokens[0].symbol)}
+            {tokens[0].id == '16.contract.portalbridge.near'
+              ? 'USDC.w'
+              : toRealSymbol(tokens[0].symbol)}
           </div>
         </div>
         <InputAmount
@@ -166,13 +173,20 @@ export function StableTokensSymbolUSN(props: {
           tokens[0].id === NEARXIDS[0] ? 'hidden' : ''
         } md:flex-col xs:items-center md:items-center`}
       >
-        <Icon
-          icon={tokens[0].icon}
-          className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
-        />
+        {tokens[0].id == '16.contract.portalbridge.near' ? (
+          <USDCWIcon className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5" />
+        ) : (
+          <Icon
+            icon={tokens[0].icon}
+            className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
+          />
+        )}
+
         <div className="ml-2 inline-block xs:ml-0 md:ml-0">
           <p className="text-sm xs:text-center md:text-center xs:my-1 md:my-1">
-            {toRealSymbol(tokens[0].symbol)}
+            {tokens[0].id == '16.contract.portalbridge.near'
+              ? 'USDC.w'
+              : toRealSymbol(tokens[0].symbol)}
           </p>
           <div className="text-xs xs:text-center md:text-center">
             {calcTokenReceived(receiveAmounts[0], tokens[0])}
@@ -192,13 +206,19 @@ export function StableTokensSymbolUSN(props: {
           tokens[1].id === NEARXIDS[0] ? 'hidden' : ''
         } md:flex-col xs:items-center md:items-center`}
       >
-        <Icon
-          icon={tokens[1].icon}
-          className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
-        />
+        {tokens[1].id == '16.contract.portalbridge.near' ? (
+          <USDCWIcon className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5" />
+        ) : (
+          <Icon
+            icon={tokens[1].icon}
+            className="inline-block h-9 w-9 xs:h-7 xs:w-7 md:h-7 md:w-7 mr-2 xs:mr-0.5 md:mr-0.5"
+          />
+        )}
         <div className="ml-2 inline-block xs:ml-0 md:ml-0">
           <p className="text-sm xs:text-center md:text-center xs:my-1 md:my-1">
-            {toRealSymbol(tokens[1].symbol)}
+            {tokens[1].id == '16.contract.portalbridge.near'
+              ? 'USDC.w'
+              : toRealSymbol(tokens[1].symbol)}
           </p>
           <div className="text-xs xs:text-center md:text-center">
             {calcTokenReceived(receiveAmounts[1], tokens[1])}
