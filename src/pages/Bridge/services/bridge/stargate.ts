@@ -33,6 +33,7 @@ const stargateBridgeService = {
     }
     return stargateBridgeService.auroraReceiveContract;
   },
+
   transfer(params: BridgeTransferParams) {
     if (params.to === 'NEAR') {
       return stargateBridgeService.evmToNear(params);
@@ -50,6 +51,7 @@ const stargateBridgeService = {
     sendParam: any;
     messagingFee: any;
     valueToSend: string;
+    insufficientFeeBalance?: boolean;
   }> {
     if (!params.amount) return;
     if (params.from === 'NEAR') {
@@ -84,6 +86,15 @@ const stargateBridgeService = {
             params,
             discounted ? 'prepareDiscountTransaction' : 'orchestrateTransaction'
           );
+        const sendContract =
+          await stargateBridgeService.initAuroraReceiveContract();
+        const contractFeeBalance = await sendContract.getContractEthBalance();
+        logger.log('contractFeeBalance', formatAmount(contractFeeBalance, 18));
+        logger.log('messagingFee', formatAmount(messagingFee.nativeFee, 18));
+        const insufficientFeeBalance = contractFeeBalance.lt(
+          messagingFee.nativeFee
+        );
+
         const minAmount = new Big(sendParam.amountLD.toString())
           .mul(1 - params.slippage)
           .toFixed(0);
@@ -106,6 +117,7 @@ const stargateBridgeService = {
           sendParam: newSendParam,
           messagingFee,
           valueToSend,
+          insufficientFeeBalance,
         };
       }
     } else {
@@ -156,22 +168,25 @@ const stargateBridgeService = {
   async queryFeeUSD(params: BridgeTransferParams) {
     const cacheKey = `${params.from}_${params.to}_${params.tokenIn.symbol}`;
     if (stargateBridgeService.cacheFeeUSD[cacheKey])
-      return stargateBridgeService.cacheFeeUSD[cacheKey];
+      return { ...stargateBridgeService.cacheFeeUSD[cacheKey] };
     const { messagingFee } =
       await stargateBridgeService.prepareTakeTaxiStargate(params);
+
+    const chainId = BridgeConfig.Stargate.bridgeParams[params.to].eid;
     const sendContract =
       await stargateBridgeService.initAuroraReceiveContract();
-    const chainId = BridgeConfig.Stargate.bridgeParams[params.to].eid;
     const { discountedFeeUSD, fullFeeUSD } = await sendContract.calculateFee(
       messagingFee.nativeFee,
       chainId
     );
     logger.log('discountedFeeUSD', discountedFeeUSD.toString());
     logger.log('fullFeeUSD', fullFeeUSD.toString());
+
     stargateBridgeService.cacheFeeUSD[cacheKey] = {
       discountedFeeUSD,
       fullFeeUSD,
     };
+
     return { discountedFeeUSD, fullFeeUSD };
   },
   //cacheDiscount key fromChain_toChain_symbol
@@ -260,7 +275,15 @@ const stargateBridgeService = {
     }
   },
   async nearToEvm(params: BridgeTransferParams) {
-    if (window.nearWallet.id === 'ledger') {
+    if (
+      [
+        'ledger',
+        'near-mobile-wallet',
+        'okx-wallet',
+        'mintbase-wallet',
+        'neth',
+      ].includes(window.nearWallet.id)
+    ) {
       throw new Error(
         'Ledger is not supported for this bridge, please use other wallet.'
       );

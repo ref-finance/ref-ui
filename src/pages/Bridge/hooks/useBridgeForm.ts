@@ -116,6 +116,7 @@ export default function useBridgeForm() {
         BridgeModel.BridgeSupportChannel,
         Awaited<ReturnType<typeof bridgeServices.query>>
       >;
+      if (!fromAccountAddress) return result;
 
       for (const channel of supportBridgeChannels) {
         result[channel] = await bridgeServices.query({
@@ -198,6 +199,10 @@ export default function useBridgeForm() {
     if (!fromAccountAddress) {
       setBridgeFromValue({
         ...bridgeFromValue,
+        amount: undefined,
+      });
+      setBridgeToValue({
+        ...bridgeToValue,
         amount: undefined,
       });
     } else {
@@ -304,42 +309,37 @@ export default function useBridgeForm() {
 
   const bridgeSubmitStatusText = useMemo(() => {
     switch (bridgeSubmitStatus) {
-      case `unConnectForm`:
-        return `Connect to ${bridgeFromValue.chain}`;
-      case `unConnectTo`:
-        return `Connect to ${bridgeToValue.chain}`;
       case `enterToAddress`:
         return `Enter Destination Address`;
       case `enterAmount`:
         return `Enter amount`;
       case `insufficientBalance`:
         return `Insufficient balance`;
-      case `preview`:
-        return `Preview`;
       default:
-        return ``;
+        return `Preview`;
     }
   }, [bridgeSubmitStatus, bridgeFromValue.chain, bridgeToValue.chain]);
 
-  const gasWarning = useMemo(() => {
+  const feeWarning = useMemo(() => {
     if (
       !getWallet(bridgeFromValue.chain).isSignedIn ||
       channelInfoMapLoading ||
       new Big(bridgeFromValue.amount || 0).eq(0)
     )
       return;
-    if (
-      bridgeChannel === 'Stargate' &&
-      bridgeFromValue.chain === 'NEAR' &&
-      new Big(channelInfoMap?.[bridgeChannel]?.readableFeeAmount || 0).gte(
-        bridgeFromValue.amount
-      )
-    ) {
-      return `Your ${bridgeFromValue.tokenMeta.symbol} cannot cover the Bridge Fee`;
-    } else {
-      console.log('gasWarning gasTokenBalance', gasTokenBalance);
-      if (new Big(gasTokenBalance).eq(0)) return 'Not enough gas fee';
+    if (bridgeChannel === 'Stargate' && bridgeFromValue.chain === 'NEAR') {
+      if (channelInfoMap?.[bridgeChannel]?.insufficientFeeBalance) {
+        return `The bridge is too busy, please try again later.`;
+      }
+      if (
+        new Big(channelInfoMap?.[bridgeChannel]?.readableFeeAmount || 0).gt(
+          bridgeFromValue.amount
+        )
+      ) {
+        return `Your ${bridgeFromValue.tokenMeta.symbol} cannot cover the Bridge Fee.`;
+      }
     }
+    if (new Big(gasTokenBalance).eq(0)) return 'Not enough gas fee.';
   }, [
     getWallet(bridgeFromValue.chain).isSignedIn,
     bridgeFromValue.amount,
@@ -434,7 +434,7 @@ export default function useBridgeForm() {
     exchangeChain,
     bridgeSubmitStatus,
     bridgeSubmitStatusText,
-    gasWarning,
+    feeWarning,
     slippageTolerance,
     setSlippageTolerance,
     channelInfoMap,

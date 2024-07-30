@@ -153,7 +153,7 @@ function BridgeEntry() {
     bridgeSubmitStatus,
     bridgeSubmitStatusText,
     openPreviewModal,
-    gasWarning,
+    feeWarning,
     channelInfoMapLoading,
   } = useBridgeFormContext();
 
@@ -188,7 +188,7 @@ function BridgeEntry() {
         <InputToken
           model={bridgeFromValue}
           balance={bridgeFromBalance}
-          errorMessage={gasWarning}
+          errorMessage={feeWarning}
           onChange={setBridgeFromValue}
         >
           <TokenSelector
@@ -244,10 +244,8 @@ function BridgeEntry() {
             size="large"
             className="w-full"
             disabled={
-              ['enterAmount', 'insufficientBalance', 'enterToAddress'].includes(
-                bridgeSubmitStatus
-              ) ||
-              (bridgeSubmitStatus === 'preview' && !!gasWarning)
+              bridgeSubmitStatus !== 'preview' ||
+              (bridgeSubmitStatus === 'preview' && !!feeWarning)
             }
             onClick={handleConfirm}
           >
