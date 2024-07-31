@@ -76,7 +76,6 @@ function ConnectWallet({
             <div
               className="inline-flex transform hover:opacity-80 hover:shadow-lg hover:scale-125"
               onClick={(e) => {
-                e.stopPropagation();
                 disconnect();
               }}
             >

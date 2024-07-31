@@ -20,6 +20,7 @@ import { Optional, Transaction } from '@near-wallet-selector/core';
 import { BridgeConfig } from '../../config';
 import { getTokenMeta } from '../../utils/token';
 import Big from 'big.js';
+import { startCase } from 'lodash';
 
 const stargateBridgeService = {
   auroraReceiveContract: null as any,
@@ -285,7 +286,9 @@ const stargateBridgeService = {
       ].includes(window.nearWallet.id)
     ) {
       throw new Error(
-        'Ledger is not supported for this bridge, please use other wallet.'
+        `${startCase(
+          window.nearWallet.id
+        )} is not supported for this bridge, please use other wallet.`
       );
     }
     const { from, tokenIn, amount, sender } = params;

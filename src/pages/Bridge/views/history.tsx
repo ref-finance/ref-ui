@@ -41,7 +41,7 @@ function BridgeTransactionHistory() {
     {
       refreshDeps: [historyFilter, getWallet(historyFilter.chain)?.accountId],
       before: () => getWallet(historyFilter.chain).isSignedIn,
-      debounceOptions: 1000,
+      debounceOptions: { wait: 500, leading: true },
     }
   );
 

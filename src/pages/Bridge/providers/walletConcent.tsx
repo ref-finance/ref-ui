@@ -51,9 +51,9 @@ export function useWalletConnectContext() {
     isSignedIn,
     async disconnect() {
       try {
+        const curWallet = await window.selector.wallet();
+        await curWallet?.signOut();
         localStorage.removeItem(ACCOUNT_ID_KEY);
-        (await window.selector.wallet()).signOut();
-
         window.location.reload();
       } catch (error) {
         console.error('disconnect error: ', error);
