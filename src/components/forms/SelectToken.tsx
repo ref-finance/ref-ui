@@ -475,6 +475,9 @@ export default function SelectToken({
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [listTknData, setListTknData] = useState<TokenMetadata[]>([]);
   const [listTknxData, setListTknxData] = useState<TokenMetadata[]>([]);
+  const [listmemeCookingData, setListmemeCookingData] = useState<
+    TokenMetadata[]
+  >([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
@@ -528,6 +531,20 @@ export default function SelectToken({
       balances,
       visible
     );
+  const {
+    tokensData: memeCookingTokensData,
+    loading: loadingMemeCookingTokensData,
+  } = useTokensData(
+    tokens.filter(
+      (t) =>
+        TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
+        t.id.indexOf('meme-cooking') != -1 &&
+        t.isRisk &&
+        !t.isUserToken
+    ),
+    balances,
+    visible
+  );
   useEffect(() => {
     if (tokensData?.length && !loadingTokensData) {
       tokensData.sort(sortTypes[currentSort].fn);
@@ -547,6 +564,16 @@ export default function SelectToken({
       setListTknxData(tknxTokensData);
     }
   }, [tknxTokensData?.length, loadingTKNXTokensData, currentSort]);
+  useEffect(() => {
+    if (memeCookingTokensData?.length && !loadingMemeCookingTokensData) {
+      memeCookingTokensData.sort(sortTypes[currentSort].fn);
+      setListmemeCookingData(memeCookingTokensData);
+    }
+  }, [
+    memeCookingTokensData?.length,
+    loadingMemeCookingTokensData,
+    currentSort,
+  ]);
 
   useEffect(() => {
     getLatestCommonBassesTokens();
@@ -710,6 +737,10 @@ export default function SelectToken({
     <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
     Created by any user on https://tkn.homes with the tknx.near suffix, poses high risks. Ref has not certified it. Exercise caution.
     </div>`;
+  const memeCookingTip = `
+    <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
+    Created by any user on https://meme.cooking/create with the meme-cooking.near suffix, poses high risks. Ref has not certified it. Exercise caution.
+    </div>`;
   return (
     <MicroModal
       open={visible}
@@ -840,16 +871,6 @@ export default function SelectToken({
                 >
                   Default
                 </div>
-                {/* <div
-                  className={`flex-1 text-center py-2.5 ${
-                    activeTab === 'Watchlist'
-                      ? 'text-white border-b-2 border-white'
-                      : ''
-                  }`}
-                  onClick={() => setActiveTab('Watchlist')}
-                >
-                  Watchlist
-                </div> */}
                 <div
                   className={`text-center px-2.5 py-2 ${
                     activeTab === 'TKN'
@@ -868,6 +889,26 @@ export default function SelectToken({
                   >
                     <QuestionMark></QuestionMark>
                     <CustomTooltip id="tknId" />
+                  </div>
+                </div>
+                <div
+                  className={`text-center px-2.5 py-2 ${
+                    activeTab === 'MC'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('MC')}
+                >
+                  MC
+                  <div
+                    className="text-white text-right ml-1 inline-block"
+                    data-class="reactTip"
+                    data-tooltip-id="mcId"
+                    data-place="left"
+                    data-tooltip-html={memeCookingTip}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <CustomTooltip id="mcId" />
                   </div>
                 </div>
                 {/* tknx */}
@@ -919,24 +960,6 @@ export default function SelectToken({
                     showRiskTokens={false}
                   />
                 )}
-                {/* {activeTab === 'Watchlist' && (
-                  <>
-                    {showCommonBasses && (
-                      <CommonBasses
-                        sortBy={sortBy}
-                        onClick={(token) => {
-                          onSelect && onSelect(token);
-                        }}
-                        tokenPriceList={tokenPriceList}
-                        allowWNEAR={allowWNEAR}
-                        handleClose={handleClose}
-                        balances={balances}
-                        forCross={forCross}
-                        tokens={listData.concat(listTknData)}
-                      />
-                    )}
-                  </>
-                )} */}
                 {activeTab === 'TKN' && (
                   <SelectTokenTable
                     sortBy={sortBy}
@@ -971,6 +994,32 @@ export default function SelectToken({
                     currentSort={currentSort}
                     onSortChange={onSortChange}
                     tokens={listTknxData}
+                    onClick={(token) => {
+                      if (token.id != NEARXIDS[0]) {
+                        if (
+                          !(
+                            token.id == WRAP_NEAR_CONTRACT_ID &&
+                            token.symbol == 'wNEAR' &&
+                            !allowWNEAR
+                          )
+                        ) {
+                          onSelect && onSelect(token);
+                        }
+                      }
+                      handleClose();
+                    }}
+                    balances={balances}
+                    forCross={forCross}
+                    showRiskTokens={true}
+                  />
+                )}
+                {activeTab === 'MC' && (
+                  <SelectTokenTable
+                    sortBy={sortBy}
+                    tokenPriceList={tokenPriceList}
+                    currentSort={currentSort}
+                    onSortChange={onSortChange}
+                    tokens={listmemeCookingData}
                     onClick={(token) => {
                       if (token.id != NEARXIDS[0]) {
                         if (
