@@ -512,7 +512,7 @@ export default function SelectToken({
       tokens.filter(
         (t) =>
           TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
-          t.id.indexOf('tknx') == -1 &&
+          isSuffix(t.id, 'tkn') &&
           t.isRisk &&
           !t.isUserToken
       ),
@@ -524,7 +524,7 @@ export default function SelectToken({
       tokens.filter(
         (t) =>
           TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
-          t.id.indexOf('tknx') != -1 &&
+          isSuffix(t.id, 'tknx') &&
           t.isRisk &&
           !t.isUserToken
       ),
@@ -538,7 +538,7 @@ export default function SelectToken({
     tokens.filter(
       (t) =>
         TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
-        t.id.indexOf('meme-cooking') != -1 &&
+        isSuffix(t.id, 'meme-cooking') &&
         t.isRisk &&
         !t.isUserToken
     ),
@@ -593,6 +593,12 @@ export default function SelectToken({
       fn: (a: any, b: any) => a,
     },
   };
+  function isSuffix(mainStr, subStr) {
+    return (
+      mainStr.endsWith(subStr + '.testnet') ||
+      mainStr.endsWith(subStr + '.near')
+    );
+  }
   const sortBySymbol = (a: TokenMetadata, b: TokenMetadata) => {
     if (+a.near == 0 && +b.near == 0) {
       const a_symbol = toRealSymbol(a.symbol).toLocaleLowerCase();

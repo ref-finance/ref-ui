@@ -171,9 +171,6 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         ];
         const allTokens = await getAllTokens();
         const postfix = await get_auto_whitelisted_postfix();
-        // for tknx
-        postfix.push('.tknx');
-        postfix.push('.tkns');
         const whiteMetaDataList = await Promise.all(
           allWhiteTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
         );
