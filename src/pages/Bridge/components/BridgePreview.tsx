@@ -55,7 +55,7 @@ export default function BridgePreviewModal({
       bridgeFee: channelInfoMap?.[bridgeChannel]?.usdFee,
       protocolFee: channelInfoMap?.[bridgeChannel]?.readableProtocolFee,
       minimumReceived:
-        channelInfoMap?.[bridgeChannel].readableMinAmountWithSlippage,
+        channelInfoMap?.[bridgeChannel]?.readableMinAmountWithSlippage,
     }),
     [
       bridgeFromValue,
