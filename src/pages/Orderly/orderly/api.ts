@@ -79,33 +79,37 @@ const announceLedgerAccessKey = async (accountId: string) => {
   } else {
     keyStore.setKey(getConfig().networkId, accountId, keyPairLedger);
 
-    const addKeyRes = await wallet.signAndSendTransaction({
-      signerId: accountId,
-      receiverId: accountId,
-      actions: [
-        {
-          type: 'AddKey',
-          params: {
-            publicKey: keyPairLedger.getPublicKey().toString(),
-            accessKey: {
-              permission: {
-                receiverId: ORDERLY_ASSET_MANAGER,
+    const addKeyRes = await wallet
+      .signAndSendTransaction({
+        signerId: accountId,
+        receiverId: accountId,
+        actions: [
+          {
+            type: 'AddKey',
+            params: {
+              publicKey: keyPairLedger.getPublicKey().toString(),
+              accessKey: {
+                permission: {
+                  receiverId: ORDERLY_ASSET_MANAGER,
 
-                methodNames: [
-                  'addMessage',
-                  'user_deposit_native_token',
-                  'user_request_withdraw',
-                  'user_announce_key',
-                  'user_request_set_trading_key',
-                  'create_user_account',
-                ],
-                allowance: '250000000000000000000000',
+                  methodNames: [
+                    'addMessage',
+                    'user_deposit_native_token',
+                    'user_request_withdraw',
+                    'user_announce_key',
+                    'user_request_set_trading_key',
+                    'create_user_account',
+                  ],
+                  allowance: '250000000000000000000000',
+                },
               },
             },
           },
-        },
-      ],
-    });
+        ],
+      })
+      .catch((e) => {
+        console.log('88888888888-addKey', e);
+      });
   }
 
   const handlePopTrigger = () => {
@@ -136,7 +140,8 @@ const announceKey = async (accountId: string) => {
     wallet.id === 'here-wallet' ||
     wallet.id === 'nightly' ||
     wallet.id === 'keypom' ||
-    wallet.id === 'near-mobile-wallet'
+    wallet.id === 'near-mobile-wallet' ||
+    wallet.id === 'coin98-wallet'
   ) {
     if (wallet.id !== 'near-mobile-wallet') {
       await announceLedgerAccessKey(accountId);
@@ -175,20 +180,24 @@ const announceKey = async (accountId: string) => {
       .account()
       .functionCall(ORDERLY_ASSET_MANAGER, 'user_announce_key', {});
   }
-  return await wallet.signAndSendTransaction({
-    signerId: accountId,
-    actions: [
-      {
-        type: 'FunctionCall',
-        params: {
-          methodName: 'user_announce_key',
-          args: {},
-          gas: utils.format.parseNearAmount('0.00000000003')!,
-          deposit: utils.format.parseNearAmount('0')!,
+  return await wallet
+    .signAndSendTransaction({
+      signerId: accountId,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            methodName: 'user_announce_key',
+            args: {},
+            gas: utils.format.parseNearAmount('0.00000000003')!,
+            deposit: utils.format.parseNearAmount('0')!,
+          },
         },
-      },
-    ],
-  });
+      ],
+    })
+    .catch((res) => {
+      console.log('000000000-announce_key', res);
+    });
 };
 
 const setTradingKey = async (accountId: string) => {
@@ -199,7 +208,8 @@ const setTradingKey = async (accountId: string) => {
     wallet.id === 'here-wallet' ||
     wallet.id === 'nightly' ||
     wallet.id === 'keypom' ||
-    wallet.id === 'near-mobile-wallet'
+    wallet.id === 'near-mobile-wallet' ||
+    wallet.id === 'coin98-wallet'
   ) {
     // @ts-ignore
     if (!contract) {
@@ -219,22 +229,26 @@ const setTradingKey = async (accountId: string) => {
         key: getNormalizeTradingKey(),
       });
   }
-  return await wallet.signAndSendTransaction({
-    signerId: accountId,
-    actions: [
-      {
-        type: 'FunctionCall',
-        params: {
-          methodName: 'user_request_set_trading_key',
-          args: {
-            key: getNormalizeTradingKey(),
+  return await wallet
+    .signAndSendTransaction({
+      signerId: accountId,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            methodName: 'user_request_set_trading_key',
+            args: {
+              key: getNormalizeTradingKey(),
+            },
+            gas: utils.format.parseNearAmount('0.00000000003')!,
+            deposit: utils.format.parseNearAmount('0')!,
           },
-          gas: utils.format.parseNearAmount('0.00000000003')!,
-          deposit: utils.format.parseNearAmount('0')!,
         },
-      },
-    ],
-  });
+      ],
+    })
+    .catch((res) => {
+      console.log('000000000-trading_key', res);
+    });
 
   // return await account.functionCall(
   //   ORDERLY_ASSET_MANAGER,
