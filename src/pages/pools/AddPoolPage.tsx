@@ -36,6 +36,7 @@ import { TokenBalancesView } from '../../services/token';
 import { ModalClose } from '../../components/icon/ModalClose';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from 'src/components/icon/Common';
+import { getImageMark, isSuffix } from '../../utils/token';
 
 export function AddPoolModal(
   props: ReactModal.Props & {
@@ -105,31 +106,40 @@ export function AddPoolModal(
 
   const Selected = (props: { token: TokenMetadata }) => {
     const Icon = ({ token }: { token: TokenMetadata }) => {
+      // TODOMM
+      const mark = getImageMark(token);
       return (
         <div className="flex items-center">
-          <div className="relative">
+          <div className="relative flex-shrink-0 overflow-hidden h-7 w-7 mx-1 rounded-full">
             <img
               key={token.id}
-              className="mx-1 h-7 w-7 border rounded-full border-black"
+              className="h-full w-full border rounded-full border-black"
               src={token.icon}
             />
-            {token.isRisk && (
+            {mark ? (
               <div
-                className="absolute bottom-0 transform -translate-x-1/2 text-center"
-                style={{ left: '18px' }}
+                className="flex items-center justify-center bg-black bg-opacity-75 absolute bottom-0 left-0 right-0"
+                style={{ height: '11px' }}
               >
-                <TknIcon />
+                <span
+                  className="italic text-white text-sm gotham_bold relative"
+                  style={{
+                    top: '-1px',
+                    left: '-1px',
+                    transform: 'scale(0.55, 0.6)',
+                  }}
+                >
+                  {mark}
+                </span>
               </div>
-            )}
+            ) : null}
           </div>
-
           <div className="mx-1 font-semibold">{toRealSymbol(token.symbol)}</div>
         </div>
       );
     };
     return (
-      <div className="flex h-10 justify-between items-center px-3 py-3 bg-inputDarkBg text-white relative flex overflow-hidden rounded align-center my-2">
-        {/* <Icon token={props.token} /> */}
+      <div className="flex h-10 justify-between items-center px-3 py-3 bg-inputDarkBg text-white relative overflow-hidden rounded align-center my-2">
         <Icon token={props.token} />
         {tokens.length > 1 && (
           <div className="pl-2 text-xs">

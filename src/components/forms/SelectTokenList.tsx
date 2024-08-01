@@ -112,7 +112,7 @@ export default function SelectTokenList({
           index === 0 ? 'pt-4 pb-2' : 'py-2'
         }`}
       >
-        <SingleToken isRisk={isRisk} token={token} price={price} />
+        <SingleToken token={token} />
       </div>
       <div
         className={!forCross ? 'hidden' : 'w-12 flex justify-start  absolute '}

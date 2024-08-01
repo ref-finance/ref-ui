@@ -81,6 +81,7 @@ import { sort_tokens_by_base, openUrl } from '../../services/commonV3';
 import getConfigV2 from '../../services/configV2';
 import SelectTokenTable from './SelectTokenTable';
 import CustomTooltip from '../customTooltip/customTooltip';
+import { getImageMark, isSuffix } from '../../utils/token';
 const configV2 = getConfigV2();
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST2';
@@ -105,46 +106,65 @@ export function tokenPrice(price: string, error?: boolean) {
     </span>
   );
 }
-export function SingleToken({
-  token,
-  price,
-  isRisk,
-}: {
-  token: TokenMetadata;
-  price: string;
-  isRisk: boolean;
-}) {
+export function SingleToken({ token }: { token: TokenMetadata }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   const [showTooltip, setShowTooltip] = useState(false);
   const isTokenAtRisk = !!token.isRisk;
+  // TODOMM
+  const mark = getImageMark(token);
   return (
     <>
       {token.icon ? (
-        <div className="relative flex-shrink-0">
+        <div
+          className="relative flex-shrink-0 overflow-hidden mr-2 rounded-full"
+          style={{ width: '30px', height: '30px' }}
+        >
           <img
             src={token.icon}
             alt={toRealSymbol(token.symbol)}
-            className="inline-block mr-2 border rounded-full border-black"
-            style={{ width: '30px', height: '30px' }}
+            className="inline-block mr-2 border rounded-full border-black w-full h-full"
           />
-          {isTokenAtRisk ? (
-            <div className="absolute bottom-0 left-0">
-              <TknIcon />
+          {mark ? (
+            <div
+              className="flex items-center justify-center bg-black bg-opacity-75 absolute bottom-0 left-0 right-0"
+              style={{ height: '11px' }}
+            >
+              <span
+                className="italic text-white text-sm gotham_bold relative"
+                style={{
+                  top: '-1px',
+                  left: '-1px',
+                  transform: 'scale(0.55, 0.6)',
+                }}
+              >
+                {mark}
+              </span>
             </div>
           ) : null}
         </div>
       ) : (
         <div
-          className="inline-block mr-2 border rounded-full border-black relative"
+          className="inline-block mr-2 border rounded-full border-black relative overflow-hidden"
           style={{ width: '30px', height: '30px' }}
         >
-          {isTokenAtRisk ? (
-            <div className="absolute bottom-0 left-0">
-              <TknIcon />
+          {mark ? (
+            <div
+              className="flex items-center justify-center bg-black bg-opacity-75 absolute bottom-0 left-0 right-0"
+              style={{ height: '11px' }}
+            >
+              <span
+                className="italic text-white text-sm gotham_bold relative"
+                style={{
+                  top: '-1px',
+                  left: '-1px',
+                  transform: 'scale(0.55, 0.6)',
+                }}
+              >
+                {mark}
+              </span>
             </div>
           ) : null}
         </div>
-        // <DefaultTokenImg className="mr-2"></DefaultTokenImg>
       )}
       <div className="flex flex-col justify-between">
         <div className={`flex items-center`}>
@@ -593,12 +613,6 @@ export default function SelectToken({
       fn: (a: any, b: any) => a,
     },
   };
-  function isSuffix(mainStr, subStr) {
-    return (
-      mainStr.endsWith(subStr + '.testnet') ||
-      mainStr.endsWith(subStr + '.near')
-    );
-  }
   const sortBySymbol = (a: TokenMetadata, b: TokenMetadata) => {
     if (+a.near == 0 && +b.near == 0) {
       const a_symbol = toRealSymbol(a.symbol).toLocaleLowerCase();
