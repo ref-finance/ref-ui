@@ -43,11 +43,18 @@ const stargateBridgeService = {
     }
   },
   async query(params: BridgeTransferParams): Promise<{
+    //not contain slippage
     minAmount: string;
     readableMinAmount: string;
+    //contain slippage
+    minAmountWithSlippage: string;
+    readableMinAmountWithSlippage: string;
+
     feeAmount: string;
     readableFeeAmount: string;
     usdFee: string;
+    protocolFee: string;
+    readableProtocolFee?: string;
     discounted: boolean;
     sendParam: any;
     messagingFee: any;
@@ -73,9 +80,13 @@ const stargateBridgeService = {
         return {
           minAmount: '0',
           readableMinAmount: '0',
+          minAmountWithSlippage: '0',
+          readableMinAmountWithSlippage: '0',
           feeAmount,
           readableFeeAmount,
           usdFee,
+          protocolFee: '0',
+          readableProtocolFee: '0',
           discounted,
           sendParam: {},
           messagingFee: {},
@@ -95,25 +106,46 @@ const stargateBridgeService = {
         const insufficientFeeBalance = contractFeeBalance.lt(
           messagingFee.nativeFee
         );
-
         const minAmount = new Big(sendParam.amountLD.toString())
-          .mul(1 - params.slippage)
+          .times(
+            1 - BridgeConfig.Stargate.bridgeParams[params.to].protocolFeeRatio
+          )
           .toFixed(0);
+
+        const minAmountWithSlippage = new Big(sendParam.amountLD.toString())
+          .times(1 - params.slippage)
+          .toFixed(0);
+        const protocolFee = new Big(sendParam.amountLD.toString())
+          .times(BridgeConfig.Stargate.bridgeParams.Aurora.protocolFeeRatio)
+          .toFixed(0);
+        const readableProtocolFee = formatAmount(
+          protocolFee,
+          params.tokenOut.decimals
+        );
         logger.log('amountLD', sendParam.amountLD.toString());
-        logger.log('new minAmount', minAmount);
-        logger.log('origin minAmount', sendParam.minAmountLD.toString());
+        logger.log('minAmount', minAmount);
+        logger.log('minAmountWithSlippage', minAmountWithSlippage);
+        logger.log('origin minAmountLD', sendParam.minAmountLD.toString());
         const newSendParam = { ...sendParam };
-        newSendParam.minAmountLD = BigNumber.from(minAmount);
+        newSendParam.minAmountLD = BigNumber.from(minAmountWithSlippage);
         const readableMinAmount = formatAmount(
           minAmount,
+          params.tokenIn.decimals
+        );
+        const readableMinAmountWithSlippage = formatAmount(
+          minAmountWithSlippage,
           params.tokenIn.decimals
         );
         return {
           minAmount,
           readableMinAmount,
+          minAmountWithSlippage,
+          readableMinAmountWithSlippage,
           feeAmount,
           readableFeeAmount,
           usdFee,
+          protocolFee,
+          readableProtocolFee,
           discounted,
           sendParam: newSendParam,
           messagingFee,
@@ -134,26 +166,45 @@ const stargateBridgeService = {
       const ethPriceInUSD = await tokenServices.getPrice(getTokenMeta('ETH'));
       const usdFee = new Big(readableFeeAmount).times(ethPriceInUSD).toString();
       const newSendParam = { ...sendParam };
-      newSendParam.minAmountLD = BigNumber.from(
-        new Big(sendParam.amountLD.toString())
-          .mul(1 - params.slippage)
-          .toFixed(0)
+      const minAmount = new Big(sendParam.amountLD.toString())
+        .times(
+          1 - BridgeConfig.Stargate.bridgeParams[params.from].protocolFeeRatio
+        )
+        .toFixed(0);
+      const minAmountWithSlippage = new Big(sendParam.amountLD.toString())
+        .times(1 - params.slippage)
+        .toFixed(0);
+      const protocolFee = new Big(sendParam.amountLD.toString())
+        .times(BridgeConfig.Stargate.bridgeParams.Aurora.protocolFeeRatio)
+        .toFixed(0);
+      const readableProtocolFee = formatAmount(
+        protocolFee,
+        params.tokenOut.decimals
       );
+      newSendParam.minAmountLD = BigNumber.from(minAmountWithSlippage);
       logger.log('amountLD', sendParam.amountLD.toString());
-      logger.log('origin minAmount', sendParam.minAmountLD.toString());
-      logger.log('new minAmount', newSendParam.minAmountLD.toString());
-      const minAmount = newSendParam.minAmountLD.toString();
+      logger.log('minAmount', minAmount);
+      logger.log('minAmountWithSlippage', minAmountWithSlippage);
+      logger.log('origin minAmountLD', sendParam.minAmountLD.toString());
       const readableMinAmount = formatAmount(
         minAmount,
+        params.tokenIn.decimals
+      );
+      const readableMinAmountWithSlippage = formatAmount(
+        minAmountWithSlippage,
         params.tokenIn.decimals
       );
 
       return {
         minAmount,
         readableMinAmount,
+        minAmountWithSlippage,
+        readableMinAmountWithSlippage,
         feeAmount,
         readableFeeAmount,
         usdFee,
+        protocolFee,
+        readableProtocolFee,
         discounted: false,
         sendParam: newSendParam,
         messagingFee,

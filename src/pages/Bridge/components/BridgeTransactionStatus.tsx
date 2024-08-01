@@ -51,7 +51,7 @@ export default function BridgeTransactionStatusModal({
   const estimateTime = useMemo(() => {
     if (!transaction?.created_time) return 0;
     const waiting = moment().diff(transaction.created_time, 'm');
-    const estimate = BridgeConfig[params.channel].wait - waiting;
+    const estimate = BridgeConfig[params.channel].estimateWait - waiting;
     return estimate > 0 ? estimate : 0;
   }, [transaction?.created_time]);
 

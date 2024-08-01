@@ -9,7 +9,6 @@ import { formatAmount, formatUSDCurrency } from '../utils/format';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import LogoRainbow from './../assets/logo-rainbow.png';
 import LogoStargate from './../assets/logo-stargate.png';
-import Big from 'big.js';
 
 const routeConfig = {
   Rainbow: { logo: LogoRainbow, ...BridgeConfig.Rainbow },
@@ -57,7 +56,7 @@ function BridgeRouteItem({
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="grid grid-cols-2 justify-between gap-2">
           <div className="text-white text-sm font-medium">
             ~
             {formatAmount(
@@ -66,12 +65,23 @@ function BridgeRouteItem({
             )}{' '}
             {bridgeToValue.tokenMeta.symbol}
           </div>
-          <div className="text-right text-slate-500 text-xs font-normal ">
-            ~{route.wait} mins ｜Bridge fee{' '}
-            <span className="ml-1">
-              {formatUSDCurrency(channelInfoMap?.[channel]?.usdFee, '0.01')}
-              <CustomTooltip id="bridge-gas-fee" />
-            </span>
+          <div className="text-slate-500 text-xs font-normal flex justify-end flex-wrap gap-1">
+            {route.estimateWaitText} ｜
+            {channel === 'Stargate' && (
+              <>
+                <span>
+                  Layer0 Fee{' '}
+                  {formatUSDCurrency(channelInfoMap?.[channel]?.usdFee, '0.01')}
+                </span>
+                <span>
+                  StarGate Fee{' '}
+                  {formatUSDCurrency(
+                    channelInfoMap?.[channel]?.readableProtocolFee,
+                    '0.01'
+                  )}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -98,7 +108,9 @@ function BridgeSelectRoutesModal({
     >
       <div className="bridge-modal" style={{ width: '428px' }}>
         <div className="flex items-center justify-between">
-          <span className="text-base text-white font-medium">Bridge Route</span>
+          <span className="text-base text-white font-medium">
+            Bridge Router
+          </span>
           <Button text onClick={toggleOpenModal}>
             <SvgIcon name="IconClose" />
           </Button>
@@ -149,7 +161,7 @@ function BridgeRoutes() {
     <>
       <div className="mb-4">
         <div className="flex items-center justify-between">
-          <span>Select Bridge Route</span>
+          <span>Select Bridge Router</span>
           <Button
             className="inline-flex items-center text-xs"
             size="small"
@@ -157,7 +169,7 @@ function BridgeRoutes() {
             onClick={toggleOpenModal}
           >
             {showRoute
-              ? `${supportBridgeChannels.length} Route${
+              ? `${supportBridgeChannels.length} Router${
                   supportBridgeChannels.length > 1 ? 's' : ''
                 } 
             `

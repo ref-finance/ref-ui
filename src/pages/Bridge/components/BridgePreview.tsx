@@ -15,7 +15,6 @@ import {
 import { BridgeConfig } from '../config';
 import { useBridgeTransactionContext } from '../providers/bridgeTransaction';
 import { useAutoResetState } from '../hooks/useHooks';
-import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import Big from 'big.js';
 import { toast } from 'react-toastify';
 import { storageStore } from '../utils/common';
@@ -46,17 +45,17 @@ export default function BridgePreviewModal({
   const confirmInfo = useMemo(
     () => ({
       tokenMeta: bridgeFromValue?.tokenMeta,
-      amount: bridgeFromValue?.amount,
+      amountIn: bridgeFromValue?.amount,
+      amountOut: bridgeToValue?.amount,
       from: bridgeFromValue?.chain,
       to: bridgeToValue?.chain,
       recipient,
       sender,
-      constTime: BridgeConfig[bridgeChannel]?.wait,
+      constTime: BridgeConfig[bridgeChannel]?.estimateWaitText,
       bridgeFee: channelInfoMap?.[bridgeChannel]?.usdFee,
-      minimumReceived: formatAmount(
-        channelInfoMap?.[bridgeChannel]?.minAmount,
-        bridgeFromValue.tokenMeta?.decimals
-      ),
+      protocolFee: channelInfoMap?.[bridgeChannel]?.readableProtocolFee,
+      minimumReceived:
+        channelInfoMap?.[bridgeChannel].readableMinAmountWithSlippage,
     }),
     [
       bridgeFromValue,
@@ -119,12 +118,22 @@ export default function BridgePreviewModal({
           </div>
           <div>
             <div className="text-center mb-3">You will send</div>
-            <div className="flex items-center justify-center text-white mb-4">
-              <div className="w-7 h-7 bg-white rounded-full mr-3 overflow-hidden">
-                <img src={confirmInfo?.tokenMeta?.icon} />
+            <div className="flex items-center justify-around gap-5 text-white mb-5 py-5">
+              <div className="flex items-center justify-center">
+                <div className="w-7 h-7  rounded-full mr-2 overflow-hidden flex-shrink-0">
+                  <img src={confirmInfo?.tokenMeta?.icon} />
+                </div>
+                {formatNumber(confirmInfo?.amountIn)}{' '}
+                {confirmInfo?.tokenMeta?.symbol}
               </div>
-              {formatNumber(confirmInfo?.amount)}{' '}
-              {confirmInfo?.tokenMeta?.symbol}
+              <SvgIcon name="IconDirection" className="text-white" />
+              <div className="flex items-center justify-center">
+                <div className="w-7 h-7  rounded-full mr-2 overflow-hidden flex-shrink-0">
+                  <img src={confirmInfo?.tokenMeta?.icon} />
+                </div>
+                {formatNumber(confirmInfo?.amountOut)}{' '}
+                {confirmInfo?.tokenMeta?.symbol}
+              </div>
             </div>
             <div className="flex items-center gap-5 mb-7">
               <div
@@ -166,6 +175,16 @@ export default function BridgePreviewModal({
                 </div>
               </div>
               <div className="flex justify-between">
+                <div>Layer0 Fee</div>
+                <div>
+                  <div className="text-white text-right">
+                    <span className="ml-1">
+                      {formatUSDCurrency(confirmInfo.protocolFee, '0.01')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-between">
                 <div>Minimum Received</div>
                 <div>
                   <div className="text-white text-right">
@@ -179,7 +198,7 @@ export default function BridgePreviewModal({
                 <div>Cost Time</div>
                 <div>
                   <div className="text-white text-right">
-                    {confirmInfo.constTime} mins
+                    {confirmInfo.constTime}
                   </div>
                 </div>
               </div>

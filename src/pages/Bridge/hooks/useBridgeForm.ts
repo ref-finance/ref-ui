@@ -143,7 +143,7 @@ export default function useBridgeForm() {
         slippageTolerance,
       ],
       before: () => !!fromAccountAddress,
-      debounceOptions: { wait: 500, leading: true },
+      debounceOptions: { wait: 500 },
     }
   );
 
