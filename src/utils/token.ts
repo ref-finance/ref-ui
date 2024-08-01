@@ -22,13 +22,15 @@ export function isSuffix(mainStr, subStr) {
     mainStr.endsWith(subStr + '.testnet') || mainStr.endsWith(subStr + '.near')
   );
 }
-export function getImageMark(token: TokenMetadata) {
+export function getImageMark(token: TokenMetadata, isRisk?: boolean) {
   const isTkn = isSuffix(token.id, 'tkn');
   const isTknx = isSuffix(token.id, 'tknx');
   const isMemeCooking = isSuffix(token.id, 'meme-cooking');
-  if (isTkn) return 'TKN';
-  // if (isTknx) return 'TKNX';
-  if (isMemeCooking) return 'MC';
+  if (isRisk || token.isRisk) {
+    if (isTkn) return 'TKN';
+    // if (isTknx) return 'TKNX';
+    if (isMemeCooking) return 'MC';
+  }
   return '';
 }
 export const DEFLATION_MARK = 'tknx.near';

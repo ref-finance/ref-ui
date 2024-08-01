@@ -77,6 +77,7 @@ import { PoolsTip } from '../../poolsComponents/poolsTip';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from 'src/components/icon/Common';
 import Pagination from '../../../../components/poolsPagination/Pagination';
+import { getImageMark } from '../../../../utils/token';
 
 function MobileLiquidityPage({
   h24VolumeV2,
@@ -948,27 +949,14 @@ function MobilePoolRowV2({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center justify-start">
             <div className="flex items-center">
-              {/* <div className="h-6 w-6 border border-gradientFromHover rounded-full">
-                <img
-                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                  className="rounded-full w-full"
-                  src={tokens[0].icon}
-                />
-              </div>
-
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
-                <img
-                  key={tokens[1].id}
-                  className="w-full rounded-full"
-                  src={tokens[1].icon}
-                />
-              </div> */}
               {curRowTokens.map((token, index) => {
                 const atRisk = isTokenAtRisk(token);
+                // TODOMM
+                const riskMark = getImageMark(token, atRisk);
                 return (
                   <div key={token.id} className="relative inline-block">
                     <div
-                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative z-10 ${
+                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative z-10 overflow-hidden ${
                         index > 0 ? '-ml-1.5' : ''
                       }`}
                       style={{
@@ -981,12 +969,29 @@ function MobilePoolRowV2({
                         src={token.icon}
                         alt={token.symbol}
                       />
+                      {riskMark ? (
+                        <div
+                          className="flex items-center justify-center bg-black bg-opacity-75 absolute bottom-0 left-0 right-0"
+                          style={{ height: '11px' }}
+                        >
+                          <span
+                            className="italic text-white text-sm gotham_bold relative"
+                            style={{
+                              top: '-1px',
+                              left: '-1px',
+                              transform: 'scale(0.55, 0.6)',
+                            }}
+                          >
+                            {riskMark}
+                          </span>
+                        </div>
+                      ) : null}
                     </div>
-                    {atRisk && (
+                    {/* {atRisk && (
                       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center z-50">
                         <TknIcon className="transform scale-75" />
                       </div>
-                    )}
+                    )} */}
                   </div>
                 );
               })}
