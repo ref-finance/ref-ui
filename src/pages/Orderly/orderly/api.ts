@@ -108,7 +108,7 @@ const announceLedgerAccessKey = async (accountId: string) => {
         ],
       })
       .catch((e) => {
-        console.log('88888888888-addKey', e);
+        // console.log('88888888888-addKey', e);
       });
   }
 
@@ -196,7 +196,7 @@ const announceKey = async (accountId: string) => {
       ],
     })
     .catch((res) => {
-      console.log('000000000-announce_key', res);
+      // console.log('000000000-announce_key', res);
     });
 };
 
@@ -247,7 +247,7 @@ const setTradingKey = async (accountId: string) => {
       ],
     })
     .catch((res) => {
-      console.log('000000000-trading_key', res);
+      // console.log('000000000-trading_key', res);
     });
 
   // return await account.functionCall(
