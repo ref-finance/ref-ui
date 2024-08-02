@@ -48,13 +48,6 @@ export default function BridgeTransactionStatusModal({
     }
   );
 
-  const estimateTime = useMemo(() => {
-    if (!transaction?.created_time) return 0;
-    const waiting = moment().diff(transaction.created_time, 'm');
-    const estimate = BridgeConfig[params.channel].estimateWait - waiting;
-    return estimate > 0 ? estimate : 0;
-  }, [transaction?.created_time]);
-
   const router = useRouter();
 
   function handleOpenHistory() {
@@ -118,7 +111,9 @@ export default function BridgeTransactionStatusModal({
           <div className="my-6 text-center text-white">
             {transaction.status === 'DELIVERED'
               ? `Bridge Completed`
-              : `Est. Bridging Time: ${estimateTime} mins`}
+              : `Est. Bridging Time: ${
+                  BridgeConfig[params.channel].estimateWaitText
+                }`}
           </div>
           <div className="text-center mb-6">
             You can view your transaction on the{' '}

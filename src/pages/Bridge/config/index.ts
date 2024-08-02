@@ -169,8 +169,6 @@ const RainbowBridgeDefaultParams = {
 };
 export const BridgeConfig = {
   Rainbow: {
-    /** estimated 20 minutes */
-    estimateWait: 20,
     estimateWaitText: '~20 mins',
     bridgeParams: IS_MAINNET
       ? {
@@ -201,8 +199,6 @@ export const BridgeConfig = {
         },
   },
   Stargate: {
-    /** estimated 1-3 minutes */
-    estimateWait: 1,
     estimateWaitText: '1~3 mins',
     bridgeParams: {
       Arbitrum: {
