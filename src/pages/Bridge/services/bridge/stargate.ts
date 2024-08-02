@@ -111,10 +111,6 @@ const stargateBridgeService = {
             1 - BridgeConfig.Stargate.bridgeParams[params.to].protocolFeeRatio
           )
           .toFixed(0);
-
-        const minAmountWithSlippage = new Big(sendParam.amountLD.toString())
-          .times(1 - params.slippage)
-          .toFixed(0);
         const protocolFee = new Big(sendParam.amountLD.toString())
           .times(BridgeConfig.Stargate.bridgeParams.Aurora.protocolFeeRatio)
           .toFixed(0);
@@ -122,6 +118,9 @@ const stargateBridgeService = {
           protocolFee,
           params.tokenOut.decimals
         );
+        const minAmountWithSlippage = new Big(sendParam.minAmountLD.toString())
+          .times(1 - params.slippage)
+          .toFixed(0);
         logger.log('amountLD', sendParam.amountLD.toString());
         logger.log('minAmount', minAmount);
         logger.log('minAmountWithSlippage', minAmountWithSlippage);
@@ -171,9 +170,7 @@ const stargateBridgeService = {
           1 - BridgeConfig.Stargate.bridgeParams[params.from].protocolFeeRatio
         )
         .toFixed(0);
-      const minAmountWithSlippage = new Big(sendParam.amountLD.toString())
-        .times(1 - params.slippage)
-        .toFixed(0);
+
       const protocolFee = new Big(sendParam.amountLD.toString())
         .times(BridgeConfig.Stargate.bridgeParams.Aurora.protocolFeeRatio)
         .toFixed(0);
@@ -181,6 +178,9 @@ const stargateBridgeService = {
         protocolFee,
         params.tokenOut.decimals
       );
+      const minAmountWithSlippage = new Big(sendParam.minAmountLD.toString())
+        .times(1 - params.slippage)
+        .toFixed(0);
       newSendParam.minAmountLD = BigNumber.from(minAmountWithSlippage);
       logger.log('amountLD', sendParam.amountLD.toString());
       logger.log('minAmount', minAmount);

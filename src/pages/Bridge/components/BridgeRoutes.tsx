@@ -9,6 +9,7 @@ import { formatAmount, formatUSDCurrency } from '../utils/format';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import LogoRainbow from './../assets/logo-rainbow.png';
 import LogoStargate from './../assets/logo-stargate.png';
+import Big from 'big.js';
 
 const routeConfig = {
   Rainbow: { logo: LogoRainbow, ...BridgeConfig.Rainbow },
@@ -65,23 +66,33 @@ function BridgeRouteItem({
             )}{' '}
             {bridgeToValue.tokenMeta.symbol}
           </div>
-          <div className="text-slate-500 text-xs font-normal flex justify-end flex-wrap gap-1">
-            {route.estimateWaitText} ｜
-            {channel === 'Stargate' && (
-              <>
-                <span>
-                  Layer0 Fee{' '}
-                  {formatUSDCurrency(channelInfoMap?.[channel]?.usdFee, '0.01')}
-                </span>
-                <span>
-                  StarGate Fee{' '}
-                  {formatUSDCurrency(
-                    channelInfoMap?.[channel]?.readableProtocolFee,
-                    '0.01'
-                  )}
-                </span>
-              </>
-            )}
+          <div className="text-right text-slate-500 text-xs font-normal ">
+            {route.estimateWaitText} ｜ Bridge fee{' '}
+            <span
+              className="underline cursor-pointer ml-1"
+              data-tooltip-id="bridgeFee"
+              data-place="right"
+              data-class="reactTip"
+              data-tooltip-html={`
+                <div>Layer0 Fee: ${formatUSDCurrency(
+                  channelInfoMap?.[channel]?.usdFee,
+                  '0.01'
+                )} </div>
+                <div>StarGate Fee: ${formatUSDCurrency(
+                  channelInfoMap?.[channel]?.readableProtocolFee,
+                  '0.01'
+                )}</div>`}
+            >
+              <span>
+                {formatUSDCurrency(
+                  new Big(channelInfoMap?.[channel]?.usdFee || 0)
+                    .plus(channelInfoMap?.[channel]?.readableProtocolFee || 0)
+                    .toString(),
+                  '0.01'
+                )}
+              </span>
+              <CustomTooltip id="bridgeFee" />
+            </span>
           </div>
         </div>
       </div>

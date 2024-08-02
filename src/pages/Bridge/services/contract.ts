@@ -495,8 +495,7 @@ export const tokenServices = {
     token: BridgeModel.BridgeTokenMeta,
     isForce = false
   ) {
-    
-    const cacheKey = token.addresses[chain]||`${chain}`
+    const cacheKey = token.addresses[chain] || `${chain}`;
 
     const balance = tokenServices.balances[cacheKey];
     if (!isForce && balance && Date.now() - balance.timestamp < 1000 * 30) {
@@ -509,7 +508,7 @@ export const tokenServices = {
       value: res,
       timestamp: Date.now(),
     };
-    logger.log(`bridge: ${chain} - ${token.symbol} balance`, res);
+    // logger.log(`bridge: ${chain} - ${token.symbol} balance`, res);
     return res;
   },
   async getPrice(token: BridgeModel.BridgeTokenMeta) {
