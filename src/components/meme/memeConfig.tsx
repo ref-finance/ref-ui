@@ -272,6 +272,8 @@ export function getMemeContractConfig(
           'memefarm-xref-baby.ref-labs.near',
           'memefarm-xref-hat.ref-labs.near',
           'memefarm-xref-intel.ref-labs.near',
+          'memefarm-xref-dd.ref-labs.near',
+          'memefarm-xref-neiro.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
