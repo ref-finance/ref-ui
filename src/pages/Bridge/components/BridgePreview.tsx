@@ -165,7 +165,7 @@ export default function BridgePreviewModal({
             </div>
             <div className="flex flex-col gap-5">
               <div className="flex justify-between">
-                <div>Bridge Fee</div>
+                <div>Layer0 Fee</div>
                 <div>
                   <div className="text-white text-right">
                     <span className="ml-1">
@@ -175,7 +175,7 @@ export default function BridgePreviewModal({
                 </div>
               </div>
               <div className="flex justify-between">
-                <div>Layer0 Fee</div>
+                <div>StarGate Fee</div>
                 <div>
                   <div className="text-white text-right">
                     <span className="ml-1">
