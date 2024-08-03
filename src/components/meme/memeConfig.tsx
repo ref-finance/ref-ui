@@ -461,7 +461,7 @@ export function getMemeDataConfig(): any {
       meme_cap_tokens: [
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
-        'usmeme.tg',
+        'nearnvidia.near',
         'touched.tkn.near',
         'token.0xshitzu.near',
       ],
