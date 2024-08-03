@@ -418,11 +418,11 @@ export function getMemeDataConfig(): any {
           'https://assets.ref.finance/images/blackdragon-icon.png',
       },
       meme_winner_tokens: [
-        'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
-        'usmeme.tg',
+        'token.lonkingnearbackto2024.near',
         'touched.tkn.near',
         'token.0xshitzu.near',
+        'nearnvidia.near',
       ],
       meme_nonListed_tokens: [
         'gear.enleap.near',
