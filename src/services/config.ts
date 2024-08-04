@@ -214,9 +214,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -381,9 +381,9 @@ export default function getConfig(
         },
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -404,12 +404,12 @@ export default function getConfig(
         switch_on_dcl_farms: 'on',
         BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
-          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1843,
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1919,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
-          'usdtt.fakes.testnet',
-          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
-          'usdt.fakes.testnet',
-          'usdc.fakes.testnet',
+          'usdtt.ft.ref-labs.testnet',
+          'usdcc.ft.ref-labs.testnet',
+          'usdte.ft.ref-labs.testnet',
+          'usdce.ft.ref-labs.testnet',
         ],
 
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
@@ -488,9 +488,9 @@ export default function getConfig(
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -606,9 +606,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -839,12 +839,13 @@ export function getExtraStablePoolConfig(
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1843'],
+        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1919'],
+        DEGEN_POOLS_IDS: ['2022'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
-          'usdtt.fakes.testnet': 0,
-          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 1,
-          'usdt.fakes.testnet': 2,
-          'usdc.fakes.testnet': 3,
+          'usdtt.ft.ref-labs.testnet': 0,
+          'usdcc.ft.ref-labs.testnet': 1,
+          'usdte.ft.ref-labs.testnet': 2,
+          'usdce.ft.ref-labs.testnet': 3,
         },
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},

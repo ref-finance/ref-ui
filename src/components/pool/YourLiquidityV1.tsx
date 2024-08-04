@@ -103,7 +103,6 @@ import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from '../../pages/pools/AddPoolPage';
 import { getStableSwapTabKey } from 'src/pages/stable/StableSwapPageUSN';
 import { LinkIcon } from '../../components/icon/Portfolio';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { checkFarmStake } from '../../state/farm';
 import {
   display_number_withCommas,
@@ -114,6 +113,13 @@ import { PortfolioData } from 'src/pages/Portfolio';
 import { openUrl } from '../../services/commonV3';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import BLACKTip from '../../components/pool/BLACKTip';
+import {
+  PoolAvailableAmount,
+  PoolFarmAmount,
+  PoolShareYourLiquidityV1,
+  ShadowInBurrowAmount,
+} from 'src/components/pool/PoolShare';
+
 import { FeeTipV1 } from '../../components/pool/FeeTip';
 import { useLpLocker } from '../../state/lpLocker';
 const is_mobile = isMobile();
@@ -143,6 +149,7 @@ export function YourLiquidityV1(props: any) {
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
   const isSignedIn = !!accountId;
+
   useEffect(() => {
     // get all stable pools;
     const ids = ALL_STABLE_POOL_IDS;
@@ -150,6 +157,7 @@ export function YourLiquidityV1(props: any) {
       setStablePools(res.filter((p) => p.id.toString() !== NEARX_POOL_ID));
     });
   }, []);
+
   useEffect(() => {
     if (!isSignedIn) return;
     // get all simple pools;
@@ -157,6 +165,7 @@ export function YourLiquidityV1(props: any) {
       setPools(res.filter((p) => !isStablePool(p.id.toString())));
     });
   }, [isSignedIn]);
+
   useEffect(() => {
     if (!pools) return;
     // get all tokens meta data both from simple pools and stable pools
@@ -181,6 +190,7 @@ export function YourLiquidityV1(props: any) {
       }
     );
   }, [pools]);
+
   // get ve pool
   const vePool = pools?.find((p) => Number(p.id) === Number(getVEPoolId()));
   // get stake list in v1 farm and v2 farm
@@ -717,44 +727,51 @@ function YourClassicLiquidityLine(props: any) {
     return new BigNumber(lpInVote).shiftedBy(-24).toFixed();
   }, [lptAmount]);
   // get lp amount in pool && total lp (pool + farm) && user lp percent
-  const [lp_in_pool, lp_total, user_lp_percent] = useMemo(() => {
-    const { id, shares_total_supply } = pool;
-    const is_stable_pool = isStablePool(id);
-    let amount_in_pool = '0';
-    let total_amount = '0';
-    if (is_stable_pool) {
-      const i = stablePools.findIndex((p: PoolRPCView) => p.id === pool.id);
-      amount_in_pool = batchStableShares?.[i];
-      total_amount = batchTotalShares?.[i];
-    } else {
-      const i = pools.findIndex((p: PoolRPCView) => p.id === pool.id);
-      amount_in_pool = batchShares?.[i];
-      total_amount = batchTotalSharesSimplePools?.[i];
-    }
-    const read_amount_in_pool = new BigNumber(amount_in_pool)
-      .shiftedBy(-decimals)
-      .toFixed();
-    const read_total_amount = new BigNumber(total_amount)
-      .shiftedBy(-decimals)
-      .plus(lp_in_vote);
-    const read_shareSupply = new BigNumber(
-      shares_total_supply || '0'
-    ).shiftedBy(-decimals);
-    let percent = '0';
-    if (
-      read_shareSupply.isGreaterThan(0) &&
-      read_total_amount.isGreaterThan(0)
-    ) {
-      percent = read_total_amount.dividedBy(read_shareSupply).toFixed();
-    }
-    return [read_amount_in_pool, read_total_amount.toFixed(), percent];
-  }, [
-    batchShares,
-    batchStableShares,
-    batchTotalSharesSimplePools,
-    batchTotalShares,
-    lp_in_vote,
-  ]);
+  const [lp_in_pool, lp_total, user_lp_percent, lp_in_pool_non_divisible] =
+    useMemo(() => {
+      const { id, shares_total_supply } = pool;
+      const is_stable_pool = isStablePool(id);
+      let amount_in_pool = '0';
+      let total_amount = '0';
+      if (is_stable_pool) {
+        const i = stablePools.findIndex((p: PoolRPCView) => p.id === pool.id);
+        amount_in_pool = batchStableShares?.[i];
+        total_amount = batchTotalShares?.[i];
+      } else {
+        const i = pools.findIndex((p: PoolRPCView) => p.id === pool.id);
+        amount_in_pool = batchShares?.[i];
+        total_amount = batchTotalSharesSimplePools?.[i];
+      }
+      const read_amount_in_pool = new BigNumber(amount_in_pool)
+        .shiftedBy(-decimals)
+        .toFixed();
+      const read_total_amount = new BigNumber(total_amount)
+        .shiftedBy(-decimals)
+        .plus(lp_in_vote);
+      const read_shareSupply = new BigNumber(
+        shares_total_supply || '0'
+      ).shiftedBy(-decimals);
+      let percent = '0';
+      if (
+        read_shareSupply.isGreaterThan(0) &&
+        read_total_amount.isGreaterThan(0)
+      ) {
+        percent = read_total_amount.dividedBy(read_shareSupply).toFixed();
+      }
+      return [
+        read_amount_in_pool,
+        read_total_amount.toFixed(),
+        percent,
+        amount_in_pool,
+      ];
+    }, [
+      batchShares,
+      batchStableShares,
+      batchTotalSharesSimplePools,
+      batchTotalShares,
+      lp_in_vote,
+    ]);
+
   // get total lp value
   const lp_total_value = useMemo(() => {
     const { id, tvl, shares_total_supply } = pool;
@@ -772,6 +789,7 @@ function YourClassicLiquidityLine(props: any) {
     }
     return '0';
   }, [lp_total, tvls]);
+
   // get seed status
   const seed_status = useMemo(() => {
     const allFarmV2_count = getFarmsCount(poolId.toString(), v2Farm);
@@ -807,6 +825,7 @@ function YourClassicLiquidityLine(props: any) {
         lp_total_value,
         set_switch_off,
         lp_total,
+        lp_in_pool_non_divisible,
         display_percent,
         user_lp_percent,
         lp_in_vote,
@@ -905,25 +924,12 @@ function YourClassicLiquidityLineMobile() {
             <FormattedMessage id="usage" />
           </span>
           <div className="flex flex-col items-end text-sm text-white">
-            <div
-              className={`flex items-center ${
-                +lp_in_farm > 0 ? '' : 'hidden'
-              } ${+lp_in_vote > 0 || +lp_in_pool > 0 ? 'mb-4' : ''}`}
-            >
-              {display_number_withCommas(lp_in_farm)}{' '}
-              <FormattedMessage id="in" />{' '}
-              <span
-                className="flex items-center"
-                onClick={() => {
-                  openUrl(`/v2farms/${pool.id}-${seed_status}`);
-                }}
-              >
-                <label className="underline cursor-pointer mx-1">
-                  <FormattedMessage id="farm" />
-                </label>{' '}
-                <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
-              </span>
-            </div>
+            <PoolFarmAmount
+              poolId={pool.id}
+              farmVersion={'v2'}
+              styleType={'portfolio'}
+            />
+            <ShadowInBurrowAmount poolId={pool.id} styleType={'portfolio'} />
             <div
               className={`flex items-center  ${
                 +lp_in_vote > 0 ? '' : 'hidden'
@@ -964,6 +970,7 @@ function YourClassicLiquidityLinePc() {
     lp_total_value,
     set_switch_off,
     lp_total,
+    lp_in_pool_non_divisible,
     display_percent,
     user_lp_percent,
     lp_in_vote,
@@ -971,6 +978,7 @@ function YourClassicLiquidityLinePc() {
     lp_in_farm,
     seed_status,
   } = useContext(LiquidityContextData);
+
   return (
     <div
       className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
@@ -1030,30 +1038,28 @@ function YourClassicLiquidityLinePc() {
             <span className="text-sm text-v3SwapGray">
               <FormattedMessage id="usage" />
             </span>
-            <div className="flex items-center text-sm text-white">
+            <div className="flex items-center text-sm text-white gap-2">
+              <PoolFarmAmount
+                poolId={pool.id}
+                farmVersion={'v2'}
+                styleType={'portfolio'}
+                textContainerClassName={'flex items-center flex-shrink-0'}
+                linkClass={`text-primaryText flex ${
+                  +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
+                }`}
+              />
+
+              <ShadowInBurrowAmount
+                poolId={pool.id}
+                styleType={'portfolio'}
+                textContainerClassName={'flex items-center flex-shrink-0'}
+                linkClass={`text-primaryText flex whitespace-nowrap items-center ${
+                  +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
+                }`}
+              />
+
               <div
-                className={`flex items-center pl-3.5 ${
-                  +lp_in_vote > 0 || +lp_in_pool > 0
-                    ? 'border-r border-orderTypeBg pr-3.5'
-                    : ''
-                } ${+lp_in_farm > 0 ? '' : 'hidden'}`}
-              >
-                {display_number_withCommas(lp_in_farm)}{' '}
-                <FormattedMessage id="in" />{' '}
-                <span
-                  className="flex items-center"
-                  onClick={() => {
-                    openUrl(`/v2farms/${pool.id}-${seed_status}`);
-                  }}
-                >
-                  <label className="underline cursor-pointer mx-1">
-                    <FormattedMessage id="farm" />
-                  </label>{' '}
-                  <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
-                </span>
-              </div>
-              <div
-                className={`flex items-center pl-3.5 ${
+                className={`flex items-center ${
                   +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
                 } ${+lp_in_vote > 0 ? '' : 'hidden'}`}
               >
@@ -1072,11 +1078,16 @@ function YourClassicLiquidityLinePc() {
                 </span>
               </div>
               <div
-                className={`flex items-center pl-3.5 ${
+                className={`flex items-center ${
                   +lp_in_pool > 0 ? '' : 'hidden'
                 }`}
               >
-                {display_number_withCommas(lp_in_pool)}{' '}
+                {/*{display_number_withCommas(lp_in_pool)}{' '}*/}
+                <PoolAvailableAmount
+                  pool={pool}
+                  shares={lp_in_pool_non_divisible}
+                />
+                &nbsp;
                 <FormattedMessage id="holding" />
               </div>
             </div>
@@ -1182,7 +1193,7 @@ function PoolRow(props: {
     return !!tokenIds.find((id) => BLACK_TOKEN_LIST.includes(id));
   }, [tokens]);
   const history = useHistory();
-
+  const intl = useIntl();
   const { stakeList, v2StakeList, finalStakeList } =
     useContext(StakeListContext);
 
@@ -1329,8 +1340,6 @@ function PoolRow(props: {
 
   const lpDecimal = isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24;
 
-  const intl = useIntl();
-
   function getForbiddenTip() {
     const tip = intl.formatMessage({
       id: 'pool_stop_tip',
@@ -1386,163 +1395,21 @@ function PoolRow(props: {
           </div>
 
           <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
-            {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
-              <Link
-                to={{
-                  pathname: '/farms',
-                }}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                className="text-primaryText mb-1.5 flex"
-              >
-                <span>
-                  {toPrecision(
-                    toReadableNumber(
-                      lpDecimal,
-                      scientificNotationToString(farmStakeV1.toString())
-                    ),
-                    2
-                  )}
-                </span>
-                <span className="mx-1">
-                  <FormattedMessage id="in" defaultMessage={'in'} />
-                </span>
-                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                  <span className="underline">Legacy Farms</span>
-
-                  <span className="ml-0.5">
-                    <VEARROW />
-                  </span>
-                </div>
-              </Link>
-            )}
-
-            {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
-              <Link
-                to={{
-                  pathname: `/v2farms/${pool.id}-${
-                    props.onlyEndedFarmV2 ? 'e' : 'r'
-                  }`,
-                }}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                className="text-primaryText mb-1.5 flex"
-              >
-                <span>
-                  {toPrecision(
-                    toReadableNumber(
-                      lpDecimal,
-                      scientificNotationToString(farmStakeV2.toString())
-                    ),
-                    2
-                  )}
-                </span>
-                <span className="mx-1">
-                  <FormattedMessage id="in" defaultMessage={'in'} />
-                </span>
-                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                  <span className="underline">
-                    <FormattedMessage id="classic_farms" />
-                  </span>
-
-                  <span className="ml-0.5">
-                    <VEARROW />
-                  </span>
-                </div>
-              </Link>
-            )}
-            {Big(LpLocked).gt(0) ? (
-              <div>
-                <span>
-                  {toPrecision(
-                    toReadableNumber(
-                      lpDecimal,
-                      scientificNotationToString(LpLocked.toString())
-                    ),
-                    2
-                  )}
-                </span>
-                <span className="mx-1">
-                  <FormattedMessage id="in" defaultMessage={'in'} />
-                </span>
-                <span className="text-primaryText">Locked</span>
-              </div>
-            ) : null}
-            {Number(getVEPoolId()) === Number(pool.id) &&
-            !!getConfig().REF_VE_CONTRACT_ID ? (
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  openUrl('/referendum');
-                }}
-                className="text-primaryText mb-1.5 flex whitespace-nowrap items-center"
-              >
-                <span>
-                  {toPrecision(
-                    ONLY_ZEROS.test(
-                      toNonDivisibleNumber(
-                        LOVE_TOKEN_DECIMAL,
-                        toReadableNumber(24, lptAmount || '0')
-                      )
-                    )
-                      ? '0'
-                      : toReadableNumber(24, lptAmount || '0'),
-                    2
-                  )}
-                </span>
-                <span className="mx-1">
-                  <FormattedMessage id="locked" defaultMessage={'locked'} />
-                </span>
-                <span className="mr-1">
-                  <FormattedMessage id="in" defaultMessage={'in'} />
-                </span>
-                <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                  <span className="underline">
-                    <FormattedMessage
-                      id="vote_capital"
-                      defaultMessage={'VOTE'}
-                    />
-                  </span>
-                  <span className="ml-0.5">
-                    <VEARROW />
-                  </span>
-                </div>
-              </div>
-            ) : null}
-
-            {ONLY_ZEROS.test(shares) ||
-            (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
-              <div>
-                <span
-                  className={'text-gradientFrom'}
-                  title={toReadableNumber(
-                    isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
-                    shares
-                  )}
-                >
-                  {toPrecision(
-                    toReadableNumber(
-                      isStablePool(pool.id)
-                        ? getStablePoolDecimal(pool.id)
-                        : 24,
-                      shares
-                    ),
-                    2
-                  )}
-                </span>
-
-                <span className="ml-1">
-                  <FormattedMessage id="available" />
-                </span>
-              </div>
-            )}
+            <PoolShareYourLiquidityV1
+              {...{
+                supportFarmV1,
+                endedFarmV1,
+                farmStakeV1,
+                supportFarmV2,
+                endedFarmV2,
+                farmStakeV2,
+                onlyEndedFarmV2: props.onlyEndedFarmV2,
+                pool,
+                lptAmount,
+                shares,
+                LpLocked,
+              }}
+            />
           </div>
 
           <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
@@ -1685,7 +1552,6 @@ function PoolRow(props: {
                   onlyEndedFarmV2={props.onlyEndedFarmV2}
                 />
               </div>
-
               {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
                 <Link
                   to={{
@@ -1719,58 +1585,17 @@ function PoolRow(props: {
                   </span>
                 </Link>
               )}
-
-              {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
-                <Link
-                  to={{
-                    pathname: `/v2farms/${pool.id}-${
-                      props.onlyEndedFarmV2 ? 'e' : 'r'
-                    }`,
-                  }}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="text-primaryText mb-1.5 flex items-center text-xs"
-                >
-                  <span>
-                    {toPrecision(
-                      toReadableNumber(
-                        lpDecimal,
-                        scientificNotationToString(farmStakeV2.toString())
-                      ),
-                      2
-                    )}
-                  </span>
-                  <span className="mx-1">
-                    <FormattedMessage id="in" defaultMessage={'in'} />
-                  </span>
-                  <span className="border-b border-primaryText">
-                    <FormattedMessage id="classic_farms" />
-                  </span>
-                  <span className="text-gradientFrom ml-0.5">
-                    <VEARROW />
-                  </span>
-                </Link>
-              )}
-              {Big(LpLocked).gt(0) ? (
-                <div className="text-primaryText text-xs">
-                  <span>
-                    {toPrecision(
-                      toReadableNumber(
-                        lpDecimal,
-                        scientificNotationToString(LpLocked.toString())
-                      ),
-                      2
-                    )}
-                  </span>
-                  <span className="mx-1">
-                    <FormattedMessage id="in" defaultMessage={'in'} />
-                  </span>
-                  <span className="text-primaryText">Locked</span>
-                </div>
-              ) : null}
+              <PoolFarmAmount
+                poolId={pool.id}
+                onlyEndedFarmV2={props.onlyEndedFarmV2}
+                farmVersion={'v2'}
+                linkClass={'text-primaryText mb-1.5 flex items-center text-xs'}
+              />
+              <ShadowInBurrowAmount
+                poolId={poolId}
+                shadowRecordsKey={'shadow_in_burrow'}
+                linkClass={'text-primaryText mb-1.5 flex items-center text-xs'}
+              />
               {Number(getVEPoolId()) === Number(pool.id) &&
               !!getConfig().REF_VE_CONTRACT_ID ? (
                 <div
@@ -1801,29 +1626,14 @@ function PoolRow(props: {
                   </span>
                 </div>
               ) : null}
-
               {ONLY_ZEROS.test(shares) ||
               (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
                 <div className="text-xs">
-                  <span
+                  <PoolAvailableAmount
+                    shares={shares}
+                    pool={pool}
                     className={'text-gradientFrom'}
-                    title={toReadableNumber(
-                      isStablePool(pool.id)
-                        ? getStablePoolDecimal(pool.id)
-                        : 24,
-                      shares
-                    )}
-                  >
-                    {toPrecision(
-                      toReadableNumber(
-                        isStablePool(pool.id)
-                          ? getStablePoolDecimal(pool.id)
-                          : 24,
-                        shares
-                      ),
-                      2
-                    )}
-                  </span>
+                  />
 
                   <span className="ml-1 text-primaryText">
                     <FormattedMessage id="available" />

@@ -4,6 +4,7 @@ import FarmsDetail from 'src/components/farm/FarmsDetail';
 import FarmsDclDetail from 'src/components/farm/FarmsDclDetail';
 import Loading, { BeatLoading } from 'src/components/layout/Loading';
 import { Seed, BoostConfig, UserSeedInfo } from 'src/services/farm';
+import { FarmsContextData } from '../../components/farm/FarmsContext';
 export default function FarmsBoosterPage(props: any) {
   const [detailData, setDetailData] = useState(null);
   const [tokenPriceList, setTokenPriceList] = useState(null);
@@ -62,7 +63,7 @@ export default function FarmsBoosterPage(props: any) {
   const showDclDetailPage = baseCondition && is_dcl;
   const showLoading = paramId && !showDetailPage && !showDclDetailPage;
   return (
-    <>
+    <FarmsContextData.Provider value={{ user_data }}>
       <FarmsHome
         getDetailData={getDetailData}
         getDetailData_user_data={getDetailData_user_data}
@@ -95,6 +96,6 @@ export default function FarmsBoosterPage(props: any) {
           all_seeds={all_seeds}
         ></FarmsDclDetail>
       ) : null}
-    </>
+    </FarmsContextData.Provider>
   );
 }

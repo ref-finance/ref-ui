@@ -120,44 +120,6 @@ export default function BurrowPanel() {
       });
       setSupplied(total_deposit_usd.toFixed());
       setBorrowed(total_borrowed_usd.toFixed());
-      // supplied
-      // const depositedIds = new Set([
-      //   ...account?.collateral?.map((item) => item.token_id),
-      //   ...account?.supplied?.map((item) => item.token_id),
-      // ]);
-      // const supplied_temp = [...depositedIds]
-      //   .map((depositedTokenId: string) => {
-      //     const asset = assets.find((a) => a.token_id === depositedTokenId);
-      //     const supplied = account.supplied.find(
-      //       (s) => s.token_id === depositedTokenId
-      //     );
-      //     const collateral = account.collateral.find(
-      //       (c) => c.token_id === depositedTokenId
-      //     );
-      //     const decimals =
-      //       asset.metadata.decimals + asset.config.extra_decimals;
-      //     const balance = Big(supplied?.balance || 0)
-      //       .plus(collateral?.balance || 0)
-      //       .toFixed();
-      //     return Big(shrinkToken(balance, decimals) || 0)
-      //       .mul(asset.price.usd || 0)
-      //       .toNumber();
-      //   })
-      //   .reduce(sumReducer, 0);
-      // setSupplied(supplied_temp);
-      // // borrowed
-      // const borrowed_temp = account?.borrowed
-      //   ?.map((item) => {
-      //     const { balance, token_id } = item;
-      //     const asset = assets.find((a) => a.token_id === token_id);
-      //     const decimals =
-      //       asset.metadata.decimals + asset.config.extra_decimals;
-      //     return Big(shrinkToken(balance, decimals) || 0)
-      //       .mul(asset.price.usd || 0)
-      //       .toNumber();
-      //   })
-      //   .reduce(sumReducer, 0);
-      // setBorrowed(borrowed_temp);
       // unClaimed rewards
       const unclaimedRewards = getUnclaimedRewards();
       setUnclaimedRewards(unclaimedRewards);
