@@ -40,13 +40,16 @@ module.exports = {
       business: process.cwd(),
       src: path.resolve('src'),
     },
+    experiments: {
+      asyncWebAssembly: true,
+    },
     plugins: {
       add: [
         // Webpack 5 does not polyfill node globals, so we do so for those necessary:
         // new BundleAnalyzerPlugin(),
         new ProvidePlugin({
           Buffer: ['buffer', 'Buffer'],
-          process: 'process/browser.js',
+          process: 'process/browser',
         }),
         new MiniCssExtractPlugin({
           filename: 'static/css/[name].[contenthash:8].css',
@@ -151,19 +154,19 @@ module.exports = {
           fs: false,
           path: require.resolve('path-browserify'),
           assert: require.resolve('assert'),
-          util: require.resolve('util/'),
+          util: require.resolve('util'),
           crypto: require.resolve('crypto-browserify'),
           stream: require.resolve('stream-browserify'),
-          // os: require.resolve('os-browserify/browser'),
+          os: require.resolve('os-browserify/browser'),
           http: require.resolve('stream-http'),
           https: require.resolve('https-browserify'),
-          buffer: require.resolve('buffer/'),
+          buffer: require.resolve('buffer'),
           events: require.resolve('events/'),
           url: require.resolve('url/'),
           zlib: require.resolve('browserify-zlib'),
+          process: 'process/browser',
         },
       });
-
       // Configure webpack caching:
       webpackConfig.cache = Object.assign(webpackConfig.cache, {
         cacheDirectory: getCacheDirectory('webpack'),

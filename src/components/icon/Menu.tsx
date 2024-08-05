@@ -8,7 +8,7 @@ const Rainbow = (props?: any) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <g clip-path="url(#clip0_9323_113)">
+    <g clipPath="url(#clip0_9323_113)">
       <path
         d="M11.6732 6.75098C14.542 6.75098 16.8677 9.05739 16.8677 11.9032H23.6742C23.6738 5.32891 18.3008 0 11.6729 0L11.6732 6.75098Z"
         fill="white"

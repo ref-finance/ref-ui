@@ -1045,6 +1045,16 @@ export const tokenListMainnet = {
         'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/yfi.svg',
       tags: ['ethereum'],
     },
+    {
+      chainId: 1313161554,
+      address: '0x368EBb46ACa6b8D0787C96B2b20bD3CC3F2c45F7',
+      symbol: 'USDC',
+      name: 'USD Coin',
+      decimals: 6,
+      logoURI:
+        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/usdc.svg',
+      tags: [],
+    },
   ],
   version: {
     major: 1,

@@ -23,10 +23,13 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
-    "skipLibCheck": true, /* Skip type checking of declaration files. */
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
     "strictNullChecks": false,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "allowSyntheticDefaultImports":true,
+    "resolveJsonModule": true,
   },
-  "include": ["src/", "globals.d.ts"],
+  "include": [ "*.d.ts", "src/**/*.ts","src/**/*.d.ts","src/**/*.tsx"],
   "exclude": ["node_modules/*", "**/*.spec.ts", "src/index.tsx"]
 }
