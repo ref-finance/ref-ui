@@ -219,7 +219,7 @@ export const BridgeConfig = {
       },
       Aurora: {
         send: '',
-        receive: '0x7D500416d295E08A3894Ae41de34b0cFD7443D5c',
+        receive: '0x04dFb979Ffa1Fb08B6e6EF626377161CBB085Cf1',
         pool: {
           USDC: '0x81F6138153d473E8c5EcebD3DC8Cd4903506B075',
         },
