@@ -1,7 +1,6 @@
-FROM node:20-alpine AS deps
+FROM node:16-alpine AS deps
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN apk add --update --no-cache python3 build-base gcc && ln -sf /usr/bin/python3 /usr/bin/python
 RUN yarn install
 
 FROM deps AS builder
