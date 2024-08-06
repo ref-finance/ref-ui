@@ -12,7 +12,6 @@ import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
 import { Content } from 'src/Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
 import { XmasActivityContextProvider } from './context/XmasActivity';
-import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
 import RpcList from 'src/components/rpc';
 import PubTestModal from '../src/components/layout/PubTestModal';
 function App() {
@@ -29,7 +28,6 @@ function App() {
       </WalletSelectorContextProvider>
       <RpcList />
       <LedgerTransactionModal />
-      <ModalGAPrivacy />
       <PubTestModal />
     </Router>
   );
