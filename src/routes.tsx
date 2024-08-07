@@ -209,6 +209,13 @@ const routes: Route[] = [
     wrapper: 'AutoHeight',
   },
   {
+    path: '/bridge',
+    element: lazy(
+      () => import(/* webpackChunkName: "bridge" */ 'src/pages/Bridge')
+    ),
+    wrapper: 'AutoHeight',
+  },
+  {
     path: '/spot',
     element: lazy(() => {
       if (isNewHostName) {

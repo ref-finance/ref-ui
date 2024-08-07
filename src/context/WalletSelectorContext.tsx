@@ -5,6 +5,7 @@ import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
 import type {
   WalletSelector,
   AccountState,
+  Wallet,
   Network,
 } from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';
@@ -43,6 +44,7 @@ import {
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
 import { setupKeypom } from '@keypom/selector';
+import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { addUserWallet } from '../services/indexer';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
@@ -54,6 +56,7 @@ declare global {
     selector: WalletSelector & {
       getAccountId?: () => string;
     };
+    nearWallet: Wallet & SignMessageMethod;
     modal: WalletSelectorModal;
     selectorAccountId?: string | null;
     sender?: any;
