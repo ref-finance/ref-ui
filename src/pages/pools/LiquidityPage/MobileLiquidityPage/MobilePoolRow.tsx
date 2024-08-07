@@ -133,7 +133,7 @@ function MobilePoolRow({
               {curRowTokens.map((token, index) => {
                 // TODMM
                 const atRisk = isTokenAtRisk(token);
-                const riskMark = getImageMark(token);
+                const riskMark = getImageMark(token, atRisk);
                 return (
                   <div
                     key={token.id}
@@ -161,7 +161,7 @@ function MobilePoolRow({
                           style={{ height: '11px' }}
                         >
                           <span
-                            className="italic text-white text-sm gotham_bold relative"
+                            className="italic text-white text-xs gotham_bold relative"
                             style={{
                               left: '-1px',
                               transform: 'scale(0.5, 0.5)',

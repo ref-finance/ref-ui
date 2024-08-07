@@ -975,7 +975,7 @@ function MobilePoolRowV2({
                           style={{ height: '11px' }}
                         >
                           <span
-                            className="italic text-white text-sm gotham_bold relative"
+                            className="italic text-white text-xs gotham_bold relative"
                             style={{
                               top: '-1px',
                               left: '-1px',
