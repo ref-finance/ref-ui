@@ -979,7 +979,7 @@ function MobilePoolRowV2({
                             style={{
                               top: '-1px',
                               left: '-1px',
-                              transform: 'scale(0.55, 0.6)',
+                              transform: 'scale(0.5, 0.5)',
                             }}
                           >
                             {riskMark}

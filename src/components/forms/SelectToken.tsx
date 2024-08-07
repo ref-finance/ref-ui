@@ -134,7 +134,7 @@ export function SingleToken({ token }: { token: TokenMetadata }) {
                 style={{
                   top: '-1px',
                   left: '-1px',
-                  transform: 'scale(0.55, 0.6)',
+                  transform: 'scale(0.5, 0.5)',
                 }}
               >
                 {mark}
@@ -157,7 +157,7 @@ export function SingleToken({ token }: { token: TokenMetadata }) {
                 style={{
                   top: '-1px',
                   left: '-1px',
-                  transform: 'scale(0.55, 0.6)',
+                  transform: 'scale(0.5, 0.5)',
                 }}
               >
                 {mark}
@@ -911,7 +911,7 @@ export default function SelectToken({
                     <CustomTooltip id="tknId" />
                   </div>
                 </div>
-                <div
+                {/* <div
                   className={`text-center px-2.5 py-2 ${
                     activeTab === 'MC'
                       ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
@@ -930,9 +930,9 @@ export default function SelectToken({
                     <QuestionMark></QuestionMark>
                     <CustomTooltip id="mcId" />
                   </div>
-                </div>
+                </div> */}
                 {/* tknx */}
-                {/* <div
+                <div
                   className={`text-center px-2.5 py-2 ${
                     activeTab === 'TKNX'
                       ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
@@ -951,7 +951,7 @@ export default function SelectToken({
                     <QuestionMark></QuestionMark>
                     <CustomTooltip id="tknId" />
                   </div>
-                </div> */}
+                </div>
               </div>
               <div>
                 {activeTab === 'Default' && (
