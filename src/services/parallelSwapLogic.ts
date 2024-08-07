@@ -43,7 +43,7 @@ export function formatPoolNew(
 
 /** solveForMuFloat
  * This function takes the set of token pools, the total input of inputToken, and the names of inputToken and outputToken and
- * solves for the Lagrange Multiplier "mu". Note that mu must be allowed to be aritrary precision floating point number. Mu will
+ * solves for the Lagrange Multiplier "mu". Note that mu must be allowed to be arbitrary precision floating point number. Mu will
  * be used in subsequent function calls to determine the best allocations of intputToken to be made per pool.
  * For more detailed math on how this function was derived, please see the white paper:
  * https://github.com/giddyphysicist/ParallelSwapForRefFinance/blob/main/ParallelSwapWhitePaper.pdf
