@@ -323,7 +323,7 @@ export function getMemeDataConfig(): any {
         'neko.fakes.testnet':
           'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
         'blackdragon.fakes.testnet':
-          'https://assets.ref.finance/images/blackdragon-icon.png',
+          'https://img.ref.finance/images/blackdragon-icon.png',
       },
       meme_winner_tokens: [
         'lonk.fakes.testnet',
@@ -367,7 +367,7 @@ export function getMemeDataConfig(): any {
         'neko.fakes.testnet':
           'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
         'blackdragon.fakes.testnet':
-          'https://assets.ref.finance/images/blackdragon-icon.png',
+          'https://img.ref.finance/images/blackdragon-icon.png',
       },
       meme_winner_tokens: [
         'lonk.fakes.testnet',
@@ -416,7 +416,7 @@ export function getMemeDataConfig(): any {
         'ftv2.nekotoken.near':
           'https://assets-global.website-files.com/627f75127980b632e08938a5/628668bb571921a4c96a08e3_niko.png',
         'blackdragon.tkn.near':
-          'https://assets.ref.finance/images/blackdragon-icon.png',
+          'https://img.ref.finance/images/blackdragon-icon.png',
       },
       meme_winner_tokens: [
         'blackdragon.tkn.near',
