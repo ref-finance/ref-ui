@@ -104,7 +104,7 @@ import {
   USD_TEXT,
 } from '../../../components/icon/Logo';
 import { VEARROW } from '../../../components/icon/Referendum';
-import getConfig from '../../../services/config';
+import getConfig, { getExtraStablePoolConfig } from '../../../services/config';
 import { AddPoolModal } from '../AddPoolPage';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { getURLInfo } from '../../../components/layout/transactionTipPopUp';
@@ -175,7 +175,7 @@ import {
 } from 'src/components/pool/PoolShare';
 import { format_apy } from '../../../utils/uiNumber';
 import { USDCWIcon } from 'src/components/icon/Common';
-
+const { BTC_STABLE_POOL_ID } = getExtraStablePoolConfig();
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
@@ -2955,18 +2955,20 @@ function StablePoolList({
   let allStablePoolData = useAllStablePoolData();
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
-  allStablePoolData = _.filter(allStablePoolData, (pool) =>
-    pool?.tokens?.every((token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id))
-  );
+  allStablePoolData = _.filter(allStablePoolData, (pool) => {
+    return (
+      pool?.tokens?.every(
+        (token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id)
+      ) && +pool.pool.id !== +BTC_STABLE_POOL_ID
+    );
+  });
   const filterFunc = (p: PoolData) => {
     const b1 =
-      option === 'ALL'
-        ? true
-        : option === 'NEAR'
+      option === 'NEAR'
         ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
-        : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
+        : true;
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
     );
@@ -3047,7 +3049,7 @@ function StablePoolList({
     <>
       <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
         <div className="flex items-center col-span-2 xsm:w-full">
-          {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
+          {['ALL', 'USD', 'NEAR'].map((o) => {
             return (
               <button
                 key={o + '-stable-pool-type'}
