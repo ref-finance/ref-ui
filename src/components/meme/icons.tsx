@@ -1874,7 +1874,7 @@ export function CountdownMobileTitle(props: any) {
 
 export function CountdownFinish(props: any) {
   return (
-    <img {...props} src="https://assets.ref.finance/images/memeVotePc.png" />
+    <img {...props} src="https://img.ref.finance/images/memeVotePc.png" />
   );
 }
 
@@ -1882,7 +1882,7 @@ export function CountdownFinishMobile(props: any) {
   return (
     <img
       {...props}
-      src="https://assets.ref.finance/images/memeVoteMobile.png"
+      src="https://img.ref.finance/images/memeVoteMobile.png"
     />
   );
 }

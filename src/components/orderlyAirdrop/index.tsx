@@ -7,7 +7,7 @@ export default function OrderlyAirDropPop() {
       content: `10% (100,000,000) $ORDER tokens are allocated to early users.
 #NEAR traders need to bind their wallets before June 27th.
 Check your allocation and bind here> (excludes current merit campaign):`,
-      src: 'https://assets.ref.finance/images/orderlyBanner2.jpg',
+      src: 'https://img.ref.finance/images/orderlyBanner2.jpg',
     },
   ];
   return (
