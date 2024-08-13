@@ -260,9 +260,8 @@ export default function useBridgeForm() {
 
   const { data: gasTokenBalance = '0' } = useRequest(
     async () => {
-      const res = await tokenServices.getBalance(
+      const res = await tokenServices.getMainTokenBalance(
         bridgeFromValue.chain,
-        getTokenMeta(bridgeFromValue.chain === 'NEAR' ? 'NEAR' : 'ETH'),
         true
       );
       return res;

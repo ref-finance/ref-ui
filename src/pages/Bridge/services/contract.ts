@@ -78,7 +78,13 @@ export const evmServices = {
       await tx.wait();
     }
   },
-
+  async getMainTokenBalance() {
+    const [sender] = await window.ethProvider?.request({
+      method: 'eth_requestAccounts',
+    });
+    const balance = await window.ethWeb3Provider?.getBalance(sender);
+    return balance.toString();
+  },
   async getBalance(
     chain: BridgeModel.BridgeSupportChain,
     token: BridgeModel.BridgeTokenMeta
@@ -89,7 +95,6 @@ export const evmServices = {
       const [sender] = await window.ethProvider?.request({
         method: 'eth_requestAccounts',
       });
-
       if (token.symbol === 'ETH' && !token.addresses[chain]) {
         balance = (await window.ethWeb3Provider?.getBalance(sender)).toString();
       } else {
@@ -441,7 +446,7 @@ export const nearServices = {
     }
   },
 
-  async getNearBalance() {
+  async getMainTokenBalance() {
     try {
       if (!window.selector) throw new Error('Wallet Selector not found');
       const accountId = await this.getNearAccountId();
@@ -490,6 +495,26 @@ export const nearServices = {
 
 export const tokenServices = {
   balances: {} as Record<string, { value: string; timestamp: number }>,
+  async getMainTokenBalance(
+    chain: BridgeModel.BridgeSupportChain,
+    isForce = false
+  ) {
+    const cacheKey = `${chain}-mainToken`;
+    const balance = tokenServices.balances[cacheKey];
+    if (!isForce && balance && Date.now() - balance.timestamp < 1000 * 30) {
+      return balance.value;
+    }
+    const res =
+      chain === 'NEAR'
+        ? await nearServices.getMainTokenBalance()
+        : await evmServices.getMainTokenBalance();
+    tokenServices.balances[cacheKey] = {
+      value: res,
+      timestamp: Date.now(),
+    };
+    logger.log(`${chain} mainToken balance`, res);
+    return res;
+  },
   async getBalance(
     chain: BridgeModel.BridgeSupportChain,
     token: BridgeModel.BridgeTokenMeta,
