@@ -337,8 +337,8 @@ function MemeVoteModal(props: any) {
               <OprationButton
                 minWidth="7rem"
                 disabled={disabled}
-                // onClick={openMemeVoteConfirmModal}
-                onClick={stakeToken}
+                onClick={openMemeVoteConfirmModal}
+                // onClick={stakeToken}
                 className={`flex flex-grow items-center justify-center bg-greenLight text-boxBorder mt-6 rounded-xl h-12 text-base gotham_bold focus:outline-none ${
                   disabled || memeVoteLoading ? 'opacity-40' : ''
                 }`}
@@ -375,14 +375,14 @@ function MemeVoteModal(props: any) {
           </div>
         </div>
       </div>
-      {/* {confirmIsOpen && (
+      {confirmIsOpen && (
         <MemeVoteConfirmModal
           isOpen={confirmIsOpen}
           onRequestClose={closeMemeVoteConfirmModal}
           onMemeVote={stakeToken}
           delay_withdraw_sec={delay_withdraw_sec}
         />
-      )} */}
+      )}
     </Modal>
   );
 }

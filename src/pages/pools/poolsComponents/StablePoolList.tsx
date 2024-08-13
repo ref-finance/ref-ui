@@ -50,10 +50,11 @@ import { OutlineButton, SolidButton } from 'src/components/button/Button';
 import { TokenMetadata } from 'src/services/ft-contract';
 import BigNumber from 'bignumber.js';
 import { Cell, Pie, PieChart, Sector } from 'recharts';
-import getConfig from 'src/services/config';
+import getConfig, { getExtraStablePoolConfig } from 'src/services/config';
 import Big from 'big.js';
 import { BLACK_TOKEN_IDS_IN_POOL } from '../LiquidityPage/LiquidityPage';
 import { TokenPriceListContext } from '../LiquidityPage/constLiquidityPage';
+const { BTC_STABLE_POOL_ID } = getExtraStablePoolConfig();
 
 function StablePoolList({
   searchBy,
@@ -80,18 +81,20 @@ function StablePoolList({
 
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
-  allStablePoolData = _.filter(allStablePoolData, (pool) =>
-    pool?.tokens?.every((token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id))
+  allStablePoolData = _.filter(
+    allStablePoolData,
+    (pool) =>
+      pool?.tokens?.every(
+        (token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id)
+      ) && +pool.pool.id !== +BTC_STABLE_POOL_ID
   );
   const filterFunc = (p: PoolData) => {
     const b1 =
-      option === 'ALL'
-        ? true
-        : option === 'NEAR'
+      option === 'NEAR'
         ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
-        : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
+        : true;
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
     );
@@ -149,7 +152,7 @@ function StablePoolList({
     <>
       <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
         <div className="flex items-center col-span-2 xsm:w-full">
-          {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
+          {['ALL', 'USD', 'NEAR'].map((o) => {
             return (
               <button
                 key={o + '-stable-pool-type'}
