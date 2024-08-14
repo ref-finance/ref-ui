@@ -951,7 +951,7 @@ function MobilePoolRowV2({
             <div className="flex items-center">
               {curRowTokens.map((token, index) => {
                 const atRisk = isTokenAtRisk(token);
-                // TODOMM
+
                 const riskMark = getImageMark(token, atRisk);
                 return (
                   <div key={token.id} className="relative inline-block">

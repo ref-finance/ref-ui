@@ -95,7 +95,6 @@ export function IconLeftV3({
   showArrow?: boolean;
   hover?: boolean;
 }) {
-  // TODOMM
   const mark = getImageMark(token);
   return (
     <div

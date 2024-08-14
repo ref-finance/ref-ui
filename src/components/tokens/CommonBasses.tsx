@@ -97,7 +97,7 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
     );
     getLatestCommonBassesTokens();
   }
-  // TODOMM
+
   const mark = getImageMark(token);
   return (
     <div

@@ -110,7 +110,7 @@ export function SingleToken({ token }: { token: TokenMetadata }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   const [showTooltip, setShowTooltip] = useState(false);
   const isTokenAtRisk = !!token.isRisk;
-  // TODOMM
+
   const mark = getImageMark(token);
   return (
     <>

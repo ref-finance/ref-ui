@@ -106,7 +106,6 @@ export function AddPoolModal(
 
   const Selected = (props: { token: TokenMetadata }) => {
     const Icon = ({ token }: { token: TokenMetadata }) => {
-      // TODOMM
       const mark = getImageMark(token);
       return (
         <div className="flex items-center">
