@@ -88,7 +88,7 @@ export const EVMConfig = {
     },
     {
       id: '0xA4B1',
-      token: 'ARB-ETH',
+      token: 'ETH',
       label: 'Arbitrum',
       rpcUrl: 'https://rpc.ankr.com/arbitrum',
     },
@@ -279,7 +279,7 @@ export const BridgeConfig = {
   },
 } as const;
 
-export const BridgeTokenList: (BridgeModel.BridgeTokenMeta & {
+export const TOKENS: (BridgeModel.BridgeTokenMeta & {
   supportChannels?: BridgeModel.BridgeSupportChannel[];
 })[] = [
   {
@@ -396,6 +396,30 @@ export const BridgeTokenList: (BridgeModel.BridgeTokenMeta & {
         : 'woo.fakes.testnet',
     },
     icon: formatFileUrl('/crypto/woo.png'),
+  },
+  {
+    symbol: 'MATIC',
+    decimals: 18,
+    addresses: {
+      Ethereum: IS_MAINNET ? '0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0' : '',
+    },
+    icon: formatFileUrl('/crypto/matic.png'),
+  },
+  {
+    symbol: 'AVAX',
+    decimals: 18,
+    addresses: {
+      Ethereum: IS_MAINNET ? '0x93567d6B6553bDe2b652FB7F197a229b93813D3f' : '',
+    },
+    icon: formatFileUrl('/crypto/avax.png'),
+  },
+  {
+    symbol: 'MNT',
+    decimals: 18,
+    addresses: {
+      Ethereum: IS_MAINNET ? '0x3c3a81e81dc49A522A592e7622A7E711c06bf354' : '',
+    },
+    icon: formatFileUrl('/crypto/mnt.png'),
   },
 ];
 

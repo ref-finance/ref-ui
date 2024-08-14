@@ -13,6 +13,7 @@ import {
 import { Optional, Transaction } from '@near-wallet-selector/core';
 import { formatAmount, parseAmount } from '../utils/format';
 import {
+  getChainMainToken,
   getTokenAddress,
   getTokenByAddress,
   getTokenMeta,
@@ -122,15 +123,14 @@ export const evmServices = {
     const gasPrice = await provider.getGasPrice();
     const gasLimit = ethers.BigNumber.from(gas);
     const totalGasCostWei = gasPrice.mul(gasLimit);
-    const totalGasCostEth = ethers.utils.formatEther(totalGasCostWei);
-    const ethPriceInUSD = await tokenServices.getPrice(getTokenMeta('ETH'));
-    const totalGasCostUSD = new Big(totalGasCostEth)
-      .times(ethPriceInUSD)
-      .toFixed(4);
+    const totalGasCost = ethers.utils.formatEther(totalGasCostWei);
+    const mainToken = getChainMainToken(chain);
+    const price = await tokenServices.getEvmPrice(mainToken.symbol);
+    const totalGasCostUSD = new Big(totalGasCost).times(price).toFixed(4);
     logger.log(
       `bridge: Gas Price: ${ethers.utils.formatUnits(gasPrice, 'gwei')} GWei`,
       `bridge: Gas Limit: ${gasLimit.toString()}`,
-      `bridge: Total Gas Cost: ${totalGasCostEth} ETH`,
+      `bridge: Total Gas Cost: ${totalGasCost} ${mainToken.symbol}`,
       `bridge: Total Gas Cost: ${totalGasCostUSD} USD`
     );
     return totalGasCostUSD;
@@ -544,5 +544,13 @@ export const tokenServices = {
       { cacheTimeout: 1000 * 60 * 2 }
     );
     return Number.isNaN(+res.price) ? '0' : res.price;
+  },
+  async getEvmPrice(symbol: string) {
+    const res = await request<{ data: Record<string, string> }>(
+      'https://api.dapdap.net/get-token-price-by-dapdap',
+      { cacheTimeout: 1000 * 60 * 2 }
+    );
+    console.log('getEvmPrice', res.data[symbol], symbol, res.data);
+    return res.data[symbol] || '0';
   },
 };

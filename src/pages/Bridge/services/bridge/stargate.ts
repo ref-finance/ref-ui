@@ -18,7 +18,7 @@ import { formatAmount, parseAmount } from '../../utils/format';
 import { logger } from '../../utils/common';
 import { Optional, Transaction } from '@near-wallet-selector/core';
 import { BridgeConfig } from '../../config';
-import { getTokenMeta } from '../../utils/token';
+import { getChainMainToken, getTokenMeta } from '../../utils/token';
 import Big from 'big.js';
 import { startCase } from 'lodash';
 
@@ -158,11 +158,9 @@ const stargateBridgeService = {
 
       const { nativeFee, lzTokenFee } = messagingFee;
       const feeAmount = new Big(nativeFee).plus(lzTokenFee).toString();
-      const readableFeeAmount = formatAmount(
-        feeAmount,
-        getTokenMeta('ETH').decimals
-      );
-      const ethPriceInUSD = await tokenServices.getPrice(getTokenMeta('ETH'));
+      const mainToken = getChainMainToken(params.from);
+      const readableFeeAmount = formatAmount(feeAmount, mainToken.decimals);
+      const ethPriceInUSD = await tokenServices.getEvmPrice(mainToken.symbol);
       const usdFee = new Big(readableFeeAmount).times(ethPriceInUSD).toString();
       const newSendParam = { ...sendParam };
       const minAmount = new Big(sendParam.amountLD.toString())
