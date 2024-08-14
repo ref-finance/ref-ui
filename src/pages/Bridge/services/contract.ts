@@ -550,7 +550,6 @@ export const tokenServices = {
       'https://api.dapdap.net/get-token-price-by-dapdap',
       { cacheTimeout: 1000 * 60 * 2 }
     );
-    console.log('getEvmPrice', res.data[symbol], symbol, res.data);
     return res.data[symbol] || '0';
   },
 };
