@@ -9,7 +9,8 @@ declare namespace BridgeModel {
     | 'Mantle'
     | 'Optimism'
     | 'Polygon'
-    | 'Scroll';
+    | 'Scroll'
+    | 'SEI';
   type BridgeSupportChannel = 'Rainbow' | 'Stargate';
   type BridgeTokenMeta = {
     symbol: string;

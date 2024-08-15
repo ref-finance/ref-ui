@@ -75,6 +75,12 @@ export const EVMConfig = {
     explorerUrl: 'https://scrollscan.com',
     chainId: 534352,
   },
+  SEI: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://seitrace.com',
+    chainId: 1329,
+  },
 
   walletConnectProjectId: '669d1b9f59163a92d90a3c1ff78a7326',
   chains: [
@@ -140,6 +146,13 @@ export const EVMConfig = {
       token: 'MNT',
       label: 'Mantle',
       rpcUrl: 'https://rpc.ankr.com/mantle',
+    },
+    //SEI
+    {
+      id: '0x531',
+      token: 'SEI',
+      label: 'Sei',
+      rpcUrl: 'https://evm-rpc.sei-apis.com',
     },
   ],
 };
@@ -274,6 +287,14 @@ export const BridgeConfig = {
         eid: '30214',
         protocolFeeRatio: 0.0006,
       },
+      SEI: {
+        send: '0x51F22bb3b8b6d52aAC6346A80D3dF366c4200e93',
+        pool: {
+          USDC: '0x45d417612e177672958dC0537C45a8f8d754Ac2E',
+        },
+        eid: '30280',
+        protocolFeeRatio: 0.0006,
+      },
       EndpointV2: '0x1a44076050125825900e736c501f859c50fE728c',
     },
   },
@@ -340,6 +361,7 @@ export const TOKENS: (BridgeModel.BridgeTokenMeta & {
       Optimism: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
       Polygon: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
       Scroll: '0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4',
+      SEI: '0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1',
     },
   },
   {
@@ -421,6 +443,14 @@ export const TOKENS: (BridgeModel.BridgeTokenMeta & {
     },
     icon: formatFileUrl('/crypto/mnt.png'),
   },
+  {
+    symbol: 'SEI',
+    decimals: 18,
+    addresses: {
+      SEI: '0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7',
+    },
+    icon: formatFileUrl('/crypto/sei.png'),
+  },
 ];
 
 export const BridgeTokenRoutes: {
@@ -443,6 +473,7 @@ export const BridgeTokenRoutes: {
   { from: 'NEAR', to: 'Optimism', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Polygon', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Scroll', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'SEI', channel: 'Stargate', symbols: ['USDC'] },
   // {
   //   from: 'Ethereum',
   //   to: 'NEAR',
@@ -457,6 +488,7 @@ export const BridgeTokenRoutes: {
   { from: 'Optimism', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Polygon', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Scroll', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'SEI', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
 ];
 
 export const BridgeTokenSortRule = [
