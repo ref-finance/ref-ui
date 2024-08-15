@@ -15,7 +15,7 @@ const bridgeHistoryService = {
     const { data } = await request<{
       data: { list?: BridgeModel.BridgeHistory[]; total?: number };
     }>(
-      generateUrl(`https://test.api.cclp.finance/v3/bridge/list`, {
+      generateUrl(`https://mainnet-indexer.ref-finance.com/v3/bridge/list`, {
         account_id,
         tx_hash: hash,
         chain: chain === 'NEAR' ? 'aurora' : chain.toLowerCase(),
