@@ -83,6 +83,7 @@ const runWorker = () => {
       name: tokens[key].name,
       symbol: tokens[key].symbol,
     }));
+    await db.tokens.clear();
     await db.tokens.bulkPut(
       tokenArr.map((token: TokenMetadata) => ({
         id: token.id,
