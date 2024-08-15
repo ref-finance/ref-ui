@@ -221,7 +221,7 @@ export default function useBridgeForm() {
       if (!getWallet(bridgeFromValue.chain)?.accountId) return '0';
       return tokenServices.getBalance(
         bridgeFromValue.chain,
-        bridgeFromValue.tokenMeta,
+        getTokenMeta(bridgeToValue.tokenMeta.symbol),
         true
       );
     },
@@ -242,7 +242,7 @@ export default function useBridgeForm() {
       if (!getWallet(bridgeToValue.chain)?.accountId) return '0';
       return tokenServices.getBalance(
         bridgeToValue.chain,
-        bridgeToValue.tokenMeta,
+        getTokenMeta(bridgeToValue.tokenMeta.symbol),
         true
       );
     },

@@ -35,11 +35,9 @@ import {
 
 export const evmServices = {
   getEvmJSONProvider(chain: BridgeModel.BridgeSupportChain) {
-    console.log('chain', chain);
     const rpc = EVMConfig.chains.find((v) =>
       v.label.toLowerCase().startsWith(chain.toLowerCase())
     )?.rpcUrl;
-    console.log('rpc', rpc);
     return new ethers.providers.JsonRpcProvider(rpc);
   },
   async getEvmContract(
@@ -103,6 +101,7 @@ export const evmServices = {
         balance = (await window.ethWeb3Provider?.getBalance(sender)).toString();
       } else {
         const Interface = new ethers.utils.Interface(erc20Abi);
+
         const data = Interface.encodeFunctionData('balanceOf', [sender]);
         const rawBalance = await window.ethWeb3Provider?.call({
           to: token.addresses[chain],

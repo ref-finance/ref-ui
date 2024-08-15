@@ -10,7 +10,6 @@ export function getChainMainToken(chain: BridgeModel.BridgeSupportChain) {
   const mainTokenSymbol = EVMConfig.chains.find((v) =>
     v.label.toLowerCase().startsWith(chain.toLowerCase())
   )?.token;
-  console.log('mainTokenSymbol', mainTokenSymbol);
   return tokens[mainTokenSymbol];
 }
 
