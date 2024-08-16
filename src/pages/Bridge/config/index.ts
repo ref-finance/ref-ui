@@ -37,20 +37,6 @@ export const EVMConfig: {
   walletConnectProjectId: string;
 } = {
   chains: {
-    ethereum: {
-      network: IS_MAINNET ? 'mainnet' : 'sepolia',
-      infuraKey: INFURA_KEY,
-      explorerUrl: IS_MAINNET
-        ? 'https://etherscan.io'
-        : 'https://sepolia.etherscan.io',
-      chainId: IS_MAINNET ? 1 : 11155111,
-      id: '0x1',
-      token: 'ETH',
-      label: `Ethereum`,
-      rpcUrl: IS_MAINNET
-        ? 'https://eth.drpc.org/'
-        : `https://testnet.infura.io/v3/${INFURA_KEY}`,
-    },
     arbitrum: {
       network: 'mainnet',
       infuraKey: INFURA_KEY,
@@ -90,6 +76,30 @@ export const EVMConfig: {
       token: 'ETH',
       label: 'Base',
       rpcUrl: 'https://mainnet.base.org',
+    },
+    ethereum: {
+      network: IS_MAINNET ? 'mainnet' : 'sepolia',
+      infuraKey: INFURA_KEY,
+      explorerUrl: IS_MAINNET
+        ? 'https://etherscan.io'
+        : 'https://sepolia.etherscan.io',
+      chainId: IS_MAINNET ? 1 : 11155111,
+      id: '0x1',
+      token: 'ETH',
+      label: `Ethereum`,
+      rpcUrl: IS_MAINNET
+        ? 'https://eth.drpc.org/'
+        : `https://testnet.infura.io/v3/${INFURA_KEY}`,
+    },
+    flare: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://flare-explorer.flare.network',
+      chainId: 14,
+      id: '0xe',
+      token: 'FLR',
+      label: 'Flare',
+      rpcUrl: 'https://flare-api.flare.network/ext/C/rpc',
     },
     mantle: {
       network: 'mainnet',
@@ -150,16 +160,6 @@ export const EVMConfig: {
       token: 'ETH',
       label: 'TAIKO',
       rpcUrl: 'https://rpc.taiko.xyz',
-    },
-    flare: {
-      network: 'mainnet',
-      infuraKey: INFURA_KEY,
-      explorerUrl: 'https://flare-explorer.flare.network',
-      chainId: 14,
-      id: '0xe',
-      token: 'FLR',
-      label: 'Flare',
-      rpcUrl: 'https://flare-api.flare.network/ext/C/rpc',
     },
   },
 
@@ -679,4 +679,8 @@ export const SupportChains = BridgeTokenRoutes.reduce((acc, v) => {
   if (!acc.includes(v.from)) acc.push(v.from);
   if (!acc.includes(v.to)) acc.push(v.to);
   return acc;
-}, [] as BridgeModel.BridgeSupportChain[]);
+}, [] as BridgeModel.BridgeSupportChain[]).sort((a, b) => {
+  if (a === 'NEAR') return -1;
+  if (b === 'NEAR') return 1;
+  return a.localeCompare(b);
+});
