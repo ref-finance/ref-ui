@@ -24,7 +24,7 @@ const bridgeHistoryService = {
         offset: 0,
       })
     );
-    data.list.forEach((v) => {
+    data.list?.forEach((v) => {
       const from =
         v.from_chain.toLowerCase() === 'aurora'
           ? 'near'

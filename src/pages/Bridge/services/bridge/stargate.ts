@@ -11,7 +11,7 @@ import {
   tokenServices,
 } from '../contract';
 import StargateAbi from '../../abi/stargate.json';
-import StargatePoolAbi from '../../abi/stargatePoolUSDC.json';
+
 import { BridgeTransferParams } from '.';
 import { BigNumber, ethers } from 'ethers';
 import { formatAmount, parseAmount } from '../../utils/format';
@@ -434,8 +434,15 @@ const stargateBridgeService = {
       await nearServices.sendTransaction(registerTokenTransaction);
     }
     const erc20Address = tokenIn.addresses[from];
+
     const poolAddress =
-      BridgeConfig.Stargate.bridgeParams[from].pool[tokenOut.symbol];
+      BridgeConfig.Stargate.bridgeParams[from]?.pool?.[tokenOut.symbol] ||
+      BridgeConfig.Stargate.bridgeParams[from]?.oft?.[tokenOut.symbol];
+    const poolContractAbi =
+      BridgeConfig.Stargate.bridgeParams[from]?.pool?.[
+        tokenOut.symbol + 'ABI'
+      ] ||
+      BridgeConfig.Stargate.bridgeParams[from]?.oft?.[tokenOut.symbol + 'ABI'];
     if (!poolAddress) throw new Error('Invalid pool address');
 
     await evmServices.checkErc20Approve({
@@ -447,12 +454,21 @@ const stargateBridgeService = {
 
     const { valueToSend, sendParam, messagingFee } =
       await stargateBridgeService.query(params);
+    logger.log('bridge: send params', {
+      valueToSend,
+      sendParam,
+      messagingFee,
+      sender,
+      poolAddress,
+    });
 
     const stargatePoolContract = await evmServices.getEvmContract(
       poolAddress,
-      StargatePoolAbi,
+      poolContractAbi,
       'call'
     );
+    logger.log('stargatePoolContract', stargatePoolContract);
+
     const tx = await stargatePoolContract.send(
       sendParam,
       messagingFee,

@@ -4,6 +4,8 @@ import nearOnEthClientAbi from './../abi/nearOnEthClient.json';
 import auroraErc20Abi from './../abi/auroraErc20.json';
 import etherCustodianAbi from './../abi/etherCustodian.json';
 import eNEARAbi from './../abi/eNEAR.json';
+import StargatePoolUSDCAbi from './../abi/stargatePoolUSDC.json';
+import StargateOFTUSDCAbi from './../abi/stargateOFTUSDC.json';
 import { formatFileUrl } from '../utils/format';
 
 export const APPID = 'ref-finance';
@@ -225,6 +227,7 @@ export const BridgeConfig = {
         send: '0x9affc062e3cbe2806334355b92059e3d8f4c4657',
         pool: {
           USDC: '0xe8CDF27AcD73a434D661C84887215F7598e7d0d3',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30110',
       },
@@ -232,6 +235,7 @@ export const BridgeConfig = {
         send: '0x3B693e0F2f5f5e0b819e669b60A715858dCb6C07',
         pool: {
           USDC: '0xc026395860Db2d07ee33e05fE50ed7bD583189C7',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30101',
       },
@@ -240,6 +244,7 @@ export const BridgeConfig = {
         receive: '0x04dFb979Ffa1Fb08B6e6EF626377161CBB085Cf1',
         pool: {
           USDC: '0x81F6138153d473E8c5EcebD3DC8Cd4903506B075',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30211',
       },
@@ -247,6 +252,7 @@ export const BridgeConfig = {
         send: '0x8cE17C7A6E7c53EbD8919D7C6E54a68BA3D1d3Ad',
         pool: {
           USDC: '0x5634c4a5FEd09819E3c46D86A965Dd9447d86e47',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30106',
       },
@@ -254,6 +260,7 @@ export const BridgeConfig = {
         send: '0x5149434074bC009C8269376390ca722a552A8F47',
         pool: {
           USDC: '0x27a16dc786820B16E5c9028b75B99F6f604b5d26',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30184',
       },
@@ -261,6 +268,7 @@ export const BridgeConfig = {
         send: '0x78F942F8F9110067c08183183c45903e5Dc2763A',
         pool: {
           USDC: '0xAc290Ad4e0c891FDc295ca4F0a6214cf6dC6acDC',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30181',
       },
@@ -268,6 +276,7 @@ export const BridgeConfig = {
         send: '0xd560B0782bB20356F2892828022D328a1ACe2566',
         pool: {
           USDC: '0xcE8CcA271Ebc0533920C83d39F417ED6A0abB7D0',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30111',
       },
@@ -275,6 +284,7 @@ export const BridgeConfig = {
         send: '0x9571566D7ECb2fc899477bF295248a20FF4Adb61',
         pool: {
           USDC: '0x9Aa02D4Fae7F58b8E8f34c66E756cC734DAc7fe4',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30109',
       },
@@ -282,6 +292,7 @@ export const BridgeConfig = {
         send: '0xC929F538632f4F813c29b3Cc54Beb67bE25F65FB',
         pool: {
           USDC: '0x3Fc69CC4A842838bCDC9499178740226062b14E4',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30214',
       },
@@ -289,20 +300,23 @@ export const BridgeConfig = {
         send: '0x51F22bb3b8b6d52aAC6346A80D3dF366c4200e93',
         pool: {
           USDC: '0x45d417612e177672958dC0537C45a8f8d754Ac2E',
+          USDCABI: StargatePoolUSDCAbi,
         },
         eid: '30280',
       },
       TAIKO: {
         send: '0x2D04a0885df6cdcAE24453eCCd07122a52534763',
-        pool: {
+        oft: {
           USDC: '0x77C71633C34C3784ede189d74223122422492a0f',
+          USDCABI: StargateOFTUSDCAbi,
         },
         eid: '30290',
       },
       Flare: {
         send: '0xCa55792349964b4F55af6D679684283304f0f596',
-        pool: {
+        oft: {
           USDC: '0x77C71633C34C3784ede189d74223122422492a0f',
+          USDCABI: StargateOFTUSDCAbi,
         },
         eid: '30295',
       },

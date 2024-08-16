@@ -19,6 +19,7 @@ import bridgeServices, { BridgeTransferParams } from '../services/bridge';
 import rainbowBridgeService from '../services/bridge/rainbow';
 import { useRequest } from './useHooks';
 import { logger } from '../utils/common';
+import { getTokenMeta } from '../utils/token';
 
 export default function useBridge(params?: {
   enableSubscribeUnclaimed?: boolean;
@@ -73,6 +74,8 @@ export default function useBridge(params?: {
   }, [params?.enableSubscribeUnclaimed]);
 
   async function transfer(params: BridgeTransferParams) {
+    params.tokenIn = getTokenMeta(params.tokenIn.symbol);
+    params.tokenOut = getTokenMeta(params.tokenOut.symbol);
     try {
       setActionLoading(true);
       const res = await bridgeServices.transfer({
