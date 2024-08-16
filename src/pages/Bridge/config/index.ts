@@ -81,6 +81,18 @@ export const EVMConfig = {
     explorerUrl: 'https://seitrace.com',
     chainId: 1329,
   },
+  TAIKO: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://taikoscan.io',
+    chainId: 167000,
+  },
+  Flare: {
+    network: 'mainnet',
+    infuraKey: INFURA_KEY,
+    explorerUrl: 'https://flare-explorer.flare.network',
+    chainId: 14,
+  },
 
   walletConnectProjectId: '669d1b9f59163a92d90a3c1ff78a7326',
   chains: [
@@ -145,7 +157,7 @@ export const EVMConfig = {
       id: '0x1388',
       token: 'MNT',
       label: 'Mantle',
-      rpcUrl: 'https://rpc.ankr.com/mantle',
+      rpcUrl: 'https://rpc.mantle.xyz/',
     },
     //SEI
     {
@@ -153,6 +165,20 @@ export const EVMConfig = {
       token: 'SEI',
       label: 'Sei',
       rpcUrl: 'https://evm-rpc.sei-apis.com',
+    },
+    //TAIKO
+    {
+      id: '0x28c58',
+      token: 'ETH',
+      label: 'TAIKO',
+      rpcUrl: 'https://rpc.taiko.xyz',
+    },
+    //Flare
+    {
+      id: '0xe',
+      token: 'FLR',
+      label: 'Flare',
+      rpcUrl: 'https://flare-api.flare.network/ext/C/rpc',
     },
   ],
 };
@@ -295,6 +321,22 @@ export const BridgeConfig = {
         eid: '30280',
         protocolFeeRatio: 0.0006,
       },
+      TAIKO: {
+        send: '0x2D04a0885df6cdcAE24453eCCd07122a52534763',
+        pool: {
+          USDC: '0x77C71633C34C3784ede189d74223122422492a0f',
+        },
+        eid: '30290',
+        protocolFeeRatio: 0.0006,
+      },
+      Flare: {
+        send: '0xCa55792349964b4F55af6D679684283304f0f596',
+        pool: {
+          USDC: '0x77C71633C34C3784ede189d74223122422492a0f',
+        },
+        eid: '30295',
+        protocolFeeRatio: 0.0006,
+      },
       EndpointV2: '0x1a44076050125825900e736c501f859c50fE728c',
     },
   },
@@ -362,6 +404,8 @@ export const TOKENS: (BridgeModel.BridgeTokenMeta & {
       Polygon: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
       Scroll: '0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4',
       SEI: '0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1',
+      TAIKO: '0x19e26B0638bf63aa9fa4d14c6baF8D52eBE86C5C',
+      Flare: '0xFbDa5F676cB37624f28265A144A48B0d6e87d3b6',
     },
   },
   {
@@ -451,6 +495,14 @@ export const TOKENS: (BridgeModel.BridgeTokenMeta & {
     },
     icon: formatFileUrl('/crypto/sei.png'),
   },
+  {
+    symbol: 'FLR',
+    decimals: 18,
+    addresses: {
+      Flare: '0x1d80c49bbbcd1c0911346656b529df9e5c2f783d',
+    },
+    icon: formatFileUrl('/crypto/flr.png'),
+  },
 ];
 
 export const BridgeTokenRoutes: {
@@ -474,6 +526,8 @@ export const BridgeTokenRoutes: {
   { from: 'NEAR', to: 'Polygon', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'Scroll', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'NEAR', to: 'SEI', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'TAIKO', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'NEAR', to: 'Flare', channel: 'Stargate', symbols: ['USDC'] },
   // {
   //   from: 'Ethereum',
   //   to: 'NEAR',
@@ -489,6 +543,8 @@ export const BridgeTokenRoutes: {
   { from: 'Polygon', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'Scroll', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
   { from: 'SEI', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'TAIKO', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  { from: 'Flare', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
 ];
 
 export const BridgeTokenSortRule = [
