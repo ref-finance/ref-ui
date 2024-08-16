@@ -39,8 +39,8 @@ export default function useBridge(params?: {
     );
     setEthProvider(
       new ethers.providers.InfuraProvider(
-        EVMConfig.Ethereum.network,
-        EVMConfig.Ethereum.infuraKey
+        EVMConfig.chains.ethereum.network,
+        EVMConfig.chains.ethereum.infuraKey
       )
     );
     setSignerProvider(window.ethWeb3Provider);

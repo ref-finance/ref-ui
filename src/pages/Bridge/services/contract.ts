@@ -35,9 +35,7 @@ import {
 
 export const evmServices = {
   getEvmJSONProvider(chain: BridgeModel.BridgeSupportChain) {
-    const rpc = EVMConfig.chains.find((v) =>
-      v.label.toLowerCase().startsWith(chain.toLowerCase())
-    )?.rpcUrl;
+    const rpc = EVMConfig.chains[chain.toLowerCase()].rpcUrl;
     return new ethers.providers.JsonRpcProvider(rpc);
   },
   async getEvmContract(

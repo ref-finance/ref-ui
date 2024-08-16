@@ -153,9 +153,9 @@ export default function useBridgeForm() {
       const toValue = { ...bridgeToValue };
 
       if (fromValue.chain !== 'NEAR')
-        setChain(EVMConfig[fromValue.chain]?.chainId);
+        setChain(EVMConfig.chains[fromValue.chain.toLowerCase()]?.id);
       else if (toValue.chain !== 'NEAR')
-        setChain(EVMConfig[toValue.chain]?.chainId);
+        setChain(EVMConfig.chains[toValue.chain.toLowerCase()]?.id);
 
       logger.log('useBridgeForm', fromValue, toValue);
 

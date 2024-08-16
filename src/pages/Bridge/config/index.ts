@@ -18,169 +18,150 @@ export const IS_TESTNET = ['testnet', 'pub-testnet'].includes(
 
 const INFURA_KEY = '45ad2962c1b5465bb6fe62db0d35b42f';
 
-export const EVMConfig = {
-  Ethereum: {
-    network: IS_MAINNET ? 'mainnet' : 'sepolia',
-    infuraKey: INFURA_KEY,
-    explorerUrl: IS_MAINNET
-      ? 'https://etherscan.io'
-      : 'https://sepolia.etherscan.io',
-    chainId: IS_MAINNET ? 1 : 11155111,
-  },
-  Arbitrum: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://arbiscan.io',
-    chainId: 42161,
-  },
-  Aurora: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://explorer.aurora.dev',
-    chainId: 1313161554,
-  },
-  Avalanche: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://cchain.explorer.avax.network',
-    chainId: 43114,
-  },
-  Base: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://explorer.base.org',
-    chainId: 8453,
-  },
-  Mantle: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://explorer.mantle.xyz',
-    chainId: 5000,
-  },
-  Optimism: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://optimistic.etherscan.io',
-    chainId: 10,
-  },
-  Polygon: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://polygonscan.com',
-    chainId: 137,
-  },
-  Scroll: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://scrollscan.com',
-    chainId: 534352,
-  },
-  SEI: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://seitrace.com',
-    chainId: 1329,
-  },
-  TAIKO: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://taikoscan.io',
-    chainId: 167000,
-  },
-  Flare: {
-    network: 'mainnet',
-    infuraKey: INFURA_KEY,
-    explorerUrl: 'https://flare-explorer.flare.network',
-    chainId: 14,
-  },
-
-  walletConnectProjectId: '669d1b9f59163a92d90a3c1ff78a7326',
-  chains: [
+export const EVMConfig: {
+  chains: Record<
+    string,
     {
-      id: IS_MAINNET ? '0x1' : '0xaa36a7',
+      network: string;
+      infuraKey: string;
+      explorerUrl: string;
+      chainId: number;
+      id: string;
+      token: string;
+      label: BridgeModel.BridgeSupportChain;
+      rpcUrl: string;
+    }
+  >;
+  walletConnectProjectId: string;
+} = {
+  chains: {
+    ethereum: {
+      network: IS_MAINNET ? 'mainnet' : 'sepolia',
+      infuraKey: INFURA_KEY,
+      explorerUrl: IS_MAINNET
+        ? 'https://etherscan.io'
+        : 'https://sepolia.etherscan.io',
+      chainId: IS_MAINNET ? 1 : 11155111,
+      id: '0x1',
       token: 'ETH',
       label: `Ethereum`,
       rpcUrl: IS_MAINNET
         ? 'https://eth.drpc.org/'
         : `https://testnet.infura.io/v3/${INFURA_KEY}`,
     },
-    {
+    arbitrum: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://arbiscan.io',
+      chainId: 42161,
       id: '0xA4B1',
       token: 'ETH',
       label: 'Arbitrum',
       rpcUrl: 'https://rpc.ankr.com/arbitrum',
     },
-    //Aurora
-    {
+    aurora: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://explorer.aurora.dev',
+      chainId: 1313161554,
       id: '0x4e454152',
       token: 'ETH',
       label: 'Aurora',
       rpcUrl: 'https://mainnet.aurora.dev',
     },
-    //Base
-    {
-      id: '0x2105',
-      token: 'ETH',
-      label: 'Base',
-      rpcUrl: 'https://mainnet.base.org',
-    },
-    //Optimism
-    {
-      id: '0xa',
-      token: 'ETH',
-      label: 'Optimism',
-      rpcUrl: 'https://mainnet.optimism.io',
-    },
-    //Scroll
-    {
-      id: '0x82750',
-      token: 'ETH',
-      label: 'Scroll',
-      rpcUrl: 'https://rpc.ankr.com/scroll',
-    },
-    //Polygon
-    {
-      id: '0x89',
-      token: 'MATIC',
-      label: 'Polygon',
-      rpcUrl: 'https://polygon.drpc.org',
-    },
-    //Avalanche
-    {
+    avalanche: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://cchain.explorer.avax.network',
+      chainId: 43114,
       id: '0xa86a',
       token: 'AVAX',
       label: 'Avalanche',
       rpcUrl: 'https://avalanche.drpc.org',
     },
-    //Mantle
-    {
+    base: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://explorer.base.org',
+      chainId: 8453,
+      id: '0x2105',
+      token: 'ETH',
+      label: 'Base',
+      rpcUrl: 'https://mainnet.base.org',
+    },
+    mantle: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://explorer.mantle.xyz',
+      chainId: 5000,
       id: '0x1388',
       token: 'MNT',
       label: 'Mantle',
       rpcUrl: 'https://rpc.mantle.xyz/',
     },
-    //SEI
-    {
+    optimism: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://optimistic.etherscan.io',
+      chainId: 10,
+      id: '0xa',
+      token: 'ETH',
+      label: 'Optimism',
+      rpcUrl: 'https://mainnet.optimism.io',
+    },
+    polygon: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://polygonscan.com',
+      chainId: 137,
+      id: '0x89',
+      token: 'MATIC',
+      label: 'Polygon',
+      rpcUrl: 'https://polygon.drpc.org',
+    },
+    scroll: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://scrollscan.com',
+      chainId: 534352,
+      id: '0x82750',
+      token: 'ETH',
+      label: 'Scroll',
+      rpcUrl: 'https://rpc.ankr.com/scroll',
+    },
+    sei: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://seitrace.com',
+      chainId: 1329,
       id: '0x531',
       token: 'SEI',
-      label: 'Sei',
+      label: 'SEI',
       rpcUrl: 'https://evm-rpc.sei-apis.com',
     },
-    //TAIKO
-    {
+    taiko: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://taikoscan.io',
+      chainId: 167000,
       id: '0x28c58',
       token: 'ETH',
       label: 'TAIKO',
       rpcUrl: 'https://rpc.taiko.xyz',
     },
-    //Flare
-    {
+    flare: {
+      network: 'mainnet',
+      infuraKey: INFURA_KEY,
+      explorerUrl: 'https://flare-explorer.flare.network',
+      chainId: 14,
       id: '0xe',
       token: 'FLR',
       label: 'Flare',
       rpcUrl: 'https://flare-api.flare.network/ext/C/rpc',
     },
-  ],
+  },
+
+  walletConnectProjectId: '669d1b9f59163a92d90a3c1ff78a7326',
 };
 
 export const NearConfig = {
@@ -204,7 +185,7 @@ const RainbowBridgeDefaultParams = {
   etherExitToEthereumPrecompile: '0xb0bD02F6a392aF548bDf1CfAeE5dFa0EefcC8EaB',
   etherExitToNearPrecompile: '0xE9217BC70B7ED1f598ddD3199e80b093fA71124F',
   eNEARAbi,
-  ethChainId: EVMConfig.Ethereum.chainId,
+  ethChainId: EVMConfig.chains.ethereum.chainId,
 };
 export const BridgeConfig = {
   Rainbow: {
@@ -246,7 +227,6 @@ export const BridgeConfig = {
           USDC: '0xe8CDF27AcD73a434D661C84887215F7598e7d0d3',
         },
         eid: '30110',
-        protocolFeeRatio: 0.0006,
       },
       Ethereum: {
         send: '0x3B693e0F2f5f5e0b819e669b60A715858dCb6C07',
@@ -254,7 +234,6 @@ export const BridgeConfig = {
           USDC: '0xc026395860Db2d07ee33e05fE50ed7bD583189C7',
         },
         eid: '30101',
-        protocolFeeRatio: 0.0006,
       },
       Aurora: {
         send: '',
@@ -263,7 +242,6 @@ export const BridgeConfig = {
           USDC: '0x81F6138153d473E8c5EcebD3DC8Cd4903506B075',
         },
         eid: '30211',
-        protocolFeeRatio: 0.0006,
       },
       Avalanche: {
         send: '0x8cE17C7A6E7c53EbD8919D7C6E54a68BA3D1d3Ad',
@@ -271,7 +249,6 @@ export const BridgeConfig = {
           USDC: '0x5634c4a5FEd09819E3c46D86A965Dd9447d86e47',
         },
         eid: '30106',
-        protocolFeeRatio: 0.0006,
       },
       Base: {
         send: '0x5149434074bC009C8269376390ca722a552A8F47',
@@ -279,7 +256,6 @@ export const BridgeConfig = {
           USDC: '0x27a16dc786820B16E5c9028b75B99F6f604b5d26',
         },
         eid: '30184',
-        protocolFeeRatio: 0.0006,
       },
       Mantle: {
         send: '0x78F942F8F9110067c08183183c45903e5Dc2763A',
@@ -287,7 +263,6 @@ export const BridgeConfig = {
           USDC: '0xAc290Ad4e0c891FDc295ca4F0a6214cf6dC6acDC',
         },
         eid: '30181',
-        protocolFeeRatio: 0.0006,
       },
       Optimism: {
         send: '0xd560B0782bB20356F2892828022D328a1ACe2566',
@@ -295,7 +270,6 @@ export const BridgeConfig = {
           USDC: '0xcE8CcA271Ebc0533920C83d39F417ED6A0abB7D0',
         },
         eid: '30111',
-        protocolFeeRatio: 0.0006,
       },
       Polygon: {
         send: '0x9571566D7ECb2fc899477bF295248a20FF4Adb61',
@@ -303,7 +277,6 @@ export const BridgeConfig = {
           USDC: '0x9Aa02D4Fae7F58b8E8f34c66E756cC734DAc7fe4',
         },
         eid: '30109',
-        protocolFeeRatio: 0.0006,
       },
       Scroll: {
         send: '0xC929F538632f4F813c29b3Cc54Beb67bE25F65FB',
@@ -311,7 +284,6 @@ export const BridgeConfig = {
           USDC: '0x3Fc69CC4A842838bCDC9499178740226062b14E4',
         },
         eid: '30214',
-        protocolFeeRatio: 0.0006,
       },
       SEI: {
         send: '0x51F22bb3b8b6d52aAC6346A80D3dF366c4200e93',
@@ -319,7 +291,6 @@ export const BridgeConfig = {
           USDC: '0x45d417612e177672958dC0537C45a8f8d754Ac2E',
         },
         eid: '30280',
-        protocolFeeRatio: 0.0006,
       },
       TAIKO: {
         send: '0x2D04a0885df6cdcAE24453eCCd07122a52534763',
@@ -327,7 +298,6 @@ export const BridgeConfig = {
           USDC: '0x77C71633C34C3784ede189d74223122422492a0f',
         },
         eid: '30290',
-        protocolFeeRatio: 0.0006,
       },
       Flare: {
         send: '0xCa55792349964b4F55af6D679684283304f0f596',
@@ -335,7 +305,6 @@ export const BridgeConfig = {
           USDC: '0x77C71633C34C3784ede189d74223122422492a0f',
         },
         eid: '30295',
-        protocolFeeRatio: 0.0006,
       },
       EndpointV2: '0x1a44076050125825900e736c501f859c50fE728c',
     },
@@ -510,6 +479,7 @@ export const BridgeTokenRoutes: {
   to: BridgeModel.BridgeSupportChain;
   channel: BridgeModel.BridgeSupportChannel;
   symbols: string[];
+  protocolFeeRatio?: number;
 }[] = [
   // {
   //   from: 'NEAR',
@@ -517,34 +487,166 @@ export const BridgeTokenRoutes: {
   //   channel: 'Rainbow',
   //   symbols: ['NEAR', 'ETH', 'USDT.e', 'USDC.e', 'DAI', 'WBTC', 'OCT', 'WOO'],
   // },
-  { from: 'NEAR', to: 'Arbitrum', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Ethereum', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Avalanche', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Base', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Mantle', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Optimism', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Polygon', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Scroll', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'SEI', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'TAIKO', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'NEAR', to: 'Flare', channel: 'Stargate', symbols: ['USDC'] },
+  {
+    from: 'NEAR',
+    to: 'Arbitrum',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'Ethereum',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'Avalanche',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'Base',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'Mantle',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'Optimism',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'Polygon',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'Scroll',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'SEI',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'NEAR',
+    to: 'TAIKO',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0,
+  },
+  {
+    from: 'NEAR',
+    to: 'Flare',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0,
+  },
   // {
   //   from: 'Ethereum',
   //   to: 'NEAR',
   //   channel: 'Rainbow',
   //   symbols: ['NEAR', 'ETH', 'USDT.e', 'USDC.e', 'DAI', 'WBTC', 'OCT', 'WOO'],
   // },
-  { from: 'Arbitrum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Ethereum', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Avalanche', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Base', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Mantle', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Optimism', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Polygon', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Scroll', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'SEI', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'TAIKO', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
-  { from: 'Flare', to: 'NEAR', channel: 'Stargate', symbols: ['USDC'] },
+  {
+    from: 'Arbitrum',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'Ethereum',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'Avalanche',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'Base',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'Mantle',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'Optimism',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'Polygon',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'Scroll',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'SEI',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'TAIKO',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
+  {
+    from: 'Flare',
+    to: 'NEAR',
+    channel: 'Stargate',
+    symbols: ['USDC'],
+    protocolFeeRatio: 0.0006,
+  },
 ];
 
 export const BridgeTokenSortRule = [

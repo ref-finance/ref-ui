@@ -112,13 +112,10 @@ export function formatTxExplorerUrl(
   hash: string
 ) {
   const _chain = chain.toLowerCase();
-  switch (_chain) {
-    case 'aurora':
-      return `${EVMConfig.Aurora.explorerUrl}/tx/${hash}`;
-    case 'near':
-      return `${NearConfig.explorerUrl}/tx/${hash}`;
-    default:
-      return `${EVMConfig[capitalize(_chain)]?.explorerUrl}/tx/${hash}`;
+  if (EVMConfig.chains[_chain]) {
+    return `${EVMConfig.chains[_chain].explorerUrl}/tx/${hash}`;
+  } else {
+    return `${NearConfig.explorerUrl}/tx/${hash}`;
   }
 }
 

@@ -7,9 +7,7 @@ const tokens = TOKENS.reduce((acc, token) => {
 
 export function getChainMainToken(chain: BridgeModel.BridgeSupportChain) {
   if (chain === 'NEAR') return tokens.NEAR;
-  const mainTokenSymbol = EVMConfig.chains.find((v) =>
-    v.label.toLowerCase().startsWith(chain.toLowerCase())
-  )?.token;
+  const mainTokenSymbol = EVMConfig.chains[chain.toLowerCase()].token;
   return tokens[mainTokenSymbol];
 }
 
@@ -28,8 +26,9 @@ export function getTokenByAddress(
   address: string,
   chain?: BridgeModel.BridgeSupportChain
 ) {
-  return Object.values(tokens).find(
-    (token) =>
-      token.addresses[chain || 'NEAR']?.toLowerCase() === address.toLowerCase()
+  return Object.values(tokens).find((token) =>
+    Object.values(token.addresses).some(
+      (item) => item?.toLowerCase() === address.toLowerCase()
+    )
   );
 }

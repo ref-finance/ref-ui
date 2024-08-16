@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { useWalletConnectContext } from '../providers/walletConcent';
-import { formatSortAddress } from '../utils/format';
+import { formatChainIcon, formatSortAddress } from '../utils/format';
 import Button from './Button';
 import SvgIcon from './SvgIcon';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -146,13 +146,19 @@ function ChainSelector({
         <SvgIcon name="IconArrowDown" className="text-xs ml-2" />
       </div>
       {showOptions && (
-        <div className="absolute z-50 py-2 px-1.5 rounded-lg border border-borderC text-sm bg-darkBg text-white shadow-lg">
+        <div
+          className="absolute z-50 py-2 px-1.5 rounded-lg border border-borderC text-sm bg-darkBg text-white shadow-lg overflow-y-auto"
+          style={{ maxHeight: '50vh' }}
+        >
           {options.map((option) => (
             <div
               key={option}
               className="hover:bg-symbolHover2 transition-colors py-2 px-4 flex items-center gap-2 cursor-pointer"
               onClick={() => handleOptionClick(option)}
             >
+              <div className="w-6 h-6 bg-black rounded-md">
+                <img src={formatChainIcon(option)} className="w-6 h-6" />
+              </div>
               <div className="min-w-20">{option}</div>
               {value === option && (
                 <SvgIcon

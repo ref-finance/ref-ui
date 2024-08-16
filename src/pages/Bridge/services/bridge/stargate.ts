@@ -17,7 +17,7 @@ import { BigNumber, ethers } from 'ethers';
 import { formatAmount, parseAmount } from '../../utils/format';
 import { logger } from '../../utils/common';
 import { Optional, Transaction } from '@near-wallet-selector/core';
-import { BridgeConfig } from '../../config';
+import { BridgeConfig, BridgeTokenRoutes } from '../../config';
 import { getChainMainToken, getTokenMeta } from '../../utils/token';
 import Big from 'big.js';
 import { startCase } from 'lodash';
@@ -62,6 +62,11 @@ const stargateBridgeService = {
     insufficientFeeBalance?: boolean;
   }> {
     if (!params.amount) return;
+    const protocolFeeRatio = BridgeTokenRoutes.find(
+      (item) =>
+        item.from.toLowerCase() === params.from.toLowerCase() &&
+        item.to.toLowerCase() === params.to.toLowerCase()
+    )?.protocolFeeRatio;
     if (params.from === 'NEAR') {
       const { discountedFeeUSD, fullFeeUSD } =
         await stargateBridgeService.queryFeeUSD(params);
@@ -107,12 +112,10 @@ const stargateBridgeService = {
           messagingFee.nativeFee
         );
         const minAmount = new Big(sendParam.amountLD.toString())
-          .times(
-            1 - BridgeConfig.Stargate.bridgeParams[params.to].protocolFeeRatio
-          )
+          .times(1 - protocolFeeRatio)
           .toFixed(0);
         const protocolFee = new Big(sendParam.amountLD.toString())
-          .times(BridgeConfig.Stargate.bridgeParams.Aurora.protocolFeeRatio)
+          .times(protocolFeeRatio)
           .toFixed(0);
         const readableProtocolFee = formatAmount(
           protocolFee,
@@ -164,13 +167,11 @@ const stargateBridgeService = {
       const usdFee = new Big(readableFeeAmount).times(ethPriceInUSD).toString();
       const newSendParam = { ...sendParam };
       const minAmount = new Big(sendParam.amountLD.toString())
-        .times(
-          1 - BridgeConfig.Stargate.bridgeParams[params.from].protocolFeeRatio
-        )
+        .times(1 - protocolFeeRatio)
         .toFixed(0);
 
       const protocolFee = new Big(sendParam.amountLD.toString())
-        .times(BridgeConfig.Stargate.bridgeParams.Aurora.protocolFeeRatio)
+        .times(protocolFeeRatio)
         .toFixed(0);
       const readableProtocolFee = formatAmount(
         protocolFee,

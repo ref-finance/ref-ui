@@ -65,5 +65,7 @@ declare namespace BridgeModel {
     status: 'DELIVERED';
     created_time: number;
     update_time: number;
+    protocolFeeRatio: number;
+    amount: string;
   };
 }
