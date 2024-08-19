@@ -137,6 +137,6 @@ export function formatFileUrl(key: string) {
 }
 
 export function formatChainIcon(chain: BridgeModel.BridgeSupportChain) {
-  const _chain = chain === 'Aurora' ? 'NEAR' : chain;
+  const _chain = chain.toLowerCase() === 'aurora' ? 'NEAR' : chain;
   return formatFileUrl(`/chain/${_chain.toLowerCase()}.svg`);
 }

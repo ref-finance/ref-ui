@@ -529,13 +529,13 @@ export const BridgeTokenRoutes: {
     symbols: ['USDC'],
     protocolFeeRatio: 0.0006,
   },
-  {
-    from: 'NEAR',
-    to: 'Mantle',
-    channel: 'Stargate',
-    symbols: ['USDC'],
-    protocolFeeRatio: 0.0006,
-  },
+  // {
+  //   from: 'NEAR',
+  //   to: 'Mantle',
+  //   channel: 'Stargate',
+  //   symbols: ['USDC'],
+  //   protocolFeeRatio: 0.0006,
+  // },
   {
     from: 'NEAR',
     to: 'Optimism',
@@ -612,13 +612,13 @@ export const BridgeTokenRoutes: {
     symbols: ['USDC'],
     protocolFeeRatio: 0.0006,
   },
-  {
-    from: 'Mantle',
-    to: 'NEAR',
-    channel: 'Stargate',
-    symbols: ['USDC'],
-    protocolFeeRatio: 0.0006,
-  },
+  // {
+  //   from: 'Mantle',
+  //   to: 'NEAR',
+  //   channel: 'Stargate',
+  //   symbols: ['USDC'],
+  //   protocolFeeRatio: 0.0006,
+  // },
   {
     from: 'Optimism',
     to: 'NEAR',
