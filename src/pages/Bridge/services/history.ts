@@ -33,12 +33,13 @@ const bridgeHistoryService = {
         v.to_chain.toLowerCase() === 'aurora'
           ? 'near'
           : v.to_chain.toLowerCase();
-      const protocolFeeRatio = BridgeTokenRoutes.find(
-        (item) =>
-          item.from.toLowerCase() === from && item.to.toLowerCase() === to
-      )?.protocolFeeRatio;
+      const protocolFeeRatio =
+        BridgeTokenRoutes.find(
+          (item) =>
+            item.from.toLowerCase() === from && item.to.toLowerCase() === to
+        )?.protocolFeeRatio || 0;
       v.protocolFeeRatio = protocolFeeRatio;
-      v.amount = new Big(v.volume)
+      v.amount = new Big(v.volume || '0')
         .times(new Big(1).minus(protocolFeeRatio))
         .toFixed(0, Big.roundDown);
     });
