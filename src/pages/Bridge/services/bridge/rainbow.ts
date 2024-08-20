@@ -75,14 +75,7 @@ const rainbowBridgeService = {
       token: tokenIn,
       from,
     });
-    console.log('bridge: rainbow instance', instance);
-    console.log('bridge: rainbow params', {
-      tokenIn,
-      from,
-      amount,
-      sender,
-      recipient,
-    });
+ 
     let result;
     if (instance.bridgedETH)
       result = await instance.bridgedETH.sendToEthereum({
@@ -152,7 +145,7 @@ const rainbowBridgeService = {
     const decodedResult = sortedResult.map((item) =>
       rainbowBridgeService.transformRawData(item)
     );
-    console.log('bridge: rainbow decodedResult', decodedResult);
+   
     return decodedResult as BridgeModel.BridgeTransaction[];
   },
   async getById(id: string) {

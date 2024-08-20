@@ -9,7 +9,10 @@ declare namespace BridgeModel {
     | 'Mantle'
     | 'Optimism'
     | 'Polygon'
-    | 'Scroll';
+    | 'Scroll'
+    | 'SEI'
+    | 'TAIKO'
+    | 'Flare';
   type BridgeSupportChannel = 'Rainbow' | 'Stargate';
   type BridgeTokenMeta = {
     symbol: string;
@@ -62,5 +65,7 @@ declare namespace BridgeModel {
     status: 'DELIVERED';
     created_time: number;
     update_time: number;
+    protocolFeeRatio: number;
+    amount: string;
   };
 }

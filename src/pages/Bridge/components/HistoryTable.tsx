@@ -1,16 +1,13 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import SvgIcon from './SvgIcon';
 import {
   formatAmount,
   formatChainIcon,
-  formatFileUrl,
   formatSortAddress,
   formatTimestamp,
   formatTxExplorerUrl,
 } from '../utils/format';
-import Button from './Button';
-import useBridge from '../hooks/useBridge';
-import { getTokenByAddress, getTokenMeta } from '../utils/token';
+import { getTokenByAddress } from '../utils/token';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 
 const columns = [
@@ -68,7 +65,7 @@ function TableItem({
 
             <CustomTooltip id="token-symbol" />
           </span>
-          {formatAmount(transaction.volume, tokenMeta?.decimals)}
+          {formatAmount(transaction.amount, tokenMeta?.decimals)}
         </div>
       </td>
       <td>
