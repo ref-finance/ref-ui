@@ -63,6 +63,7 @@ import {
   Solana,
   Terra,
   WalletCedeBridge,
+  TokenBridge,
 } from '../components/icon/Menu';
 import { IconMyLiquidity, MobileNavLimitOrder } from '../components/icon/Nav';
 import {
@@ -476,6 +477,13 @@ export const useMenus = (cb?: () => void) => {
           label: 'CEX Bridge',
           logo: <WalletCedeBridge />,
           url: `https://send.cede.store/?tokenSymbol=NEAR&network=near&source=ref_finance`,
+          isExternal: true,
+        },
+        {
+          id: 'bridge-4',
+          label: 'Token Bridge',
+          logo: <TokenBridge />,
+          url: `https://tokenbridge.app`,
           isExternal: true,
         },
       ],
@@ -897,6 +905,13 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           label: 'CEX Bridge',
           logo: <WalletCedeBridge />,
           url: `https://send.cede.store/?tokenSymbol=NEAR&network=near&source=ref_finance`,
+          isExternal: true,
+        },
+        {
+          id: 'bridge-4',
+          label: 'Token Bridge',
+          logo: <TokenBridge />,
+          url: `https://tokenbridge.app`,
           isExternal: true,
         },
       ],

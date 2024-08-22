@@ -75,7 +75,7 @@ const rainbowBridgeService = {
       token: tokenIn,
       from,
     });
- 
+
     let result;
     if (instance.bridgedETH)
       result = await instance.bridgedETH.sendToEthereum({
@@ -145,7 +145,7 @@ const rainbowBridgeService = {
     const decodedResult = sortedResult.map((item) =>
       rainbowBridgeService.transformRawData(item)
     );
-   
+
     return decodedResult as BridgeModel.BridgeTransaction[];
   },
   async getById(id: string) {
