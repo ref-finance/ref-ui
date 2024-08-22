@@ -24,6 +24,7 @@ export function setupWeb3Onboard() {
       ProviderLabel.OKXWallet,
       ProviderLabel.Trust,
       ProviderLabel.Binance,
+      ProviderLabel.Bitget,
     ],
     sort: (wallets) => {
       const metaMask = wallets.find(
