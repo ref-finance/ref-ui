@@ -50,7 +50,7 @@ import { parseSymbol } from './components/RecentTrade';
 import { NewUserTip } from './components/Common/NewUserTip';
 import BlockOrderBookTip from './BlockOrderBookTip';
 
-export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN10';
+export const REF_ORDERLY_PERP_TIP_SIG = 'REF_ORDERLY_PERP_TIP_SIGN11';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
