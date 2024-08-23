@@ -1,6 +1,7 @@
-import { capitalize } from 'lodash';
 import { generateUrl } from '../utils/common';
 import request from '../utils/request';
+import { BridgeTokenRoutes } from '../config';
+import Big from 'big.js';
 
 type QueryParams = {
   onlyUnclaimed?: boolean;
@@ -15,7 +16,7 @@ const bridgeHistoryService = {
     const { data } = await request<{
       data: { list?: BridgeModel.BridgeHistory[]; total?: number };
     }>(
-      generateUrl(`https://test.api.cclp.finance/v3/bridge/list`, {
+      generateUrl(`https://api.ref.finance/v3/bridge/list`, {
         account_id,
         tx_hash: hash,
         chain: chain === 'NEAR' ? 'aurora' : chain.toLowerCase(),
@@ -23,17 +24,25 @@ const bridgeHistoryService = {
         offset: 0,
       })
     );
-    data.list =
-      data.list?.map(
-        (v) =>
-          ({
-            ...v,
-            chain: capitalize(v.chain),
-            type: capitalize(v.type),
-            from_chain: capitalize(v.from_chain),
-            to_chain: capitalize(v.to_chain),
-          } as BridgeModel.BridgeHistory)
-      ) || [];
+    data.list?.forEach((v) => {
+      const from =
+        v.from_chain.toLowerCase() === 'aurora'
+          ? 'near'
+          : v.from_chain.toLowerCase();
+      const to =
+        v.to_chain.toLowerCase() === 'aurora'
+          ? 'near'
+          : v.to_chain.toLowerCase();
+      const protocolFeeRatio =
+        BridgeTokenRoutes.find(
+          (item) =>
+            item.from.toLowerCase() === from && item.to.toLowerCase() === to
+        )?.protocolFeeRatio || 0;
+      v.protocolFeeRatio = protocolFeeRatio;
+      v.amount = new Big(v.volume || '0')
+        .times(new Big(1).minus(protocolFeeRatio))
+        .toFixed(0, Big.roundDown);
+    });
 
     // const result = await rainbowBridgeService.query({
     //   filter: (v) => {

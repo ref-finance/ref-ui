@@ -153,9 +153,9 @@ export default function useBridgeForm() {
       const toValue = { ...bridgeToValue };
 
       if (fromValue.chain !== 'NEAR')
-        setChain(EVMConfig[fromValue.chain]?.chainId);
+        setChain(EVMConfig.chains[fromValue.chain.toLowerCase()]?.id);
       else if (toValue.chain !== 'NEAR')
-        setChain(EVMConfig[toValue.chain]?.chainId);
+        setChain(EVMConfig.chains[toValue.chain.toLowerCase()]?.id);
 
       logger.log('useBridgeForm', fromValue, toValue);
 
@@ -221,7 +221,7 @@ export default function useBridgeForm() {
       if (!getWallet(bridgeFromValue.chain)?.accountId) return '0';
       return tokenServices.getBalance(
         bridgeFromValue.chain,
-        bridgeFromValue.tokenMeta,
+        getTokenMeta(bridgeToValue.tokenMeta.symbol),
         true
       );
     },
@@ -242,7 +242,7 @@ export default function useBridgeForm() {
       if (!getWallet(bridgeToValue.chain)?.accountId) return '0';
       return tokenServices.getBalance(
         bridgeToValue.chain,
-        bridgeToValue.tokenMeta,
+        getTokenMeta(bridgeToValue.tokenMeta.symbol),
         true
       );
     },
@@ -260,9 +260,8 @@ export default function useBridgeForm() {
 
   const { data: gasTokenBalance = '0' } = useRequest(
     async () => {
-      const res = await tokenServices.getBalance(
+      const res = await tokenServices.getMainTokenBalance(
         bridgeFromValue.chain,
-        getTokenMeta(bridgeFromValue.chain === 'NEAR' ? 'NEAR' : 'ETH'),
         true
       );
       return res;

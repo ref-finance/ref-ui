@@ -9,7 +9,10 @@ const WALLET_CONNECT_OPTION: Parameters<
   typeof walletConnectModule | typeof ledgerModule
 >[number] = {
   projectId: EVMConfig.walletConnectProjectId,
-  requiredChains: [EVMConfig.Ethereum.chainId, EVMConfig.Arbitrum.chainId],
+  requiredChains: [
+    EVMConfig.chains.ethereum.chainId,
+    EVMConfig.chains.arbitrum.chainId,
+  ],
   dappUrl: APP_HOST,
 };
 
@@ -21,6 +24,7 @@ export function setupWeb3Onboard() {
       ProviderLabel.OKXWallet,
       ProviderLabel.Trust,
       ProviderLabel.Binance,
+      ProviderLabel.Bitget,
     ],
     sort: (wallets) => {
       const metaMask = wallets.find(
@@ -39,9 +43,13 @@ export function setupWeb3Onboard() {
     walletConnectVersion: 2,
   });
 
+  const chains = Object.values(EVMConfig.chains).map(
+    ({ id, token, label, rpcUrl }) => ({ id, token, label, rpcUrl })
+  );
+
   return init({
     wallets: [injected, walletConnect, ledger],
-    chains: EVMConfig.chains,
+    chains,
     theme: 'dark',
     appMetadata: {
       name: 'Ref Finance',

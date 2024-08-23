@@ -11,14 +11,14 @@ import {
   tokenServices,
 } from '../contract';
 import StargateAbi from '../../abi/stargate.json';
-import StargatePoolAbi from '../../abi/stargatePoolUSDC.json';
+
 import { BridgeTransferParams } from '.';
 import { BigNumber, ethers } from 'ethers';
 import { formatAmount, parseAmount } from '../../utils/format';
 import { logger } from '../../utils/common';
 import { Optional, Transaction } from '@near-wallet-selector/core';
-import { BridgeConfig } from '../../config';
-import { getTokenMeta } from '../../utils/token';
+import { BridgeConfig, BridgeTokenRoutes } from '../../config';
+import { getChainMainToken, getTokenMeta } from '../../utils/token';
 import Big from 'big.js';
 import { startCase } from 'lodash';
 
@@ -62,6 +62,11 @@ const stargateBridgeService = {
     insufficientFeeBalance?: boolean;
   }> {
     if (!params.amount) return;
+    const protocolFeeRatio = BridgeTokenRoutes.find(
+      (item) =>
+        item.from.toLowerCase() === params.from.toLowerCase() &&
+        item.to.toLowerCase() === params.to.toLowerCase()
+    )?.protocolFeeRatio;
     if (params.from === 'NEAR') {
       const { discountedFeeUSD, fullFeeUSD } =
         await stargateBridgeService.queryFeeUSD(params);
@@ -107,12 +112,10 @@ const stargateBridgeService = {
           messagingFee.nativeFee
         );
         const minAmount = new Big(sendParam.amountLD.toString())
-          .times(
-            1 - BridgeConfig.Stargate.bridgeParams[params.to].protocolFeeRatio
-          )
+          .times(1 - protocolFeeRatio)
           .toFixed(0);
         const protocolFee = new Big(sendParam.amountLD.toString())
-          .times(BridgeConfig.Stargate.bridgeParams.Aurora.protocolFeeRatio)
+          .times(protocolFeeRatio)
           .toFixed(0);
         const readableProtocolFee = formatAmount(
           protocolFee,
@@ -158,21 +161,17 @@ const stargateBridgeService = {
 
       const { nativeFee, lzTokenFee } = messagingFee;
       const feeAmount = new Big(nativeFee).plus(lzTokenFee).toString();
-      const readableFeeAmount = formatAmount(
-        feeAmount,
-        getTokenMeta('ETH').decimals
-      );
-      const ethPriceInUSD = await tokenServices.getPrice(getTokenMeta('ETH'));
+      const mainToken = getChainMainToken(params.from);
+      const readableFeeAmount = formatAmount(feeAmount, mainToken.decimals);
+      const ethPriceInUSD = await tokenServices.getEvmPrice(mainToken.symbol);
       const usdFee = new Big(readableFeeAmount).times(ethPriceInUSD).toString();
       const newSendParam = { ...sendParam };
       const minAmount = new Big(sendParam.amountLD.toString())
-        .times(
-          1 - BridgeConfig.Stargate.bridgeParams[params.from].protocolFeeRatio
-        )
+        .times(1 - protocolFeeRatio)
         .toFixed(0);
 
       const protocolFee = new Big(sendParam.amountLD.toString())
-        .times(BridgeConfig.Stargate.bridgeParams.Aurora.protocolFeeRatio)
+        .times(protocolFeeRatio)
         .toFixed(0);
       const readableProtocolFee = formatAmount(
         protocolFee,
@@ -435,8 +434,15 @@ const stargateBridgeService = {
       await nearServices.sendTransaction(registerTokenTransaction);
     }
     const erc20Address = tokenIn.addresses[from];
+
     const poolAddress =
-      BridgeConfig.Stargate.bridgeParams[from].pool[tokenOut.symbol];
+      BridgeConfig.Stargate.bridgeParams[from]?.pool?.[tokenOut.symbol] ||
+      BridgeConfig.Stargate.bridgeParams[from]?.oft?.[tokenOut.symbol];
+    const poolContractAbi =
+      BridgeConfig.Stargate.bridgeParams[from]?.pool?.[
+        tokenOut.symbol + 'ABI'
+      ] ||
+      BridgeConfig.Stargate.bridgeParams[from]?.oft?.[tokenOut.symbol + 'ABI'];
     if (!poolAddress) throw new Error('Invalid pool address');
 
     await evmServices.checkErc20Approve({
@@ -448,12 +454,21 @@ const stargateBridgeService = {
 
     const { valueToSend, sendParam, messagingFee } =
       await stargateBridgeService.query(params);
+    logger.log('bridge: send params', {
+      valueToSend,
+      sendParam,
+      messagingFee,
+      sender,
+      poolAddress,
+    });
 
     const stargatePoolContract = await evmServices.getEvmContract(
       poolAddress,
-      StargatePoolAbi,
+      poolContractAbi,
       'call'
     );
+    logger.log('stargatePoolContract', stargatePoolContract);
+
     const tx = await stargatePoolContract.send(
       sendParam,
       messagingFee,

@@ -31,6 +31,7 @@ import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from '../icon/Common';
 import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import { USDCWIcon } from '../icon/Common';
+import { getImageMark, isSuffix } from '../../utils/token';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -103,11 +104,13 @@ export const TknImages = ({
                 : token?.icon;
             const id = token?.id;
             const isRisk = riskTokens.some((riskToken) => riskToken.id === id);
+
+            const mark = getImageMark(token, isRisk);
             if (icon)
               return (
                 <div
                   key={token?.id + index}
-                  className={`inline-block flex-shrink-0 frcc ${
+                  className={`inline-block flex-shrink-0 overflow-hidden frcc ${
                     is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
                   }  h-${size || 10} w-${size || 10} rounded-full ${
                     tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
@@ -140,14 +143,23 @@ export const TknImages = ({
                       className="rounded-full"
                     />
                   )}
-                  {isRisk && (
+                  {mark ? (
                     <div
-                      className="absolute z-40"
-                      style={{ left: '1px', bottom: '-1px' }}
+                      className="absolute flex items-center justify-center bg-black bg-opacity-75 bottom-0 left-0 right-0 z-40"
+                      style={{ height: '11px' }}
                     >
-                      <TknIcon />
+                      <span
+                        className="italic text-white text-sm gotham_bold relative"
+                        style={{
+                          top: '-1px',
+                          left: '-1px',
+                          transform: 'scale(0.5, 0.5)',
+                        }}
+                      >
+                        {mark}
+                      </span>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               );
             return (
@@ -155,11 +167,29 @@ export const TknImages = ({
                 key={id || 0 + index}
                 className={`inline-block h-${size || 10} flex-shrink-0 w-${
                   size || 10
-                } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
+                } rounded-full bg-cardBg border border-black -ml-1 relative overflow-hidden`}
                 style={{
-                  border: borderStyle || 'none',
+                  border: borderStyle || '',
                 }}
-              ></div>
+              >
+                {mark ? (
+                  <div
+                    className="absolute flex items-center justify-center bg-black bg-opacity-75 bottom-0 left-0 right-0 z-10"
+                    style={{ height: '11px' }}
+                  >
+                    <span
+                      className="italic text-white text-sm gotham_bold relative"
+                      style={{
+                        top: '-1px',
+                        left: '-1px',
+                        transform: 'scale(0.5, 0.5)',
+                      }}
+                    >
+                      {mark}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
             );
           })}
 

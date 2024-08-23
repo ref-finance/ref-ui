@@ -61,8 +61,7 @@ const icons: { [tokenId: string]: string } = {
     'https://img.ref.finance/images/sFRAX_coin.svg',
   '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near':
     'https://img.ref.finance/images/FRAX_coin.svg',
-  'blackdragon.tkn.near':
-    'https://img.ref.finance/images/blackdragon-icon.png',
+  'blackdragon.tkn.near': 'https://img.ref.finance/images/blackdragon-icon.png',
   '22.contract.portalbridge.near':
     'https://img.ref.finance/images/SOLWormhole.svg',
   'babyblackdragon.tkn.near':

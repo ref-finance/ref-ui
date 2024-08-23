@@ -5,12 +5,12 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
       return {
         RPC_LIST: {
           defaultRpc: {
-            url: 'https://rpc.mainnet.near.org',
-            simpleName: 'official rpc',
-          },
-          lavaRpc: {
             url: 'https://near.lava.build',
             simpleName: 'lava rpc',
+          },
+          officalRpc: {
+            url: 'https://rpc.mainnet.near.org',
+            simpleName: 'official rpc',
           },
           betaRpc: {
             url: 'https://beta.rpc.mainnet.near.org',
@@ -80,12 +80,12 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
       return {
         RPC_LIST: {
           defaultRpc: {
-            url: 'https://rpc.mainnet.near.org',
-            simpleName: 'official rpc',
-          },
-          lavaRpc: {
             url: 'https://near.lava.build',
             simpleName: 'lava rpc',
+          },
+          officalRpc: {
+            url: 'https://rpc.mainnet.near.org',
+            simpleName: 'official rpc',
           },
           betaRpc: {
             url: 'https://beta.rpc.mainnet.near.org',
