@@ -2628,8 +2628,41 @@ function UserStakeBlock(props: {
                 </div>
               </div>
               {+freeAmount > 0 && is_support_lp ? (
+                // <div className="flex flex-col bg-farmDarkTipColor rounded-lg px-3.5 py-2 text-xs text-farmText mt-2.5">
+                //   <span>How to get Ref’s farm APR + Burrow lending APR?</span>
+                //   <span>
+                //     Step 1.{' '}
+                //     <a
+                //       className="text-burrowYellowColor underline cursor-pointer relative"
+                //       tabIndex={99}
+                //       onBlur={() => {
+                //         setShowActivateBox(false);
+                //       }}
+                //       onClick={() => {
+                //         setShowActivateBox(!showActivateBox);
+                //       }}
+                //     >
+                //       Activate
+                //       <ShadowTip show={showActivateBox} seed_id={seed_id} />
+                //     </a>{' '}
+                //     the {`Burrow's`} extra rewards
+                //   </span>
+                //   <span>
+                //     Step 2. Go to supply LP on{' '}
+                //     <a
+                //       className="text-burrowYellowColor text-xs underline cursor-pointer"
+                //       onClick={() => {
+                //         const shadow_id = `shadow_ref_v1-${pool?.id}`;
+                //         const url = `https://app.burrow.finance/tokenDetail/${shadow_id}`;
+                //         window.open(url);
+                //       }}
+                //     >
+                //       Burrow
+                //     </a>
+                //   </span>
+                // </div>
                 <div className="flex flex-col bg-farmDarkTipColor rounded-lg px-3.5 py-2 text-xs text-farmText mt-2.5">
-                  <span>How to get Ref’s farm APR + Burrow lending APR?</span>
+                  <span>How to stake LP on Burrow?</span>
                   <span>
                     Step 1.{' '}
                     <a
@@ -2645,7 +2678,7 @@ function UserStakeBlock(props: {
                       Activate
                       <ShadowTip show={showActivateBox} seed_id={seed_id} />
                     </a>{' '}
-                    the {`Burrow's`} extra rewards
+                    the {`Burrow's`} LP as Collateral feature
                   </span>
                   <span>
                     Step 2. Go to supply LP on{' '}
