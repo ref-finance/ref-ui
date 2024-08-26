@@ -298,7 +298,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     if (!accountId || !selector) return;
 
-    getAllKeys(accountId);
   }, [accountId, selector]);
 
   if (!selector || !modal || (!!accountId && isLedger === undefined)) {
