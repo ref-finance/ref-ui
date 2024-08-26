@@ -7,11 +7,17 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { ShareInFarm } from '../../../components/layout/ShareInFarm';
+import {
+  ShareInFarm,
+  ShareInFarmV2,
+} from '../../../components/layout/ShareInFarm';
 import {
   classificationOfCoins_key,
   classificationOfCoins,
   Seed,
+  get_shadow_records,
+  getStakedListByAccountId,
+  list_farmer_seeds,
 } from '../../../services/farm';
 import { ArrowDownLarge, TokenRisk } from '../../../components/icon';
 import { useHistory } from 'react-router';
@@ -158,6 +164,15 @@ import {
   TokenPriceListContext,
 } from './constLiquidityPage';
 import { useRiskTokens } from '../../../state/token';
+import {
+  useFarmerSeedsStore,
+  useShadowRecordStore,
+  useStakeListStore,
+} from 'src/stores/liquidityStores';
+import {
+  PoolAvailablePercent,
+  PoolFarmAmount,
+} from 'src/components/pool/PoolShare';
 import { format_apy } from '../../../utils/uiNumber';
 import { USDCWIcon } from 'src/components/icon/Common';
 const { BTC_STABLE_POOL_ID } = getExtraStablePoolConfig();
@@ -1877,6 +1892,12 @@ export default function LiquidityPage() {
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
   );
+  const setShadowRecords = useShadowRecordStore(
+    (state) => state.setShadowRecords
+  );
+  const setStakeListTogether = useStakeListStore(
+    (state) => state.setStakeListTogether
+  );
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -1946,6 +1967,21 @@ export default function LiquidityPage() {
     },
   });
   useEffect(() => {
+    setCurrentPage(1);
+  }, [farmOnly, hideLowTVL]);
+  useEffect(() => {
+    get_shadow_records().then((res) => {
+      setShadowRecords(res);
+    });
+    getStakedListByAccountId({})
+      .then(({ stakedList, finalStakeList, v2StakedList }) => {
+        setStakeListTogether({
+          stakeListV1: stakedList,
+          stakeListV2: v2StakedList,
+          stakeListAll: finalStakeList,
+        });
+      })
+      .catch((e) => {});
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
         const { farmList, seed_id } = seed;
@@ -2523,9 +2559,8 @@ function StablePoolCard({
   };
   const [hover, setHover] = useState<boolean>(false);
 
-  const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
-    poolData.pool.id
-  );
+  const { shares, shadowBurrowShare, farmStakeV2, userTotalShare } =
+    useYourliquidity(poolData.pool.id);
 
   const [chartActiveToken, setChartActiveToken] = useState<string>();
 
@@ -2700,7 +2735,6 @@ function StablePoolCard({
               setChartActiveToken={setChartActiveToken}
             />
           </div>
-
           <div className="absolute xl:right-8 lg:right-4 xs:hidden md:hidden">
             <TokenChart
               tokens={poolData.tokens}
@@ -2813,6 +2847,24 @@ function StablePoolCard({
               forStable
             />
           </div>
+
+          {shadowBurrowShare?.stakeAmount && (
+            <div
+              className={`cursor-pointer ${!haveFarm ? 'hidden' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                openUrl(`https://app.burrow.finance/`);
+              }}
+            >
+              <ShareInFarm
+                farmStake={shadowBurrowShare?.stakeAmount}
+                userTotalShare={userTotalShare}
+                inStr={'in Burrow'}
+                forStable
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex xs:hidden md:hidden items-center">
@@ -2894,7 +2946,12 @@ function StablePoolList({
   const [sortBy, setSortBy] = useState<string>('tvl');
 
   const [clicked, setClicked] = useState<boolean>(false);
-
+  const setFarmerSeeds = useFarmerSeedsStore((state) => state.setFarmerSeeds);
+  useEffect(() => {
+    list_farmer_seeds().then((res) => {
+      setFarmerSeeds(res);
+    });
+  }, []);
   let allStablePoolData = useAllStablePoolData();
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;

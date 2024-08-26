@@ -2,6 +2,17 @@ import React, { useEffect, useState } from 'react';
 import BigNumber from 'bignumber.js';
 import { canFarm, canFarmV1, canFarmV2 } from '../services/pool';
 import db from '../store/RefDatabase';
+import {
+  get_shadow_records,
+  getStakedListByAccountId,
+  list_farmer_seeds,
+} from 'src/services/farm';
+import {
+  useFarmerSeedsStore,
+  useShadowRecordStore,
+  useStakeListStore,
+} from 'src/stores/liquidityStores';
+import { wallet } from 'src/services/near';
 
 export const checkFarmStake = ({
   poolId,
@@ -117,4 +128,53 @@ export const useAllFarms = () => {
     v1Farm,
     v2Farm,
   };
+};
+
+export const useShadowRecord = (poolId) => {
+  const setShadowRecords = useShadowRecordStore(
+    (state) => state.setShadowRecords
+  );
+  const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
+
+  useEffect(() => {
+    get_shadow_records().then((res) => {
+      setShadowRecords(res);
+    });
+  }, []);
+
+  return { shadowRecords, poolShadowRecord: shadowRecords[poolId] };
+};
+
+export const useFarmerSeeds = () => {
+  const setFarmerSeeds = useFarmerSeedsStore((state) => state.setFarmerSeeds);
+  const farmerSeeds = useFarmerSeedsStore((state) => state.farmerSeeds);
+
+  useEffect(() => {
+    list_farmer_seeds().then((res) => {
+      setFarmerSeeds(res);
+    });
+  }, []);
+
+  return { farmerSeeds };
+};
+
+export const useSetStakeList = () => {
+  const isSignedIn = wallet.isSignedIn();
+  const setStakeListTogether = useStakeListStore(
+    (state) => state.setStakeListTogether
+  );
+
+  useEffect(() => {
+    if (isSignedIn) {
+      getStakedListByAccountId({})
+        .then(({ stakedList, finalStakeList, v2StakedList }) => {
+          setStakeListTogether({
+            stakeListV1: stakedList,
+            stakeListV2: v2StakedList,
+            stakeListAll: finalStakeList,
+          });
+        })
+        .catch((e) => {});
+    }
+  }, [isSignedIn]);
 };

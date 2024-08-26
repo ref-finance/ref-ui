@@ -80,7 +80,7 @@ const Wrapper = (props: any) => {
     <Context.Provider
       value={{ locale, selectLanguage, setLocale, setMessages }}
     >
-      <IntlProvider messages={messages} locale={locale}>
+      <IntlProvider messages={messages} locale={locale} onError={() => {}}>
         {props.children}
       </IntlProvider>
     </Context.Provider>
