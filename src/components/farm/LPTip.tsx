@@ -91,7 +91,17 @@ export default function LPTip({ seed_id }: { seed_id: string }) {
         }`}
       >
         <div className="text-xs text-farmText w-56 border border-primaryText rounded-md px-2 py-1 bg-cardBg">
-          Stake LP tokens as collateral on Burrow
+          Stake LP tokens as collateral on{' '}
+          <a
+            className="text-burrowYellowColor text-xs underline cursor-pointer"
+            onClick={() => {
+              const shadow_id = `shadow_ref_v1-${poolId}`;
+              const url = `https://app.burrow.finance/tokenDetail/${shadow_id}`;
+              window.open(url);
+            }}
+          >
+            Burrow
+          </a>
         </div>
         {/* {contentType == 'burrow' ? (
           <div className="text-xs text-farmText w-56 border border-primaryText rounded-md px-2 py-1 bg-cardBg">
