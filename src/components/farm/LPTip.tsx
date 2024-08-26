@@ -90,7 +90,10 @@ export default function LPTip({ seed_id }: { seed_id: string }) {
           hover && !showShadowTip ? '' : 'hidden'
         }`}
       >
-        {contentType == 'burrow' ? (
+        <div className="text-xs text-farmText w-56 border border-primaryText rounded-md px-2 py-1 bg-cardBg">
+          Stake LP tokens as collateral on Burrow
+        </div>
+        {/* {contentType == 'burrow' ? (
           <div className="text-xs text-farmText w-56 border border-primaryText rounded-md px-2 py-1 bg-cardBg">
             You‘ve supplied this LP on Burrow
           </div>
@@ -113,7 +116,7 @@ export default function LPTip({ seed_id }: { seed_id: string }) {
             </a>{' '}
             to perform a Supply action and secure extra rewards.
           </div>
-        ) : null}
+        ) : null} */}
       </div>
     </div>
   );
