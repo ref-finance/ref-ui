@@ -292,12 +292,14 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     const isSelectLedger =
       selector.store.getState().selectedWalletId === 'ledger';
     setAllKeys(allKeys);
-    setIsLedger(isSelectLedger || isWalletMeta);
+    // setIsLedger(isSelectLedger || isWalletMeta);
+    setIsLedger(false);
   };
 
   useEffect(() => {
     if (!accountId || !selector) return;
 
+    getAllKeys(accountId);
   }, [accountId, selector]);
 
   if (!selector || !modal || (!!accountId && isLedger === undefined)) {
