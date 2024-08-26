@@ -336,9 +336,8 @@ function StablePoolCard({
 
   const [hover, setHover] = useState<boolean>(false);
 
-  const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
-    poolData.pool.id
-  );
+  const { shares, shadowBurrowShare, farmStakeV2, userTotalShare } =
+    useYourliquidity(poolData.pool.id);
 
   const [chartActiveToken, setChartActiveToken] = useState<string>();
 
@@ -604,16 +603,14 @@ function StablePoolCard({
           <div className="text-primaryText text-base">
             <FormattedMessage id="your_shares" defaultMessage="Your Shares" />
           </div>
-
           <div className="text-sm ml-5 mr-2.5 text-white">
             {formattedPool.displayMyShareAmount}
           </div>
           <div className="text-primaryText mr-4">
             {formattedPool.displaySharePercent}
           </div>
-
           <div
-            className={`cursor-pointer ${!haveFarm ? 'hidden' : ''}`}
+            className={`cursor-pointer ${!haveFarm ? 'hiddenx' : ''}`}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -628,6 +625,23 @@ function StablePoolCard({
               forStable
             />
           </div>
+          {shadowBurrowShare?.stakeAmount && (
+            <div
+              className={`cursor-pointer ${!haveFarm ? 'hidden' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                openUrl(`https://app.burrow.finance/`);
+              }}
+            >
+              <ShareInFarm
+                farmStake={shadowBurrowShare?.stakeAmount}
+                userTotalShare={userTotalShare}
+                inStr={'in Burrow'}
+                forStable
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex xs:hidden md:hidden items-center">

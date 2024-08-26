@@ -8,6 +8,16 @@ import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import { ALL_STABLE_POOL_IDS, NEARX_POOL_ID } from '../services/near';
 import { getPoolsByIds, getPool } from '../services/indexer';
 import { ftGetTokensMetadata } from '../services/ft-contract';
+import {
+  get_shadow_records,
+  getStakedListByAccountId,
+  list_farmer_seeds,
+} from 'src/services/farm';
+import {
+  useFarmerSeedsStore,
+  useShadowRecordStore,
+  useStakeListStore,
+} from 'src/stores/liquidityStores';
 
 export interface PoolData {
   pool: Pool;
@@ -106,4 +116,33 @@ export const useAllStablePools = () => {
       });
   }, []);
   return stablePools;
+};
+
+export const useZustandSetPoolData = () => {
+  const setShadowRecords = useShadowRecordStore(
+    (state) => state.setShadowRecords
+  );
+  const setFarmerSeeds = useFarmerSeedsStore((state) => state.setFarmerSeeds);
+  const setStakeListTogether = useStakeListStore(
+    (state) => state.setStakeListTogether
+  );
+
+  useEffect(() => {
+    getStakedListByAccountId({})
+      .then(({ stakedList, finalStakeList, v2StakedList }) => {
+        setStakeListTogether({
+          stakeListV1: stakedList,
+          stakeListV2: v2StakedList,
+          stakeListAll: finalStakeList,
+        });
+      })
+      .catch((e) => {});
+
+    get_shadow_records().then((res) => {
+      setShadowRecords(res);
+    });
+    list_farmer_seeds().then((res) => {
+      setFarmerSeeds(res);
+    });
+  }, []);
 };

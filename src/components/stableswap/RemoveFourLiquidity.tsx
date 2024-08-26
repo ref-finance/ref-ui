@@ -64,6 +64,11 @@ import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import { useTokenBalances } from '../../state/token';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
+import {
+  getPoolAvailableShare,
+  useNewPoolData,
+} from 'src/components/pool/useNewPoolData';
+import { useShadowRecord } from 'src/state/farm';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -140,6 +145,9 @@ export function RemoveFourLiquidityComponent(props: {
   const intl = useIntl();
 
   const { globalState } = useContext(WalletContext);
+
+  const { newPool } = useNewPoolData({ pool, shares });
+
   const isSignedIn = globalState.isSignedIn;
 
   const byShareRangeRef = useRef(null);
@@ -159,7 +167,7 @@ export function RemoveFourLiquidityComponent(props: {
       fourTokenAmount,
     ],
     setError,
-    shares,
+    shares: newPool?.availableShareNonDivisible,
     stablePool,
   });
 
@@ -202,8 +210,10 @@ export function RemoveFourLiquidityComponent(props: {
         0
       );
 
-      const max_burn_shares = new BigNumber(predict_burn).isGreaterThan(shares)
-        ? shares
+      const max_burn_shares = new BigNumber(predict_burn).isGreaterThan(
+        newPool?.availableShareNonDivisible
+      )
+        ? newPool?.availableShareNonDivisible
         : predict_burn;
 
       return removeLiquidityByTokensFromStablePool({
@@ -223,7 +233,7 @@ export function RemoveFourLiquidityComponent(props: {
 
     const myReadableShare = toReadableNumber(
       RATED_POOL_LP_TOKEN_DECIMALS,
-      shares
+      newPool?.availableShareNonDivisible
     );
 
     if (error) return '0';
@@ -241,7 +251,7 @@ export function RemoveFourLiquidityComponent(props: {
     setCanSubmitByShare(true);
     const readableShares = toReadableNumber(
       RATED_POOL_LP_TOKEN_DECIMALS,
-      shares
+      newPool?.availableShareNonDivisible
     );
 
     const shareParam = toNonDivisibleNumber(
@@ -287,7 +297,10 @@ export function RemoveFourLiquidityComponent(props: {
 
     const sharePercentOfValue = percentOfBigNumber(
       Number(sharePercent),
-      toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, shares),
+      toReadableNumber(
+        RATED_POOL_LP_TOKEN_DECIMALS,
+        newPool?.availableShareNonDivisible
+      ),
       RATED_POOL_LP_TOKEN_DECIMALS
     );
 
@@ -348,17 +361,20 @@ export function RemoveFourLiquidityComponent(props: {
                 setAmountByShare(amount);
 
                 const percentage =
-                  Number(shares) > 0
+                  Number(newPool?.availableShareNonDivisible) > 0
                     ? percent(
                         amount || '0',
-                        toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, shares)
+                        toReadableNumber(
+                          RATED_POOL_LP_TOKEN_DECIMALS,
+                          newPool?.availableShareNonDivisible
+                        )
                       ).toString()
                     : '0';
 
                 setSharePercentage(scientificNotationToString(percentage));
               }}
               className="w-full border border-transparent rounded"
-              max={toReadableNumber(RATED_POOL_LP_TOKEN_DECIMALS, shares)}
+              max={newPool?.availableShare}
             />
           </div>
           <div className="my-6 mb-8">

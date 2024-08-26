@@ -64,6 +64,7 @@ import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import { useTokenBalances } from '../../state/token';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
+import { PoolAvailableAmount } from 'src/components/pool/PoolShare';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
@@ -82,13 +83,7 @@ export function shareToUserTotal({
   return (
     <div className="text-xs">
       <span className="text-white">
-        {getCurrentWallet()?.wallet?.isSignedIn()
-          ? toRoundedReadableNumber({
-              decimals: getStablePoolDecimal(pool?.id),
-              number: shares,
-              precision: 3,
-            })
-          : '- '}
+        <PoolAvailableAmount pool={pool} shares={shares} />
       </span>
 
       <span className={`text-primaryText ${!haveFarm ? 'hidden' : ''}`}>
