@@ -222,7 +222,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         setupBitteWallet({
           walletUrl: 'https://wallet.bitte.ai',
-          callbackUrl: 'https://app.ref.finance',
+          // callbackUrl: 'https://app.ref.finance',
           contractId: CONTRACT_ID,
           deprecated: false,
         }),
