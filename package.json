@@ -116,6 +116,7 @@
     "@near-js/transactions": "^1.1.0",
     "@near-js/utils": "^0.0.5",
     "@near-js/wallet-account": "^1.0.2",
+    "@near-wallet-selector/bitte-wallet": "^8.9.12",
     "@near-wallet-selector/core": "^8.9.7",
     "@near-wallet-selector/here-wallet": "^8.9.7",
     "@near-wallet-selector/ledger": "^8.9.7",
