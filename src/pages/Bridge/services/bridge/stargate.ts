@@ -327,13 +327,9 @@ const stargateBridgeService = {
   },
   async nearToEvm(params: BridgeTransferParams) {
     if (
-      [
-        'ledger',
-        'near-mobile-wallet',
-        'okx-wallet',
-        'mintbase-wallet',
-        'neth',
-      ].includes(window.nearWallet.id)
+      ['near-mobile-wallet', 'okx-wallet', 'mintbase-wallet', 'neth'].includes(
+        window.nearWallet.id
+      )
     ) {
       throw new Error(
         `${startCase(
