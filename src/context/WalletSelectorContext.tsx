@@ -29,6 +29,7 @@ import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
 import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
+import { setupBitteWallet } from '@near-wallet-selector/bitte-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
@@ -216,6 +217,12 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         }),
         setupMintbaseWallet({
           walletUrl: 'https://wallet.mintbase.xyz',
+          contractId: CONTRACT_ID,
+          deprecated: false,
+        }),
+        setupBitteWallet({
+          walletUrl: 'https://wallet.bitte.ai',
+          // callbackUrl: 'https://app.ref.finance',
           contractId: CONTRACT_ID,
           deprecated: false,
         }),

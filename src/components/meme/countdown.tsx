@@ -18,9 +18,10 @@ const Countdown = ({ onCountdownFinish }) => {
   const [hours, setHours] = useState('00');
   const [minutes, setMinutes] = useState('00');
   const [countdownFinished, setCountdownFinished] = useState(false);
+  const is_mobile = isMobile();
   useEffect(() => {
-    const targetDate = new Date(Date.UTC(new Date().getUTCFullYear(), 7, 1));
-    const endDate = new Date(Date.UTC(new Date().getUTCFullYear(), 7, 5));
+    const targetDate = new Date(Date.UTC(new Date().getUTCFullYear(), 8, 1));
+    const endDate = new Date(Date.UTC(new Date().getUTCFullYear(), 8, 5));
     const updateCountdown = () => {
       const nowUtc = Date.now();
       if (nowUtc >= endDate.getTime()) {
@@ -59,9 +60,12 @@ const Countdown = ({ onCountdownFinish }) => {
           <div className="absolute left-0 bottom-0 lg:hidden">
             <CountdownRightBottomMobileBg />
           </div>
-          <div className="absolute -right-1 top-0 xsm:hidden">
-            <CountdownLeftBg style={{ height: '240px' }} />
-          </div>
+          {!is_mobile ? (
+            <div className="absolute -right-1 top-0 xsm:hidden">
+              <CountdownLeftBg style={{ height: '240px' }} />
+            </div>
+          ) : null}
+
           <div className="lg:absolute left-24 top-14 flex flex-col justify-center items-center xsm:left-1 xsm:mt-4 xsm:mb-10">
             <CountdownTitle className="xsm:hidden" />
             <CountdownMobileTitle className="lg:hidden" />
