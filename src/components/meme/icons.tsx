@@ -1873,12 +1873,14 @@ export function CountdownMobileTitle(props: any) {
 }
 
 export function CountdownFinish(props: any) {
-  return <img {...props} src="https://img.ref.finance/images/memeVotePc.png" />;
+  return (
+    <img {...props} src="https://img.ref.finance/images/memeVotePc2.png" />
+  );
 }
 
 export function CountdownFinishMobile(props: any) {
   return (
-    <img {...props} src="https://img.ref.finance/images/memeVoteMobile.png" />
+    <img {...props} src="https://img.ref.finance/images/memeVoteMobile2.png" />
   );
 }
 
