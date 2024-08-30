@@ -149,7 +149,6 @@ export default function getConfig(
         explorerUrl: 'https://nearblocks.io',
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
-        // indexerUrl: 'https://api.ref.finance',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
@@ -317,6 +316,7 @@ export default function getConfig(
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
         MEME_CHECK_IN_CONTRACT_ID: '',
+        MEME_NFT_CONTRACT_ID: '',
       };
     case 'pub-testnet':
       return {
@@ -423,6 +423,7 @@ export default function getConfig(
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
         MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
+        MEME_NFT_CONTRACT_ID: 'ms_5.refnft.testnet',
       };
     case 'testnet':
       return {
@@ -448,7 +449,6 @@ export default function getConfig(
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'farm-dev.ref-dev.testnet',
-        // REF_VE_CONTRACT_ID: 'dev-20220623151446-29039416013661',
         REF_TOKEN_ID: 'ref.fakes.testnet',
         USDC_TOKEN_ID:
           '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
@@ -527,6 +527,7 @@ export default function getConfig(
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.testnet',
         MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
+        MEME_NFT_CONTRACT_ID: 'ms_5.refnft.testnet',
       };
     default:
       return {
@@ -540,7 +541,6 @@ export default function getConfig(
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://api.ref.finance',
-        // indexerUrl: 'https://apiself.cclp.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
@@ -665,6 +665,7 @@ export default function getConfig(
           'meme-farming_011.ref-labs.near',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
         MEME_CHECK_IN_CONTRACT_ID: '',
+        MEME_NFT_CONTRACT_ID: '',
       };
   }
 }

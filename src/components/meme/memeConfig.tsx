@@ -30,6 +30,7 @@ import {
   ShitzuBodyMobile,
 } from './ani_mobile';
 import { isMobile } from '../../utils/device';
+import { LevelIcon0, LevelIcon1, LevelIcon2, LevelIcon3 } from './icons2';
 const is_mobile = isMobile();
 export const DONATE_RECEIVER_ID = ['pub-testnet', 'testnet'].includes(
   process.env.REACT_APP_NEAR_ENV
@@ -617,6 +618,27 @@ export function getMemeCheckInConfig(): any {
         // 'nusdc.ft-fin.testnet',
         // 'dev-1703408285864-78771675931592',
       ],
+      nftMetaData: {
+        title: 'MEME Honorary NFT 5',
+        description: 'REF MemeSeason5 NFT',
+      },
+      level: {
+        0: {
+          value: 1000,
+          icon: <LevelIcon0 />,
+        },
+        1: {
+          value: 5000,
+          icon: <LevelIcon1 />,
+        },
+        2: {
+          value: 100000,
+          icon: <LevelIcon2 />,
+        },
+        3: {
+          icon: <LevelIcon3 />,
+        },
+      },
     };
   } else if (env == 'testnet') {
     return {
@@ -625,6 +647,27 @@ export function getMemeCheckInConfig(): any {
         'nusdc.ft-fin.testnet',
         'dev-1703408285864-78771675931592',
       ],
+      nftMetaData: {
+        title: 'MEME Honorary NFT 5',
+        description: 'REF MemeSeason5 NFT',
+      },
+      level: {
+        0: {
+          value: 1000,
+          icon: <LevelIcon0 />,
+        },
+        1: {
+          value: 5000,
+          icon: <LevelIcon1 />,
+        },
+        2: {
+          value: 100000,
+          icon: <LevelIcon2 />,
+        },
+        3: {
+          icon: <LevelIcon3 />,
+        },
+      },
     };
   } else {
     return {
@@ -633,6 +676,27 @@ export function getMemeCheckInConfig(): any {
         'token.burrow.near',
         '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
       ],
+      nftMetaData: {
+        title: 'MEME Honorary NFT 5',
+        description: 'REF MemeSeason5 NFT',
+      },
+      level: {
+        0: {
+          value: 1000,
+          icon: <LevelIcon0 />,
+        },
+        1: {
+          value: 5000,
+          icon: <LevelIcon1 />,
+        },
+        2: {
+          value: 100000,
+          icon: <LevelIcon2 />,
+        },
+        3: {
+          icon: <LevelIcon3 />,
+        },
+      },
     };
   }
 }
