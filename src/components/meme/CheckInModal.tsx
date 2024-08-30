@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import { ModalCloseIcon } from './icons';
 import {
@@ -13,13 +13,31 @@ import {
 import { isMobile } from '../../utils/device';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { BeatLoading } from '../../components/layout/Loading';
+import { check_in, query_user_claimed } from '../../services/meme_check_in';
+import { getMemeCheckInConfig } from './memeConfig';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 const CheckInModal = (props: any) => {
-  const { isOpen, onRequestClose, hasCheckIn } = props;
+  const { isOpen, onRequestClose } = props;
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [checkInLoading, setCheckInLoading] = useState<boolean>(false);
+  const [claimed, setClaimed] = useState<boolean>(true);
   const is_mobile = isMobile();
+  const { accountId } = useWalletSelector();
   const w = is_mobile ? '95vw' : '436px';
+  const memeCheckInConfig = getMemeCheckInConfig();
+  const token_id_list = memeCheckInConfig.token_id_list;
+  useEffect(() => {
+    if (accountId && isOpen) {
+      query_user_claimed(token_id_list[0]).then((claimedTime) => {
+        if (claimedTime && +claimedTime == 0) {
+          setClaimed(false);
+        } else {
+          setClaimed(true);
+        }
+      });
+    }
+  }, [accountId, isOpen]);
   function getNftTip() {
     return `
     <div class="flex flex-col gap-2 items-start">
@@ -47,8 +65,9 @@ const CheckInModal = (props: any) => {
     setClaimLoading(true);
   }
   function checkIn() {
-    if (checkInLoading || hasCheckIn) return;
+    if (checkInLoading || claimed) return;
     setCheckInLoading(true);
+    check_in(token_id_list);
   }
   return (
     <Modal
@@ -133,7 +152,7 @@ const CheckInModal = (props: any) => {
         </div>
         <div
           className={`flex items-center justify-center rounded-xl mt-8 ${
-            hasCheckIn
+            claimed
               ? 'bg-memePoolBoxBorderColor cursor-not-allowed'
               : 'bg-greenLight'
           } ${

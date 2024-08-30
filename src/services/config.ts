@@ -316,6 +316,7 @@ export default function getConfig(
           '16.contract.portalbridge.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
+        MEME_CHECK_IN_CONTRACT_ID: '',
       };
     case 'pub-testnet':
       return {
@@ -421,6 +422,7 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
+        MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
       };
     case 'testnet':
       return {
@@ -524,6 +526,7 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.testnet',
+        MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
       };
     default:
       return {
@@ -617,48 +620,6 @@ export default function getConfig(
           '3613',
           '3620',
           '3625',
-          // '1923',
-          // '2451',
-          // '1559',
-          // '3015',
-          // '3398',
-          // '2089',
-          // '2121',
-          // '4149',
-          // '3383',
-          // '3805',
-          // '3907',
-          // '4161',
-          // '3021',
-          // '3385',
-          // '3046',
-          // '3384',
-          // '1820',
-          // '4150',
-          // '3466',
-          // '3386',
-          // '3087',
-          // '2558',
-          // '3587',
-          // '3759',
-          // '1904',
-          // '1903',
-          // '3850',
-          // '1821',
-          // '2975',
-          // '3529',
-          // '3676',
-          // '1908',
-          // '2450',
-          // '1955',
-          // '2781',
-          // '3822',
-          // '2161',
-          // '2560',
-          // '3091',
-          // '2497',
-          // '2194',
-          // '2320',
           '4744',
           '5029',
         ],
@@ -703,6 +664,7 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
+        MEME_CHECK_IN_CONTRACT_ID: '',
       };
   }
 }

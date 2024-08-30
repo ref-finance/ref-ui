@@ -608,3 +608,31 @@ export function getMemeUiConfig(): any {
     };
   }
 }
+export function getMemeCheckInConfig(): any {
+  const env: string = process.env.REACT_APP_NEAR_ENV;
+  if (env == 'pub-testnet') {
+    return {
+      token_id_list: [
+        'ref.fakes.testnet',
+        // 'nusdc.ft-fin.testnet',
+        // 'dev-1703408285864-78771675931592',
+      ],
+    };
+  } else if (env == 'testnet') {
+    return {
+      token_id_list: [
+        'ref.fakes.testnet',
+        'nusdc.ft-fin.testnet',
+        'dev-1703408285864-78771675931592',
+      ],
+    };
+  } else {
+    return {
+      token_id_list: [
+        'token.v2.ref-finance.near',
+        'token.burrow.near',
+        '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+      ],
+    };
+  }
+}
