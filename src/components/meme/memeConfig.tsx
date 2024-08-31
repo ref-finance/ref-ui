@@ -613,11 +613,7 @@ export function getMemeCheckInConfig(): any {
   const env: string = process.env.REACT_APP_NEAR_ENV;
   if (env == 'pub-testnet') {
     return {
-      token_id_list: [
-        'ref.fakes.testnet',
-        // 'nusdc.ft-fin.testnet',
-        // 'dev-1703408285864-78771675931592',
-      ],
+      token_id_list: ['ref.fakes.testnet', 'usdt.fakes.testnet'],
       nftMetaData: {
         title: 'MEME Honorary NFT 5',
         description: 'REF MemeSeason5 NFT',
@@ -642,11 +638,7 @@ export function getMemeCheckInConfig(): any {
     };
   } else if (env == 'testnet') {
     return {
-      token_id_list: [
-        'ref.fakes.testnet',
-        'nusdc.ft-fin.testnet',
-        'dev-1703408285864-78771675931592',
-      ],
+      token_id_list: ['ref.fakes.testnet', 'usdt.fakes.testnet'],
       nftMetaData: {
         title: 'MEME Honorary NFT 5',
         description: 'REF MemeSeason5 NFT',

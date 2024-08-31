@@ -1,39 +1,17 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckInButtonIcon } from './icons2';
 import CheckInModal from './CheckInModal';
 import CheckInSuccessModal from './CheckInSuccessModal';
 import _ from 'lodash';
-
-import { WalletContext } from '../../utils/wallets-integration';
-import { checkTransaction } from '../../services/swap';
-import { getURLInfo } from '../../components/layout/transactionTipPopUp';
-import { IReward } from '../../interface/meme';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 const CheckIn = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [earnRewards, setEarnRewards] = useState<IReward[]>([]);
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-  const { txHash } = getURLInfo();
+  const { accountId } = useWalletSelector();
   useEffect(() => {
-    if (txHash && isSignedIn) {
-      checkTransaction(txHash).then((res: any) => {
-        const { transaction, receipts, receipts_outcome } = res;
-        const isNeth =
-          transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
-        const methodNameNeth =
-          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
-            ?.method_name;
-        const methodNameNormal =
-          transaction?.actions[0]?.FunctionCall?.method_name;
-        const methodName = isNeth ? methodNameNeth : methodNameNormal;
-        if (methodName == 'check_in') {
-          const log = receipts_outcome[0].outcome.logs[0];
-          const logObj = JSON.parse(log.match(/EVENT_JSON:(.*)/)?.[1] || '{}');
-          setEarnRewards(logObj.data || []);
-        }
-      });
+    if (accountId) {
+      // TODO POST
     }
-  }, [txHash, isSignedIn]);
+  }, [accountId]);
   function showCheckInModal() {
     setIsOpen(true);
   }
@@ -54,7 +32,7 @@ const CheckIn = () => {
         </div>
       </div>
       <CheckInModal isOpen={isOpen} onRequestClose={closeCheckInModal} />
-      <CheckInSuccessModal earnRewards={earnRewards} />
+      <CheckInSuccessModal />
     </>
   );
 };

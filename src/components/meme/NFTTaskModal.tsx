@@ -4,10 +4,13 @@ import { ModalCloseIcon } from './icons';
 import { isMobile } from '../../utils/device';
 
 const NFTTaskModal = (props: any) => {
-  const { isOpen, onRequestClose } = props;
+  const { isOpen, onRequestClose, setShareButtonClicked } = props;
   const is_mobile = isMobile();
-  const w = is_mobile ? '95vw' : '300px';
-  function share() {}
+  const w = is_mobile ? '75vw' : '300px';
+  function share() {
+    setShareButtonClicked('1');
+    onRequestClose(0);
+  }
   return (
     <Modal
       isOpen={isOpen}

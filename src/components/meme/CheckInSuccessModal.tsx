@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Modal from 'react-modal';
 import { ModalCloseIcon } from './icons';
 import { SuccessIcon } from './icons2';
@@ -8,17 +8,18 @@ import { ftGetTokenMetadata, TokenMetadata } from '../../services/ft-contract';
 import { toReadableNumber } from '../../utils/numbers';
 import { toInternationalCurrencySystem_number } from '../../utils/uiNumber';
 import { useHistory } from 'react-router-dom';
+import { MemeContext } from '../../components/meme/context';
 
-const CheckInSuccessModal = (props: { earnRewards: IReward[] }) => {
+const CheckInSuccessModal = () => {
   const [list, setList] = useState<IUiReward[]>([]);
   const [isOpen, setIsOpen] = useState(true);
+  const memeContext = useContext(MemeContext);
   const history = useHistory();
-  const { earnRewards } = props;
+  const earnRewards = memeContext.earnRewards;
   const is_mobile = isMobile();
-  const w = is_mobile ? '95vw' : '300px';
+  const w = is_mobile ? 'auto' : '300px';
   useEffect(() => {
     if (earnRewards.length > 0) {
-      debugger;
       getRewards();
     }
   }, [JSON.stringify(earnRewards || [])]);
@@ -67,11 +68,11 @@ const CheckInSuccessModal = (props: { earnRewards: IReward[] }) => {
         </div>
         <div className="flex flex-col items-center gap-2.5 mt-4">
           <SuccessIcon />
-          <div className="flex items-center justify-center text-base text-white">
+          <div className="flex items-center justify-center text-base text-white whitespace-nowrap">
             Check-In successfully!
           </div>
           <div className="border border-inputV3BorderColor bg-black bg-opacity-20 rounded-md p-4 mt-4">
-            <div className="text-sm text-primaryOrderly mb-3">
+            <div className="text-sm text-primaryOrderly mb-3 whitespace-nowrap">
               Wonderful！You‘ve earned：
             </div>
             <div className="flex flex-col gap-3">

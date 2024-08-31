@@ -43,7 +43,7 @@ export async function check_in(tokenIds: string[]) {
     return {
       methodName: 'check_in',
       args: { token: tokenId },
-      gas: '300000000000000',
+      gas: '42000000000000',
       amount: '0.0015',
     };
   });
