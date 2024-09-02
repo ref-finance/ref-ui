@@ -442,6 +442,7 @@ export function getMemeDataConfig(): any {
         'intel.tkn.near',
         'dd.tg',
         'neiro.token0.near',
+        'corgi.token0.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',
