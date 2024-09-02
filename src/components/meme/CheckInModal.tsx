@@ -106,11 +106,11 @@ const CheckInModal = (props: any) => {
   function getLevelTip() {
     return `
     <div class="flex flex-col gap-2 items-start">
-      <div class="">Meme Leval</div>
-      <p>Leval 0: Stake Meme Value > $0</p>
-      <p>Leval 1 : Stake Meme Value > $500，Lucky</p>
-      <p>Leval 2 : Stake Meme Value > $5000，Lucky</p>
-      <p>Leval 3 : Stake Meme Value > $10000，Lucky</p>
+      <div class="">Meme Level</div>
+      <p>Level 0: Stake Meme Value < $1000</p>
+      <p>Level 1 : Stake Meme Value < $5000 Lucky</p>
+      <p>Level 2 : Stake Meme Value < $100000 Lucky</p>
+      <p>Level 3 : Stake Meme Value >= $100000，Lucky</p>
     </div>
   `;
   }
@@ -183,7 +183,7 @@ const CheckInModal = (props: any) => {
                   <CustomTooltip id="nft-description-id" />
                 </div>
               </div>
-              {already_minted ? null : (
+              {already_minted || !accountId ? null : (
                 <div
                   onClick={claim}
                   style={{ width: '53px' }}
