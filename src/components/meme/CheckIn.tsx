@@ -4,12 +4,13 @@ import CheckInModal from './CheckInModal';
 import CheckInSuccessModal from './CheckInSuccessModal';
 import _ from 'lodash';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { checkIn } from '../../services/indexer';
 const CheckIn = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { accountId } = useWalletSelector();
   useEffect(() => {
     if (accountId) {
-      // TODO POST
+      checkIn(accountId);
     }
   }, [accountId]);
   function showCheckInModal() {
