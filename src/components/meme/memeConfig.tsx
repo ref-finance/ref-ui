@@ -184,6 +184,7 @@ export function getMemeContractConfig(
           'memefarm-xref-intel.ref-labs.near',
           'memefarm-xref-dd.ref-labs.near',
           'memefarm-xref-neiro.ref-labs.near',
+          'memefarm-xref-corgi.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -205,6 +206,7 @@ export function getMemeContractConfig(
           'intel.tkn.near': 'memefarm-xref-intel.ref-labs.near',
           'dd.tg': 'memefarm-xref-dd.ref-labs.near',
           'neiro.token0.near': 'memefarm-xref-neiro.ref-labs.near',
+          'corgi.token0.near': 'memefarm-xref-corgi.ref-labs.near',
         },
       };
     case 'pub-testnet':
@@ -274,6 +276,7 @@ export function getMemeContractConfig(
           'memefarm-xref-intel.ref-labs.near',
           'memefarm-xref-dd.ref-labs.near',
           'memefarm-xref-neiro.ref-labs.near',
+          'memefarm-xref-corgi.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -295,6 +298,7 @@ export function getMemeContractConfig(
           'intel.tkn.near': 'memefarm-xref-intel.ref-labs.near',
           'dd.tg': 'memefarm-xref-dd.ref-labs.near',
           'neiro.token0.near': 'memefarm-xref-neiro.ref-labs.near',
+          'corgi.token0.near': 'memefarm-xref-corgi.ref-labs.near',
         },
       };
   }
@@ -458,6 +462,7 @@ export function getMemeDataConfig(): any {
         'intel.tkn.near': '#2C3D4C',
         'dd.tg': '#FCC01C',
         'neiro.token0.near': '#E7C391',
+        'corgi.token0.near': '#A96538',
       },
       meme_cap_tokens: [
         'token.lonkingnearbackto2024.near',
