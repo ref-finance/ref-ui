@@ -29,9 +29,9 @@ const CheckInModal = (props: any) => {
   ); // '0': init state '1': shared '2': share ended
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [checkInLoading, setCheckInLoading] = useState<boolean>(false);
-  const [claimed, setClaimed] = useState<boolean>(false);
+  const [claimed, setClaimed] = useState<boolean>();
   const [nft_metadata, set_nft_metadata] = useState<INFT_metadata>();
-  const [already_minted, set_already_minted] = useState<boolean>(false);
+  const [already_minted, set_already_minted] = useState<boolean>();
   const [stakeList, setStakeList] = useState<IStakeItem[]>([]);
   const [accountStakeLevel, setAccountStakeLevel] = useState<ILEVEL>('0');
   const is_mobile = isMobile();
@@ -49,7 +49,7 @@ const CheckInModal = (props: any) => {
     if (shareButtonClicked == '1') {
       const clearId = setTimeout(() => {
         setShareButtonClicked('2');
-      }, 5000);
+      }, 3000);
       return () => {
         clearTimeout(clearId);
       };
@@ -183,7 +183,9 @@ const CheckInModal = (props: any) => {
                   <CustomTooltip id="nft-description-id" />
                 </div>
               </div>
-              {already_minted || !accountId ? null : (
+              {already_minted ||
+              !accountId ||
+              already_minted == undefined ? null : (
                 <div
                   onClick={claim}
                   style={{ width: '53px' }}
@@ -227,25 +229,34 @@ const CheckInModal = (props: any) => {
         </div>
         {accountId ? (
           <div
-            className={`flex items-center justify-center rounded-xl mt-8 ${
-              claimed
-                ? 'bg-memePoolBoxBorderColor cursor-not-allowed'
-                : 'bg-greenLight'
-            } ${
-              checkInLoading
-                ? 'opacity-40 cursor-not-allowed'
-                : 'cursor-pointer'
-            }`}
-            style={{ height: '50px' }}
-            onClick={checkIn}
+            className="text-white text-right"
+            data-class="reactTip"
+            data-tooltip-id="check-in-button-id"
+            data-place="top"
+            data-tooltip-html={claimed ? 'Please come back tomorrow.' : ''}
           >
-            {checkInLoading ? (
-              <BeatLoading />
-            ) : (
-              <span className="text-base text-cardBg gotham_bold">
-                Check-In
-              </span>
-            )}
+            <div
+              className={`flex items-center justify-center rounded-xl mt-8 ${
+                claimed || claimed == undefined
+                  ? 'bg-memePoolBoxBorderColor cursor-not-allowed'
+                  : 'bg-greenLight'
+              } ${
+                checkInLoading
+                  ? 'opacity-40 cursor-not-allowed'
+                  : 'cursor-pointer'
+              }`}
+              style={{ height: '50px' }}
+              onClick={checkIn}
+            >
+              {checkInLoading ? (
+                <BeatLoading />
+              ) : (
+                <span className="text-base text-cardBg gotham_bold">
+                  Check-In
+                </span>
+              )}
+            </div>
+            <CustomTooltip id="check-in-button-id" />
           </div>
         ) : (
           <div className="mt-8">
