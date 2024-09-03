@@ -48,8 +48,8 @@ function RuleModal(props: any) {
           {/* <p className="mt-5">Selection criteria:</p> */}
           <ul className="text-sm list-disc pl-3 mt-5">
             <li>
-              Meme token projects ask xREF holders to deposit into their vault
-              for the selection from July 1st.
+              The Meme Token project requires xREF holders to deposit tokens
+              into their vaults from the beginning of the month for selection.
             </li>
             <li>
               During the voting process, Memetoken communities can participate
