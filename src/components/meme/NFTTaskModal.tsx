@@ -51,10 +51,9 @@ const NFTTaskModal = (props: any) => {
           </div>
           <div
             onClick={share}
-            style={{ width: '80px' }}
-            className={`flex items-center justify-center text-sm text-senderHot rounded-md border border-senderHot h-7 cursor-pointer mt-2`}
+            className={`flex items-center justify-center text-sm text-senderHot rounded-md border border-senderHot h-7 cursor-pointer mt-2 px-2`}
           >
-            share
+            share to claim
           </div>
         </div>
       </div>
