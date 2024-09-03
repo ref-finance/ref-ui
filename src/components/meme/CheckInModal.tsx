@@ -13,6 +13,7 @@ import {
   get_nft_metadata,
   is_account_already_minted,
   claim_nft,
+  query_user_nftInfo,
 } from '../../services/meme_check_in';
 import { getMemeCheckInConfig } from './memeConfig';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
@@ -34,6 +35,7 @@ const CheckInModal = (props: any) => {
   const [already_minted, set_already_minted] = useState<boolean>();
   const [stakeList, setStakeList] = useState<IStakeItem[]>([]);
   const [accountStakeLevel, setAccountStakeLevel] = useState<ILEVEL>('0');
+  const [hasNft, setHasNft] = useState<boolean>(false);
   const is_mobile = isMobile();
   const { accountId } = useWalletSelector();
   const w = is_mobile ? '95vw' : '436px';
@@ -69,13 +71,22 @@ const CheckInModal = (props: any) => {
       is_account_already_minted().then((res) => {
         set_already_minted(res);
       });
+      query_user_nftInfo().then((res) => {
+        if (res?.length > 0) {
+          setHasNft(true);
+        } else {
+          setHasNft(false);
+        }
+      });
     }
+  }, [accountId, isOpen]);
+  useEffect(() => {
     if (accountId) {
       getMemeFarmingTotalAssetsList(10000, 0, 'desc').then((res) => {
         setStakeList(res.data.list || []);
       });
     }
-  }, [accountId, isOpen]);
+  }, [accountId]);
   useMemo(() => {
     if (stakeList.length && accountId) {
       const find = stakeList.find((item) => {
@@ -98,19 +109,44 @@ const CheckInModal = (props: any) => {
   }, [JSON.stringify(stakeList), accountId]);
   function getNftTip() {
     return `
-    <div class="flex flex-col gap-2 items-start">
-      <div class="">nft description</div>
+    <div class="flex flex-col gap-2 items-start w-80 xsm:w-72 text-left">
+      <div class="gotham_bold">MEME Honorary NFT Overview</div>
+      <div class="flex items-start gap-1.5">
+        <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
+        <span>Airdropped MEME Honorary NFT 4 to OG users via a snapshot.</span>
+      </div>
+      <div class="flex items-start gap-1.5">
+        <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
+        <span>Unlock MEME Honorary NFT 5 for all users in MEME Season 5 by completing tasks.</span>
+      </div>
+      <div class="flex items-start gap-1.5">
+        <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
+        <span>All NFTs boost the luck in Daily Check-in draws.</span>
+      </div>
+      <div class="flex items-start gap-1.5">
+        <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
+        <span>Holders of MEME Honorary NFT can accelerate MEME token acquisition and participate in Season 5 staking.</span>
+      </div>
+      <div class="flex items-start gap-1.5">
+        <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
+        <span>Users can own both NFTs at the same period.</span>
+      </div>
+      <div class="flex items-start gap-1.5">
+        <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
+        <span>Collecting these NFTs unlocks more future benefits.</span>
+      </div>
     </div>
   `;
   }
   function getLevelTip() {
     return `
-    <div class="flex flex-col gap-2 items-start">
-      <div class="">Meme Level</div>
+    <div class="flex flex-col gap-2 items-start w-80 xsm:w-72">
+      <div class="gotham_bold">Meme Level</div>
       <p>Level 0: Stake Meme Value < $1000</p>
-      <p>Level 1 : Stake Meme Value < $5000 Lucky</p>
-      <p>Level 2 : Stake Meme Value < $100000 Lucky</p>
-      <p>Level 3 : Stake Meme Value >= $100000，Lucky</p>
+      <p>Level 1 : Stake Meme Value < $5000</p>
+      <p>Level 2 : Stake Meme Value < $100000</p>
+      <p>Level 3 : Stake Meme Value >= $100000</p>
+      <div class="text-left mt-2">The higher your level, the better your luck—meaning a greater chance to win high-value Daily Check-in rewards, up to $10! Stake more MEME tokens to level up!</div>
     </div>
   `;
   }
@@ -165,7 +201,7 @@ const CheckInModal = (props: any) => {
               style={{ width: '54px', height: '54px' }}
             >
               <img src={nft_metadata?.icon} style={{ width: '42px' }} />
-              {already_minted && accountId ? null : (
+              {hasNft && accountId ? null : (
                 <div className="absolute left-0 right-0 top-0 bottom-0 bg-black opacity-80"></div>
               )}
             </div>
