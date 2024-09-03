@@ -426,8 +426,8 @@ export function getMemeDataConfig(): any {
         'blackdragon.tkn.near',
         'token.lonkingnearbackto2024.near',
         'touched.tkn.near',
+        'usmeme.tg',
         'token.0xshitzu.near',
-        'nearnvidia.near',
       ],
       meme_nonListed_tokens: [
         'gear.enleap.near',
@@ -468,7 +468,7 @@ export function getMemeDataConfig(): any {
       meme_cap_tokens: [
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
-        'nearnvidia.near',
+        'usmeme.tg',
         'touched.tkn.near',
         'token.0xshitzu.near',
       ],
