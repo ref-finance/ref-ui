@@ -143,11 +143,13 @@ function FRAXUSDCFARMMobile() {
 }
 
 function DeltaMobile() {
-  return <img src="https://img.ref.finance/images/delta-ad-mobile.png" />;
+  return (
+    <img src="https://img.ref.finance/images/delta-ad-mobile-9months.png" />
+  );
 }
 
 function DeltaPC() {
-  return <img src="https://img.ref.finance/images/delta-ad-pc.png" />;
+  return <img src="https://img.ref.finance/images/delta-ad-pc-9months.png" />;
 }
 
 function LPTOKENPC() {
