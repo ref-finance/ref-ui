@@ -627,18 +627,15 @@ export function getMemeCheckInConfig(): any {
       },
       level: {
         0: {
-          // value: 1000,
-          value: 0.1,
+          value: 1000,
           icon: <LevelIcon0 />,
         },
         1: {
-          // value: 5000,
-          value: 0.3,
+          value: 5000,
           icon: <LevelIcon1 />,
         },
         2: {
-          // value: 100000,
-          value: 0.5,
+          value: 100000,
           icon: <LevelIcon2 />,
         },
         3: {
@@ -683,15 +680,18 @@ export function getMemeCheckInConfig(): any {
       },
       level: {
         0: {
-          value: 1000,
+          // value: 1000,
+          value: 0.1,
           icon: <LevelIcon0 />,
         },
         1: {
-          value: 5000,
+          // value: 5000,
+          value: 0.3,
           icon: <LevelIcon1 />,
         },
         2: {
-          value: 100000,
+          // value: 100000,
+          value: 0.5,
           icon: <LevelIcon2 />,
         },
         3: {
