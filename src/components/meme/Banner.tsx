@@ -31,7 +31,7 @@ const Banner = () => {
           </div>
         </div>
       </div>
-      <div className="absolute right-60 bottom-20 z-10">
+      <div className="absolute right-60 bottom-10 z-10">
         <CheckIn />
       </div>
       <RuleModal isOpen={isOpen} onRequestClose={closeRule} />

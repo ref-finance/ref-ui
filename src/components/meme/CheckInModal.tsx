@@ -78,6 +78,9 @@ const CheckInModal = (props: any) => {
           setHasNft(false);
         }
       });
+      getMemeFarmingTotalAssetsList(10000, 0, 'desc').then((res) => {
+        setStakeList(res.data.list || []);
+      });
     }
   }, [accountId, isOpen]);
   useEffect(() => {
