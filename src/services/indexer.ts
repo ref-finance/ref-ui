@@ -1195,7 +1195,7 @@ export const checkIn = async (account_id: string) => {
       method: 'POST',
       headers: {
         'Content-type': 'application/json; charset=UTF-8',
-        ...getAuthenticationHeaders('/add-user-wallet'),
+        ...getAuthenticationHeaders('/v3/meme-farming/season/check-in'),
       },
     }
   )
