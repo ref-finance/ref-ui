@@ -20,17 +20,19 @@ const Banner = () => {
     setCheckInIsOpen(false);
   }
   return (
-    <div className="relative flex items-center justify-center w-full">
-      <img src="https://img.ref.finance/images/memeBannerMobile3.png" />
-      <div className="flex flex-col gap-3 absolute right-6 bottom-10 z-10">
-        <div className="" onClick={showRule}>
-          <MobileBannerCoreBtnIconBg />
+    <div className="relative flex flex-col items-center">
+      <div className="relative flex items-center justify-center w-full">
+        <img src="https://img.ref.finance/images/memeBannerMobile3.png" />
+        <div className="flex flex-col gap-3 absolute right-6 bottom-10 z-10">
+          <div className="" onClick={showRule}>
+            <MobileBannerCoreBtnIconBg />
+          </div>
         </div>
-        <MobileCheckInButton onClick={showCheckIn} />
+        <RuleModal isOpen={isOpen} onRequestClose={closeRule} />
+        <CheckInModal isOpen={checkInIsOpen} onRequestClose={closeCheckIn} />
+        <CheckInSuccessModal />
       </div>
-      <RuleModal isOpen={isOpen} onRequestClose={closeRule} />
-      <CheckInModal isOpen={checkInIsOpen} onRequestClose={closeCheckIn} />
-      <CheckInSuccessModal />
+      <MobileCheckInButton onClick={showCheckIn} className="mt-5 mb-2" />
     </div>
   );
 };

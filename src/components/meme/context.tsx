@@ -41,6 +41,9 @@ import { ChartLoading } from 'src/components/icon/Loading';
 import { IReward } from '../../interface/meme';
 import { checkTransaction } from '../../services/swap';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { checkIn } from '../../services/indexer';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { useMemeStore } from '../../stores/memeStore';
 const MemeContext = createContext<IMemeContext>(null);
 interface IMemeContext {
   tokenPriceList: Record<string, any>;
@@ -103,9 +106,21 @@ function MemeContextProvider({ children }: any) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const { txHash } = getURLInfo();
+  const { accountId } = useWalletSelector();
+  const memeStore = useMemeStore();
+  const checkInLoading = memeStore.getCheckInLoading();
   useEffect(() => {
     init();
   }, []);
+  useEffect(() => {
+    if (accountId && !checkInLoading) {
+      memeStore.setCheckInLoading(true);
+      checkIn(accountId);
+    }
+    return () => {
+      memeStore.setCheckInLoading(false);
+    };
+  }, [accountId]);
   useEffect(() => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash).then((res: any) => {

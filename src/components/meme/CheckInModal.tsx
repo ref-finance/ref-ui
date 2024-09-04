@@ -159,7 +159,7 @@ const CheckInModal = (props: any) => {
     setClaimLoading(true);
     claim_nft({ media: nft_metadata.base_uri });
   }
-  function checkIn() {
+  function callCheckIn() {
     if (checkInLoading || claimed) return;
     setCheckInLoading(true);
     check_in(token_id_list);
@@ -282,7 +282,7 @@ const CheckInModal = (props: any) => {
                   : 'cursor-pointer'
               }`}
               style={{ height: '50px' }}
-              onClick={checkIn}
+              onClick={callCheckIn}
             >
               {checkInLoading ? (
                 <BeatLoading />

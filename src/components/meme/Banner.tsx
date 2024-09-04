@@ -17,9 +17,9 @@ const Banner = () => {
         className="relative w-full z-10"
         src="https://img.ref.finance/images/memeBannerPc2.png"
       />
-      <div className="flex flex-col absolute right-60 bottom-60 z-10 gap-7">
+      <div className="absolute right-60 bottom-60 z-10 gap-7">
         <div
-          className="bg-bannerBtnBgColor py-3.5 px-5 flex items-center cursor-pointer"
+          className="bg-bannerBtnBgColor py-2 px-5 flex items-center cursor-pointer"
           style={{ borderRadius: '54px' }}
           onClick={showRule}
         >
@@ -30,6 +30,8 @@ const Banner = () => {
             <p className="text-base leading-4">Rules</p>
           </div>
         </div>
+      </div>
+      <div className="absolute right-60 bottom-20 z-10">
         <CheckIn />
       </div>
       <RuleModal isOpen={isOpen} onRequestClose={closeRule} />

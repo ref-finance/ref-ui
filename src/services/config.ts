@@ -315,8 +315,8 @@ export default function getConfig(
           '16.contract.portalbridge.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
-        MEME_CHECK_IN_CONTRACT_ID: '',
-        MEME_NFT_CONTRACT_ID: '',
+        MEME_CHECK_IN_CONTRACT_ID: 'checkin.refnft.near',
+        MEME_NFT_CONTRACT_ID: 'ms5.refnft.near',
       };
     case 'pub-testnet':
       return {
@@ -664,8 +664,8 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
-        MEME_CHECK_IN_CONTRACT_ID: '',
-        MEME_NFT_CONTRACT_ID: '',
+        MEME_CHECK_IN_CONTRACT_ID: 'checkin.refnft.near',
+        MEME_NFT_CONTRACT_ID: 'ms5.refnft.near',
       };
   }
 }
