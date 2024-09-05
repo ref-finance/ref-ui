@@ -415,6 +415,7 @@ export function getMemeDataConfig(): any {
         'touched.tkn.near': '4771',
         'usmeme.tg': '4949',
         'nearnvidia.near': '4547',
+        'gear.enleap.near': '3411',
       },
       token_icon: {
         'ftv2.nekotoken.near':
