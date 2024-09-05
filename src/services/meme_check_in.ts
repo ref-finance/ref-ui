@@ -78,7 +78,7 @@ export async function claim_nft({ media }: { media: string }) {
           },
         },
         gas: '300000000000000',
-        amount: '0.007',
+        amount: '0.01',
       },
     ],
   });
