@@ -673,6 +673,7 @@ export function getMemeCheckInConfig(): any {
       token_id_list: [
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
+        'gear.enleap.near',
       ],
       nftMetaData: {
         title: 'MEME Honorary NFT 5',
