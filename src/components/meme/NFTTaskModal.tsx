@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Modal from 'react-modal';
 import { ModalCloseIcon } from './icons';
 import { isMobile } from '../../utils/device';
@@ -9,7 +9,8 @@ const NFTTaskModal = (props: any) => {
   const w = is_mobile ? '80vw' : '320px';
   function share() {
     setShareButtonClicked('1');
-    onRequestClose(0);
+    onRequestClose();
+    window.open('https://x.com/finance_ref/status/1831519988601254119');
   }
   return (
     <Modal
