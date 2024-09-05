@@ -30,6 +30,7 @@ import {
   ShitzuBodyMobile,
 } from './ani_mobile';
 import { isMobile } from '../../utils/device';
+import { LevelIcon0, LevelIcon1, LevelIcon2, LevelIcon3 } from './icons2';
 const is_mobile = isMobile();
 export const DONATE_RECEIVER_ID = ['pub-testnet', 'testnet'].includes(
   process.env.REACT_APP_NEAR_ENV
@@ -610,6 +611,89 @@ export function getMemeUiConfig(): any {
           initW: is_mobile ? '28' : '42',
           feedIcon: SHITZU_CONFIG.feedIcon,
           stakeTip: 'Woof-woof!',
+        },
+      },
+    };
+  }
+}
+export function getMemeCheckInConfig(): any {
+  const env: string = process.env.REACT_APP_NEAR_ENV;
+  if (env == 'pub-testnet') {
+    return {
+      token_id_list: ['ref.fakes.testnet', 'usdt.fakes.testnet'],
+      nftMetaData: {
+        title: 'MEME Honorary NFT 5',
+        description: 'REF MemeSeason5 NFT',
+      },
+      level: {
+        0: {
+          value: 1000,
+          icon: <LevelIcon0 />,
+        },
+        1: {
+          value: 5000,
+          icon: <LevelIcon1 />,
+        },
+        2: {
+          value: 100000,
+          icon: <LevelIcon2 />,
+        },
+        3: {
+          icon: <LevelIcon3 />,
+        },
+      },
+    };
+  } else if (env == 'testnet') {
+    return {
+      token_id_list: ['ref.fakes.testnet', 'usdt.fakes.testnet'],
+      nftMetaData: {
+        title: 'MEME Honorary NFT 5',
+        description: 'REF MemeSeason5 NFT',
+      },
+      level: {
+        0: {
+          value: 1000,
+          icon: <LevelIcon0 />,
+        },
+        1: {
+          value: 5000,
+          icon: <LevelIcon1 />,
+        },
+        2: {
+          value: 100000,
+          icon: <LevelIcon2 />,
+        },
+        3: {
+          icon: <LevelIcon3 />,
+        },
+      },
+    };
+  } else {
+    return {
+      token_id_list: [
+        'token.lonkingnearbackto2024.near',
+        'blackdragon.tkn.near',
+        'gear.enleap.near',
+      ],
+      nftMetaData: {
+        title: 'MEME Honorary NFT 5',
+        description: 'REF MemeSeason5 NFT',
+      },
+      level: {
+        0: {
+          value: 1000,
+          icon: <LevelIcon0 />,
+        },
+        1: {
+          value: 5000,
+          icon: <LevelIcon1 />,
+        },
+        2: {
+          value: 100000,
+          icon: <LevelIcon2 />,
+        },
+        3: {
+          icon: <LevelIcon3 />,
         },
       },
     };

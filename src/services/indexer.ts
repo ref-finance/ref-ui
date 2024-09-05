@@ -1186,3 +1186,24 @@ export const addUserWallet = async (params) => {
     console.log('add user wallet failed', res);
   });
 };
+
+export const checkIn = async (account_id: string) => {
+  return await fetch(
+    config.memeRankApiUrl +
+      `/v3/meme-farming/season/check-in?account_id=${account_id}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/v3/meme-farming/season/check-in'),
+      },
+    }
+  )
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
+};

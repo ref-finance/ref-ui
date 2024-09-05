@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Banner from '../components/meme/Banner';
 import { isMobile } from '../utils/device';
 import { MemeContextProvider } from '../components/meme/context';

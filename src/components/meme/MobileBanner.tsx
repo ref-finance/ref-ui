@@ -1,22 +1,38 @@
 import React, { useState } from 'react';
-import { MobileBannerCoreBtnIconBg } from './ani_mobile';
+import { MobileBannerCoreBtnIconBg, MobileCheckInButton } from './ani_mobile';
 import RuleModal from './RuleModal';
+import CheckInModal from './CheckInModal';
+import CheckInSuccessModal from './CheckInSuccessModal';
 
 const Banner = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [checkInIsOpen, setCheckInIsOpen] = useState(false);
   function showRule() {
     setIsOpen(true);
   }
   function closeRule() {
     setIsOpen(false);
   }
+  function showCheckIn() {
+    setCheckInIsOpen(true);
+  }
+  function closeCheckIn() {
+    setCheckInIsOpen(false);
+  }
   return (
-    <div className="relative flex items-center justify-center w-full">
-      <img src="https://img.ref.finance/images/memeBannerMobile_9months.png" />
-      <div className="absolute right-6 bottom-10 z-10" onClick={showRule}>
-        <MobileBannerCoreBtnIconBg />
+    <div className="relative flex flex-col items-center">
+      <div className="relative flex items-center justify-center w-full">
+        <img src="https://img.ref.finance/images/memeBannerMobile_9months.png" />
+        <div className="flex flex-col gap-3 absolute right-6 bottom-10 z-10">
+          <div className="" onClick={showRule}>
+            <MobileBannerCoreBtnIconBg />
+          </div>
+        </div>
+        <RuleModal isOpen={isOpen} onRequestClose={closeRule} />
+        <CheckInModal isOpen={checkInIsOpen} onRequestClose={closeCheckIn} />
+        <CheckInSuccessModal />
       </div>
-      <RuleModal isOpen={isOpen} onRequestClose={closeRule} />
+      <MobileCheckInButton onClick={showCheckIn} className="mt-5 mb-2" />
     </div>
   );
 };
