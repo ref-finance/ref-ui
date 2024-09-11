@@ -15,6 +15,7 @@ import { setupSender } from '@near-wallet-selector/sender';
 import { setupLedger } from '@near-wallet-selector/ledger';
 
 import { setupHereWallet } from '@near-wallet-selector/here-wallet';
+import { setupCoin98Wallet } from '@near-wallet-selector/coin98-wallet';
 import { setupNeth } from '@near-wallet-selector/neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
@@ -226,6 +227,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           contractId: CONTRACT_ID,
           deprecated: false,
         }),
+        setupCoin98Wallet(),
       ],
     });
     const _modal = setupModal(_selector, {
