@@ -7,7 +7,6 @@ import {
 } from 'src/components/button/Button';
 import { ModalCloseIcon } from '../../../components/meme/icons';
 import { FaExclamationTriangle } from '../../../components/reactIcons';
-// import { formatSeconds } from './tool';
 function OrderlyWarningModal(props: any) {
   const { isOpen, onRequestClose, action } = props;
   const [loading, setLoading] = useState(false);
@@ -39,6 +38,7 @@ function OrderlyWarningModal(props: any) {
         <div className="title flex items-center justify-between">
           <div className="flex items-center gap-1 text-white text-xl gotham_bold">
             <FaExclamationTriangle className="text-warn text-lg relative top-0.5" />{' '}
+            Warning
           </div>
           <ModalCloseIcon
             className="cursor-pointer text-black"
@@ -46,7 +46,8 @@ function OrderlyWarningModal(props: any) {
           />
         </div>
         <div className="mt-5 mb-2 text-sm text-white gap-2">
-          Orderly is leaving near, Are you sure you want to continue?
+          Orderly is about to exit the Near Chain, and the Spot and Perps
+          features will soon be discontinued.
         </div>
         <div className="flex justify-center">
           <OprationButton
