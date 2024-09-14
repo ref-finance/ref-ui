@@ -137,6 +137,7 @@ import { SetLeverageButton } from './components/SetLeverageButton';
 import { DepositTip } from './components/DepositTip';
 import { NewUserTip } from '../Common/NewUserTip';
 import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
+import WarningModal from '../WarningModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
 
@@ -2542,6 +2543,7 @@ export function AssetManagerModal(
   };
 
   const [buttonLoading, setButtonLoading] = useState(false);
+  const [warningIsOpen, setWarningIsOpen] = useState<boolean>(false);
   const intl = useIntl();
   useEffect(() => {
     if (tokenId && tokenMeta) {
@@ -2852,8 +2854,12 @@ export function AssetManagerModal(
                 e.preventDefault();
                 e.stopPropagation();
                 if (!inputValue) return;
-                setButtonLoading(true);
-                onClick(inputValue, tokenId);
+                if (type == 'deposit') {
+                  setWarningIsOpen(true);
+                } else {
+                  setButtonLoading(true);
+                  onClick(inputValue, tokenId);
+                }
               }}
               disabled={
                 !validation() ||
@@ -2888,7 +2894,15 @@ export function AssetManagerModal(
           </div>
         </div>
       </Modal>
-
+      <WarningModal
+        isOpen={warningIsOpen}
+        onRequestClose={() => {
+          setWarningIsOpen(false);
+        }}
+        action={() => {
+          onClick(inputValue, tokenId);
+        }}
+      />
       <SelectTokenModal
         onSelect={setTokenId}
         isOpen={showSelectToken}
@@ -3129,9 +3143,10 @@ function SelectTokenModal(
             {balances
               .filter(filterFunc)
               .sort(sortingFunc)
-              .map((b: any) => {
+              .map((b: any, index) => {
                 return (
                   <div
+                    key={index}
                     className="grid grid-cols-3 p-3 px-3 hover:bg-white hover:bg-opacity-5 text-white cursor-pointer"
                     onClick={(e: any) => {
                       e.preventDefault();
@@ -3205,207 +3220,224 @@ function ConfirmOrderModal(
   } = props;
 
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [warningIsOpen, setWarningIsOpen] = useState(false);
   const isMobile = useClientMobile();
   const intl = useIntl();
   return (
-    <Modal
-      {...props}
-      style={{
-        content: {
-          zIndex: 999,
-        },
-      }}
-    >
-      <div
-        className={` rounded-2xl lg:w-96 xs:w-95vw ${
-          isMobile ? '' : ' border border-gradientFrom border-opacity-30'
-        }  bg-boxBorder text-sm text-primaryOrderly  `}
+    <>
+      <Modal
+        {...props}
+        style={{
+          content: {
+            zIndex: 999,
+          },
+        }}
       >
-        <div className="px-5 py-6 flex flex-col ">
-          <div className="flex items-center pb-6 justify-between">
-            <span className="text-white text-lg font-bold">
-              {intl.formatMessage({
-                id: 'confirm_order',
-                defaultMessage: 'Confirm Order',
-              })}
-            </span>
-
-            <span
-              className="cursor-pointer "
-              onClick={(e: any) => {
-                onRequestClose && onRequestClose(e);
-              }}
-            >
-              <IoClose size={20} />
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span>
-              {orderType == 'Limit'
-                ? intl.formatMessage({
-                    id: 'limit_order',
-                    defaultMessage: 'Limit Order',
-                  })
-                : 'Market Order'}
-            </span>
-
-            <span className="flex">
-              <TextWrapper
-                textC={side === 'Buy' ? 'text-buyGreen' : 'text-sellColorNew'}
-                bg={side === 'Buy' ? 'bg-buyGreen' : 'bg-sellRed'}
-                value={intl.formatMessage({
-                  id: side.toLowerCase(),
-                  defaultMessage: side,
+        <div
+          className={` rounded-2xl lg:w-96 xs:w-95vw ${
+            isMobile ? '' : ' border border-gradientFrom border-opacity-30'
+          }  bg-boxBorder text-sm text-primaryOrderly  `}
+        >
+          <div className="px-5 py-6 flex flex-col ">
+            <div className="flex items-center pb-6 justify-between">
+              <span className="text-white text-lg font-bold">
+                {intl.formatMessage({
+                  id: 'confirm_order',
+                  defaultMessage: 'Confirm Order',
                 })}
-              ></TextWrapper>
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span>
-              {intl.formatMessage({
-                id: 'qty.',
-                defaultMessage: 'Qty.',
-              })}
-            </span>
-
-            <span className="flex items-center">
-              <span className="text-white mr-2">
-                {numberWithCommas(quantity)}
               </span>
 
-              <TextWrapper
-                textC="text-primaryText"
-                className="text-xs py-0 px-1"
-                value={symbolFrom}
-              ></TextWrapper>
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span>
-              {intl.formatMessage({
-                id: 'price',
-                defaultMessage: 'Price',
-              })}
-            </span>
-
-            <span className="flex items-center">
-              <span className="text-white mr-2">{numberWithCommas(price)}</span>
-              <TextWrapper
-                textC="text-primaryText"
-                className="text-xs py-0 px-1"
-                value={`${symbolTo}/${symbolFrom}`}
-              ></TextWrapper>
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span className="">
-              {intl.formatMessage({
-                id: 'total',
-                defaultMessage: 'Total',
-              })}
-            </span>
-
-            <span className="flex items-center">
-              <span className=" mr-2 text-white">
-                {totalCost === '-'
-                  ? '-'
-                  : digitWrapper(totalCost.toString(), 3)}
+              <span
+                className="cursor-pointer "
+                onClick={(e: any) => {
+                  onRequestClose && onRequestClose(e);
+                }}
+              >
+                <IoClose size={20} />
               </span>
-              <TextWrapper
-                textC="text-primaryText"
-                value={`${symbolTo}`}
-                className="text-xs py-0 px-1"
-              ></TextWrapper>
-            </span>
-          </div>
+            </div>
 
-          <div className="flex items-center mb-5 justify-between">
-            <span className="">
-              {' '}
-              {intl.formatMessage({
-                id: 'Fees',
-                defaultMessage: 'Fees',
-              })}
-            </span>
+            <div className="flex items-center mb-5 justify-between">
+              <span>
+                {orderType == 'Limit'
+                  ? intl.formatMessage({
+                      id: 'limit_order',
+                      defaultMessage: 'Limit Order',
+                    })
+                  : 'Market Order'}
+              </span>
 
-            <FlexRow className="">
-              <span className="flex items-center mr-3">
-                <span className=" mr-2 text-white">
-                  {Number(
-                    (userInfo?.futures_taker_fee_rate || 0) / 100
-                  ).toFixed(3)}
-                  %
+              <span className="flex">
+                <TextWrapper
+                  textC={side === 'Buy' ? 'text-buyGreen' : 'text-sellColorNew'}
+                  bg={side === 'Buy' ? 'bg-buyGreen' : 'bg-sellRed'}
+                  value={intl.formatMessage({
+                    id: side.toLowerCase(),
+                    defaultMessage: side,
+                  })}
+                ></TextWrapper>
+              </span>
+            </div>
+
+            <div className="flex items-center mb-5 justify-between">
+              <span>
+                {intl.formatMessage({
+                  id: 'qty.',
+                  defaultMessage: 'Qty.',
+                })}
+              </span>
+
+              <span className="flex items-center">
+                <span className="text-white mr-2">
+                  {numberWithCommas(quantity)}
+                </span>
+
+                <TextWrapper
+                  textC="text-primaryText"
+                  className="text-xs py-0 px-1"
+                  value={symbolFrom}
+                ></TextWrapper>
+              </span>
+            </div>
+
+            <div className="flex items-center mb-5 justify-between">
+              <span>
+                {intl.formatMessage({
+                  id: 'price',
+                  defaultMessage: 'Price',
+                })}
+              </span>
+
+              <span className="flex items-center">
+                <span className="text-white mr-2">
+                  {numberWithCommas(price)}
                 </span>
                 <TextWrapper
                   textC="text-primaryText"
-                  value={intl.formatMessage({
-                    id: 'Taker',
-                    defaultMessage: 'Taker',
-                  })}
                   className="text-xs py-0 px-1"
+                  value={`${symbolTo}/${symbolFrom}`}
                 ></TextWrapper>
+              </span>
+            </div>
+
+            <div className="flex items-center mb-5 justify-between">
+              <span className="">
+                {intl.formatMessage({
+                  id: 'total',
+                  defaultMessage: 'Total',
+                })}
               </span>
 
               <span className="flex items-center">
                 <span className=" mr-2 text-white">
-                  {Number(
-                    (userInfo?.futures_maker_fee_rate || 0) / 100
-                  ).toFixed(3)}
-                  %
+                  {totalCost === '-'
+                    ? '-'
+                    : digitWrapper(totalCost.toString(), 3)}
                 </span>
                 <TextWrapper
                   textC="text-primaryText"
-                  value={intl.formatMessage({
-                    id: 'Maker',
-                    defaultMessage: 'Maker',
-                  })}
+                  value={`${symbolTo}`}
                   className="text-xs py-0 px-1"
                 ></TextWrapper>
               </span>
-            </FlexRow>
-          </div>
+            </div>
 
-          <button
-            className={`rounded-lg ${
-              loading
-                ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
-                : ''
-            } flex items-center justify-center py-3 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
-            onClick={(e: any) => {
-              e.preventDefault();
-              e.stopPropagation();
+            <div className="flex items-center mb-5 justify-between">
+              <span className="">
+                {' '}
+                {intl.formatMessage({
+                  id: 'Fees',
+                  defaultMessage: 'Fees',
+                })}
+              </span>
 
-              setLoading(true);
-              onClick().then(() => {
-                setLoading(false);
-                onRequestClose && onRequestClose(e);
-              });
-            }}
-            disabled={loading}
-          >
-            <ButtonTextWrapper
-              loading={loading}
-              Text={() => {
-                return (
-                  <span>
-                    {' '}
-                    {intl.formatMessage({
-                      id: 'confirm',
-                      defaultMessage: 'Confirm',
-                    })}
+              <FlexRow className="">
+                <span className="flex items-center mr-3">
+                  <span className=" mr-2 text-white">
+                    {Number(
+                      (userInfo?.futures_taker_fee_rate || 0) / 100
+                    ).toFixed(3)}
+                    %
                   </span>
-                );
+                  <TextWrapper
+                    textC="text-primaryText"
+                    value={intl.formatMessage({
+                      id: 'Taker',
+                      defaultMessage: 'Taker',
+                    })}
+                    className="text-xs py-0 px-1"
+                  ></TextWrapper>
+                </span>
+
+                <span className="flex items-center">
+                  <span className=" mr-2 text-white">
+                    {Number(
+                      (userInfo?.futures_maker_fee_rate || 0) / 100
+                    ).toFixed(3)}
+                    %
+                  </span>
+                  <TextWrapper
+                    textC="text-primaryText"
+                    value={intl.formatMessage({
+                      id: 'Maker',
+                      defaultMessage: 'Maker',
+                    })}
+                    className="text-xs py-0 px-1"
+                  ></TextWrapper>
+                </span>
+              </FlexRow>
+            </div>
+
+            <button
+              className={`rounded-lg ${
+                loading
+                  ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
+                  : ''
+              } flex items-center justify-center py-3 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
+              onClick={(e: any) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setWarningIsOpen(true);
+                // setLoading(true);
+                // onClick().then(() => {
+                //   setLoading(false);
+                //   onRequestClose && onRequestClose(e);
+                // });
               }}
-            />
-          </button>
+              disabled={loading}
+            >
+              <ButtonTextWrapper
+                loading={loading}
+                Text={() => {
+                  return (
+                    <span>
+                      {' '}
+                      {intl.formatMessage({
+                        id: 'confirm',
+                        defaultMessage: 'Confirm',
+                      })}
+                    </span>
+                  );
+                }}
+              />
+            </button>
+          </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
+      <WarningModal
+        isOpen={warningIsOpen}
+        onRequestClose={() => {
+          setWarningIsOpen(false);
+        }}
+        action={(e, setLoading) => {
+          onClick().then(() => {
+            onRequestClose && onRequestClose(e);
+            setWarningIsOpen(false);
+            setLoading(false);
+          });
+        }}
+      />
+    </>
   );
 }
 
