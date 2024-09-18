@@ -110,8 +110,8 @@ import { CollatteralTokenAvailableCell } from '../UserBoardPerp/components/Hover
 import getConfigV2 from '../../../../services/configV2';
 import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
 import WarningModal from '../WarningModal';
-const configV2 = getConfigV2();
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+const configV2 = getConfigV2();
 
 function getTipFOK() {
   const intl = useIntl();
@@ -3929,56 +3929,72 @@ export function AssetManagerModal(
                 </div>
               )}
 
-            <button
-              className={`flex ${
-                !validation() ||
-                new Big(inputValue || 0).lte(0) ||
-                buttonLoading
-                  ? 'opacity-70 cursor-not-allowed'
+            <div
+              className="text-white text-right"
+              data-class="reactTip"
+              data-tooltip-id="userBoardDepositId"
+              data-place="top"
+              data-tooltip-html={
+                type == 'deposit'
+                  ? `<div class="w-52 text-left">Orderly has shut down and no longer supports Spot and Perps. New Spot and Perps are coming soon—stay tuned!</div>`
                   : ''
-              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg bg-primaryGradient`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (!inputValue) return;
-                if (type == 'deposit') {
-                  setWarningIsOpen(true);
-                } else {
-                  setButtonLoading(true);
-                  onClick(inputValue, tokenId);
-                }
-              }}
-              disabled={
-                !validation() ||
-                new Big(inputValue || 0).lte(0) ||
-                buttonLoading
               }
             >
-              {/* TODOXXX */}
-              <ButtonTextWrapper
-                loading={buttonLoading}
-                Text={() => (
-                  <span>
-                    {type === 'deposit'
-                      ? intl.formatMessage({
-                          id: 'deposit',
-                          defaultMessage: 'Deposit',
-                        })
-                      : type === 'withdraw'
-                      ? !validation()
+              <button
+                className={`flex w-full ${
+                  !validation() ||
+                  new Big(inputValue || 0).lte(0) ||
+                  buttonLoading ||
+                  type == 'deposit'
+                    ? 'opacity-30 cursor-not-allowed'
+                    : ''
+                } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg bg-primaryGradient`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!inputValue) return;
+                  if (type == 'deposit') {
+                    setWarningIsOpen(true);
+                  } else {
+                    setButtonLoading(true);
+                    onClick(inputValue, tokenId);
+                  }
+                }}
+                disabled={
+                  type == 'deposit'
+                    ? true
+                    : !validation() ||
+                      new Big(inputValue || 0).lte(0) ||
+                      buttonLoading
+                }
+              >
+                {/* TODOXXX */}
+                <ButtonTextWrapper
+                  loading={buttonLoading}
+                  Text={() => (
+                    <span>
+                      {type === 'deposit'
                         ? intl.formatMessage({
-                            id: 'insufficient_balance',
-                            defaultMessage: 'Insufficient Balance',
+                            id: 'deposit',
+                            defaultMessage: 'Deposit',
                           })
-                        : intl.formatMessage({
-                            id: 'withdraw',
-                            defaultMessage: 'Withdraw',
-                          })
-                      : ''}
-                  </span>
-                )}
-              ></ButtonTextWrapper>
-            </button>
+                        : type === 'withdraw'
+                        ? !validation()
+                          ? intl.formatMessage({
+                              id: 'insufficient_balance',
+                              defaultMessage: 'Insufficient Balance',
+                            })
+                          : intl.formatMessage({
+                              id: 'withdraw',
+                              defaultMessage: 'Withdraw',
+                            })
+                        : ''}
+                    </span>
+                  )}
+                ></ButtonTextWrapper>
+              </button>
+              <CustomTooltip id="userBoardDepositId" />
+            </div>
           </div>
         </div>
       </Modal>
@@ -4469,40 +4485,39 @@ function ConfirmOrderModal(
                 </span>
               </FlexRow>
             </div>
-
-            <button
-              className={`rounded-lg ${
-                loading
-                  ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
-                  : ''
-              } flex items-center justify-center py-3 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
-              onClick={(e: any) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setWarningIsOpen(true);
-                // setLoading(true);
-                // onClick().then(() => {
-                //   setLoading(false);
-                //   onRequestClose && onRequestClose(e);
-                // });
-              }}
-              disabled={loading}
+            <div
+              className="text-white text-right"
+              data-class="reactTip"
+              data-tooltip-id="buy-sell-id"
+              data-place="top"
+              data-tooltip-html={`<div class="w-52 text-left">Orderly has shut down and no longer supports Spot and Perps. New Spot and Perps are coming soon—stay tuned!</div>`}
             >
-              <ButtonTextWrapper
-                loading={loading}
-                Text={() => {
-                  return (
-                    <span>
-                      {' '}
-                      {intl.formatMessage({
-                        id: 'confirm',
-                        defaultMessage: 'Confirm',
-                      })}
-                    </span>
-                  );
+              <button
+                className={`w-full rounded-lg opacity-30 cursor-not-allowed bg-buttonGradientBgOpacity flex items-center justify-center py-3 hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
+                onClick={(e: any) => {
+                  // e.preventDefault();
+                  // e.stopPropagation();
+                  // setWarningIsOpen(true);
                 }}
-              />
-            </button>
+                disabled={loading}
+              >
+                <ButtonTextWrapper
+                  loading={loading}
+                  Text={() => {
+                    return (
+                      <span>
+                        {' '}
+                        {intl.formatMessage({
+                          id: 'confirm',
+                          defaultMessage: 'Confirm',
+                        })}
+                      </span>
+                    );
+                  }}
+                />
+              </button>
+              <CustomTooltip id="buy-sell-id" />
+            </div>
           </div>
         </div>
       </Modal>

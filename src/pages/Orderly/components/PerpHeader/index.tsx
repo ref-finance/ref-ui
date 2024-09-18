@@ -17,22 +17,22 @@ export function PerpOrderlyTip() {
 
   return (
     <div
-      className="w-screen px-10  xs:pb-7 h-10 xs:rounded-2xl lg:relative    xs:bottom-0 bg-gradientFromHover  frcc "
+      className="w-screen px-10  xs:pb-7 h-10 xs:rounded-2xl lg:relative    xs:bottom-0 bg-lightReBgColor text-redwarningColor  frcc "
       style={{
         fontSize: '13px',
-        color: '#111F29',
+        // color: '#111F29',
         zIndex: isMobile ? 999999 : '',
       }}
     >
       <FormattedMessage
-        id="perpTip"
-        defaultMessage={
-          'Welcome to Perpetual Futures trading!{br} Please  read {perpTipLink} docs to get start!'
-        }
-        // id="perpTipDown"
+        // id="perpTip"
         // defaultMessage={
-        //   'Order book system update will be conducted from 2024/08/27 07:00 AM to 2024/08/27  08:00AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
+        //   'Welcome to Perpetual Futures trading!{br} Please  read {perpTipLink} docs to get start!'
         // }
+        id="perpTipDown"
+        defaultMessage={
+          'Orderly has shut down and no longer supports Spot and Perps. New Spot and Perps are coming soon—stay tuned!'
+        }
         values={{
           perpTipLink: (
             <a
@@ -78,24 +78,24 @@ export function PerpOrderlyTipMobile() {
 
   return (
     <div
-      className="w-screen px-4 xs:pr-8 xs:pb-9 xs:pt-2  xs:rounded-2xl   xs:bottom-0 bg-gradientFromHover  lg:frcc "
+      className="w-screen px-4 xs:pr-8 xs:pb-9 xs:pt-2  xs:rounded-2xl   xs:bottom-0 bg-lightReBgColor  text-redwarningColor lg:frcc "
       style={{
         fontSize: '14px',
-        color: '#111F29',
+        // color: '#111F29',
         top: isMobile ? 'none' : '-48px',
         zIndex: isMobile ? 51 : '',
         position: 'fixed',
       }}
     >
       <FormattedMessage
-        id="perpTip"
-        defaultMessage={
-          'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
-        }
-        // id="perpTipDown"
+        // id="perpTip"
         // defaultMessage={
-        //   'Order book system update will be conducted from 2024/08/27 07:00 AM to 2024/08/27  08:00AM (UTC), during which time Spot and Perps will be temporarily unavailable.'
+        //   'Welcome to Perpetual Futures trading! Please  read {perpTipLink} docs to get start!'
         // }
+        id="perpTipDown"
+        defaultMessage={
+          'Orderly has shut down and no longer supports Spot and Perps. New Spot and Perps are coming soon—stay tuned!'
+        }
         values={{
           perpTipLink: (
             <a
