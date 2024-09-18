@@ -943,16 +943,16 @@ export const useMenusMobile = (setShow: (show: boolean) => void) => {
           isExternal: false,
           links: ['/portfolio'],
         },
-        {
-          id: '3-3',
-          label: <FormattedMessage id="Orderly" />,
-          renderLogo: ({ activeMenu }: { activeMenu: boolean }) => (
-            <OrderlyIcon activeMenu={activeMenu} />
-          ),
-          url: '/orderly',
-          isExternal: false,
-          links: ['/orderly'],
-        },
+        // {
+        //   id: '3-3',
+        //   label: <FormattedMessage id="Orderly" />,
+        //   renderLogo: ({ activeMenu }: { activeMenu: boolean }) => (
+        //     <OrderlyIcon activeMenu={activeMenu} />
+        //   ),
+        //   url: '/orderly',
+        //   isExternal: false,
+        //   links: ['/orderly'],
+        // },
       ],
     },
     {
