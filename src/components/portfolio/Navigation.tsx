@@ -28,13 +28,13 @@ export default function Navigation(props: any) {
       url: '/portfolio',
       borderColor: '#00D6AF',
     },
-    {
-      Icon: MenuOrderlyIcon,
-      name: 'Orderly',
-      id: 'orderly',
-      url: '/orderly',
-      borderColor: '#4527FF',
-    },
+    // {
+    //   Icon: MenuOrderlyIcon,
+    //   name: 'Orderly',
+    //   id: 'orderly',
+    //   url: '/orderly',
+    //   borderColor: '#4527FF',
+    // },
   ]);
   const [activeMenu, setActiveMenu] = useState('');
   useEffect(() => {
@@ -109,12 +109,12 @@ export function NavigationMobile(props: any) {
       id: 'ref',
       url: '/portfolio',
     },
-    {
-      Icon: OrderlyMIcon,
-      name: 'Orderly',
-      id: 'orderly',
-      url: '/orderly',
-    },
+    // {
+    //   Icon: OrderlyMIcon,
+    //   name: 'Orderly',
+    //   id: 'orderly',
+    //   url: '/orderly',
+    // },
   ]);
   const [activeMenu, setActiveMenu] = useState('');
   useEffect(() => {
@@ -142,7 +142,7 @@ export function NavigationMobile(props: any) {
                 history.push(url);
               }
             }}
-            className={`flex flex-col items-center justify-between h-full gotham_bold text-sm border-r border-burrowTableBorderColor w-1/3 ${
+            className={`flex flex-col items-center justify-between h-full gotham_bold text-sm border-r border-burrowTableBorderColor w-1/2 ${
               activeMenu == id ? 'text-senderHot' : 'text-primaryText'
             } ${url ? '' : 'text-opacity-40'}`}
           >

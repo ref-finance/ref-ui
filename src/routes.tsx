@@ -46,16 +46,16 @@ const routes: Route[] = [
     exact: true,
     wrapper: 'AutoHeightNoOffset',
   },
-  {
-    path: '/orderly',
-    element: lazy(
-      () =>
-        import(
-          /* webpackChunkName: "orderly" */ 'src/pages/Orderly/PorfolioOrderly'
-        )
-    ),
-    wrapper: 'AutoHeight',
-  },
+  // {
+  //   path: '/orderly',
+  //   element: lazy(
+  //     () =>
+  //       import(
+  //         /* webpackChunkName: "orderly" */ 'src/pages/Orderly/PorfolioOrderly'
+  //       )
+  //   ),
+  //   wrapper: 'AutoHeight',
+  // },
   {
     path: '/overview',
     element: lazy(
