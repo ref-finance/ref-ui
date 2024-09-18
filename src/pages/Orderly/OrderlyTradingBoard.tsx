@@ -233,12 +233,30 @@ function MobileTradingBoard() {
 export function OrderlyUnderMaintain() {
   return (
     <div
-      className="absolute xs:fixed w-screen h-full  left-0 flex items-center justify-center"
+      className="absolute xs:fixed w-screen h-full left-0 flex items-center justify-center"
       style={{
         background: 'rgba(0, 19, 32, 0.6)',
         zIndex: 90,
         backdropFilter: isMobile() ? 'blur(5px)' : '',
         WebkitBackdropFilter: isMobile() ? 'blur(5px)' : '',
+      }}
+    >
+      <OrderlyUnderMaintainIcon></OrderlyUnderMaintainIcon>
+    </div>
+  );
+}
+export function OrderlyUnderMaintain2() {
+  return (
+    <div
+      className="absolute xs:fixed w-screen lg:h-full flex items-center justify-center"
+      style={{
+        background: 'rgba(0, 19, 32, 0.6)',
+        zIndex: 90,
+        backdropFilter: isMobile() ? 'blur(5px)' : '',
+        WebkitBackdropFilter: isMobile() ? 'blur(5px)' : '',
+        left: isMobile() ? '0px' : '280px',
+        top: isMobile() ? '0px' : '',
+        bottom: isMobile() ? '80px' : '',
       }}
     >
       <OrderlyUnderMaintainIcon></OrderlyUnderMaintainIcon>
@@ -266,13 +284,13 @@ function OrderlyTradingBoard() {
     <>
       <div className="mx-auto relative xs:bottom-6 bottom-9">
         {/* todo  */}
-        {/* {!isMobile && <PerpOrderlyTip />} */}
+        {!isMobile && <PerpOrderlyTip />}
         {!isMobile && <TradingBoard></TradingBoard>}
 
         {isMobile && <MobileTradingBoard></MobileTradingBoard>}
       </div>
       {/* todo  */}
-      {/* {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>} */}
+      {isMobile && <PerpOrderlyTipMobile></PerpOrderlyTipMobile>}
     </>
   );
 }
