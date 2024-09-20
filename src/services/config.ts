@@ -154,6 +154,7 @@ export default function getConfig(
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
         memeRankApiUrl: 'https://api.ref.finance',
+        blockedApiUrl: 'https://geo.deltarpc.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',
@@ -334,6 +335,7 @@ export default function getConfig(
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
         memeRankApiUrl: 'https://test.api.cclp.finance',
+        blockedApiUrl: 'https://geo.deltarpc.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -441,6 +443,7 @@ export default function getConfig(
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
         memeRankApiUrl: 'https://dev-indexer.ref-finance.com',
+        blockedApiUrl: 'https://geo.deltarpc.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -545,6 +548,7 @@ export default function getConfig(
         newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
         memeRankApiUrl: 'https://api.ref.finance',
+        blockedApiUrl: 'https://geo.deltarpc.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'v2.ref-finance.near',

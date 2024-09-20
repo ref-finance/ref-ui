@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useEffect,
   useReducer,
+  useState,
 } from 'react';
 import Loading from 'src/components/layout/Loading';
 
@@ -33,6 +34,7 @@ import getConfig from './services/config';
 import { REF_FARM_BOOST_CONTRACT_ID } from './services/near';
 import { useGlobalPopUp } from './state/popUp';
 import { globalStateReducer, WalletContext } from './utils/wallets-integration';
+import { getUserIsBlocked } from './services/api';
 
 export type Account = AccountView & {
   account_id: string;
@@ -70,6 +72,14 @@ export function Content() {
   const [globalState, globalStatedispatch] = GlobalStateReducer;
 
   const { selector, accountId } = useWalletSelector();
+  const [isBlocked, setIsBlocked] = useState(false);
+  useEffect(() => {
+    getUserIsBlocked().then((res) => {
+      if (res.blocked === true) {
+        setIsBlocked(true);
+      }
+    });
+  }, []);
 
   const getAccount = useCallback(async (): Promise<Account | null> => {
     if (!accountId) {
@@ -193,6 +203,20 @@ export function Content() {
           </Switch>
         </Suspense>
       </OrderlyContextProvider>
+      {isBlocked && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center"
+          style={{ zIndex: '99999', backdropFilter: 'blur(6px)' }}
+        >
+          <div className="text-white text-center bg-swapCardGradient p-6 rounded-lg">
+            <h2>You are prohibited from accessing app.ref.finance</h2>
+            <p>
+              due to your location or other infringement of the Terms of
+              Services.
+            </p>
+          </div>
+        </div>
+      )}
     </WalletContext.Provider>
   );
 }
