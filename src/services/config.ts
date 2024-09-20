@@ -438,7 +438,7 @@ export default function getConfig(
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
-        dataServiceApiUrl: 'https://api.data-service.ref.finance/api',
+        dataServiceApiUrl: 'https://dev.data-service.ref-finance.com',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
         memeRankApiUrl: 'https://dev-indexer.ref-finance.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
