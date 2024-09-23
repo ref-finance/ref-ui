@@ -241,7 +241,7 @@ export const getMemeFarmingAssetsList = async (
 };
 
 export const getUserIsBlocked = async (): Promise<any> => {
-  return await fetch(config.blockedApiUrl + '/api/is-blocked', {
+  return await fetch('https://geo.deltarpc.com/api/is-blocked', {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
   }).then((res) => res.json());

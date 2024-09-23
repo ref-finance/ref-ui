@@ -73,12 +73,16 @@ export function Content() {
 
   const { selector, accountId } = useWalletSelector();
   const [isBlocked, setIsBlocked] = useState(false);
+  const blockFeatureEnabled = true;
+  // const blockFeatureEnabled = false;
   useEffect(() => {
-    getUserIsBlocked().then((res) => {
-      if (res.blocked === true) {
-        setIsBlocked(true);
-      }
-    });
+    if (blockFeatureEnabled) {
+      getUserIsBlocked().then((res) => {
+        if (res.blocked === true) {
+          setIsBlocked(true);
+        }
+      });
+    }
   }, []);
 
   const getAccount = useCallback(async (): Promise<Account | null> => {
@@ -203,16 +207,18 @@ export function Content() {
           </Switch>
         </Suspense>
       </OrderlyContextProvider>
-      {isBlocked && (
+      {isBlocked && blockFeatureEnabled && (
         <div
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center"
           style={{ zIndex: '99999', backdropFilter: 'blur(6px)' }}
         >
-          <div className="text-white text-center bg-swapCardGradient p-6 rounded-lg">
-            <h2>You are prohibited from accessing app.ref.finance</h2>
-            <p>
-              due to your location or other infringement of the Terms of
-              Services.
+          <div
+            className="text-white text-center bg-swapCardGradient p-6 rounded-lg"
+            style={{ width: '400px' }}
+          >
+            <p className="text-base">
+              You are prohibited from accessing app.ref.finance due to your
+              location or other infringement of the Terms of Services.
             </p>
           </div>
         </div>
