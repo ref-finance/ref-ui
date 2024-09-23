@@ -171,7 +171,9 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
     config.dataServiceApiUrl + `/poollist/${pool_id}/24hvolume/sum`,
     {
       method: 'GET',
-      headers: getAuthenticationHeaders(`/poollist/${pool_id}/24hvolume/sum`),
+      headers: getAuthenticationHeaders(
+        `/api/poollist/${pool_id}/24hvolume/sum`
+      ),
     }
   )
     .then((res) => res.json())
@@ -198,7 +200,7 @@ export const get24hVolumes = async (
       {
         method: 'GET',
         headers: getAuthenticationHeaders(
-          `/poollist/${batchIds.join('|')}/24hvolume/sum`
+          `/api/poollist/${batchIds.join('|')}/24hvolume/sum`
         ),
       }
     )
