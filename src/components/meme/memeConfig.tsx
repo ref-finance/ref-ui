@@ -471,7 +471,7 @@ export function getMemeDataConfig(): any {
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
         'gear.enleap.near',
-        'touched.tkn.near',
+        // 'touched.tkn.near',
         'token.0xshitzu.near',
       ],
     };
