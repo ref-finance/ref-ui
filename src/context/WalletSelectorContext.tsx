@@ -31,6 +31,11 @@ import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet'
 import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 import { setupBitteWallet } from '@near-wallet-selector/bitte-wallet';
+import type { Config } from '@wagmi/core';
+import { reconnect, http, createConfig } from '@wagmi/core';
+import { walletConnect, injected } from '@wagmi/connectors';
+import { setupEthereumWallets } from '@near-wallet-selector/ethereum-wallets';
+import { createWeb3Modal } from '@web3modal/wagmi';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
@@ -141,7 +146,46 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       },
     ],
   };
-
+  const nearBlock = {
+    id: 397,
+    name: 'NEAR Mainnet',
+    network: 'near-mainnet',
+    rpcUrls: {
+      default: { http: ['https://rpc.mainnet.near.org'] },
+      public: { http: ['https://rpc.mainnet.near.org'] },
+    },
+    blockExplorers: {
+      default: {
+        name: 'NEAR Explorer',
+        url: 'https://explorer.near.org',
+      },
+    },
+    nativeCurrency: {
+      name: 'NEAR',
+      symbol: 'NEAR',
+      decimals: 24,
+    },
+    testnet: false,
+  };
+  const wagmiConfig: Config = createConfig({
+    chains: [nearBlock],
+    transports: {
+      [nearBlock.id]: http(),
+    },
+    connectors: [
+      walletConnect({
+        projectId: '87e549918631f833447b56c15354e450',
+        showQrModal: false,
+      }),
+      injected({ shimDisconnect: true }),
+    ],
+  });
+  // reconnect(wagmiConfig); // TODO
+  const web3Modal = createWeb3Modal({
+    wagmiConfig,
+    // Get a project ID at https://cloud.walletconnect.com
+    projectId: '87e549918631f833447b56c15354e450',
+  });
   const init = useCallback(async () => {
     const RPC_LIST_system = getExtendConfig().RPC_LIST;
     const RPC_LIST_custom = getCustomConfig();
@@ -228,6 +272,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           deprecated: false,
         }),
         setupCoin98Wallet(),
+        setupEthereumWallets({ wagmiConfig, web3Modal } as any),
       ],
     });
     const _modal = setupModal(_selector, {
