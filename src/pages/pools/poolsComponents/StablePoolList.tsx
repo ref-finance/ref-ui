@@ -825,6 +825,8 @@ function TokenChart({
     USDC: '#2FA7DB',
     USDt: '#45D0C0',
     'USDC.w': '#2B6EB7',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const colorLight = {

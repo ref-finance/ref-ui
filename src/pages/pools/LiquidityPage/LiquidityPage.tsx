@@ -2354,6 +2354,8 @@ function TokenChart({
     USDt: '#45D0C0',
     'USD Coin': '#2FA7DB',
     'USDC.w': '#2B6EB7',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const colorLight = {
