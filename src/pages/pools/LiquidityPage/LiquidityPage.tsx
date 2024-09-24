@@ -2376,6 +2376,8 @@ function TokenChart({
     NearX: '#00676D',
     USDt: '#0E8585',
     'USD Coin': 'rgba(0, 163, 255, 1)',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const innerRadius = 30;
