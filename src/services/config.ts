@@ -285,7 +285,7 @@ export default function getConfig(
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
-        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
+        DCL_POOL_BLACK_LIST: [''],
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
@@ -639,7 +639,7 @@ export default function getConfig(
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
-        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
+        DCL_POOL_BLACK_LIST: [''],
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
