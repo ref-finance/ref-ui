@@ -9,6 +9,7 @@ import {
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
   USDCW_POOL_ID,
+  Frax_SFrax_POOL_ID,
 } from 'src/services/near';
 import _, { find } from 'lodash';
 import { FormattedMessage } from 'react-intl';
@@ -359,7 +360,8 @@ function StablePoolCard({
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID ||
-    poolData.pool.id == USDCW_POOL_ID;
+    poolData.pool.id == USDCW_POOL_ID ||
+    poolData.pool.id == Frax_SFrax_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
