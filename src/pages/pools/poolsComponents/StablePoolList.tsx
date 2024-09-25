@@ -9,6 +9,7 @@ import {
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
   USDCW_POOL_ID,
+  Frax_SFrax_POOL_ID,
 } from 'src/services/near';
 import _, { find } from 'lodash';
 import { FormattedMessage } from 'react-intl';
@@ -101,7 +102,12 @@ function StablePoolList({
 
     return b1 && b2;
   };
-  const pinned_pool_ids = [USDTT_USDCC_USDT_USDC_POOL_ID, FRAX_USDC_POOL_ID];
+  const pinned_pool_ids = [
+    USDTT_USDCC_USDT_USDC_POOL_ID,
+    FRAX_USDC_POOL_ID,
+    Frax_SFrax_POOL_ID,
+    USDCW_POOL_ID,
+  ];
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
     const v1 = Number(p1?.poolTVL?.toString() || 0);
     const v2 = Number(p2?.poolTVL?.toString() || 0);
@@ -126,8 +132,26 @@ function StablePoolList({
     const is_p1_sort_top = pinned_pool_ids.includes(p1.pool.id);
     const is_p2_sort_top = pinned_pool_ids.includes(p2.pool.id);
 
+    const p1_pinned_index = is_p1_sort_top
+      ? pinned_pool_ids.indexOf(p1.pool.id)
+      : p1.pool.id === USDCW_POOL_ID
+      ? 2
+      : Number.MAX_SAFE_INTEGER;
+    const p2_pinned_index = is_p2_sort_top
+      ? pinned_pool_ids.indexOf(p2.pool.id)
+      : p2.pool.id === USDCW_POOL_ID
+      ? 2
+      : Number.MAX_SAFE_INTEGER;
+
+    if (is_p1_sort_top && is_p2_sort_top) {
+      return p1_pinned_index - p2_pinned_index;
+    }
+
     if (is_p1_sort_top) return -1;
     if (is_p2_sort_top) return 1;
+
+    if (p1_pinned_index === 2) return -1;
+    if (p2_pinned_index === 2) return 1;
 
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
@@ -359,7 +383,8 @@ function StablePoolCard({
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID ||
-    poolData.pool.id == USDCW_POOL_ID;
+    poolData.pool.id == USDCW_POOL_ID ||
+    poolData.pool.id == Frax_SFrax_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -823,6 +848,8 @@ function TokenChart({
     USDC: '#2FA7DB',
     USDt: '#45D0C0',
     'USDC.w': '#2B6EB7',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const colorLight = {
@@ -842,6 +869,8 @@ function TokenChart({
     NearXC: '#4d5971',
     NearX: '#00676D',
     USDt: '#0E8585',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const innerRadius = 30;
