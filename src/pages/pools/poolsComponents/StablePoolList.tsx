@@ -850,6 +850,7 @@ function TokenChart({
     'USDC.w': '#2B6EB7',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
+    'zNEARnM-USDC': '#ED9234',
   };
 
   const colorLight = {
@@ -871,6 +872,7 @@ function TokenChart({
     USDt: '#0E8585',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
+    'zNEARnM-USDC': '#ED9234',
   };
 
   const innerRadius = 30;
