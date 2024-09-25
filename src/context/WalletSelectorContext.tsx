@@ -149,21 +149,20 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   const nearBlock = {
     id: 397,
     name: 'NEAR Mainnet',
-    network: 'near-mainnet',
+    nativeCurrency: {
+      decimals: 18,
+      name: 'NEAR',
+      symbol: 'NEAR',
+    },
     rpcUrls: {
-      default: { http: ['https://rpc.mainnet.near.org'] },
-      public: { http: ['https://rpc.mainnet.near.org'] },
+      default: { http: ['https://eth-rpc.mainnet.near.org'] },
+      public: { http: ['https://eth-rpc.mainnet.near.org'] },
     },
     blockExplorers: {
       default: {
         name: 'NEAR Explorer',
-        url: 'https://explorer.near.org',
+        url: 'https://eth-explorer.near.org',
       },
-    },
-    nativeCurrency: {
-      name: 'NEAR',
-      symbol: 'NEAR',
-      decimals: 24,
     },
     testnet: false,
   };
@@ -180,7 +179,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       injected({ shimDisconnect: true }),
     ],
   });
-  // reconnect(wagmiConfig); // TODO
+  reconnect(wagmiConfig);
   const web3Modal = createWeb3Modal({
     wagmiConfig,
     // Get a project ID at https://cloud.walletconnect.com
@@ -272,7 +271,11 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           deprecated: false,
         }),
         setupCoin98Wallet(),
-        setupEthereumWallets({ wagmiConfig, web3Modal } as any),
+        setupEthereumWallets({
+          wagmiConfig,
+          web3Modal,
+          alwaysOnboardDuringSignIn: true,
+        } as any),
       ],
     });
     const _modal = setupModal(_selector, {
