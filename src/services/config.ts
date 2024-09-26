@@ -271,7 +271,7 @@ export default function getConfig(
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
         MEME_CHECK_IN_CONTRACT_ID: 'checkin.refnft.near',
-        MEME_NFT_CONTRACT_ID: 'ms5.refnft.near',
+        MEME_NFT_CONTRACT_ID: 'ms6.refnft.near',
         Frax_SFrax_POOL_ID: 5029,
         Frax_SFrax_TOKEN_IDS: [
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
@@ -621,7 +621,7 @@ export default function getConfig(
           'meme-farming_011.ref-labs.near',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
         MEME_CHECK_IN_CONTRACT_ID: 'checkin.refnft.near',
-        MEME_NFT_CONTRACT_ID: 'ms5.refnft.near',
+        MEME_NFT_CONTRACT_ID: 'ms6.refnft.near',
         Frax_SFrax_POOL_ID: 5029,
         Frax_SFrax_TOKEN_IDS: [
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
