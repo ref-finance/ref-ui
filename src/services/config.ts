@@ -382,7 +382,7 @@ export default function getConfig(
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
         MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
-        MEME_NFT_CONTRACT_ID: 'ms_5.refnft.testnet',
+        MEME_NFT_CONTRACT_ID: 'ms_6.refnft.testnet',
       };
     case 'testnet':
       return {
@@ -485,7 +485,7 @@ export default function getConfig(
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.testnet',
         MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
-        MEME_NFT_CONTRACT_ID: 'ms_5.refnft.testnet',
+        MEME_NFT_CONTRACT_ID: 'ms_6.refnft.testnet',
       };
     default:
       return {
