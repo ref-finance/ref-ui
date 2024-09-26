@@ -109,8 +109,9 @@ import { NewUserTip } from '../Common/NewUserTip';
 import { CollatteralTokenAvailableCell } from '../UserBoardPerp/components/HoverText';
 import getConfigV2 from '../../../../services/configV2';
 import { useOrderlyBalancesStore } from '../../../../stores/orderlyBalances';
-const configV2 = getConfigV2();
+import WarningModal from '../WarningModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+const configV2 = getConfigV2();
 
 function getTipFOK() {
   const intl = useIntl();
@@ -277,7 +278,7 @@ export function RegisterModal(
               })}
               <a
                 className="underline text-primary ml-1"
-                href="https://orderly.org/"
+                href="https://orderly.network/"
                 target="_blank"
                 rel="noopener noreferrer nofollow"
               >
@@ -360,7 +361,7 @@ function LearnMoreBox() {
           defaultMessage: 'Learn more about',
         })}
         <a
-          href="https://orderly.org/"
+          href="https://orderly.network/"
           target="_blank"
           rel="noopener noreferrer nofollow"
           className="inline underline cursor-pointer text-white ml-1"
@@ -434,7 +435,7 @@ function UserBoardFoot() {
         </div>
 
         <a
-          href="https://docs.orderly.org/welcome-to-orderly/what-is-orderly-network"
+          href="https://docs.orderly.network/welcome-to-orderly/what-is-orderly-network"
           className="underline hover:text-white whitespace-nowrap"
           target="_blank"
           rel="noopener noreferrer nofollow"
@@ -3557,6 +3558,7 @@ export function AssetManagerModal(
   const progressBarIndex = [0, 25, 50, 75, 100];
 
   const [hoverToken, setHoverToken] = useState<boolean>(false);
+  const [warningIsOpen, setWarningIsOpen] = useState<boolean>(false);
 
   const balances = useTokensBalances(
     tokenInfo?.map((token) => {
@@ -3927,55 +3929,84 @@ export function AssetManagerModal(
                 </div>
               )}
 
-            <button
-              className={`flex ${
-                !validation() ||
-                new Big(inputValue || 0).lte(0) ||
-                buttonLoading
-                  ? 'opacity-70 cursor-not-allowed'
+            <div
+              className="text-white text-right"
+              data-class="reactTip"
+              data-tooltip-id="userBoardDepositId"
+              data-place="top"
+              data-tooltip-html={
+                type == 'deposit'
+                  ? `<div class="w-52 text-left">Orderly has shut down and no longer supports Spot and Perps. New Spot and Perps are coming soon—stay tuned!</div>`
                   : ''
-              } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg bg-primaryGradient`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (!inputValue) return;
-                setButtonLoading(true);
-                onClick(inputValue, tokenId);
-              }}
-              disabled={
-                !validation() ||
-                new Big(inputValue || 0).lte(0) ||
-                buttonLoading
               }
             >
-              <ButtonTextWrapper
-                loading={buttonLoading}
-                Text={() => (
-                  <span>
-                    {type === 'deposit'
-                      ? intl.formatMessage({
-                          id: 'deposit',
-                          defaultMessage: 'Deposit',
-                        })
-                      : type === 'withdraw'
-                      ? !validation()
+              <button
+                className={`flex w-full ${
+                  !validation() ||
+                  new Big(inputValue || 0).lte(0) ||
+                  buttonLoading ||
+                  type == 'deposit'
+                    ? 'opacity-30 cursor-not-allowed'
+                    : ''
+                } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg bg-primaryGradient`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!inputValue) return;
+                  if (type == 'deposit') {
+                    setWarningIsOpen(true);
+                  } else {
+                    setButtonLoading(true);
+                    onClick(inputValue, tokenId);
+                  }
+                }}
+                disabled={
+                  type == 'deposit'
+                    ? true
+                    : !validation() ||
+                      new Big(inputValue || 0).lte(0) ||
+                      buttonLoading
+                }
+              >
+                {/* TODOXXX */}
+                <ButtonTextWrapper
+                  loading={buttonLoading}
+                  Text={() => (
+                    <span>
+                      {type === 'deposit'
                         ? intl.formatMessage({
-                            id: 'insufficient_balance',
-                            defaultMessage: 'Insufficient Balance',
+                            id: 'deposit',
+                            defaultMessage: 'Deposit',
                           })
-                        : intl.formatMessage({
-                            id: 'withdraw',
-                            defaultMessage: 'Withdraw',
-                          })
-                      : ''}
-                  </span>
-                )}
-              ></ButtonTextWrapper>
-            </button>
+                        : type === 'withdraw'
+                        ? !validation()
+                          ? intl.formatMessage({
+                              id: 'insufficient_balance',
+                              defaultMessage: 'Insufficient Balance',
+                            })
+                          : intl.formatMessage({
+                              id: 'withdraw',
+                              defaultMessage: 'Withdraw',
+                            })
+                        : ''}
+                    </span>
+                  )}
+                ></ButtonTextWrapper>
+              </button>
+              <CustomTooltip id="userBoardDepositId" />
+            </div>
           </div>
         </div>
       </Modal>
-
+      <WarningModal
+        isOpen={warningIsOpen}
+        onRequestClose={() => {
+          setWarningIsOpen(false);
+        }}
+        action={() => {
+          onClick(inputValue, tokenId);
+        }}
+      />
       <SelectTokenModal
         onSelect={setTokenId}
         isOpen={showSelectToken}
@@ -4216,9 +4247,10 @@ function SelectTokenModal(
             {balances
               .filter(filterFunc)
               .sort(sortingFunc)
-              .map((b: any) => {
+              .map((b: any, index) => {
                 return (
                   <div
+                    key={index}
                     className="grid grid-cols-3 p-3 px-3 hover:bg-white hover:bg-opacity-5 text-white cursor-pointer"
                     onClick={(e: any) => {
                       e.preventDefault();
@@ -4290,202 +4322,218 @@ function ConfirmOrderModal(
     userInfo,
     orderType,
   } = props;
-
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [warningIsOpen, setWarningIsOpen] = useState(false);
+  // TODOXXX
   const isMobile = useClientMobile();
   const intl = useIntl();
   return (
-    <Modal
-      {...props}
-      style={{
-        content: {
-          zIndex: 999,
-        },
-      }}
-    >
-      <div
-        className={` rounded-2xl lg:w-96 xs:w-95vw ${
-          isMobile ? '' : ' border border-gradientFrom border-opacity-30'
-        }  bg-boxBorder text-sm text-primaryOrderly  `}
+    <>
+      <Modal
+        {...props}
+        style={{
+          content: {
+            zIndex: 999,
+          },
+        }}
       >
-        <div className="px-5 py-6 flex flex-col ">
-          <div className="flex items-center pb-6 justify-between">
-            <span className="text-white text-lg font-bold">
-              {intl.formatMessage({
-                id: 'confirm_order',
-                defaultMessage: 'Confirm Order',
-              })}
-            </span>
-
-            <span
-              className="cursor-pointer "
-              onClick={(e: any) => {
-                onRequestClose && onRequestClose(e);
-              }}
-            >
-              <IoClose size={20} />
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span>
-              {orderType == 'Limit'
-                ? intl.formatMessage({
-                    id: 'limit_order',
-                    defaultMessage: 'Limit Order',
-                  })
-                : 'Market Order'}
-            </span>
-
-            <span className="flex">
-              <TextWrapper
-                textC={side === 'Buy' ? 'text-buyGreen' : 'text-sellColorNew'}
-                bg={side === 'Buy' ? 'bg-buyGreen' : 'bg-sellRed'}
-                value={intl.formatMessage({
-                  id: side.toLowerCase(),
-                  defaultMessage: side,
+        <div
+          className={` rounded-2xl lg:w-96 xs:w-95vw ${
+            isMobile ? '' : ' border border-gradientFrom border-opacity-30'
+          }  bg-boxBorder text-sm text-primaryOrderly  `}
+        >
+          <div className="px-5 py-6 flex flex-col ">
+            <div className="flex items-center pb-6 justify-between">
+              <span className="text-white text-lg font-bold">
+                {intl.formatMessage({
+                  id: 'confirm_order',
+                  defaultMessage: 'Confirm Order',
                 })}
-              ></TextWrapper>
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span>
-              {intl.formatMessage({
-                id: 'qty.',
-                defaultMessage: 'Qty.',
-              })}
-            </span>
-
-            <span className="flex items-center">
-              <span className="text-white mr-2">
-                {numberWithCommas(quantity)}
               </span>
 
-              <TextWrapper
-                textC="text-primaryText"
-                className="text-xs py-0 px-1"
-                value={symbolFrom}
-              ></TextWrapper>
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span>
-              {intl.formatMessage({
-                id: 'price',
-                defaultMessage: 'Price',
-              })}
-            </span>
-
-            <span className="flex items-center">
-              <span className="text-white mr-2">{numberWithCommas(price)}</span>
-              <TextWrapper
-                textC="text-primaryText"
-                className="text-xs py-0 px-1"
-                value={`${symbolTo}/${symbolFrom}`}
-              ></TextWrapper>
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
-            <span className="">
-              {intl.formatMessage({
-                id: 'total',
-                defaultMessage: 'Total',
-              })}
-            </span>
-
-            <span className="flex items-center">
-              <span className=" mr-2 text-white">
-                {totalCost === '-'
-                  ? '-'
-                  : digitWrapper(totalCost.toString(), 3)}
+              <span
+                className="cursor-pointer "
+                onClick={(e: any) => {
+                  onRequestClose && onRequestClose(e);
+                }}
+              >
+                <IoClose size={20} />
               </span>
-              <TextWrapper
-                textC="text-primaryText"
-                value={`${symbolTo}`}
-                className="text-xs py-0 px-1"
-              ></TextWrapper>
-            </span>
-          </div>
+            </div>
 
-          <div className="flex items-center mb-5 justify-between">
-            <span className="">
-              {' '}
-              {intl.formatMessage({
-                id: 'Fees',
-                defaultMessage: 'Fees',
-              })}
-            </span>
+            <div className="flex items-center mb-5 justify-between">
+              <span>
+                {orderType == 'Limit'
+                  ? intl.formatMessage({
+                      id: 'limit_order',
+                      defaultMessage: 'Limit Order',
+                    })
+                  : 'Market Order'}
+              </span>
 
-            <FlexRow className="">
-              <span className="flex items-center mr-3">
-                <span className=" mr-2 text-white">
-                  {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
+              <span className="flex">
+                <TextWrapper
+                  textC={side === 'Buy' ? 'text-buyGreen' : 'text-sellColorNew'}
+                  bg={side === 'Buy' ? 'bg-buyGreen' : 'bg-sellRed'}
+                  value={intl.formatMessage({
+                    id: side.toLowerCase(),
+                    defaultMessage: side,
+                  })}
+                ></TextWrapper>
+              </span>
+            </div>
+
+            <div className="flex items-center mb-5 justify-between">
+              <span>
+                {intl.formatMessage({
+                  id: 'qty.',
+                  defaultMessage: 'Qty.',
+                })}
+              </span>
+
+              <span className="flex items-center">
+                <span className="text-white mr-2">
+                  {numberWithCommas(quantity)}
+                </span>
+
+                <TextWrapper
+                  textC="text-primaryText"
+                  className="text-xs py-0 px-1"
+                  value={symbolFrom}
+                ></TextWrapper>
+              </span>
+            </div>
+
+            <div className="flex items-center mb-5 justify-between">
+              <span>
+                {intl.formatMessage({
+                  id: 'price',
+                  defaultMessage: 'Price',
+                })}
+              </span>
+
+              <span className="flex items-center">
+                <span className="text-white mr-2">
+                  {numberWithCommas(price)}
                 </span>
                 <TextWrapper
                   textC="text-primaryText"
-                  value={intl.formatMessage({
-                    id: 'Taker',
-                    defaultMessage: 'Taker',
-                  })}
                   className="text-xs py-0 px-1"
+                  value={`${symbolTo}/${symbolFrom}`}
                 ></TextWrapper>
+              </span>
+            </div>
+
+            <div className="flex items-center mb-5 justify-between">
+              <span className="">
+                {intl.formatMessage({
+                  id: 'total',
+                  defaultMessage: 'Total',
+                })}
               </span>
 
               <span className="flex items-center">
                 <span className=" mr-2 text-white">
-                  {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
+                  {totalCost === '-'
+                    ? '-'
+                    : digitWrapper(totalCost.toString(), 3)}
                 </span>
                 <TextWrapper
                   textC="text-primaryText"
-                  value={intl.formatMessage({
-                    id: 'Maker',
-                    defaultMessage: 'Maker',
-                  })}
+                  value={`${symbolTo}`}
                   className="text-xs py-0 px-1"
                 ></TextWrapper>
               </span>
-            </FlexRow>
-          </div>
+            </div>
 
-          <button
-            className={`rounded-lg ${
-              loading
-                ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
-                : ''
-            } flex items-center justify-center py-3 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
-            onClick={(e: any) => {
-              e.preventDefault();
-              e.stopPropagation();
+            <div className="flex items-center mb-5 justify-between">
+              <span className="">
+                {' '}
+                {intl.formatMessage({
+                  id: 'Fees',
+                  defaultMessage: 'Fees',
+                })}
+              </span>
 
-              setLoading(true);
-              onClick().then(() => {
-                setLoading(false);
-                onRequestClose && onRequestClose(e);
-              });
-            }}
-            disabled={loading}
-          >
-            <ButtonTextWrapper
-              loading={loading}
-              Text={() => {
-                return (
-                  <span>
-                    {' '}
-                    {intl.formatMessage({
-                      id: 'confirm',
-                      defaultMessage: 'Confirm',
-                    })}
+              <FlexRow className="">
+                <span className="flex items-center mr-3">
+                  <span className=" mr-2 text-white">
+                    {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
                   </span>
-                );
-              }}
-            />
-          </button>
+                  <TextWrapper
+                    textC="text-primaryText"
+                    value={intl.formatMessage({
+                      id: 'Taker',
+                      defaultMessage: 'Taker',
+                    })}
+                    className="text-xs py-0 px-1"
+                  ></TextWrapper>
+                </span>
+
+                <span className="flex items-center">
+                  <span className=" mr-2 text-white">
+                    {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
+                  </span>
+                  <TextWrapper
+                    textC="text-primaryText"
+                    value={intl.formatMessage({
+                      id: 'Maker',
+                      defaultMessage: 'Maker',
+                    })}
+                    className="text-xs py-0 px-1"
+                  ></TextWrapper>
+                </span>
+              </FlexRow>
+            </div>
+            <div
+              className="text-white text-right"
+              data-class="reactTip"
+              data-tooltip-id="buy-sell-id"
+              data-place="top"
+              data-tooltip-html={`<div class="w-52 text-left">Orderly has shut down and no longer supports Spot and Perps. New Spot and Perps are coming soon—stay tuned!</div>`}
+            >
+              <button
+                className={`w-full rounded-lg opacity-30 cursor-not-allowed bg-buttonGradientBgOpacity flex items-center justify-center py-3 hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
+                onClick={(e: any) => {
+                  // e.preventDefault();
+                  // e.stopPropagation();
+                  // setWarningIsOpen(true);
+                }}
+                disabled={loading}
+              >
+                <ButtonTextWrapper
+                  loading={loading}
+                  Text={() => {
+                    return (
+                      <span>
+                        {' '}
+                        {intl.formatMessage({
+                          id: 'confirm',
+                          defaultMessage: 'Confirm',
+                        })}
+                      </span>
+                    );
+                  }}
+                />
+              </button>
+              <CustomTooltip id="buy-sell-id" />
+            </div>
+          </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
+      <WarningModal
+        isOpen={warningIsOpen}
+        onRequestClose={() => {
+          setWarningIsOpen(false);
+        }}
+        action={(e, setLoading) => {
+          onClick().then(() => {
+            onRequestClose && onRequestClose(e);
+            setWarningIsOpen(false);
+            setLoading(false);
+          });
+        }}
+      />
+    </>
   );
 }

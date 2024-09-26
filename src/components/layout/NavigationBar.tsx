@@ -15,12 +15,7 @@ import { AccountIcon } from 'src/components/icon/Common';
 import { Context } from 'src/components/wrapper';
 import getConfig from 'src/services/config';
 import { NEARXIDS, wallet } from 'src/services/near';
-import {
-  BridgeButton,
-  menuItemType,
-  useLanguageItems,
-  useMenus,
-} from 'src/utils/menu';
+import { menuItemType, useLanguageItems, useMenus } from 'src/utils/menu';
 import { auroraAddr, useAuroraTokens } from '../../services/aurora/aurora';
 import { ETH_DECIMAL } from '../../services/aurora/aurora';
 import { useAuroraBalances } from '../../services/aurora/aurora';
@@ -921,10 +916,6 @@ function NavigationBar() {
             </div>
           </div>
           <div className="flex items-center justify-end">
-            <div className="mr-3">
-              <BridgeButton></BridgeButton>
-            </div>
-
             {isMobile ? null : <BuyNearButton />}
 
             <div className="flex items-center mx-3">

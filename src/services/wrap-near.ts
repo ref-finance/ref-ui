@@ -24,7 +24,7 @@ export const wnearMetadata: TokenMetadata = {
   name: 'wNEAR',
   symbol: 'wNEAR',
   decimals: 24,
-  icon: 'https://assets.ref.finance/images/w-NEAR-no-border.png',
+  icon: 'https://img.ref.finance/images/w-NEAR-no-border.png',
 };
 
 export const nearMetadata: TokenMetadata = NEAR_META_DATA;

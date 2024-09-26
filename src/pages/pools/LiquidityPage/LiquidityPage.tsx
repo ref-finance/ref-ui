@@ -7,11 +7,17 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { ShareInFarm } from '../../../components/layout/ShareInFarm';
+import {
+  ShareInFarm,
+  ShareInFarmV2,
+} from '../../../components/layout/ShareInFarm';
 import {
   classificationOfCoins_key,
   classificationOfCoins,
   Seed,
+  get_shadow_records,
+  getStakedListByAccountId,
+  list_farmer_seeds,
 } from '../../../services/farm';
 import { ArrowDownLarge, TokenRisk } from '../../../components/icon';
 import { useHistory } from 'react-router';
@@ -60,6 +66,7 @@ import {
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
   USDCW_POOL_ID,
+  Frax_SFrax_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -98,7 +105,7 @@ import {
   USD_TEXT,
 } from '../../../components/icon/Logo';
 import { VEARROW } from '../../../components/icon/Referendum';
-import getConfig from '../../../services/config';
+import getConfig, { getExtraStablePoolConfig } from '../../../services/config';
 import { AddPoolModal } from '../AddPoolPage';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { getURLInfo } from '../../../components/layout/transactionTipPopUp';
@@ -158,9 +165,18 @@ import {
   TokenPriceListContext,
 } from './constLiquidityPage';
 import { useRiskTokens } from '../../../state/token';
+import {
+  useFarmerSeedsStore,
+  useShadowRecordStore,
+  useStakeListStore,
+} from 'src/stores/liquidityStores';
+import {
+  PoolAvailablePercent,
+  PoolFarmAmount,
+} from 'src/components/pool/PoolShare';
 import { format_apy } from '../../../utils/uiNumber';
 import { USDCWIcon } from 'src/components/icon/Common';
-
+const { BTC_STABLE_POOL_ID } = getExtraStablePoolConfig();
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
@@ -1877,6 +1893,12 @@ export default function LiquidityPage() {
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'
   );
+  const setShadowRecords = useShadowRecordStore(
+    (state) => state.setShadowRecords
+  );
+  const setStakeListTogether = useStakeListStore(
+    (state) => state.setStakeListTogether
+  );
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -1946,6 +1968,21 @@ export default function LiquidityPage() {
     },
   });
   useEffect(() => {
+    setCurrentPage(1);
+  }, [farmOnly, hideLowTVL]);
+  useEffect(() => {
+    get_shadow_records().then((res) => {
+      setShadowRecords(res);
+    });
+    getStakedListByAccountId({})
+      .then(({ stakedList, finalStakeList, v2StakedList }) => {
+        setStakeListTogether({
+          stakeListV1: stakedList,
+          stakeListV2: v2StakedList,
+          stakeListAll: finalStakeList,
+        });
+      })
+      .catch((e) => {});
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
         const { farmList, seed_id } = seed;
@@ -2317,6 +2354,8 @@ function TokenChart({
     USDt: '#45D0C0',
     'USD Coin': '#2FA7DB',
     'USDC.w': '#2B6EB7',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const colorLight = {
@@ -2337,6 +2376,8 @@ function TokenChart({
     NearX: '#00676D',
     USDt: '#0E8585',
     'USD Coin': 'rgba(0, 163, 255, 1)',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const innerRadius = 30;
@@ -2523,9 +2564,8 @@ function StablePoolCard({
   };
   const [hover, setHover] = useState<boolean>(false);
 
-  const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
-    poolData.pool.id
-  );
+  const { shares, shadowBurrowShare, farmStakeV2, userTotalShare } =
+    useYourliquidity(poolData.pool.id);
 
   const [chartActiveToken, setChartActiveToken] = useState<string>();
 
@@ -2547,7 +2587,8 @@ function StablePoolCard({
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID ||
-    poolData.pool.id == USDCW_POOL_ID;
+    poolData.pool.id == USDCW_POOL_ID ||
+    poolData.pool.id == Frax_SFrax_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -2700,7 +2741,6 @@ function StablePoolCard({
               setChartActiveToken={setChartActiveToken}
             />
           </div>
-
           <div className="absolute xl:right-8 lg:right-4 xs:hidden md:hidden">
             <TokenChart
               tokens={poolData.tokens}
@@ -2813,6 +2853,24 @@ function StablePoolCard({
               forStable
             />
           </div>
+
+          {shadowBurrowShare?.stakeAmount && (
+            <div
+              className={`cursor-pointer ${!haveFarm ? 'hidden' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                openUrl(`https://app.burrow.finance/`);
+              }}
+            >
+              <ShareInFarm
+                farmStake={shadowBurrowShare?.stakeAmount}
+                userTotalShare={userTotalShare}
+                inStr={'in Burrow'}
+                forStable
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex xs:hidden md:hidden items-center">
@@ -2894,22 +2952,29 @@ function StablePoolList({
   const [sortBy, setSortBy] = useState<string>('tvl');
 
   const [clicked, setClicked] = useState<boolean>(false);
-
+  const setFarmerSeeds = useFarmerSeedsStore((state) => state.setFarmerSeeds);
+  useEffect(() => {
+    list_farmer_seeds().then((res) => {
+      setFarmerSeeds(res);
+    });
+  }, []);
   let allStablePoolData = useAllStablePoolData();
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
-  allStablePoolData = _.filter(allStablePoolData, (pool) =>
-    pool?.tokens?.every((token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id))
-  );
+  allStablePoolData = _.filter(allStablePoolData, (pool) => {
+    return (
+      pool?.tokens?.every(
+        (token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id)
+      ) && +pool.pool.id !== +BTC_STABLE_POOL_ID
+    );
+  });
   const filterFunc = (p: PoolData) => {
     const b1 =
-      option === 'ALL'
-        ? true
-        : option === 'NEAR'
+      option === 'NEAR'
         ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
-        : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
+        : true;
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
     );
@@ -2919,6 +2984,7 @@ function StablePoolList({
   const pinned_pool_ids = [
     USDTT_USDCC_USDT_USDC_POOL_ID,
     FRAX_USDC_POOL_ID,
+    Frax_SFrax_POOL_ID,
     USDCW_POOL_ID,
   ];
 
@@ -2990,7 +3056,7 @@ function StablePoolList({
     <>
       <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
         <div className="flex items-center col-span-2 xsm:w-full">
-          {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
+          {['ALL', 'USD', 'NEAR'].map((o) => {
             return (
               <button
                 key={o + '-stable-pool-type'}

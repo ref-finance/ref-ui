@@ -55,13 +55,6 @@ module.exports = {
       '2xl': { min: '1536px' },
       '3xl': { min: '1792px' },
     },
-    boxShadow: {
-      '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)',
-      green: '0px 0px 2px rgba(0, 198, 162, 0.5)',
-      dark: '0px 0px 10px rgba(0, 0, 0, 0.15)',
-      blue: '0px 0px 20px rgba(0, 255, 209, 0.6)',
-      withDrawColor: '0px 0px 20px rgba(0, 255, 240, 0.6)',
-    },
 
     extend: {
       backgroundImage: (theme) => ({
@@ -116,7 +109,8 @@ module.exports = {
         dclBannerColor:
           'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
         dclIconBgColor: 'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
-        dclFarmTipColor: 'linear-gradient(270deg, #00C6A2 0%, rgba(91, 64, 255, 0) 68.86%)',
+        dclFarmTipColor:
+          'linear-gradient(270deg, #00C6A2 0%, rgba(91, 64, 255, 0) 68.86%)',
         sellGradientRed: 'linear-gradient(180deg, #944A8C 0%, #D26060 100%)',
         swapCardGradient: 'linear-gradient(180deg, #213441 0%, #15242F 100%)',
         sellGradientRedReverse:
@@ -427,6 +421,8 @@ module.exports = {
         marginGrayBg: '#334049',
         warnYellowColor: '#DB8946',
         lightPurpleColorOrder: '#979ABE',
+        burrowYellowColor: '#D2FF39',
+        farmDarkTipColor: '#0F1E29',
         memeBorderColor: 'rgba(151, 151, 151, 0.2)',
         memePoolBoxBorderColor: '#3F5361',
         memeDarkColor: '#182833',
@@ -501,10 +497,10 @@ module.exports = {
       },
       minHeight: {
         8: '2rem',
-        '60': '280px',
-        '80': '350px',
-        'screen': '100vh',
-        'max': 'max-content'
+        60: '280px',
+        80: '350px',
+        screen: '100vh',
+        max: 'max-content',
       },
       minWidth: {
         p72: '72px',
@@ -538,6 +534,14 @@ module.exports = {
         nunito: "'Nunito', sans-serif",
         gotham: "'gotham', sans-serif",
         gothamBold: "'gothamBold', sans-serif",
+      },
+
+      boxShadow: {
+        '4xl': '0px 0px 10px 4px rgba(0, 0, 0, 0.35)',
+        green: '0px 0px 2px rgba(0, 198, 162, 0.5)',
+        dark: '0px 0px 10px rgba(0, 0, 0, 0.15)',
+        blue: '0px 0px 20px rgba(0, 255, 209, 0.6)',
+        withDrawColor: '0px 0px 20px rgba(0, 255, 240, 0.6)',
       },
     },
     plugins: [],

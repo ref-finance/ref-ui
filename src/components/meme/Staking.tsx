@@ -44,7 +44,7 @@ const Staking = () => {
           </div>
           <div className="lg:flex lg:justify-center xsm:-mx-5">
             <div
-              className="lg:w-32 lg:mr-4 xsm:mb-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base cursor-pointer gotham_bold"
+              className="lg:w-48 lg:mr-4 xsm:mb-4 bg-greenLight rounded-lg h-12 flex items-center justify-center text-black text-base cursor-pointer gotham_bold"
               onClick={() => {
                 setIsMemeVoteOpen(true);
               }}
@@ -52,7 +52,7 @@ const Staking = () => {
               Vote
             </div>
             <div
-              className="lg:w-32 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
+              className="lg:w-48 xsm:mb-4 lg:mr-4 border border-greenLight bg-memeDarkColor rounded-lg h-12 flex items-center cursor-pointer justify-center text-greenLight text-base gotham_bold"
               onClick={() => setUserRanking(true)}
             >
               Rank
@@ -76,15 +76,15 @@ const Staking = () => {
                 </div>
               )}
             </div> */}
-            <div
+            {/* <div
               className="lg:w-32  border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
               items-center justify-center text-white text-base gotham_bold xsm:hidden"
               onClick={() => setShowAirdropModal(true)}
             >
               <CoinPc />
               <p className="ml-2">Airdrop</p>
-            </div>
-            <div
+            </div> */}
+            {/* <div
               className="lg:hidden border border-swapCardBorder bg-memeModelgreyColor rounded-lg h-12 flex cursor-pointer 
               items-center justify-center text-white text-base gotham_bold xsm:border-none xsm:bg-transparent xsm:h-auto"
               onClick={() => history.push('/airdop')}
@@ -94,7 +94,7 @@ const Staking = () => {
               <div className="ml-1">
                 <AirdropMobileArrowIcon />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -126,9 +126,9 @@ const Staking = () => {
         <div className="xsm:bg-memeStakingBgColor xsm:border xsm:border-memeBorderColor xsm:rounded-2xl xsm:pt-8 xsm:pb-8 xsm:px-11">
           <div className="lg:hidden mb-3 flex flex-col items-center">
             <div className="text-base text-primaryText">Current Round:</div>
-            <div className="text-lg mb-4">2024/07/06-2024/08/05</div>
+            <div className="text-lg mb-4">2024/09/06-2024/10/05</div>
             {/* <div className="text-base text-primaryText">Next Round:</div>
-            <div className="text-lg mb-6">2024/07/06-2024/08/05</div> */}
+            <div className="text-lg mb-6">2024/08/06-2024/09/05</div> */}
           </div>
           <div className="mb-6" style={{ height: '285px' }}>
             <StakingChart chartType="xref" />
@@ -136,11 +136,11 @@ const Staking = () => {
           <div className="flex justify-between mb-6 px-16 xsm:hidden">
             <div className="text-left ">
               <p className="text-sm text-primaryText mb-2">Current Round:</p>
-              <div className="text-sm ">2024/07/06-2024/08/05</div>
+              <div className="text-sm ">2024/09/06-2024/10/05</div>
             </div>
             {/* <div className="text-left">
               <p className="text-sm text-primaryText mb-2">Next Round:</p>
-              <div className="text-sm ">2024/07/06-2024/08/05</div>
+              <div className="text-sm ">2024/08/06-2024/09/05</div>
             </div> */}
           </div>
           {!hasGuided &&

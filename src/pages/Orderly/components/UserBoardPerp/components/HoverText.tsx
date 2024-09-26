@@ -54,7 +54,7 @@ export function MarginRatioText() {
             <br />
             <a
               className="underline text-v3Blue"
-              href="https://docs.orderly.org/perpetual-futures/margin-leverage-and-pnl"
+              href="https://docs.orderly.network/perpetual-futures/margin-leverage-and-pnl"
               rel="noopener noreferrer nofollow"
               target="_blank"
             >

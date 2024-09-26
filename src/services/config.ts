@@ -5,12 +5,12 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
       return {
         RPC_LIST: {
           defaultRpc: {
-            url: 'https://rpc.mainnet.near.org',
-            simpleName: 'official rpc',
-          },
-          lavaRpc: {
             url: 'https://near.lava.build',
             simpleName: 'lava rpc',
+          },
+          officalRpc: {
+            url: 'https://rpc.mainnet.near.org',
+            simpleName: 'official rpc',
           },
           betaRpc: {
             url: 'https://beta.rpc.mainnet.near.org',
@@ -80,12 +80,12 @@ export function getExtendConfig(env: string = process.env.REACT_APP_NEAR_ENV) {
       return {
         RPC_LIST: {
           defaultRpc: {
-            url: 'https://rpc.mainnet.near.org',
-            simpleName: 'official rpc',
-          },
-          lavaRpc: {
             url: 'https://near.lava.build',
             simpleName: 'lava rpc',
+          },
+          officalRpc: {
+            url: 'https://rpc.mainnet.near.org',
+            simpleName: 'official rpc',
           },
           betaRpc: {
             url: 'https://beta.rpc.mainnet.near.org',
@@ -140,7 +140,6 @@ export default function getConfig(
     case 'production':
     case 'mainnet':
       return {
-        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
@@ -149,10 +148,9 @@ export default function getConfig(
         explorerUrl: 'https://nearblocks.io',
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
-        // indexerUrl: 'https://api.ref.finance',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
-        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
+        dataServiceApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
         memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
@@ -214,9 +212,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -225,52 +223,8 @@ export default function getConfig(
           '3613',
           '3620',
           '3625',
-          // '1923',
-          // '2451',
-          // '1559',
-          // '3015',
-          // '3398',
-          // '2089',
-          // '2121',
-          // '4149',
-          // '3383',
-          // '3805',
-          // '3907',
-          // '4161',
-          // '3021',
-          // '3385',
-          // '3046',
-          // '3384',
-          // '1820',
-          // '4150',
-          // '3466',
-          // '3386',
-          // '3087',
-          // '2558',
-          // '3587',
-          // '3759',
-          // '1904',
-          // '1903',
-          // '3850',
-          // '1821',
-          // '2975',
-          // '3529',
-          // '3676',
-          // '1908',
-          // '2450',
-          // '1955',
-          // '2781',
-          // '3822',
-          // '2161',
-          // '2560',
-          // '3091',
-          // '2497',
-          // '2194',
-          // '2320',
           '4744',
-          '5029',
         ],
-
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
@@ -286,7 +240,7 @@ export default function getConfig(
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
-        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
+        DCL_POOL_BLACK_LIST: [''],
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
@@ -316,10 +270,16 @@ export default function getConfig(
           '16.contract.portalbridge.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
+        MEME_CHECK_IN_CONTRACT_ID: 'checkin.refnft.near',
+        MEME_NFT_CONTRACT_ID: 'ms5.refnft.near',
+        Frax_SFrax_POOL_ID: 5029,
+        Frax_SFrax_TOKEN_IDS: [
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
+          'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near',
+        ],
       };
     case 'pub-testnet':
       return {
-        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
@@ -330,9 +290,9 @@ export default function getConfig(
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
-        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
+        dataServiceApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
-        memeRankApiUrl: 'https://test.api.cclp.finance',
+        memeRankApiUrl: 'https://testnet-indexer.ref-finance.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'ref-finance-101.testnet',
@@ -381,9 +341,9 @@ export default function getConfig(
         },
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -404,12 +364,12 @@ export default function getConfig(
         switch_on_dcl_farms: 'on',
         BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
-          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1843,
+          process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1919,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
-          'usdtt.fakes.testnet',
-          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
-          'usdt.fakes.testnet',
-          'usdc.fakes.testnet',
+          'usdtt.ft.ref-labs.testnet',
+          'usdcc.ft.ref-labs.testnet',
+          'usdte.ft.ref-labs.testnet',
+          'usdce.ft.ref-labs.testnet',
         ],
 
         USDT_USDC_POOL_ID: process.env.USDT_USDC_POOL_ID,
@@ -421,10 +381,11 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
+        MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
+        MEME_NFT_CONTRACT_ID: 'ms_5.refnft.testnet',
       };
     case 'testnet':
       return {
-        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
@@ -435,9 +396,9 @@ export default function getConfig(
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
-        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
+        dataServiceApiUrl: 'https://dev.data-service.ref-finance.com/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
-        memeRankApiUrl: 'https://test.api.cclp.finance',
+        memeRankApiUrl: 'https://dev-indexer.ref-finance.com',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3'],
         REF_FI_CONTRACT_ID:
           process.env.REF_FI_CONTRACT_ID || 'exchange.ref-dev.testnet',
@@ -446,7 +407,6 @@ export default function getConfig(
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
           process.env.REF_FARM_CONTRACT_ID || 'farm-dev.ref-dev.testnet',
-        // REF_VE_CONTRACT_ID: 'dev-20220623151446-29039416013661',
         REF_TOKEN_ID: 'ref.fakes.testnet',
         USDC_TOKEN_ID:
           '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af',
@@ -488,9 +448,9 @@ export default function getConfig(
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -524,10 +484,11 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.testnet',
+        MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
+        MEME_NFT_CONTRACT_ID: 'ms_5.refnft.testnet',
       };
     default:
       return {
-        classicTestUrl: 'https://test.api.cclp.finance',
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
@@ -537,9 +498,8 @@ export default function getConfig(
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://api.ref.finance',
-        // indexerUrl: 'https://apiself.cclp.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
-        newSodakiApiUrl: 'https://api.data-service.ref.finance/api',
+        dataServiceApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
         memeRankApiUrl: 'https://api.ref.finance',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
@@ -606,9 +566,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2601011.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3459276.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -617,50 +577,7 @@ export default function getConfig(
           '3613',
           '3620',
           '3625',
-          // '1923',
-          // '2451',
-          // '1559',
-          // '3015',
-          // '3398',
-          // '2089',
-          // '2121',
-          // '4149',
-          // '3383',
-          // '3805',
-          // '3907',
-          // '4161',
-          // '3021',
-          // '3385',
-          // '3046',
-          // '3384',
-          // '1820',
-          // '4150',
-          // '3466',
-          // '3386',
-          // '3087',
-          // '2558',
-          // '3587',
-          // '3759',
-          // '1904',
-          // '1903',
-          // '3850',
-          // '1821',
-          // '2975',
-          // '3529',
-          // '3676',
-          // '1908',
-          // '2450',
-          // '1955',
-          // '2781',
-          // '3822',
-          // '2161',
-          // '2560',
-          // '3091',
-          // '2497',
-          // '2194',
-          // '2320',
           '4744',
-          '5029',
         ],
 
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
@@ -678,7 +595,7 @@ export default function getConfig(
         REF_UNI_SWAP_CONTRACT_ID:
           process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
         switch_on_dcl_farms: 'off',
-        DCL_POOL_BLACK_LIST: ['usdt.tether-token.near|wrap.near|2000'],
+        DCL_POOL_BLACK_LIST: [''],
         BURROW_CONTRACT_ID: 'contract.main.burrow.near',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 4179,
@@ -703,6 +620,13 @@ export default function getConfig(
           process.env.REF_MEME_FARM_CONTRACT_ID ||
           'meme-farming_011.ref-labs.near',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
+        MEME_CHECK_IN_CONTRACT_ID: 'checkin.refnft.near',
+        MEME_NFT_CONTRACT_ID: 'ms5.refnft.near',
+        Frax_SFrax_POOL_ID: 5029,
+        Frax_SFrax_TOKEN_IDS: [
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
+          'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near',
+        ],
       };
   }
 }
@@ -773,6 +697,7 @@ export function getExtraStablePoolConfig(
           '4513',
           '4514',
           '5219',
+          '5029',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -791,6 +716,10 @@ export function getExtraStablePoolConfig(
         USDCW_TOKEN_INDEX: {
           '16.contract.portalbridge.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        Frax_SFrax_POOL_INDEX: {
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+          'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near': 1,
         },
       };
     case 'development':
@@ -839,12 +768,13 @@ export function getExtraStablePoolConfig(
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1843'],
+        RATED_POOLS_IDS: ['568', '571', '1044', '1751', '1752', '1919'],
+        DEGEN_POOLS_IDS: ['2022'],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
-          'usdtt.fakes.testnet': 0,
-          '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af': 1,
-          'usdt.fakes.testnet': 2,
-          'usdc.fakes.testnet': 3,
+          'usdtt.ft.ref-labs.testnet': 0,
+          'usdcc.ft.ref-labs.testnet': 1,
+          'usdte.ft.ref-labs.testnet': 2,
+          'usdce.ft.ref-labs.testnet': 3,
         },
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
@@ -965,6 +895,7 @@ export function getExtraStablePoolConfig(
           '4513',
           '4514',
           '5219',
+          '5029',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -983,6 +914,10 @@ export function getExtraStablePoolConfig(
         USDCW_TOKEN_INDEX: {
           '16.contract.portalbridge.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        Frax_SFrax_POOL_INDEX: {
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
+          'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near': 1,
         },
       };
   }

@@ -9,6 +9,7 @@ import {
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
   USDCW_POOL_ID,
+  Frax_SFrax_POOL_ID,
 } from 'src/services/near';
 import _, { find } from 'lodash';
 import { FormattedMessage } from 'react-intl';
@@ -50,10 +51,11 @@ import { OutlineButton, SolidButton } from 'src/components/button/Button';
 import { TokenMetadata } from 'src/services/ft-contract';
 import BigNumber from 'bignumber.js';
 import { Cell, Pie, PieChart, Sector } from 'recharts';
-import getConfig from 'src/services/config';
+import getConfig, { getExtraStablePoolConfig } from 'src/services/config';
 import Big from 'big.js';
 import { BLACK_TOKEN_IDS_IN_POOL } from '../LiquidityPage/LiquidityPage';
 import { TokenPriceListContext } from '../LiquidityPage/constLiquidityPage';
+const { BTC_STABLE_POOL_ID } = getExtraStablePoolConfig();
 
 function StablePoolList({
   searchBy,
@@ -80,25 +82,32 @@ function StablePoolList({
 
   if (!allStablePoolData || allStablePoolData.some((pd) => !pd))
     return <Loading />;
-  allStablePoolData = _.filter(allStablePoolData, (pool) =>
-    pool?.tokens?.every((token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id))
+  allStablePoolData = _.filter(
+    allStablePoolData,
+    (pool) =>
+      pool?.tokens?.every(
+        (token) => !BLACK_TOKEN_IDS_IN_POOL.includes(token.id)
+      ) && +pool.pool.id !== +BTC_STABLE_POOL_ID
   );
   const filterFunc = (p: PoolData) => {
     const b1 =
-      option === 'ALL'
-        ? true
-        : option === 'NEAR'
+      option === 'NEAR'
         ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
-        : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
+        : true;
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
     );
 
     return b1 && b2;
   };
-  const pinned_pool_ids = [USDTT_USDCC_USDT_USDC_POOL_ID, FRAX_USDC_POOL_ID];
+  const pinned_pool_ids = [
+    USDTT_USDCC_USDT_USDC_POOL_ID,
+    FRAX_USDC_POOL_ID,
+    Frax_SFrax_POOL_ID,
+    USDCW_POOL_ID,
+  ];
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
     const v1 = Number(p1?.poolTVL?.toString() || 0);
     const v2 = Number(p2?.poolTVL?.toString() || 0);
@@ -123,8 +132,26 @@ function StablePoolList({
     const is_p1_sort_top = pinned_pool_ids.includes(p1.pool.id);
     const is_p2_sort_top = pinned_pool_ids.includes(p2.pool.id);
 
+    const p1_pinned_index = is_p1_sort_top
+      ? pinned_pool_ids.indexOf(p1.pool.id)
+      : p1.pool.id === USDCW_POOL_ID
+      ? 2
+      : Number.MAX_SAFE_INTEGER;
+    const p2_pinned_index = is_p2_sort_top
+      ? pinned_pool_ids.indexOf(p2.pool.id)
+      : p2.pool.id === USDCW_POOL_ID
+      ? 2
+      : Number.MAX_SAFE_INTEGER;
+
+    if (is_p1_sort_top && is_p2_sort_top) {
+      return p1_pinned_index - p2_pinned_index;
+    }
+
     if (is_p1_sort_top) return -1;
     if (is_p2_sort_top) return 1;
+
+    if (p1_pinned_index === 2) return -1;
+    if (p2_pinned_index === 2) return 1;
 
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
@@ -149,7 +176,7 @@ function StablePoolList({
     <>
       <div className=" grid grid-cols-6 relative mb-4 xs:mb-2 md:mb-2 items-center">
         <div className="flex items-center col-span-2 xsm:w-full">
-          {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
+          {['ALL', 'USD', 'NEAR'].map((o) => {
             return (
               <button
                 key={o + '-stable-pool-type'}
@@ -333,9 +360,8 @@ function StablePoolCard({
 
   const [hover, setHover] = useState<boolean>(false);
 
-  const { shares, farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
-    poolData.pool.id
-  );
+  const { shares, shadowBurrowShare, farmStakeV2, userTotalShare } =
+    useYourliquidity(poolData.pool.id);
 
   const [chartActiveToken, setChartActiveToken] = useState<string>();
 
@@ -357,7 +383,8 @@ function StablePoolCard({
     poolData.pool.id == USDTT_USDCC_USDT_USDC_POOL_ID ||
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID ||
-    poolData.pool.id == USDCW_POOL_ID;
+    poolData.pool.id == USDCW_POOL_ID ||
+    poolData.pool.id == Frax_SFrax_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -601,16 +628,14 @@ function StablePoolCard({
           <div className="text-primaryText text-base">
             <FormattedMessage id="your_shares" defaultMessage="Your Shares" />
           </div>
-
           <div className="text-sm ml-5 mr-2.5 text-white">
             {formattedPool.displayMyShareAmount}
           </div>
           <div className="text-primaryText mr-4">
             {formattedPool.displaySharePercent}
           </div>
-
           <div
-            className={`cursor-pointer ${!haveFarm ? 'hidden' : ''}`}
+            className={`cursor-pointer ${!haveFarm ? 'hiddenx' : ''}`}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -625,6 +650,23 @@ function StablePoolCard({
               forStable
             />
           </div>
+          {shadowBurrowShare?.stakeAmount && (
+            <div
+              className={`cursor-pointer ${!haveFarm ? 'hidden' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                openUrl(`https://app.burrow.finance/`);
+              }}
+            >
+              <ShareInFarm
+                farmStake={shadowBurrowShare?.stakeAmount}
+                userTotalShare={userTotalShare}
+                inStr={'in Burrow'}
+                forStable
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex xs:hidden md:hidden items-center">
@@ -806,6 +848,8 @@ function TokenChart({
     USDC: '#2FA7DB',
     USDt: '#45D0C0',
     'USDC.w': '#2B6EB7',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const colorLight = {
@@ -825,6 +869,8 @@ function TokenChart({
     NearXC: '#4d5971',
     NearX: '#00676D',
     USDt: '#0E8585',
+    FRAX: '#OE1519',
+    sFRAX: '#4A6D7C',
   };
 
   const innerRadius = 30;

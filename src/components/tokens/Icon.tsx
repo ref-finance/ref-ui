@@ -95,7 +95,6 @@ export function IconLeftV3({
   showArrow?: boolean;
   hover?: boolean;
 }) {
-  // TODOMM
   const mark = getImageMark(token);
   return (
     <div
@@ -122,7 +121,7 @@ export function IconLeftV3({
               style={{
                 top: '-1px',
                 left: '-1px',
-                transform: 'scale(0.55, 0.6)',
+                transform: 'scale(0.5, 0.5)',
               }}
             >
               {mark}
@@ -176,8 +175,8 @@ export function DisplayIcon({
   token: TokenMetadata;
 }) {
   const style = {
-    height: height,
-    width: width,
+    height,
+    width,
   };
 
   if (!token.icon) {

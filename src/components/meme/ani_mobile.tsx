@@ -1785,3 +1785,12 @@ export function MobileBannerCoreBtnIconBg(props) {
     </svg>
   );
 }
+export function MobileCheckInButton(props) {
+  return (
+    <img
+      {...props}
+      src="https://img.ref.finance/images/check-in-mobile.png"
+      style={{ width: '184px' }}
+    />
+  );
+}

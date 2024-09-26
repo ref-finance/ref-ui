@@ -11,11 +11,13 @@ import Navigation, {
   NavigationMobile,
 } from '../components/portfolio/Navigation';
 import MainTab from '../components/portfolio/MainTab';
-import { getBoostTokenPrices } from '../services/farm';
+import { get_shadow_records, getBoostTokenPrices } from '../services/farm';
 import { UserLiquidityInfo } from '../services/commonV3';
 import { TokenMetadata } from 'src/services/ft-contract';
 import { isMobile } from 'src/utils/device';
+import { useZustandSetPoolData } from 'src/state/sauce';
 const is_mobile = isMobile();
+
 export const PortfolioData = createContext(null);
 function Portfolio() {
   // variables only used in mobile site start
@@ -75,6 +77,8 @@ function Portfolio() {
   const [history_total_asset, set_history_total_asset] = useState<string>('0');
   const [history_total_asset_done, set_history_total_asset_done] =
     useState<boolean>(false);
+
+  useZustandSetPoolData();
 
   useEffect(() => {
     getTokenPriceList();

@@ -57,6 +57,7 @@ import { useEffect, useContext, useState } from 'react';
 import { getPoolIdBySeedId } from '../components/farm/FarmsHome';
 import { listPools, PoolInfo } from './swapV3';
 import { mint_liquidity, UserLiquidityInfo } from './commonV3';
+import { refFiViewFunction } from './near';
 
 const config = getConfig();
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = config;
@@ -437,7 +438,6 @@ export const listRewards = async (
     args: { account_id: accountId },
   });
 };
-// todo1
 export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
   // return refFarmFunctionCall({
   //   methodName: 'claim_reward_by_farm',
@@ -455,7 +455,6 @@ export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
   });
   executeFarmMultipleTransactions(transactions);
 };
-// todo2
 export const claimRewardBySeed = async (seed_id: string): Promise<any> => {
   // return refFarmFunctionCall({
   //   methodName: 'claim_reward_by_seed',
@@ -582,30 +581,127 @@ export const get_unWithDraw_rewards = async () => {
     args: { farmer_id: accountId },
   });
 };
-export const stake_boost = async ({
-  token_id,
+export const stake_boost_shadow = async ({
+  pool_id,
   amount,
-  msg = '',
+  amountByTransferInFarm,
+  seed_id,
 }: StakeOptions) => {
-  const transactions: Transaction[] = [
-    {
+  const transactions: Transaction[] = [];
+  let toFarmingAmount = amount;
+  if (Big(amountByTransferInFarm).gt(0)) {
+    toFarmingAmount = Big(toFarmingAmount)
+      .plus(amountByTransferInFarm)
+      .toFixed();
+    transactions.push({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'unlock_and_withdraw_seed',
+          args: {
+            seed_id,
+            unlock_amount: '0',
+            withdraw_amount: amountByTransferInFarm,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '200000000000000',
+        },
+      ],
+    });
+  }
+  const shadowRecords = await get_shadow_records();
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'shadow_action',
+        args: {
+          action: 'ToFarming',
+          pool_id,
+          amount: toFarmingAmount,
+          msg: '',
+        },
+        amount: shadowRecords[pool_id] ? ONE_YOCTO_NEAR : '0.01',
+        gas: '300000000000000',
+      },
+    ],
+  });
+
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return executeFarmMultipleTransactions(transactions);
+};
+export const unStake_boost_shadow = async ({
+  seed_id,
+  unlock_amount,
+  withdraw_amount,
+  amountByTransferInFarm,
+}: UnStakeOptions) => {
+  const transactions: Transaction[] = [];
+  if (Big(amountByTransferInFarm).gt(0)) {
+    transactions.push({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'unlock_and_withdraw_seed',
+          args: {
+            seed_id,
+            unlock_amount,
+            withdraw_amount: amountByTransferInFarm,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '200000000000000',
+        },
+      ],
+    });
+  }
+  const pool_id = +seed_id.split('@')[1];
+  if (Big(withdraw_amount).gt(amountByTransferInFarm)) {
+    transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: [
         {
-          methodName: 'mft_transfer_call',
+          methodName: 'shadow_action',
           args: {
-            receiver_id: REF_FARM_BOOST_CONTRACT_ID,
-            token_id,
-            amount,
-            msg,
+            action: 'FromFarming',
+            pool_id,
+            amount: Big(withdraw_amount)
+              .minus(amountByTransferInFarm)
+              .toFixed(0),
+            msg: '',
           },
           amount: ONE_YOCTO_NEAR,
-          gas: '180000000000000',
+          gas: '300000000000000',
         },
       ],
-    },
-  ];
-
+    });
+  } else if (Big(withdraw_amount).lt(amountByTransferInFarm)) {
+    const shadowRecords = await get_shadow_records();
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'shadow_action',
+          args: {
+            action: 'ToFarming',
+            pool_id,
+            amount: Big(amountByTransferInFarm)
+              .minus(withdraw_amount)
+              .toFixed(0),
+            msg: '',
+          },
+          amount: shadowRecords[pool_id] ? ONE_YOCTO_NEAR : '0.003',
+          gas: '300000000000000',
+        },
+      ],
+    });
+  }
   const neededStorage = await checkTokenNeedsStorageDeposit_boost();
   if (neededStorage) {
     transactions.unshift({
@@ -634,6 +730,41 @@ export const unStake_boost = async ({
           },
           amount: ONE_YOCTO_NEAR,
           gas: '200000000000000',
+        },
+      ],
+    },
+  ];
+
+  const neededStorage = await checkTokenNeedsStorageDeposit_boost();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_FARM_BOOST_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
+  return executeFarmMultipleTransactions(transactions);
+};
+
+export const stake_boost = async ({
+  token_id,
+  amount,
+  msg = '',
+}: StakeOptions) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'mft_transfer_call',
+          args: {
+            receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+            token_id,
+            amount,
+            msg,
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '180000000000000',
         },
       ],
     },
@@ -1020,14 +1151,18 @@ export interface FarmBoost {
   yourNFTApr?: string;
 }
 interface StakeOptions {
-  token_id?: string;
   amount: string;
+  pool_id?: number;
+  amountByTransferInFarm?: string | number;
+  seed_id?: string;
+  token_id?: string;
   msg?: string;
 }
 interface UnStakeOptions {
   seed_id: string;
   unlock_amount: string;
   withdraw_amount: string;
+  amountByTransferInFarm?: string | number;
 }
 interface NFTUnStakeOptions {
   lpt_id: string;
@@ -1046,6 +1181,7 @@ export interface UserSeedInfo {
   boost_ratios: any;
   duration_sec: number;
   free_amount: string;
+  shadow_amount: string;
   locked_amount: string;
   unlock_timestamp: string;
   x_locked_amount: string;
@@ -1559,6 +1695,12 @@ export const get_seed_info = async (seed_id: string): Promise<any> => {
     args: { seed_id },
   });
 };
+export const get_shadow_records = () => {
+  return refFiViewFunction({
+    methodName: 'get_shadow_records',
+    args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
+  });
+};
 export const classificationOfCoins = {
   stablecoin: ['USDT.e', 'DAI', 'nUSDO', 'cUSD', 'USN', 'USDC.e', 'USDt'],
   near_ecosystem: [
@@ -1769,7 +1911,17 @@ export function getFarmClassification(): any {
         '4179',
         '4514',
       ],
-      meme: ['4314', '3807', '4276', '4369', '4771', '4820', '4949', '553'],
+      meme: [
+        '4314',
+        '3807',
+        '4276',
+        '4369',
+        '4771',
+        '4820',
+        '4949',
+        '553',
+        '4547',
+      ],
     };
   }
 }

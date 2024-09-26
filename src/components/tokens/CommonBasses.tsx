@@ -97,7 +97,6 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
     );
     getLatestCommonBassesTokens();
   }
-  // TODOMM
   const mark = getImageMark(token);
   return (
     <div
@@ -128,7 +127,7 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
                 style={{
                   top: '-1px',
                   left: '-1px',
-                  transform: 'scale(0.55, 0.6)',
+                  transform: 'scale(0.5, 0.5)',
                 }}
               >
                 {mark}

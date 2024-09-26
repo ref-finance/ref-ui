@@ -5,11 +5,14 @@ import {
   toPrecision,
   toNonDivisibleNumber,
   toReadableNumber,
+  percent,
 } from '../utils/numbers';
 import {
   getStakedListByAccountId,
   get_seed,
   list_seed_farms,
+  list_farmer_seeds,
+  get_shadow_records,
 } from '../services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
@@ -87,7 +90,7 @@ import {
 } from '../services/near';
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
-import { useFarmStake } from './farm';
+import { useFarmStake, useShadowRecord } from './farm';
 import { ONLY_ZEROS, scientificNotationToString } from '../utils/numbers';
 import {
   getPoolsByTokensIndexer,
@@ -113,6 +116,11 @@ import {
 } from '../components/d3Chart/interfaces';
 import { getPointByPrice, getPriceByPoint } from '../services/commonV3';
 import { formatPercentage } from '../components/d3Chart/utils';
+import {
+  useFarmerSeedsStore,
+  useShadowRecordStore,
+} from 'src/stores/liquidityStores';
+import { useNewPoolData } from 'src/components/pool/useNewPoolData';
 import { get_account, ILock } from '../services/lp-locker';
 import { introCurrentPageStore } from '../stores/introCurrentPage';
 
@@ -189,18 +197,25 @@ export const useBatchTotalShares = (
     accountLocked,
   ]);
   async function getShares() {
-    const shareInPools = await Promise.all(
-      ids.map((id) => getSharesInPool(Number(id)))
-    );
-    const shareInLocked = ids.map((id: string) => {
-      const key = `${getConfig().REF_FI_CONTRACT_ID}@:${id}`;
-      return accountLocked?.[key]?.locked_balance || '0';
-    });
-    const shareInFarms = ids.map((id) => getFarmStake(Number(id)));
-    setBatchShares(shareInPools);
-    setBatchFarmStake(shareInFarms);
-    setBatchLpLocked(shareInLocked);
-    setSharesDone(true);
+    try {
+      const shareInPoolsSettled = await Promise.allSettled(
+        ids.map((id) => getSharesInPool(Number(id)))
+      );
+      const shareInPools = shareInPoolsSettled
+        .filter((d) => d.status === 'fulfilled')
+        .map((v: any) => v.value);
+      const shareInFarms = ids.map((id) => getFarmStake(Number(id)));
+      const shareInLocked = ids.map((id: string) => {
+        const key = `${getConfig().REF_FI_CONTRACT_ID}@:${id}`;
+        return accountLocked?.[key]?.locked_balance || '0';
+      });
+      setBatchShares(shareInPools);
+      setBatchFarmStake(shareInFarms);
+      setBatchLpLocked(shareInLocked);
+      setSharesDone(true);
+    } catch (e) {
+      console.error('getSharesErr', ids, e);
+    }
   }
   return {
     sharesDone,
@@ -250,6 +265,8 @@ export const useStakeListByAccountId = () => {
 
 export const usePool = (id: number | string) => {
   const { globalState } = useContext(WalletContext);
+  const shadowRecords = useShadowRecordStore((state) => state.shadowRecords);
+  const farmerSeeds = useFarmerSeedsStore((state) => state.farmerSeeds);
 
   const isSignedIn = globalState.isSignedIn;
 
@@ -257,7 +274,6 @@ export const usePool = (id: number | string) => {
   const [shares, setShares] = useState<string>('0');
   const [stakeList, setStakeList] = useState<Record<string, string>>({});
   const [v2StakeList, setV2StakeList] = useState<Record<string, string>>({});
-
   const [finalStakeList, setFinalStakeList] = useState<Record<string, string>>(
     {}
   );
@@ -1372,15 +1388,42 @@ export const useYourliquidity = (poolId: number) => {
   const { pool, shares, stakeList, v2StakeList, finalStakeList } =
     usePool(poolId);
 
+  // todo: check if can remove useFarmStake, use farmerSeeds only
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
-  const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmStakeV2Ori = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmerSeeds = useFarmerSeedsStore((state) => state.farmerSeeds);
+  const poolSeed = farmerSeeds[poolId];
+  const farmStakeV2 = poolSeed
+    ? new BigNumber(poolSeed.free_amount).plus(poolSeed.shadow_amount).toFixed()
+    : farmStakeV2Ori || '0';
+
   const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
-
+  const { poolShadowRecord } = useShadowRecord(poolId);
+  const { shadow_in_farm, shadow_in_burrow } = poolShadowRecord || {};
   const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
-
   const userTotalShareToString = userTotalShare
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false });
+
+  const processShare = (share, stakeAmount = '0') => {
+    const totalShare = share
+      ? BigNumber.sum(share, farmStakeTotal)
+      : BigNumber('0');
+    const totalShareString = totalShare
+      .toNumber()
+      .toLocaleString('fullwide', { useGrouping: false });
+    const sharePercent = totalShare.isGreaterThan(0)
+      ? percent(
+          stakeAmount,
+          totalShare
+            .toNumber()
+            .toLocaleString('fullwide', { useGrouping: false })
+        ).toString()
+      : '0';
+
+    return { totalShare, totalShareString, sharePercent, stakeAmount };
+  };
+  const shadowBurrowShare = processShare(shares, shadow_in_burrow);
 
   return {
     pool,
@@ -1393,6 +1436,7 @@ export const useYourliquidity = (poolId: number) => {
     farmStakeV2,
     userTotalShare,
     userTotalShareToString,
+    shadowBurrowShare,
   };
 };
 

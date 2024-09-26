@@ -951,7 +951,6 @@ function MobilePoolRowV2({
             <div className="flex items-center">
               {curRowTokens.map((token, index) => {
                 const atRisk = isTokenAtRisk(token);
-                // TODOMM
                 const riskMark = getImageMark(token, atRisk);
                 return (
                   <div key={token.id} className="relative inline-block">
@@ -975,11 +974,11 @@ function MobilePoolRowV2({
                           style={{ height: '11px' }}
                         >
                           <span
-                            className="italic text-white text-sm gotham_bold relative"
+                            className="italic text-white text-xs gotham_bold relative"
                             style={{
                               top: '-1px',
                               left: '-1px',
-                              transform: 'scale(0.55, 0.6)',
+                              transform: 'scale(0.5, 0.5)',
                             }}
                           >
                             {riskMark}

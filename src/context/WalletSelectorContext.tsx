@@ -5,6 +5,7 @@ import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
 import type {
   WalletSelector,
   AccountState,
+  Wallet,
   Network,
 } from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';
@@ -14,6 +15,7 @@ import { setupSender } from '@near-wallet-selector/sender';
 import { setupLedger } from '@near-wallet-selector/ledger';
 
 import { setupHereWallet } from '@near-wallet-selector/here-wallet';
+import { setupCoin98Wallet } from '@near-wallet-selector/coin98-wallet';
 import { setupNeth } from '@near-wallet-selector/neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
@@ -28,6 +30,7 @@ import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
 import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet';
 import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
+import { setupBitteWallet } from '@near-wallet-selector/bitte-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { near } from '../services/near';
@@ -43,6 +46,7 @@ import {
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
 import { setupKeypom } from '@keypom/selector';
+import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { addUserWallet } from '../services/indexer';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
@@ -54,6 +58,7 @@ declare global {
     selector: WalletSelector & {
       getAccountId?: () => string;
     };
+    nearWallet: Wallet & SignMessageMethod;
     modal: WalletSelectorModal;
     selectorAccountId?: string | null;
     sender?: any;
@@ -172,7 +177,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         setupNearMobileWallet({
           dAppMetadata: {
             name: 'ref finance',
-            logoUrl: 'https://assets.ref.finance/images/REF-black-logo.png',
+            logoUrl: 'https://img.ref.finance/images/REF-black-logo.png',
             url: 'https://app.ref.finance',
           },
         }),
@@ -216,6 +221,13 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           contractId: CONTRACT_ID,
           deprecated: false,
         }),
+        setupBitteWallet({
+          walletUrl: 'https://wallet.bitte.ai',
+          // callbackUrl: 'https://app.ref.finance',
+          contractId: CONTRACT_ID,
+          deprecated: false,
+        }),
+        setupCoin98Wallet(),
       ],
     });
     const _modal = setupModal(_selector, {
@@ -289,7 +301,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     const isSelectLedger =
       selector.store.getState().selectedWalletId === 'ledger';
     setAllKeys(allKeys);
-    setIsLedger(isSelectLedger || isWalletMeta);
+    // setIsLedger(isSelectLedger || isWalletMeta);
+    setIsLedger(false);
   };
 
   useEffect(() => {

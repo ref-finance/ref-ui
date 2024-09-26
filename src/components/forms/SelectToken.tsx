@@ -110,7 +110,6 @@ export function SingleToken({ token }: { token: TokenMetadata }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   const [showTooltip, setShowTooltip] = useState(false);
   const isTokenAtRisk = !!token.isRisk;
-  // TODOMM
   const mark = getImageMark(token);
   return (
     <>
@@ -134,7 +133,7 @@ export function SingleToken({ token }: { token: TokenMetadata }) {
                 style={{
                   top: '-1px',
                   left: '-1px',
-                  transform: 'scale(0.55, 0.6)',
+                  transform: 'scale(0.5, 0.5)',
                 }}
               >
                 {mark}
@@ -157,7 +156,7 @@ export function SingleToken({ token }: { token: TokenMetadata }) {
                 style={{
                   top: '-1px',
                   left: '-1px',
-                  transform: 'scale(0.55, 0.6)',
+                  transform: 'scale(0.5, 0.5)',
                 }}
               >
                 {mark}
@@ -934,6 +933,27 @@ export default function SelectToken({
                 {/* tknx */}
                 {/* <div
                   className={`text-center px-2.5 py-2 ${
+                    activeTab === 'MC'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('MC')}
+                >
+                  MC
+                  <div
+                    className="text-white text-right ml-1 inline-block"
+                    data-class="reactTip"
+                    data-tooltip-id="mcId"
+                    data-place="left"
+                    data-tooltip-html={memeCookingTip}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <CustomTooltip id="mcId" />
+                  </div>
+                </div> */}
+                {/* tknx */}
+                <div
+                  className={`text-center px-2.5 py-2 ${
                     activeTab === 'TKNX'
                       ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
                       : ''
@@ -951,7 +971,7 @@ export default function SelectToken({
                     <QuestionMark></QuestionMark>
                     <CustomTooltip id="tknId" />
                   </div>
-                </div> */}
+                </div>
               </div>
               <div>
                 {activeTab === 'Default' && (
