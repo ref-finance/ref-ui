@@ -2356,7 +2356,7 @@ function TokenChart({
     'USDC.w': '#2B6EB7',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
-    'zNEARnM-USDC': '#ED9234',
+    'zNEARnM-USDC': '#74FA9D',
   };
 
   const colorLight = {
@@ -2379,7 +2379,7 @@ function TokenChart({
     'USD Coin': 'rgba(0, 163, 255, 1)',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
-    'zNEARnM-USDC': '#ED9234',
+    'zNEARnM-USDC': '#74FA9D',
   };
   const innerRadius = 30;
   const outerRadius = 40;

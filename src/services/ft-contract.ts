@@ -29,6 +29,7 @@ const SOL_NATIVE_ID = '22.contract.portalbridge.near';
 const BABY_BLACKDRAGON_ID = 'babyblackdragon.tkn.near';
 const INTEL_ID = 'intel.tkn.near';
 const PORTALBRIDGE_ID = '16.contract.portalbridge.near';
+const zNEARnM_ID = 'v1.guild-covenant.near';
 
 export const REF_META_DATA = {
   decimals: 18,
@@ -214,7 +215,8 @@ export const ftGetTokenMetadata = async (
       metadata.id === SOL_NATIVE_ID ||
       metadata.id === BABY_BLACKDRAGON_ID ||
       metadata.id === INTEL_ID ||
-      metadata.id === PORTALBRIDGE_ID
+      metadata.id === PORTALBRIDGE_ID ||
+      metadata.id === zNEARnM_ID
     ) {
       metadata.icon = metadataDefaults[id];
       if (metadata.id === SOL_ID) {
