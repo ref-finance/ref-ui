@@ -67,6 +67,7 @@ import {
   FRAX_USDC_POOL_ID,
   USDCW_POOL_ID,
   Frax_SFrax_POOL_ID,
+  ZNEARnM_USDC_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -2589,7 +2590,8 @@ function StablePoolCard({
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID ||
     poolData.pool.id == USDCW_POOL_ID ||
-    poolData.pool.id == Frax_SFrax_POOL_ID;
+    poolData.pool.id == Frax_SFrax_POOL_ID ||
+    poolData.pool.id == ZNEARnM_USDC_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
