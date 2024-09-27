@@ -20,8 +20,12 @@ const Countdown = ({ onCountdownFinish }) => {
   const [countdownFinished, setCountdownFinished] = useState(false);
   const is_mobile = isMobile();
   useEffect(() => {
-    const targetDate = new Date(Date.UTC(new Date().getUTCFullYear(), 8, 1));
-    const endDate = new Date(Date.UTC(new Date().getUTCFullYear(), 8, 5));
+    const targetDate = new Date(
+      Date.UTC(new Date().getUTCFullYear(), 9, 1, 0, 0, 0)
+    );
+    const endDate = new Date(
+      Date.UTC(new Date().getUTCFullYear(), 9, 5, 0, 0, 0)
+    );
     const updateCountdown = () => {
       const nowUtc = Date.now();
       if (nowUtc >= endDate.getTime()) {
