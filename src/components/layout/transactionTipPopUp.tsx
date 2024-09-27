@@ -288,7 +288,7 @@ export const checkAccountTip = () => {
 };
 
 export const checkCrossSwapTransactions = async (txHashes: string[]) => {
-  let templastTx = txHashes.pop();
+  const templastTx = txHashes.pop();
 
   let lastTx = templastTx;
 
@@ -305,15 +305,18 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
   const byNeth =
     txDetail?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
     'execute';
-
+  const byEvm =
+    txDetail?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+    'rlp_execute';
+  const isPackage = byNeth || byEvm;
   if (txHashes.length > 0) {
     // judge if aurora call
 
-    const isAurora = byNeth
+    const isAurora = isPackage
       ? txDetail?.receipts?.[0]?.receiver_id === 'aurora'
       : txDetail.transaction?.receiver_id === 'aurora';
 
-    const ifCall = byNeth
+    const ifCall = isPackage
       ? txDetail?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
           ?.method_name === 'call'
       : txDetail.transaction?.actions?.length === 1 &&
@@ -321,7 +324,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
           'call';
 
     if (isAurora && ifCall) {
-      let parsedOut = byNeth
+      const parsedOut = isPackage
         ? parsedTransactionSuccessValueNeth(txDetail)
         : parsedTransactionSuccessValue(txDetail);
 
@@ -344,7 +347,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
         const slippageErrprReg = /INSUFFICIENT_OUTPUT_AMOUNT/i;
         const expiredErrorReg = /EXPIRED/i;
 
-        const parsedOutput = byNeth
+        const parsedOutput = isPackage
           ? parsedTransactionSuccessValueNeth(secondDetail)
           : parsedTransactionSuccessValue(secondDetail);
 

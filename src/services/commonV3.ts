@@ -164,17 +164,23 @@ export function useAddLiquidityUrlHandle() {
       checkTransaction(txHash).then((res: any) => {
         const { transaction, status, receipts, receipts_outcome } = res;
         const successValueNormal: string | undefined = status?.SuccessValue;
-        const successValueNeth: string | undefined =
+        const successValuePackage: string | undefined =
           receipts_outcome?.[1]?.outcome?.status?.SuccessValue;
-        const isNeth =
+        const byNeth =
           transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
-        const methodNameNeth =
+        const byEvm =
+          transaction?.actions?.[0]?.FunctionCall?.method_name ===
+          'rlp_execute';
+        const isPackage = byNeth || byEvm;
+        const packageMethodName =
           receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
             ?.method_name;
         const methodNameNormal =
-          transaction?.actions[0]?.['FunctionCall']?.method_name;
-        const methodName = isNeth ? methodNameNeth : methodNameNormal;
-        const successValue = isNeth ? successValueNeth : successValueNormal;
+          transaction?.actions[0]?.FunctionCall?.method_name;
+        const methodName = isPackage ? packageMethodName : methodNameNormal;
+        const successValue = isPackage
+          ? successValuePackage
+          : successValueNormal;
         let returnValue;
         if (successValue) {
           const buff = Buffer.from(successValue, 'base64');
@@ -207,14 +213,18 @@ export function useRemoveLiquidityUrlHandle() {
       checkTransaction(txHash).then((res: any) => {
         const { transaction, receipts, status, receipts_outcome } = res;
         receipts_outcome?.[1]?.outcome?.status?.SuccessValue;
-        const isNeth =
+        const byNeth =
           transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
-        const methodNameNeth =
+        const byEvm =
+          transaction?.actions?.[0]?.FunctionCall?.method_name ===
+          'rlp_execute';
+        const isPackage = byNeth || byEvm;
+        const packageMethodName =
           receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
             ?.method_name;
         const methodNameNormal =
-          transaction?.actions[0]?.['FunctionCall']?.method_name;
-        const methodName = isNeth ? methodNameNeth : methodNameNormal;
+          transaction?.actions[0]?.FunctionCall?.method_name;
+        const methodName = isPackage ? packageMethodName : methodNameNormal;
         if (
           methodName == 'batch_remove_liquidity' ||
           methodName == 'batch_update_liquidity' ||

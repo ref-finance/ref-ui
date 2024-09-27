@@ -125,14 +125,18 @@ function MemeContextProvider({ children }: any) {
     if (txHash && isSignedIn) {
       checkTransaction(txHash).then((res: any) => {
         const { transaction, receipts, receipts_outcome } = res;
-        const isNeth =
+        const byNeth =
           transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
-        const methodNameNeth =
+        const byEvm =
+          transaction?.actions?.[0]?.FunctionCall?.method_name ===
+          'rlp_execute';
+        const isPackage = byNeth || byEvm;
+        const packageMethodName =
           receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
             ?.method_name;
         const methodNameNormal =
           transaction?.actions[0]?.FunctionCall?.method_name;
-        const methodName = isNeth ? methodNameNeth : methodNameNormal;
+        const methodName = isPackage ? packageMethodName : methodNameNormal;
         if (methodName == 'check_in') {
           const logs = receipts_outcome[0].outcome.logs;
           const parsedLogs = logs.map((log) => {
