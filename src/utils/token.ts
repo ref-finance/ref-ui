@@ -28,8 +28,8 @@ export function getImageMark(token: TokenMetadata, isRisk?: boolean) {
   const isMemeCooking = isSuffix(token.id, 'meme-cooking');
   if (isRisk || token.isRisk) {
     if (isTkn) return 'TKN';
+    if (isMemeCooking) return 'MC';
     if (isTknx) return 'TKNX';
-    // if (isMemeCooking) return 'MC';
   }
   return '';
 }

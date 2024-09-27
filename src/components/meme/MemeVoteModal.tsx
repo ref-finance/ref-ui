@@ -28,7 +28,8 @@ import {
 } from 'src/components/button/Button';
 
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
-const { meme_winner_tokens, meme_nonListed_tokens } = getMemeDataConfig();
+const { meme_winner_tokens, meme_nonListed_tokens, coming_offline_soon_token } =
+  getMemeDataConfig();
 const progressConfig = getMemeUiConfig();
 function MemeVoteModal(props: any) {
   const { isOpen, onRequestClose } = props;
@@ -170,6 +171,10 @@ function MemeVoteModal(props: any) {
             </div>
             <div className="mt-5 flex flex-wrap xsm:hidden">
               {meme_winner_tokens
+                .filter(
+                  (memeTokenId) =>
+                    !coming_offline_soon_token.includes(memeTokenId)
+                )
                 .sort(sortByXrefStaked(xrefSeeds))
                 .map((memeTokenId) => {
                   return (
@@ -271,6 +276,10 @@ function MemeVoteModal(props: any) {
                    cursor-pointer outline-none bg-memeModelgreyColor text-white w-max"
                   >
                     {Object.keys(MEME_TOKEN_XREF_MAP)
+                      .filter(
+                        (memeTokenId) =>
+                          !coming_offline_soon_token.includes(memeTokenId)
+                      )
                       .sort(sortByXrefStaked(xrefSeeds))
                       .map((memeTokenId, index, array) => (
                         <div
