@@ -110,7 +110,6 @@ export function SingleToken({ token }: { token: TokenMetadata }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   const [showTooltip, setShowTooltip] = useState(false);
   const isTokenAtRisk = !!token.isRisk;
-
   const mark = getImageMark(token);
   return (
     <>
@@ -911,6 +910,27 @@ export default function SelectToken({
                     <CustomTooltip id="tknId" />
                   </div>
                 </div>
+                <div
+                  className={`text-center px-2.5 py-2 ${
+                    activeTab === 'MC'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('MC')}
+                >
+                  MC
+                  <div
+                    className="text-white text-right ml-1 inline-block"
+                    data-class="reactTip"
+                    data-tooltip-id="mcId"
+                    data-place="left"
+                    data-tooltip-html={memeCookingTip}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <CustomTooltip id="mcId" />
+                  </div>
+                </div>
+                {/* tknx */}
                 {/* <div
                   className={`text-center px-2.5 py-2 ${
                     activeTab === 'MC'
