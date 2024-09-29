@@ -104,7 +104,6 @@ export const TknImages = ({
                 : token?.icon;
             const id = token?.id;
             const isRisk = riskTokens.some((riskToken) => riskToken.id === id);
-
             const mark = getImageMark(token, isRisk);
             if (icon)
               return (
