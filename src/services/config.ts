@@ -212,9 +212,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '3241971.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '4313890.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -341,9 +341,9 @@ export default function getConfig(
         },
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '3241971.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '4313890.03',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -448,9 +448,9 @@ export default function getConfig(
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '3241971.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '4313890.03',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -566,9 +566,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '3241971.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '4313890.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
