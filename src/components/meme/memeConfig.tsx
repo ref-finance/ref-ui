@@ -284,6 +284,7 @@ export function getMemeContractConfig(
           'memefarm-xref-corgi.ref-labs.near',
           'memefarm-xref-gp.ref-labs.near',
           'memefarm-xref-kat.ref-labs.near',
+          'memefarm-xref-chill.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -308,6 +309,7 @@ export function getMemeContractConfig(
           'corgi.token0.near': 'memefarm-xref-corgi.ref-labs.near',
           'gp.token0.near': 'memefarm-xref-gp.ref-labs.near',
           'kat.token0.near': 'memefarm-xref-kat.ref-labs.near',
+          'chill-129.meme-cooking.near': 'memefarm-xref-chill.ref-labs.near',
         },
       };
   }
@@ -445,6 +447,7 @@ export function getMemeDataConfig(): any {
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
         'gp.token0.near',
         'kat.token0.near',
+        'chill-129.meme-cooking.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',
@@ -468,6 +471,7 @@ export function getMemeDataConfig(): any {
         'corgi.token0.near': '#A96538',
         'gp.token0.near': '#D1D2C3',
         'kat.token0.near': '#FF795D',
+        'chill-129.meme-cooking.near': '#5ac8ec',
       },
       meme_cap_tokens: [
         'token.lonkingnearbackto2024.near',
