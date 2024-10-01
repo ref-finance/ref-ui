@@ -284,6 +284,8 @@ export function getMemeContractConfig(
           'memefarm-xref-corgi.ref-labs.near',
           'memefarm-xref-gp.ref-labs.near',
           'memefarm-xref-kat.ref-labs.near',
+          'memefarm-xref-chill.ref-labs.near',
+          'memefarm-xref-bd.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -308,6 +310,8 @@ export function getMemeContractConfig(
           'corgi.token0.near': 'memefarm-xref-corgi.ref-labs.near',
           'gp.token0.near': 'memefarm-xref-gp.ref-labs.near',
           'kat.token0.near': 'memefarm-xref-kat.ref-labs.near',
+          'chill-129.meme-cooking.near': 'memefarm-xref-chill.ref-labs.near',
+          'benthedog.near': 'memefarm-xref-bd.ref-labs.near',
         },
       };
   }
@@ -442,21 +446,11 @@ export function getMemeDataConfig(): any {
         'token.0xshitzu.near',
       ],
       meme_nonListed_tokens: [
-        'usmeme.tg',
-        'nkok.tkn.near',
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
-        'nearnvidia.near',
-        'bean.tkn.near',
-        'ftv2.nekotoken.near',
-        'marmaj.tkn.near',
-        'babyblackdragon.tkn.near',
-        'hat.tkn.near',
-        'intel.tkn.near',
-        'dd.tg',
-        'neiro.token0.near',
-        'corgi.token0.near',
         'gp.token0.near',
         'kat.token0.near',
+        'chill-129.meme-cooking.near',
+        'benthedog.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',
@@ -480,6 +474,8 @@ export function getMemeDataConfig(): any {
         'corgi.token0.near': '#A96538',
         'gp.token0.near': '#D1D2C3',
         'kat.token0.near': '#FF795D',
+        'chill-129.meme-cooking.near': '#5ac8ec',
+        'benthedog.near': '#6124d9',
       },
       meme_cap_tokens: [
         'token.lonkingnearbackto2024.near',
@@ -488,7 +484,21 @@ export function getMemeDataConfig(): any {
         'touched.tkn.near',
         'token.0xshitzu.near',
       ],
-      coming_offline_soon_token: ['touched.tkn.near'],
+      coming_offline_soon_token: [
+        'touched.tkn.near',
+        'usmeme.tg',
+        'nkok.tkn.near',
+        'bean.tkn.near',
+        'ftv2.nekotoken.near',
+        'marmaj.tkn.near',
+        'babyblackdragon.tkn.near',
+        'hat.tkn.near',
+        'intel.tkn.near',
+        'dd.tg',
+        'neiro.token0.near',
+        'corgi.token0.near',
+        'nearnvidia.near',
+      ],
     };
   }
 }

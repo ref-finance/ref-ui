@@ -41,8 +41,6 @@ const StakingChart = ({ chartType }) => {
   const { seeds, xrefSeeds, allTokenMetadatas } = useContext(MemeContext) || {};
   const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
   const { coming_offline_soon_token } = getMemeDataConfig();
-  const memeDataConfig = getMemeDataConfig();
-  const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};
     return Object.entries(MEME_TOKEN_XREF_MAP).reduce((acc, [memeTokenId]) => {
