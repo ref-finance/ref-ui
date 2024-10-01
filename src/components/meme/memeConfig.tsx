@@ -637,8 +637,8 @@ export function getMemeCheckInConfig(): any {
     return {
       token_id_list: ['ref.fakes.testnet', 'usdt.fakes.testnet'],
       nftMetaData: {
-        title: 'MEME Honorary NFT 5',
-        description: 'REF MemeSeason5 NFT',
+        title: 'MEME Honorary NFT 6',
+        description: 'REF MemeSeason6 NFT',
       },
       level: {
         0: {
@@ -662,8 +662,8 @@ export function getMemeCheckInConfig(): any {
     return {
       token_id_list: ['ref.fakes.testnet', 'usdt.fakes.testnet'],
       nftMetaData: {
-        title: 'MEME Honorary NFT 5',
-        description: 'REF MemeSeason5 NFT',
+        title: 'MEME Honorary NFT 6',
+        description: 'REF MemeSeason6 NFT',
       },
       level: {
         0: {
@@ -691,8 +691,8 @@ export function getMemeCheckInConfig(): any {
         'gear.enleap.near',
       ],
       nftMetaData: {
-        title: 'MEME Honorary NFT 5',
-        description: 'REF MemeSeason5 NFT',
+        title: 'MEME Honorary NFT 6',
+        description: 'REF MemeSeason6 NFT',
       },
       level: {
         0: {
