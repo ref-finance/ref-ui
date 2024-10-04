@@ -427,7 +427,6 @@ function VoteModel(props: any) {
                   xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
                     ?.delay_withdraw_sec
                 )}{' '}
-                days.
               </p>
             </div>
           </div>

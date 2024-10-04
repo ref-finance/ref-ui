@@ -53,7 +53,7 @@ export function formatSeconds(seconds) {
   const minutes = Math.floor((seconds % (60 * 60)) / 60);
   let result = '';
   if (days > 0) {
-    result += days + ' ' + 'days' + ' ';
+    result += days + ' ' + (days == 1 ? 'day' : 'days') + ' ';
   }
   if (hours > 0) {
     result += hours + ' ' + 'hour' + ' ';

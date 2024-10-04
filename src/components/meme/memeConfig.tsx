@@ -431,6 +431,7 @@ export function getMemeDataConfig(): any {
         'usmeme.tg': '4949',
         'nearnvidia.near': '4547',
         'gear.enleap.near': '3411',
+        'kat.token0.near': '5391',
       },
       token_icon: {
         'ftv2.nekotoken.near':
@@ -441,14 +442,13 @@ export function getMemeDataConfig(): any {
       meme_winner_tokens: [
         'blackdragon.tkn.near',
         'token.lonkingnearbackto2024.near',
-        'touched.tkn.near',
         'gear.enleap.near',
         'token.0xshitzu.near',
+        'kat.token0.near',
       ],
       meme_nonListed_tokens: [
         '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
         'gp.token0.near',
-        'kat.token0.near',
         'chill-129.meme-cooking.near',
         'benthedog.near',
       ],
@@ -478,11 +478,11 @@ export function getMemeDataConfig(): any {
         'benthedog.near': '#6124d9',
       },
       meme_cap_tokens: [
-        'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
+        'token.lonkingnearbackto2024.near',
         'gear.enleap.near',
-        'touched.tkn.near',
         'token.0xshitzu.near',
+        'kat.token0.near',
       ],
       coming_offline_soon_token: [
         'touched.tkn.near',
@@ -699,6 +699,7 @@ export function getMemeCheckInConfig(): any {
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
         'gear.enleap.near',
+        'gp.token0.near',
       ],
       nftMetaData: {
         title: 'MEME Honorary NFT 6',
