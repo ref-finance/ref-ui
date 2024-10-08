@@ -700,6 +700,7 @@ export function getMemeCheckInConfig(): any {
         'blackdragon.tkn.near',
         'gear.enleap.near',
         'gp.token0.near',
+        'kat.token0.near',
       ],
       nftMetaData: {
         title: 'MEME Honorary NFT 6',
