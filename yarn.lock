@@ -18038,15 +18038,6 @@ qrcode@1.5.3, qrcode@^1.4.4:
     pngjs "^5.0.0"
     yargs "^15.3.1"
 
-qrcode@1.5.4:
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.5.4.tgz#5cb81d86eb57c675febb08cf007fff963405da88"
-  integrity sha512-1ca71Zgiu6ORjHqFBDpnSMTR2ReToX4l1Au1VFLyVeBTFavzQnv5JxMFr3ukHVKpSrSA2MCk0lNJSykjUfz7Zg==
-  dependencies:
-    dijkstrajs "^1.0.1"
-    pngjs "^5.0.0"
-    yargs "^15.3.1"
-
 qs@6.11.0:
   version "6.11.0"
   resolved "https://registry.npmjs.org/qs/-/qs-6.11.0.tgz#fd0d963446f7a65e1367e01abd85429453f0c37a"
@@ -18706,17 +18697,6 @@ reduce-css-calc@^2.1.8:
   dependencies:
     css-unit-converter "^1.1.1"
     postcss-value-parser "^3.3.0"
-
-ref-modal-ui@^8.9.13:
-  version "8.9.13"
-  resolved "https://registry.yarnpkg.com/ref-modal-ui/-/ref-modal-ui-8.9.13.tgz#be0e81e1b6eb1d6e547639957dcf54ea1dbbf206"
-  integrity sha512-qelBsqRNl82TCIi4dgWXu+EYFakDfUwRudZMSLVPlvDtV6OpSe0xaEvCg1yCNxRficM0eMwt9yq5kGpcX1hjpw==
-  dependencies:
-    "@near-wallet-selector/core" "8.9.13"
-    copy-to-clipboard "3.3.3"
-    qrcode "1.5.4"
-    react "18.2.0"
-    react-dom "18.2.0"
 
 reflect.getprototypeof@^1.0.4:
   version "1.0.4"
