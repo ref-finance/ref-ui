@@ -40,19 +40,29 @@ const StakingChart = ({ chartType }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const { seeds, xrefSeeds, allTokenMetadatas } = useContext(MemeContext) || {};
   const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+  const { coming_offline_soon_token } = getMemeDataConfig();
   const memeDataConfig = getMemeDataConfig();
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};
-    // return seeds;
     return meme_winner_tokens.reduce(
-      (acc, memeTokenId) => ({
+      (acc: any, memeTokenId: string | number) => ({
         ...acc,
         ...{ [memeTokenId]: seeds[memeTokenId] },
       }),
       {}
     ) as Record<string, Seed>;
-  }, [seeds]);
+    // return Object.entries(MEME_TOKEN_XREF_MAP).reduce((acc, [memeTokenId]) => {
+    //   const seed = seeds[memeTokenId];
+    //   if (seed && !coming_offline_soon_token.includes(memeTokenId)) {
+    //     return {
+    //       ...acc,
+    //       [memeTokenId]: seed,
+    //     };
+    //   }
+    //   return acc;
+    // }, {} as Record<string, Seed>);
+  }, [seeds, MEME_TOKEN_XREF_MAP]);
 
   useEffect(() => {
     if (!seeds) {

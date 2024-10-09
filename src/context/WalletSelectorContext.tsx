@@ -54,7 +54,7 @@ import { setupKeypom } from '@keypom/selector';
 import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { addUserWallet } from '../services/indexer';
 
-const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
+const CONTRACT_ID = getConfig().REF_FARM_BOOST_CONTRACT_ID;
 
 export const ACCOUNT_ID_KEY = 'REF_FI_STATE_SYNC_ACCOUNT_ID';
 

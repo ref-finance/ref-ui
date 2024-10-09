@@ -39,13 +39,6 @@ function RuleModal(props: any) {
             height: cardHeight,
           }}
         >
-          {/* <p className="mt-4">New campaign start on 1st of May</p> */}
-          {/* <p className="mt-5">
-            A new selection of top 5 reward Meme tokens is voted by holders of
-            xREF, with 25% boosted reward for the overall campaign (NEAR + Ref
-            reward).
-          </p> */}
-          {/* <p className="mt-5">Selection criteria:</p> */}
           <ul className="text-sm list-disc pl-3 mt-5">
             <li>
               The Meme Token project requires xREF holders to deposit tokens
@@ -53,22 +46,17 @@ function RuleModal(props: any) {
             </li>
             <li>
               During the voting process, Memetoken communities can participate
-              in donating in the 'Show love for voters' section and allocate
-              rewards to users to incentivize them to stake xREF and vote for
-              the Memetoken.
+              in donating in the 'Donate' section and allocate rewards to users
+              to incentivize them to stake xREF and vote for the Memetoken.
             </li>
             <li>
-              The first voting period is a 72h window, to vote in xREF for your
-              preferred Memetoken.
+              The first voting period is a 4-day window, to vote in xREF for
+              your preferred Memetoken.
             </li>
             <li>
-              After the 72h, we have the top three Memecoins selected through
-              xREF staking.
+              After the xREF Voting, we have the top five Memecoins selected
+              through xREF staking and Meme Staking start.
             </li>
-            {/* <li>
-              The following 24h, after the 48h, is for users to now stake their
-              Memecoin token to compete as before
-            </li> */}
             <li>
               Note:
               <p>
@@ -80,38 +68,36 @@ function RuleModal(props: any) {
                 MemeToken staking will only determine the NEAR allocation ratio.
               </p>
             </li>
+          </ul>
+          <p className="mt-5 mb-2">
+            Criteria for Existing Tokens Listed on REF MEME Season to be
+            Eligible for the Next Season**
+          </p>
+          <ul className="text-sm list-disc pl-3">
+            <li>The community coin must have at least 2.5K holders.</li>
             <li>
-              The top 2 out of 5 will be maintained from the current campaign as
-              an ongoing mechanism for the following months. The other 3 seats
-              will rotate based on the results of their xREF staking within a
-              voting period.
+              The project should maintain a daily trading volume of at least 2K
+              USD on average.
+            </li>
+            <li>The project must have at least 10K followers on Twitter/X.</li>
+            <li>
+              The project should have an active meme community within the NEAR
+              Ecosystem.
             </li>
           </ul>
-          <p className="mt-5">Some rules:</p>
+          <p className="mt-5 mb-2">
+            Criteria for New Tokens Launched During August - September**
+          </p>
           <ul className="text-sm list-disc pl-3">
             <li>
-              Users who unstake their xREF after the voting period ends will not
-              affect the rewards pool or the meme's position during that season.
+              The project must have been in existence for at least one week.
             </li>
             <li>
-              Users who keep their xREF staked will be able for extra incentive
-              in the next season.
+              The project must have its liquidity pool (LP) locked or burned.
             </li>
+            <li>The project must be whitelisted on Ref Finance.</li>
             <li>
-              Unstaking xREF will have a one-day cooldown before withdrawal is
-              possible.
-            </li>
-            <li>
-              Five selected MEME will have their staking pools active for one
-              month.
-            </li>
-            <li>
-              The top 2 MEME tokens based on staking volume at the end of the
-              season will automatically qualify for the next season.
-            </li>
-            <li>
-              The remaining 3 seats will be reshuffled based on the new season's
-              voting session.
+              The project must have at least 8,000 USD worth of liquidity.
             </li>
           </ul>
         </div>
