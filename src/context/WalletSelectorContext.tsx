@@ -183,8 +183,8 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   reconnect(wagmiConfig);
   const web3Modal = createWeb3Modal({
     wagmiConfig,
-    // Get a project ID at https://cloud.walletconnect.com
     projectId: '87e549918631f833447b56c15354e450',
+    allowUnsupportedChain: true,
   });
   const init = useCallback(async () => {
     const RPC_LIST_system = getExtendConfig().RPC_LIST;
