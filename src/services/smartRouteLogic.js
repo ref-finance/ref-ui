@@ -2348,7 +2348,7 @@ function getGraphFromPoolList(poolList) {
 
 //TODO -- need the right API / hooks for GETSTABLESWAPACTION function and GETPARALLELSWAPACTIONS functions.
 
-//TODO -- transform the actions generated in this function into tranaction to execute.
+//TODO -- transform the actions generated in this function into transaction to execute.
 
 //TRYING: GETSTABLESWAPACTION <==> instantSwapGetTransactions
 
