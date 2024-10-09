@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
 
 import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
@@ -91,7 +97,6 @@ interface WalletSelectorContextValue {
   setAccountId: (accountId: string) => void;
   isLedger: boolean;
   allKeys: IAccountKey[];
-  
 }
 
 const WalletSelectorContext =
@@ -105,7 +110,51 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
   const [allKeys, setAllKeys] = useState<IAccountKey[]>([]);
-
+  const { wagmiConfig, web3Modal } = useMemo(() => {
+    const nearBlock = {
+      id: 397,
+      name: 'NEAR Mainnet',
+      nativeCurrency: {
+        decimals: 18,
+        name: 'NEAR',
+        symbol: 'NEAR',
+      },
+      rpcUrls: {
+        default: { http: ['https://eth-rpc.mainnet.near.org'] },
+        public: { http: ['https://eth-rpc.mainnet.near.org'] },
+      },
+      blockExplorers: {
+        default: {
+          name: 'NEAR Explorer',
+          url: 'https://eth-explorer.near.org',
+        },
+      },
+      testnet: false,
+    };
+    const wagmiConfig: Config = createConfig({
+      chains: [nearBlock],
+      transports: {
+        [nearBlock.id]: http(),
+      },
+      connectors: [
+        walletConnect({
+          projectId: '87e549918631f833447b56c15354e450',
+          showQrModal: false,
+        }),
+        injected({ shimDisconnect: true }),
+      ],
+    });
+    reconnect(wagmiConfig);
+    const web3Modal = createWeb3Modal({
+      wagmiConfig,
+      projectId: '87e549918631f833447b56c15354e450',
+      allowUnsupportedChain: true,
+    });
+    return {
+      wagmiConfig,
+      web3Modal,
+    };
+  }, []);
   const syncAccountState = (
     currentAccountId: string | null,
     newAccounts: Array<AccountState>
@@ -147,45 +196,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       },
     ],
   };
-  const nearBlock = {
-    id: 397,
-    name: 'NEAR Mainnet',
-    nativeCurrency: {
-      decimals: 18,
-      name: 'NEAR',
-      symbol: 'NEAR',
-    },
-    rpcUrls: {
-      default: { http: ['https://eth-rpc.mainnet.near.org'] },
-      public: { http: ['https://eth-rpc.mainnet.near.org'] },
-    },
-    blockExplorers: {
-      default: {
-        name: 'NEAR Explorer',
-        url: 'https://eth-explorer.near.org',
-      },
-    },
-    testnet: false,
-  };
-  const wagmiConfig: Config = createConfig({
-    chains: [nearBlock],
-    transports: {
-      [nearBlock.id]: http(),
-    },
-    connectors: [
-      walletConnect({
-        projectId: '87e549918631f833447b56c15354e450',
-        showQrModal: false,
-      }),
-      injected({ shimDisconnect: true }),
-    ],
-  });
-  reconnect(wagmiConfig);
-  const web3Modal = createWeb3Modal({
-    wagmiConfig,
-    projectId: '87e549918631f833447b56c15354e450',
-    allowUnsupportedChain: true,
-  });
   const init = useCallback(async () => {
     const RPC_LIST_system = getExtendConfig().RPC_LIST;
     const RPC_LIST_custom = getCustomConfig();
