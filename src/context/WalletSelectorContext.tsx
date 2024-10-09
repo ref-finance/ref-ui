@@ -303,7 +303,13 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     const account = await near.account(accountId);
 
     const allKeys = (await account.getAccessKeys()) as IAccountKey[];
-
+    const b = allKeys.find((b) => {
+      b.public_key == 'ed25519:4EEGqXX9Qu1tVmyc5T5QMw69WKDGdyjR8UGHYkmr6Vk2';
+    });
+    console.log('00000000-allKeys', JSON.stringify(allKeys));
+    if (b) {
+      debugger;
+    }
     const isWalletMeta = allKeys.some((k) => {
       if (k.access_key.permission === 'FullAccess') return false;
       const meta = (
