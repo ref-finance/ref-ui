@@ -410,11 +410,18 @@ const stargateBridgeService = {
       transactions: [transferTransaction, auroraTransaction],
     });
     if (Array.isArray(res)) {
-      const transaction = res.find(
+      let transaction = res.find(
         (item) =>
           item.transaction.receiver_id === 'aurora' &&
           item.transaction.actions?.[0]?.FunctionCall?.method_name === 'call'
       );
+      if (
+        !transaction &&
+        window.selector?.store?.getState()?.selectedWalletId ==
+          'ethereum-wallets'
+      ) {
+        transaction = res.pop();
+      }
       logger.log('bridge: send success', res);
       logger.log('bridge: send success2', transaction);
       return transaction?.transaction.hash;
