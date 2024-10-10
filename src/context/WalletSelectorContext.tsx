@@ -314,7 +314,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
             distinctUntilChanged()
           )
           .subscribe((nextAccounts) => {
-            syncAccountState(accountId, nextAccounts);
+            // syncAccountState(accountId, nextAccounts);
           });
       });
   }, [init]);
@@ -329,6 +329,11 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         distinctUntilChanged()
       )
       .subscribe((nextAccounts) => {
+        if (
+          selector?.store?.getState()?.selectedWalletId == 'ethereum-wallets'
+        ) {
+          if (accountId == nextAccounts?.[0]?.accountId) return;
+        }
         syncAccountState(accountId, nextAccounts);
       });
 
