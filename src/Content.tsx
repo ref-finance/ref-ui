@@ -82,7 +82,7 @@ export function Content() {
   }, [blockFeatureEnabled]);
   function checkBlockedStatus() {
     getUserIsBlocked().then((res) => {
-      if (res.blocked === false) {
+      if (res.blocked === true) {
         const blockConfirmationTime = localStorage.getItem(
           'blockConfirmationTime'
         );
