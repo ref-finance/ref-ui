@@ -77,14 +77,37 @@ export function Content() {
   // const blockFeatureEnabled = false;
   useEffect(() => {
     if (blockFeatureEnabled) {
-      getUserIsBlocked().then((res) => {
-        if (res.blocked === true) {
+      checkBlockedStatus();
+    }
+  }, [blockFeatureEnabled]);
+  function checkBlockedStatus() {
+    getUserIsBlocked().then((res) => {
+      if (res.blocked === true) {
+        const blockConfirmationTime = localStorage.getItem(
+          'blockConfirmationTime'
+        );
+        if (blockConfirmationTime) {
+          const currentTime = new Date().getTime();
+          const weekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+          if (
+            currentTime - parseInt(blockConfirmationTime, 10) <
+            weekInMilliseconds
+          ) {
+            setIsBlocked(false);
+          } else {
+            setIsBlocked(true);
+          }
+        } else {
           setIsBlocked(true);
         }
-      });
-    }
-  }, []);
-
+      }
+    });
+  }
+  function handleBlockConfirmation() {
+    const currentTime = new Date().getTime();
+    localStorage.setItem('blockConfirmationTime', currentTime.toString());
+    setIsBlocked(false);
+  }
   const getAccount = useCallback(async (): Promise<Account | null> => {
     if (!accountId) {
       return;
@@ -220,6 +243,14 @@ export function Content() {
               You are prohibited from accessing app.ref.finance due to your
               location or other infringement of the Terms of Services.
             </p>
+            <div className="flex items-center justify-center">
+              <div
+                onClick={handleBlockConfirmation}
+                className="mt-4 bg-unLoginButtonBgColor p-2 rounded w-fit text-gradientFrom text-base cursor-pointer"
+              >
+                Confirm
+              </div>
+            </div>
           </div>
         </div>
       )}
