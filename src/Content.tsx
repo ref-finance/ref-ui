@@ -82,7 +82,7 @@ export function Content() {
   }, [blockFeatureEnabled]);
   function checkBlockedStatus() {
     getUserIsBlocked().then((res) => {
-      if (res.blocked === true) {
+      if (res.blocked === false) {
         const blockConfirmationTime = localStorage.getItem(
           'blockConfirmationTime'
         );
@@ -236,20 +236,18 @@ export function Content() {
           style={{ zIndex: '99999', backdropFilter: 'blur(6px)' }}
         >
           <div
-            className="text-white text-center bg-swapCardGradient p-6 rounded-lg"
-            style={{ width: '250px' }}
+            className="text-white text-center px-5 pt-9 pb-7  rounded-md"
+            style={{ width: '278px', background: '#1B242C' }}
           >
-            <p className="text-base">
+            <p className="text-sm">
               You are prohibited from accessing app.ref.finance due to your
               location or other infringement of the Terms of Services.
             </p>
-            <div className="flex items-center justify-center">
-              <div
-                onClick={handleBlockConfirmation}
-                className="mt-4 bg-unLoginButtonBgColor p-2 rounded w-fit text-gradientFrom text-base cursor-pointer"
-              >
-                Confirm
-              </div>
+            <div
+              onClick={handleBlockConfirmation}
+              className="mt-4 bg-primaryGradient h-9 flex items-center justify-center rounded-md text-sm text-black text-white cursor-pointer ml-1.5 mr-1.5"
+            >
+              Confirm
             </div>
           </div>
         </div>
