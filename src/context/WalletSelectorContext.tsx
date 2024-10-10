@@ -8,8 +8,8 @@ import type {
   Wallet,
   Network,
 } from '@near-wallet-selector/core';
-import { setupModal } from '@near-wallet-selector/modal-ui';
-import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
+import { setupModal } from 'ref-modal-ui';
+import type { WalletSelectorModal } from 'ref-modal-ui';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupSender } from '@near-wallet-selector/sender';
 import { setupLedger } from '@near-wallet-selector/ledger';
@@ -32,9 +32,8 @@ import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 import { setupBitteWallet } from '@near-wallet-selector/bitte-wallet';
 
-import '@near-wallet-selector/modal-ui/styles.css';
+import 'ref-modal-ui/styles.css';
 import { near } from '../services/near';
-import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
 import {
   REF_FI_SENDER_WALLET_ACCESS_KEY,
@@ -154,7 +153,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         localStorage.removeItem('endPoint');
       }
     } catch (error) {}
-    const _selector = await setupWalletSelector({
+    const _selector: any = await setupWalletSelector({
       network: {
         networkId: getConfig().networkId as NetworkId,
         nodeUrl: RPC_LIST[endPoint].url,
@@ -232,6 +231,21 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     });
     const _modal = setupModal(_selector, {
       contractId: CONTRACT_ID,
+      blockFunctionKeyWallets: [
+        'okx-wallet',
+        'my-near-wallet',
+        'meteor-wallet',
+        'neth',
+        'nightly',
+        'ledger',
+        'wallet-connect',
+        'keypom',
+        'mintbase-wallet',
+        'bitte-wallet',
+        'ethereum-wallets',
+        'sender',
+        'coin98-wallet',
+      ],
     });
     const state = _selector.store.getState();
     syncAccountState(localStorage.getItem(ACCOUNT_ID_KEY), state.accounts);
@@ -289,7 +303,13 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     const account = await near.account(accountId);
 
     const allKeys = (await account.getAccessKeys()) as IAccountKey[];
-
+    const b = allKeys.find((b) => {
+      b.public_key == 'ed25519:4EEGqXX9Qu1tVmyc5T5QMw69WKDGdyjR8UGHYkmr6Vk2';
+    });
+    console.log('00000000-allKeys', JSON.stringify(allKeys));
+    if (b) {
+      debugger;
+    }
     const isWalletMeta = allKeys.some((k) => {
       if (k.access_key.permission === 'FullAccess') return false;
       const meta = (
