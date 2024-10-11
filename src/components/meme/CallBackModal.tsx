@@ -85,7 +85,6 @@ function CallBackModal(props: any) {
     }
     return [from.toFixed(), to.toFixed()];
   }, [amount, seeds, txParams, seed]);
-
   if (!seed && !isXrefAction) return null;
   function goNearblocks() {
     history.replace('/meme');

@@ -81,7 +81,7 @@ function AccessKeyModal(props: any) {
               onClick={() => {
                 setTab('accessKey');
               }}
-              className={`flex items-center gap-1.5 text-lg gotham_bold pr-4 border-r border-v3SwapGray border-opacity-20 cursor-pointer ${
+              className={`flex items-center gap-1.5 text-lg gotham_bold pr-4 cursor-pointer ${
                 tab == 'accessKey' ? 'text-white' : 'text-limitOrderInputColor'
               }`}
             >
@@ -97,38 +97,11 @@ function AccessKeyModal(props: any) {
                 <CustomTooltip id={'approved'} />
               </div>
             </span>
-            <div
-              onClick={() => {
-                setTab('orderlyKey');
-              }}
-              className={`flex items-center gap-1.5 pl-4 cursor-pointer ${
-                tab == 'orderlyKey' ? 'text-white' : 'text-limitOrderInputColor'
-              }`}
-            >
-              <OrderlyIcon isActive={tab == 'orderlyKey'} />
-              <span className="flex items-center gap-1.5 text-lg gotham_bold">
-                Orderly
-                <div
-                  className="text-white text-right ml-1"
-                  data-class="reactTip"
-                  data-tooltip-id={'orderly'}
-                  data-place="top"
-                  data-tooltip-html={getOrderlyTip()}
-                >
-                  <QuestionMark />
-                  <CustomTooltip id={'orderly'} />
-                </div>
-              </span>
-            </div>
           </div>
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
         </div>
         <AuthorizedApps
           hidden={tab == 'orderlyKey'}
-          currentUsedKeys={currentUsedKeys}
-        />
-        <OrderlyKeys
-          hidden={tab == 'accessKey'}
           currentUsedKeys={currentUsedKeys}
         />
       </div>

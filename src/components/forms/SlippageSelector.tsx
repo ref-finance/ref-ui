@@ -219,7 +219,8 @@ export default function SlippageSelector({
     selectedWalletId === 'near-snap' ||
     selectedWalletId === 'near-mobile-wallet' ||
     selectedWalletId === 'okx-wallet' ||
-    selectedWalletId === 'mintbase-wallet';
+    selectedWalletId === 'mintbase-wallet' ||
+    selectedWalletId == 'ethereum-wallets';
   useEffect(() => {
     if (trisDisbaled) {
       setEnableTri(false);

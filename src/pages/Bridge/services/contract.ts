@@ -101,7 +101,9 @@ export const evmServices = {
         const Interface = new ethers.utils.Interface(erc20Abi);
 
         const data = Interface.encodeFunctionData('balanceOf', [sender]);
-        const rawBalance = await window.ethWeb3Provider?.call({
+        const rpc = EVMConfig.chains[chain.toLowerCase()].rpcUrl;
+        const targetProvider = new ethers.providers.JsonRpcProvider(rpc);
+        const rawBalance = await targetProvider?.call({
           to: token.addresses[chain],
           data,
         });

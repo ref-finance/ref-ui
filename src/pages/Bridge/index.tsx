@@ -29,13 +29,11 @@ function BridgePage() {
   return (
     <div className="bridge-page">
       <WalletConnectProvider>
-        <WalletConnectNearProvider>
-          <BridgeTransactionProvider>
-            <BridgeFormProvider>
-              <Layout />
-            </BridgeFormProvider>
-          </BridgeTransactionProvider>
-        </WalletConnectNearProvider>
+        <BridgeTransactionProvider>
+          <BridgeFormProvider>
+            <Layout />
+          </BridgeFormProvider>
+        </BridgeTransactionProvider>
       </WalletConnectProvider>
     </div>
   );

@@ -136,23 +136,26 @@ export const useSwapPopUp = () => {
   const parseLimitOrderPopUp = async (res: any) => {
     const byNeth =
       res?.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
-
+    const byEvm =
+      res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+      'rlp_execute';
+    const isPackage = byNeth || byEvm;
     const ft_resolved_id =
       res?.receipts?.findIndex((r: any) =>
         r?.receipt?.Action?.actions?.some(
           (a: any) => a?.FunctionCall?.method_name === 'ft_resolve_transfer'
         )
-      ) + (byNeth ? 1 : 0);
+      ) + (isPackage ? 1 : 0);
 
     const ft_on_transfer_id =
       res?.receipts?.findIndex((r: any) =>
         r?.receipt?.Action?.actions?.some(
           (a: any) => a?.FunctionCall?.method_name === 'ft_on_transfer'
         )
-      ) + (byNeth ? 1 : 0);
+      ) + (isPackage ? 1 : 0);
 
     const ft_transfer_call_args = parsedArgs(
-      byNeth
+      isPackage
         ? res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall?.args
         : res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
     );
@@ -310,9 +313,12 @@ export const useSwapPopUp = () => {
           const byNeth =
             res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
             'execute';
-
+          const byEvm =
+            res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+            'rlp_execute';
+          const isPackage = byNeth || byEvm;
           const transaction = res.transaction;
-          const isSwapNeth =
+          const isSwapReceipt =
             res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
               ?.method_name === 'ft_transfer_call' ||
             res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
@@ -328,7 +334,7 @@ export const useSwapPopUp = () => {
                   'near_deposit' ||
                 transaction?.actions[0]?.FunctionCall?.method_name ===
                   'near_withdraw' ||
-                (isSwapNeth && byNeth)) &&
+                (isSwapReceipt && isPackage)) &&
               !isLimitOrder,
             transactionErrorType,
           };

@@ -71,22 +71,28 @@ const SeedsBox = () => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash).then((res: any) => {
         const { transaction, receipts } = res;
-        const isNeth =
+        const byNeth =
           transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
-        const methodNameNeth =
+        const byEvm =
+          transaction?.actions?.[0]?.FunctionCall?.method_name ===
+          'rlp_execute';
+        const isPackage = byNeth || byEvm;
+        const packageMethodName =
           receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
             ?.method_name;
         const methodNameNormal =
           transaction?.actions[0]?.FunctionCall?.method_name;
         const args = parsedArgs(
-          isNeth
+          isPackage
             ? res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
                 ?.args
             : res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
         );
-        const receiver_id = transaction?.receiver_id;
+        const receiver_id = byEvm
+          ? receipts?.[0].receiver_id
+          : transaction?.receiver_id;
         const parsedInputArgs = JSON.parse(args || '');
-        const methodName = isNeth ? methodNameNeth : methodNameNormal;
+        const methodName = isPackage ? packageMethodName : methodNameNormal;
         if (
           methodName == 'unlock_and_unstake_seed' ||
           methodName == 'ft_transfer_call'
