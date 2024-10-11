@@ -214,6 +214,11 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       } as Network,
       debug: false,
       modules: [
+        setupEthereumWallets({
+          wagmiConfig,
+          web3Modal,
+          alwaysOnboardDuringSignIn: true,
+        } as any),
         setupOKXWallet({}),
         setupMyNearWallet({
           // iconUrl: walletIcons['my-near-wallet'],
@@ -281,11 +286,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           deprecated: false,
         }),
         setupCoin98Wallet(),
-        setupEthereumWallets({
-          wagmiConfig,
-          web3Modal,
-          alwaysOnboardDuringSignIn: true,
-        } as any),
       ],
     });
     const _modal = setupModal(_selector, {
@@ -367,13 +367,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     const account = await near.account(accountId);
 
     const allKeys = (await account.getAccessKeys()) as IAccountKey[];
-    const b = allKeys.find((b) => {
-      b.public_key == 'ed25519:4EEGqXX9Qu1tVmyc5T5QMw69WKDGdyjR8UGHYkmr6Vk2';
-    });
-    console.log('00000000-allKeys', JSON.stringify(allKeys));
-    if (b) {
-      debugger;
-    }
     const isWalletMeta = allKeys.some((k) => {
       if (k.access_key.permission === 'FullAccess') return false;
       const meta = (
@@ -385,7 +378,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     const isSelectLedger =
       selector.store.getState().selectedWalletId === 'ledger';
     setAllKeys(allKeys);
-    // setIsLedger(isSelectLedger || isWalletMeta);
     setIsLedger(false);
   };
 
