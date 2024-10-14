@@ -914,7 +914,7 @@ export const useRemoveLiquidity = ({
 
 export interface volumeType {
   pool_id: string;
-  dateString: string;
+  date_string: string;
   fiat_volume: string;
   asset_volume: string;
   volume_dollar: string;
@@ -922,7 +922,7 @@ export interface volumeType {
 
 export interface volumeDataType {
   pool_id: string;
-  dateString: string;
+  date_string: string;
   fiat_volume: string;
   asset_volume: string;
   volume_dollar: number;

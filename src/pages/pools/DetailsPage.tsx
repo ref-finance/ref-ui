@@ -2142,8 +2142,8 @@ export function VolumeChart({
           </div>
           <div className="text-xs text-primaryText">
             {typeof hoverIndex === 'number'
-              ? formatDate(data[hoverIndex].dateString)
-              : formatDate(data[data.length - 1].dateString)}
+              ? formatDate(data[hoverIndex].date_string)
+              : formatDate(data[data.length - 1].date_string)}
           </div>
         </div>
         {mobile ? (
