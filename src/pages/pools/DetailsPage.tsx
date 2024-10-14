@@ -2168,7 +2168,7 @@ export function VolumeChart({
         >
           {isClientMobie() ? null : (
             <XAxis
-              dataKey="dateString"
+              dataKey="date_string"
               tickLine={false}
               axisLine={false}
               tickFormatter={(value, index) => value.split('-').pop()}
@@ -2236,14 +2236,14 @@ export function TVLChart({
           <div className="text-white text-2xl">
             {`$${toInternationalCurrencySystem(
               typeof hoverIndex === 'number'
-                ? data[hoverIndex].total_tvl.toString()
-                : data[data.length - 1].total_tvl.toString()
+                ? data[hoverIndex].tvl.toString()
+                : data[data.length - 1].tvl.toString()
             )}`}
           </div>
           <div className="text-xs text-primaryText">
             {typeof hoverIndex === 'number'
-              ? formatDate(data[hoverIndex].date)
-              : formatDate(data[data.length - 1].date)}
+              ? formatDate(data[hoverIndex].date_string)
+              : formatDate(data[data.length - 1].date_string)}
           </div>
         </div>
         {mobile ? (
@@ -2276,7 +2276,7 @@ export function TVLChart({
           </defs>
           {isClientMobie() ? null : (
             <XAxis
-              dataKey="date"
+              dataKey="date_string"
               tickLine={false}
               axisLine={false}
               tickFormatter={(value, index) => value.split('-').pop()}
@@ -2290,7 +2290,7 @@ export function TVLChart({
             cursor={{ opacity: '0.3' }}
           />
           <Area
-            dataKey="scaled_tvl"
+            dataKey="tvl"
             dot={false}
             stroke="#00c6a2"
             strokeWidth={3}

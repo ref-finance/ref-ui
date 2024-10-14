@@ -948,46 +948,55 @@ export const useMonthVolume = (pool_id: string) => {
 };
 
 export interface TVLType {
+  // pool_id: string;
+  // asset_amount: string;
+  // fiat_amount: string;
+  // asset_price: string;
+  // fiat_price: string;
+  // asset_tvl: string;
+  // fiat_tvl: string;
+  // date: string;
+  date_string: string;
   pool_id: string;
-  asset_amount: string;
-  fiat_amount: string;
-  asset_price: string;
-  fiat_price: string;
-  asset_tvl: string;
-  fiat_tvl: string;
-  date: string;
+  time: number;
+  tvl: number;
 }
 export interface TVLDataType {
+  // pool_id: string;
+  // asset_amount: string;
+  // fiat_amount: string;
+  // asset_price: string;
+  // fiat_price: string;
+  // asset_tvl: number;
+  // fiat_tvl: number;
+  // date: string;
+  // total_tvl: number;
+  // scaled_tvl: number;
+  date_string: string;
   pool_id: string;
-  asset_amount: string;
-  fiat_amount: string;
-  asset_price: string;
-  fiat_price: string;
-  asset_tvl: number;
-  fiat_tvl: number;
-  date: string;
-  total_tvl: number;
-  scaled_tvl: number;
+  time: number;
+  tvl: number;
 }
 
 export const useMonthTVL = (pool_id: string) => {
   const [monthTVLById, setMonthTVLById] = useState<TVLDataType[]>();
   useEffect(() => {
     getPoolMonthTVL(pool_id).then((res) => {
-      const minDay = _.minBy(res, (o) => {
-        return Number(o.asset_tvl) + Number(o.fiat_tvl);
-      });
-      const minValue = Number(minDay?.asset_tvl) + Number(minDay?.fiat_tvl);
+      // const minDay = _.minBy(res, (o) => {
+      //   return Number(o.asset_tvl) + Number(o.fiat_tvl);
+      // });
+      // const minValue = Number(minDay?.asset_tvl) + Number(minDay?.fiat_tvl);
 
       const monthTVL = res
         .map((v, i) => {
           return {
             ...v,
-            asset_tvl: Number(v?.asset_tvl),
-            fiat_tvl: Number(v?.fiat_tvl),
-            total_tvl: Number(v?.fiat_tvl) + Number(v?.asset_tvl),
-            scaled_tvl:
-              Number(v?.fiat_tvl) + Number(v?.asset_tvl) - minValue * 0.99,
+            tvl: Number(v.tvl),
+            // asset_tvl: Number(v?.asset_tvl),
+            // fiat_tvl: Number(v?.fiat_tvl),
+            // total_tvl: Number(v?.fiat_tvl) + Number(v?.asset_tvl),
+            // scaled_tvl:
+            //   Number(v?.fiat_tvl) + Number(v?.asset_tvl) - minValue * 0.99,
           };
         })
         .reverse();
