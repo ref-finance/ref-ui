@@ -2142,8 +2142,8 @@ export function VolumeChart({
           </div>
           <div className="text-xs text-primaryText">
             {typeof hoverIndex === 'number'
-              ? formatDate(data[hoverIndex].date_string)
-              : formatDate(data[data.length - 1].date_string)}
+              ? formatDate(data[hoverIndex].dateString)
+              : formatDate(data[data.length - 1].dateString)}
           </div>
         </div>
         {mobile ? (
@@ -2168,7 +2168,7 @@ export function VolumeChart({
         >
           {isClientMobie() ? null : (
             <XAxis
-              dataKey="date_string"
+              dataKey="dateString"
               tickLine={false}
               axisLine={false}
               tickFormatter={(value, index) => value.split('-').pop()}
@@ -2236,14 +2236,14 @@ export function TVLChart({
           <div className="text-white text-2xl">
             {`$${toInternationalCurrencySystem(
               typeof hoverIndex === 'number'
-                ? data[hoverIndex].tvl.toString()
-                : data[data.length - 1].tvl.toString()
+                ? data[hoverIndex].total_tvl.toString()
+                : data[data.length - 1].total_tvl.toString()
             )}`}
           </div>
           <div className="text-xs text-primaryText">
             {typeof hoverIndex === 'number'
-              ? formatDate(data[hoverIndex].date_string)
-              : formatDate(data[data.length - 1].date_string)}
+              ? formatDate(data[hoverIndex].date)
+              : formatDate(data[data.length - 1].date)}
           </div>
         </div>
         {mobile ? (
@@ -2276,7 +2276,7 @@ export function TVLChart({
           </defs>
           {isClientMobie() ? null : (
             <XAxis
-              dataKey="date_string"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickFormatter={(value, index) => value.split('-').pop()}
@@ -2290,7 +2290,7 @@ export function TVLChart({
             cursor={{ opacity: '0.3' }}
           />
           <Area
-            dataKey="tvl"
+            dataKey="total_tvl"
             dot={false}
             stroke="#00c6a2"
             strokeWidth={3}

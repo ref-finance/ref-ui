@@ -922,7 +922,7 @@ export interface volumeType {
 
 export interface volumeDataType {
   pool_id: string;
-  date_string: string;
+  dateString: string;
   fiat_volume: string;
   asset_volume: string;
   volume_dollar: number;
@@ -937,6 +937,7 @@ export const useMonthVolume = (pool_id: string) => {
           return {
             ...v,
             volume_dollar: Number(v.volume_dollar),
+            dateString: v.date_string,
           };
         })
         .reverse();
@@ -969,10 +970,9 @@ export interface TVLDataType {
   // fiat_price: string;
   // asset_tvl: number;
   // fiat_tvl: number;
-  // date: string;
-  // total_tvl: number;
+  date: string;
+  total_tvl: number;
   // scaled_tvl: number;
-  date_string: string;
   pool_id: string;
   time: number;
   tvl: number;
@@ -991,7 +991,8 @@ export const useMonthTVL = (pool_id: string) => {
         .map((v, i) => {
           return {
             ...v,
-            tvl: Number(v.tvl),
+            total_tvl: Number(v.tvl),
+            date: v.date_string,
             // asset_tvl: Number(v?.asset_tvl),
             // fiat_tvl: Number(v?.fiat_tvl),
             // total_tvl: Number(v?.fiat_tvl) + Number(v?.asset_tvl),
