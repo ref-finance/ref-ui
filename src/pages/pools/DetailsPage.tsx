@@ -2290,7 +2290,7 @@ export function TVLChart({
             cursor={{ opacity: '0.3' }}
           />
           <Area
-            dataKey="scaled_tvl"
+            dataKey="total_tvl"
             dot={false}
             stroke="#00c6a2"
             strokeWidth={3}
