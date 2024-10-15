@@ -277,6 +277,7 @@ export default function getConfig(
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
           'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near',
         ],
+        // RATED_SWAP_USDC_POOL_ID: process.env.RATED_SWAP_USDC_POOL_ID || '',
       };
     case 'pub-testnet':
       return {
@@ -365,7 +366,7 @@ export default function getConfig(
         BURROW_CONTRACT_ID: 'contract.1689937928.burrow.testnet',
         USDTT_USDCC_USDT_USDC_POOL_ID:
           process.env.USDTT_USDCC_USDT_USDC_POOL_ID || 1919,
-        RATED_SWAP_USDC_POOL_ID: process.env.RATED_SWAP_USDC_POOL_ID || 2089,
+        // RATED_SWAP_USDC_POOL_ID: process.env.RATED_SWAP_USDC_POOL_ID || 2089,
         USDTT_USDCC_USDT_USDC_TOKEN_IDS: [
           'usdtt.ft.ref-labs.testnet',
           'usdcc.ft.ref-labs.testnet',
@@ -637,6 +638,7 @@ export default function getConfig(
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
           'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near',
         ],
+        // RATED_SWAP_USDC_POOL_ID: process.env.RATED_SWAP_USDC_POOL_ID || '',
       };
   }
 }
