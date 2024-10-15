@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useEffect,
   useReducer,
+  useState,
 } from 'react';
 import Loading from 'src/components/layout/Loading';
 
@@ -33,6 +34,7 @@ import getConfig from './services/config';
 import { REF_FARM_BOOST_CONTRACT_ID } from './services/near';
 import { useGlobalPopUp } from './state/popUp';
 import { globalStateReducer, WalletContext } from './utils/wallets-integration';
+import { getUserIsBlocked } from './services/api';
 
 export type Account = AccountView & {
   account_id: string;
@@ -70,7 +72,42 @@ export function Content() {
   const [globalState, globalStatedispatch] = GlobalStateReducer;
 
   const { selector, accountId } = useWalletSelector();
-
+  const [isBlocked, setIsBlocked] = useState(false);
+  const blockFeatureEnabled = true;
+  // const blockFeatureEnabled = false;
+  useEffect(() => {
+    if (blockFeatureEnabled) {
+      checkBlockedStatus();
+    }
+  }, [blockFeatureEnabled]);
+  function checkBlockedStatus() {
+    getUserIsBlocked().then((res) => {
+      if (res.blocked === true) {
+        const blockConfirmationTime = localStorage.getItem(
+          'blockConfirmationTime'
+        );
+        if (blockConfirmationTime) {
+          const currentTime = new Date().getTime();
+          const weekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+          if (
+            currentTime - parseInt(blockConfirmationTime, 10) <
+            weekInMilliseconds
+          ) {
+            setIsBlocked(false);
+          } else {
+            setIsBlocked(true);
+          }
+        } else {
+          setIsBlocked(true);
+        }
+      }
+    });
+  }
+  function handleBlockConfirmation() {
+    const currentTime = new Date().getTime();
+    localStorage.setItem('blockConfirmationTime', currentTime.toString());
+    setIsBlocked(false);
+  }
   const getAccount = useCallback(async (): Promise<Account | null> => {
     if (!accountId) {
       return;
@@ -193,6 +230,28 @@ export function Content() {
           </Switch>
         </Suspense>
       </OrderlyContextProvider>
+      {isBlocked && blockFeatureEnabled && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center"
+          style={{ zIndex: '99999', backdropFilter: 'blur(6px)' }}
+        >
+          <div
+            className="text-white text-center px-5 pt-9 pb-7  rounded-md"
+            style={{ width: '278px', background: '#1B242C' }}
+          >
+            <p className="text-sm">
+              You are prohibited from accessing app.ref.finance due to your
+              location or other infringement of the Terms of Services.
+            </p>
+            <div
+              onClick={handleBlockConfirmation}
+              className="mt-4 bg-primaryGradient h-9 flex items-center justify-center rounded-md text-sm text-black text-white cursor-pointer ml-1.5 mr-1.5"
+            >
+              Confirm
+            </div>
+          </div>
+        </div>
+      )}
     </WalletContext.Provider>
   );
 }

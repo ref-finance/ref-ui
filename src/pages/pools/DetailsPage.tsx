@@ -149,6 +149,18 @@ import { HiOutlineExternalLink, HiOutlineLink } from 'react-icons/hi';
 const { BLACK_TOKEN_LIST } = getConfig();
 import { PoolRefreshModal } from './PoolRefreshModal';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
+import {
+  PoolAvailableAmount,
+  PoolFarmAmount,
+  ShadowInBurrowAmount,
+  PoolAvailablePercent,
+} from 'src/components/pool/PoolShare';
+import { useShadowRecordStore } from 'src/stores/liquidityStores';
+import {
+  getPoolAvailableShare,
+  useNewPoolData,
+} from 'src/components/pool/useNewPoolData';
+import { useZustandSetPoolData } from 'src/state/sauce';
 import LockLP from 'src/components/pool/LockLP';
 import { FeeTipV1 } from 'src/components/pool/FeeTip';
 
@@ -976,6 +988,8 @@ export function RemoveLiquidityModal(
   });
 
   const { stakeList, v2StakeList, finalStakeList } = useYourliquidity(poolId);
+  const { shadowRecords, newPool } = useNewPoolData({ pool, shares });
+  const { availableShare } = newPool || {};
 
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
@@ -991,13 +1005,13 @@ export function RemoveLiquidityModal(
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
-    const shareBN = new BigNumber(toReadableNumber(24, shares));
+
     if (Number(amount) === 0) {
       throw new Error(
         intl.formatMessage({ id: 'must_input_a_value_greater_than_zero' })
       );
     }
-    if (amountBN.isGreaterThan(shareBN)) {
+    if (amountBN.isGreaterThan(availableShare)) {
       throw new Error(
         intl.formatMessage({
           id: 'input_greater_than_available_shares',
@@ -1012,10 +1026,9 @@ export function RemoveLiquidityModal(
   function handleChangeAmount(value: string) {
     setAmount(value);
     setError(null);
-
     const amountBN = new BigNumber(value.toString());
-    const shareBN = new BigNumber(toReadableNumber(24, shares));
-    if (amountBN.isGreaterThan(shareBN)) {
+
+    if (amountBN.isGreaterThan(availableShare)) {
       setCanSubmit(false);
       throw new Error(
         intl.formatMessage({
@@ -1037,7 +1050,7 @@ export function RemoveLiquidityModal(
       <Card
         padding="p-8"
         bgcolor="bg-cardBg"
-        className="text-white border border-gradientFromHover outline-none "
+        className="text-white border border-gradientFromHover outline-none"
         style={{
           width: cardWidth,
           border: '1px solid rgba(0, 198, 162, 0.5)',
@@ -1059,85 +1072,30 @@ export function RemoveLiquidityModal(
         </div>
 
         <div
-          className={`flex items-center flex-wrap mb-4  text-xs text-primaryText  ${
-            Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0 ? '' : 'hidden'
-          }`}
+          className={`flex items-center flex-wrap mb-4 text-xs text-primaryText`}
         >
           {Number(farmStakeV1) > 0 && (
-            <Link
-              to={{
-                pathname: '/farms',
-              }}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              className="hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2"
-            >
-              <span>
-                {toPrecision(
-                  toReadableNumber(
-                    24,
-                    scientificNotationToString(farmStakeV1.toString())
-                  ),
-                  2
-                )}
-              </span>
-              <span className="mx-1">
-                <FormattedMessage id="in" defaultMessage={'in'} />
-              </span>
-              <div className=" flex items-center flex-shrink-0">
-                <span className="">
-                  Legacy &nbsp;
-                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                </span>
-
-                <span className="ml-0.5">
-                  <VEARROW />
-                </span>
-              </div>
-            </Link>
+            <PoolFarmAmount
+              poolId={pool.id}
+              farmVersion={'v1'}
+              onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}
+              linkClass={
+                'hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'
+              }
+              textContainerClassName={'flex items-center  flex-shrink-0'}
+              textClassName={''}
+            />
           )}
-
-          {Number(farmStakeV2) > 0 && (
-            <Link
-              to={{
-                pathname: `/v2farms/${pool.id}-${
-                  endedFarmCountV2 === farmCountV2 ? 'e' : 'r'
-                }`,
-              }}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              className="hover:text-gradientFrom mb-1.5 mr-2 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20"
-            >
-              <span>
-                {toPrecision(
-                  toReadableNumber(
-                    24,
-                    scientificNotationToString(farmStakeV2.toString())
-                  ),
-                  4
-                )}
-              </span>
-              <span className="mx-1">
-                <FormattedMessage id="in" defaultMessage={'in'} />
-              </span>
-              <div className=" flex items-center  flex-shrink-0">
-                <span className="">
-                  Classic&nbsp;
-                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                </span>
-
-                <span className="ml-0.5">
-                  <VEARROW />
-                </span>
-              </div>
-            </Link>
-          )}
+          <PoolFarmAmount
+            poolId={pool.id}
+            farmVersion={'v2'}
+            onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}
+            linkClass={
+              'hover:text-gradientFrom mb-1.5 mr-2 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20'
+            }
+            textContainerClassName={'flex items-center  flex-shrink-0'}
+            textClassName={''}
+          />
 
           {Number(getVEPoolId()) === Number(pool.id) &&
           fetchDoneVOTEAccountInfo &&
@@ -1179,6 +1137,26 @@ export function RemoveLiquidityModal(
               </div>
             </div>
           ) : null}
+          <div className={'flex gap-1'}>
+            {/*  poolId={poolId}*/}
+            {/*  linkClass={*/}
+            {/*    'cursor-pointer hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'*/}
+            {/*  }*/}
+            {/*  textClassName={''}*/}
+            {/*  textContainerClassName={'flex items-center  flex-shrink-0'}*/}
+            {/*  shadowRecordsKey={'shadow_in_farm'}*/}
+            {/*  onlyEndedFarmV2={endedFarmCountV2 === farmCountV2}*/}
+            {/*/>*/}
+            <ShadowInBurrowAmount
+              poolId={poolId}
+              linkClass={
+                'cursor-pointer hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2'
+              }
+              textClassName={''}
+              textContainerClassName={'flex items-center  flex-shrink-0'}
+              shadowRecordsKey={'shadow_in_burrow'}
+            />
+          </div>
         </div>
 
         <div>
@@ -1188,18 +1166,21 @@ export function RemoveLiquidityModal(
               defaultMessage="Available LP Tokens"
             />
             <span className="text-white whitespace-nowrap">
-              {`${toPrecision(toReadableNumber(24, shares), 2)} (${
-                Number(sharePercent) > 0 && Number(sharePercent) < 0.01
-                  ? '<0.01'
-                  : toPrecision(sharePercent?.toString() || '0', 2)
-              }%)`}
+              <PoolAvailableAmount pool={pool} shares={shares} />
+              &nbsp; (
+              <PoolAvailablePercent
+                pool={pool}
+                shares={shares}
+                denominator={pool.shareSupply}
+              />
+              %)
             </span>
           </div>
           <div className=" overflow-hidden ">
             <InputAmount
               maxBorder={false}
               value={amount}
-              max={toReadableNumber(24, shares)}
+              max={availableShare}
               onChangeAmount={(value) => {
                 try {
                   handleChangeAmount(value);
@@ -1581,12 +1562,13 @@ export function RecentTransactions({
   const renderLiquidityTransactions = liquidityTransactions.map((tx, index) => {
     const { amounts } = tx;
     const renderTokens: any[] = [];
-    const amountsObj: any[] = JSON.parse(amounts.replace(/\'/g, '"'));
+    const amountsObj: any[] =
+      amounts === '' ? [] : JSON.parse(amounts.replace(/\'/g, '"'));
     amountsObj.forEach((amount: string, index) => {
       if (Big(amount || 0).gt(0)) {
         renderTokens.push({
           token: tokens[index],
-          amount: toReadableNumber(tokens[index].decimals, amountsObj[index]),
+          amount: toReadableNumber(tokens[index]?.decimals, amountsObj[index]),
         });
       }
     });
@@ -1627,7 +1609,7 @@ export function RecentTransactions({
                 </span>
 
                 <span className="ml-1 text-primaryText">
-                  {toRealSymbol(renderToken.token.symbol)}
+                  {toRealSymbol(renderToken.token?.symbol)}
                 </span>
                 {index !== renderTokens.length - 1 ? (
                   <span className="mx-1">+</span>
@@ -2308,7 +2290,7 @@ export function TVLChart({
             cursor={{ opacity: '0.3' }}
           />
           <Area
-            dataKey="scaled_tvl"
+            dataKey="total_tvl"
             dot={false}
             stroke="#00c6a2"
             strokeWidth={3}
@@ -2388,6 +2370,7 @@ export default function PoolDetailsPage() {
     });
   };
 
+  useZustandSetPoolData();
   useEffect(() => {
     if (state?.tvl > 0) {
       setPoolTVL(state?.tvl);

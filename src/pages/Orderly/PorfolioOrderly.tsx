@@ -27,7 +27,7 @@ import {
   getOrderTrades,
   getPortfolioAllOrders,
 } from './orderly/off-chain-api';
-import { OrderlyUnderMaintain } from './OrderlyTradingBoard';
+import { OrderlyUnderMaintain2 } from './OrderlyTradingBoard';
 import { FlexRow, orderEditPopUpFailure } from './components/Common';
 import { orderPopUp } from './components/Common/index';
 import { AssetManagerModal, TextWrapper } from './components/UserBoard';
@@ -324,7 +324,7 @@ function PortfolioOrderly() {
         is_mobile,
       }}
     >
-      {maintenance && <OrderlyUnderMaintain />}
+      {maintenance && <OrderlyUnderMaintain2 />}
       <div className="flex items-stretch justify-between pb-20 md:pb-0 lg:pb-0 w-full h-full lg:-mt-12">
         {/* Navigation */}
         <div
@@ -824,7 +824,7 @@ function PortfolioOrderly() {
   );
 }
 export default function OrderBookPortfolio() {
-  const disbaledWallet = ['okx-wallet'];
+  const disbaledWallet = ['okx-wallet', 'wallet-connect'];
   const selectedWalletId = window.selector?.store?.getState()?.selectedWalletId;
   const isBlock = disbaledWallet.includes(selectedWalletId);
   if (isBlock)

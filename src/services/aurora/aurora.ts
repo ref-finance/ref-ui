@@ -86,7 +86,7 @@ class AuroraWalletConnection extends WalletConnection {
   }
 }
 
-const getAurora = () => {
+export const getAurora = () => {
   const aurora_walletConnection = new AuroraWalletConnection(near, 'aurora');
 
   //@ts-ignore
@@ -123,7 +123,6 @@ export const buildInput = (abi: any[], methodName: string, params: any) => {
   if (!abiItem) {
     return null;
   }
-
   return AbiCoder.encodeFunctionCall(abiItem, params);
 };
 
@@ -174,6 +173,7 @@ export function auroraCallToAction(contract: any, input: any, value?: string) {
     methodName: 'call',
     args: prepareInput(args),
     gas: AuroraCallGas,
+    deposit: '0',
   };
 
   return action;

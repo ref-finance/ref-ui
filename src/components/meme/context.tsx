@@ -38,6 +38,12 @@ import { toReadableNumber } from 'src/utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
 import { get_all_seeds } from '../../services/commonV3';
 import { ChartLoading } from 'src/components/icon/Loading';
+import { IReward } from '../../interface/meme';
+import { checkTransaction } from '../../services/swap';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { checkIn } from '../../services/indexer';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { useMemeStore } from '../../stores/memeStore';
 const MemeContext = createContext<IMemeContext>(null);
 interface IMemeContext {
   tokenPriceList: Record<string, any>;
@@ -53,6 +59,7 @@ interface IMemeContext {
   xrefTokenId: string;
   donateBalances: Record<string, string>;
   loading: boolean;
+  earnRewards: IReward[];
 }
 export interface IFarmAccount {
   withdraw_list: Record<string, IFarmerWithdraw>;
@@ -95,11 +102,54 @@ function MemeContextProvider({ children }: any) {
   const [memeFarmContractUserData, setMemeFarmContractUserData] =
     useState<IFarmAccount>();
   const [xrefTokenId, setXrefTokenId] = useState<string>();
+  const [earnRewards, setEarnRewards] = useState<IReward[]>([]);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const { txHash } = getURLInfo();
+  const { accountId } = useWalletSelector();
+  const memeStore = useMemeStore();
+  const checkInLoading = memeStore.getCheckInLoading();
   useEffect(() => {
     init();
   }, []);
+  useEffect(() => {
+    if (accountId && !checkInLoading) {
+      memeStore.setCheckInLoading(true);
+      checkIn(accountId);
+    }
+    return () => {
+      memeStore.setCheckInLoading(false);
+    };
+  }, [accountId]);
+  useEffect(() => {
+    if (txHash && isSignedIn) {
+      checkTransaction(txHash).then((res: any) => {
+        const { transaction, receipts, receipts_outcome } = res;
+        const byNeth =
+          transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
+        const byEvm =
+          transaction?.actions?.[0]?.FunctionCall?.method_name ===
+          'rlp_execute';
+        const isPackage = byNeth || byEvm;
+        const packageMethodName =
+          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+            ?.method_name;
+        const methodNameNormal =
+          transaction?.actions[0]?.FunctionCall?.method_name;
+        const methodName = isPackage ? packageMethodName : methodNameNormal;
+        if (methodName == 'check_in') {
+          const logs = receipts_outcome[0].outcome.logs;
+          const parsedLogs = logs.map((log) => {
+            const logObj = JSON.parse(
+              log.match(/EVENT_JSON:(.*)/)?.[1] || '{}'
+            );
+            return logObj.data || [];
+          });
+          setEarnRewards(parsedLogs.flat());
+        }
+      });
+    }
+  }, [txHash, isSignedIn]);
   useEffect(() => {
     if (
       isSignedIn &&
@@ -462,6 +512,7 @@ function MemeContextProvider({ children }: any) {
         xrefTokenId,
         donateBalances,
         loading,
+        earnRewards,
       }}
     >
       {children}

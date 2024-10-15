@@ -26,4 +26,4 @@ Tests use [React Testing Library](https://testing-library.com/docs/react-testing
 
 This project uses [Prettier](https://prettier.io/) to create consistently styled code.
 Prettier can be installed to auto-format on save for most editors. You can also run
-`yarn prettier` to check for styling errors and `yarn prettier:fix` to fix styling errors  .  
+`yarn prettier` to check for styling errors and `yarn prettier:fix` to fix styling errors

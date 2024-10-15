@@ -31,6 +31,8 @@ import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from '../icon/Common';
 import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
 import { getExtraStablePoolConfig } from 'src/services/config';
+import { USDCWIcon } from '../icon/Common';
+import { getImageMark, isSuffix } from '../../utils/token';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -89,6 +91,7 @@ export const TknImages = ({
     : [...new Set<string>(tokens?.map((t) => t?.id))].map((id) =>
         tokens.find((t) => t?.id === id)
       );
+
   const is_vertical = layout == 'vertical' && displayTokens?.length == 4;
   return (
     <div
@@ -100,14 +103,18 @@ export const TknImages = ({
         displayTokens
           ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
           ?.map((token, index) => {
-            const icon = token?.icon;
+            const icon =
+              token.id == '16.contract.portalbridge.near'
+                ? 'usdcw'
+                : token?.icon;
             const id = token?.id;
             const isRisk = riskTokens.some((riskToken) => riskToken.id === id);
+            const mark = getImageMark(token, isRisk);
             if (icon)
               return (
                 <div
                   key={token?.id + index}
-                  className={`inline-block flex-shrink-0 ${
+                  className={`inline-block flex-shrink-0 overflow-hidden frcc ${
                     is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
                   }  h-${size || 10} w-${size || 10} rounded-full ${
                     tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
@@ -116,28 +123,47 @@ export const TknImages = ({
                     border: borderStyle || 'none',
                   }}
                 >
-                  <img
-                    key={
-                      (id || 0) +
-                      '-' +
-                      index +
-                      '-' +
-                      token?.id +
-                      '-' +
-                      uId +
-                      Date.now()
-                    }
-                    src={icon}
-                    className="rounded-full"
-                  />
-                  {isRisk && (
-                    <div
-                      className="absolute z-40"
-                      style={{ left: '1px', bottom: '-1px' }}
-                    >
-                      <TknIcon />
-                    </div>
+                  {token.id == '16.contract.portalbridge.near' ? (
+                    <USDCWIcon
+                      className={`inline-block flex-shrink-0 frcc ${
+                        is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
+                      }  h-${size || 10} w-${size || 10} rounded-full ${
+                        tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
+                      } bg-cardBg`}
+                    />
+                  ) : (
+                    <img
+                      key={
+                        (id || 0) +
+                        '-' +
+                        index +
+                        '-' +
+                        token?.id +
+                        '-' +
+                        uId +
+                        Date.now()
+                      }
+                      src={icon}
+                      className="rounded-full"
+                    />
                   )}
+                  {mark ? (
+                    <div
+                      className="absolute flex items-center justify-center bg-black bg-opacity-75 bottom-0 left-0 right-0 z-40"
+                      style={{ height: '11px' }}
+                    >
+                      <span
+                        className="italic text-white text-sm gotham_bold relative"
+                        style={{
+                          top: '-1px',
+                          left: '-1px',
+                          transform: 'scale(0.5, 0.5)',
+                        }}
+                      >
+                        {mark}
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
               );
             return (
@@ -145,11 +171,29 @@ export const TknImages = ({
                 key={id || 0 + index}
                 className={`inline-block h-${size || 10} flex-shrink-0 w-${
                   size || 10
-                } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
+                } rounded-full bg-cardBg border border-black -ml-1 relative overflow-hidden`}
                 style={{
-                  border: borderStyle || 'none',
+                  border: borderStyle || '',
                 }}
-              ></div>
+              >
+                {mark ? (
+                  <div
+                    className="absolute flex items-center justify-center bg-black bg-opacity-75 bottom-0 left-0 right-0 z-10"
+                    style={{ height: '11px' }}
+                  >
+                    <span
+                      className="italic text-white text-sm gotham_bold relative"
+                      style={{
+                        top: '-1px',
+                        left: '-1px',
+                        transform: 'scale(0.5, 0.5)',
+                      }}
+                    >
+                      {mark}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
             );
           })}
 
@@ -210,10 +254,23 @@ export const Images = ({
         displayTokens
           ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
           ?.map((token, index) => {
-            const icon = token?.icon;
+            const icon =
+              token?.id == '16.contract.portalbridge.near'
+                ? '16.contract.portalbridge.near'
+                : token?.icon;
             const id = token?.id;
             if (icon)
-              return (
+              return icon == '16.contract.portalbridge.near' ? (
+                <USDCWIcon
+                  className={`inline-block flex-shrink-0 ${
+                    is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
+                  }  h-${size || 10} w-${size || 10} rounded-full border ${
+                    border ? 'border' : ''
+                  } border-gradientFromHover ${
+                    tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
+                  } bg-cardBg`}
+                />
+              ) : (
                 <img
                   key={
                     (id || 0) +
@@ -291,7 +348,9 @@ export const Symbols = ({
       {tokens?.map((token, index) => (
         <span key={token?.id + '-' + index}>
           {index ? separator || '-' : ''}
-          {toRealSymbol(token?.symbol || '')}
+          {token?.id == '16.contract.portalbridge.near'
+            ? 'USDC.w'
+            : toRealSymbol(token?.symbol || '')}
         </span>
       ))}
       {withArrow ? <span className="ml-1.5">{'>'}</span> : null}
@@ -310,9 +369,8 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
     true
   );
 
-  const { farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
-    pool.id
-  );
+  const { farmStakeV1, farmStakeV2, userTotalShare, shadowBurrowShare } =
+    useYourliquidity(pool.id);
 
   return (
     <Card
@@ -337,6 +395,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
             <ShareInFarmV2
               farmStake={farmStakeV1}
               userTotalShare={userTotalShare}
+              shadowBurrowShare={shadowBurrowShare}
               version={'Legacy'}
             />
           ) : null}
@@ -345,6 +404,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
             <ShareInFarmV2
               farmStake={farmStakeV2}
               userTotalShare={userTotalShare}
+              shadowBurrowShare={shadowBurrowShare}
               version={'Classic'}
               poolId={pool.id}
               onlyEndedFarm={endedFarmCountV2 === countV2}

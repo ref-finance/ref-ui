@@ -7,7 +7,7 @@ export const mftGetBalance = async (
 ) => {
   return await refFiViewFunction({
     methodName: 'mft_balance_of',
-    args: { account_id: accountId, token_id: token_id },
+    args: { account_id: accountId, token_id },
   });
 };
 

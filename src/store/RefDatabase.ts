@@ -423,7 +423,7 @@ class RefDatabase extends Dexie {
     return result;
   }
 
-  async queryPoolsByTokens2(tokenInId: string, tokenOutId: string) {
+  async queryPoolsByTokens2() {
     //Queries for any pools that contain either tokenInId OR tokenOutId OR both.
     const normalItems = await this.poolsTokens.toArray();
 
@@ -506,6 +506,18 @@ class RefDatabase extends Dexie {
       pools.every(
         (pool) =>
           Number(pool.update_time) >=
+          Number(moment().unix()) -
+            Number(getConfig().TOP_POOLS_TOKEN_REFRESH_INTERVAL)
+      )
+    );
+  }
+  public async checkPoolsTokens() {
+    const items = await this.poolsTokens.limit(10).toArray();
+    return (
+      items.length > 0 &&
+      items.every(
+        (item) =>
+          Number(item.update_time) >=
           Number(moment().unix()) -
             Number(getConfig().TOP_POOLS_TOKEN_REFRESH_INTERVAL)
       )

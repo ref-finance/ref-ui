@@ -162,6 +162,10 @@ export const currentTokensPrice = async (ids: string): Promise<any> => {
 export const getMemeFarmingTokens = async (): Promise<any> => {
   return await fetch(config.memeRankApiUrl + '/v3/meme-farming/tokens', {
     method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/v3/meme-farming/tokens'),
+    },
   })
     .then((res) => res.json())
     .then((data) => {
@@ -188,6 +192,10 @@ export const getMemeFarmingTotalAssetsList = async (
 
   return await fetch(url, {
     method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/v3/meme-farming/total'),
+    },
   })
     .then((res) => res.json())
     .then((data) => {
@@ -218,6 +226,10 @@ export const getMemeFarmingAssetsList = async (
 
   return await fetch(url, {
     method: 'GET',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/v3/meme-farming/list'),
+    },
   })
     .then((res) => res.json())
     .then((data) => {
@@ -226,4 +238,11 @@ export const getMemeFarmingAssetsList = async (
     .catch(() => {
       return [];
     });
+};
+
+export const getUserIsBlocked = async (): Promise<any> => {
+  return await fetch('https://geo.deltarpc.com/api/is-blocked', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  }).then((res) => res.json());
 };

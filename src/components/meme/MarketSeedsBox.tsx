@@ -44,7 +44,7 @@ const MarketSeedsBox = ({
     origin == 'intro'
       ? [memeDataConfig.meme_winner_tokens[0]]
       : memeDataConfig.meme_winner_tokens;
-  const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
+  const { coming_offline_soon_token } = getMemeDataConfig();
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};
 
@@ -96,9 +96,11 @@ const MarketSeedsBox = ({
       {Object.entries(displaySeeds).map(([seed_id, seed]) => {
         // const xrefSeed = xrefSeeds[MEME_TOKEN_XREF_MAP[seed_id]];
         // const is_pending = isPending(seed) && isPending(xrefSeed);
+        const isComingOffline = coming_offline_soon_token.includes(seed_id);
         const stakeButtonDisabled =
-          emptyNumber(user_balances[seed_id]) &&
-          emptyNumber(user_balances[xrefTokenId]);
+          isComingOffline ||
+          (emptyNumber(user_balances[seed_id]) &&
+            emptyNumber(user_balances[xrefTokenId]));
         const hasLpSeed =
           lpSeeds[seed_id]?.farmList[0]?.status &&
           lpSeeds[seed_id]?.farmList[0]?.status !== 'Ended';
@@ -135,7 +137,10 @@ const MarketSeedsBox = ({
                     className="rounded-full"
                   />
                 )}
-                <div className="flex items-center justify-center absolute top-16 xsm:top-12 bg-senderHot text-base text-cardBg px-3.5 xsm:px-1.5 xsm:py-0 xsm:text-sm py-1 rounded-lg xs:rounded-md gotham_bold border border-memeBorderBlackColor">
+                <div
+                  className="flex items-center justify-center absolute top-16 xsm:top-12 bg-senderHot text-base text-cardBg 
+                px-3.5 xsm:px-1.5 xsm:py-0 xsm:text-sm py-1 rounded-lg xs:rounded-md gotham_bold border border-memeBorderBlackColor"
+                >
                   {displaySeedsPercent[seed_id]}
                 </div>
               </div>

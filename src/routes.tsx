@@ -46,16 +46,16 @@ const routes: Route[] = [
     exact: true,
     wrapper: 'AutoHeightNoOffset',
   },
-  {
-    path: '/orderly',
-    element: lazy(
-      () =>
-        import(
-          /* webpackChunkName: "orderly" */ 'src/pages/Orderly/PorfolioOrderly'
-        )
-    ),
-    wrapper: 'AutoHeight',
-  },
+  // {
+  //   path: '/orderly',
+  //   element: lazy(
+  //     () =>
+  //       import(
+  //         /* webpackChunkName: "orderly" */ 'src/pages/Orderly/PorfolioOrderly'
+  //       )
+  //   ),
+  //   wrapper: 'AutoHeight',
+  // },
   {
     path: '/overview',
     element: lazy(
@@ -205,6 +205,13 @@ const routes: Route[] = [
         import(
           /* webpackChunkName: "addLiquidityV2" */ 'src/pages/poolsV3/AddYourLiquidityPageV3'
         )
+    ),
+    wrapper: 'AutoHeight',
+  },
+  {
+    path: '/bridge',
+    element: lazy(
+      () => import(/* webpackChunkName: "bridge" */ 'src/pages/Bridge')
     ),
     wrapper: 'AutoHeight',
   },

@@ -11,8 +11,8 @@ import { WalletSelectorContextProvider } from './context/WalletSelectorContext';
 
 import { Content } from 'src/Content';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
+import { ModalGAPrivacy } from './context/modal-ui/modalGAPrivacy/modalGAPrivacy';
 import { XmasActivityContextProvider } from './context/XmasActivity';
-import { ModalGAPrivacy } from 'src/context/modal-ui/modalGAPrivacy/modalGAPrivacy';
 import RpcList from 'src/components/rpc';
 import PubTestModal from '../src/components/layout/PubTestModal';
 function App() {
@@ -22,14 +22,13 @@ function App() {
         <XmasActivityContextProvider>
           <div className="page-container relative min-h-screen pb-24 lg:overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
             <Content />
-
+            <ModalGAPrivacy />
             <Footer />
           </div>
         </XmasActivityContextProvider>
       </WalletSelectorContextProvider>
       <RpcList />
       <LedgerTransactionModal />
-      <ModalGAPrivacy />
       <PubTestModal />
     </Router>
   );

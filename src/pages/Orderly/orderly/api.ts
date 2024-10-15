@@ -136,7 +136,8 @@ const announceKey = async (accountId: string) => {
     wallet.id === 'here-wallet' ||
     wallet.id === 'nightly' ||
     wallet.id === 'keypom' ||
-    wallet.id === 'near-mobile-wallet'
+    wallet.id === 'near-mobile-wallet' ||
+    wallet.id === 'coin98-wallet'
   ) {
     if (wallet.id !== 'near-mobile-wallet') {
       await announceLedgerAccessKey(accountId);
@@ -199,7 +200,8 @@ const setTradingKey = async (accountId: string) => {
     wallet.id === 'here-wallet' ||
     wallet.id === 'nightly' ||
     wallet.id === 'keypom' ||
-    wallet.id === 'near-mobile-wallet'
+    wallet.id === 'near-mobile-wallet' ||
+    wallet.id === 'coin98-wallet'
   ) {
     // @ts-ignore
     if (!contract) {

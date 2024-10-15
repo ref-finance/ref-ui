@@ -168,9 +168,12 @@ export const getHistoryOrderSwapInfo = async (
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
-    config.newSodakiApiUrl + `/poollist/${pool_id}/24hvolume/sum`,
+    config.dataServiceApiUrl + `/poollist/${pool_id}/24hvolume/sum`,
     {
       method: 'GET',
+      headers: getAuthenticationHeaders(
+        `/api/poollist/${pool_id}/24hvolume/sum`
+      ),
     }
   )
     .then((res) => res.json())
@@ -192,9 +195,13 @@ export const get24hVolumes = async (
   for (let i = 0; i < numBatches; i++) {
     const batchIds = pool_ids.slice(i * batchSize, (i + 1) * batchSize);
     const promise = fetch(
-      config.newSodakiApiUrl + `/poollist/${batchIds.join('|')}/24hvolume/sum`,
+      config.dataServiceApiUrl +
+        `/poollist/${batchIds.join('|')}/24hvolume/sum`,
       {
         method: 'GET',
+        headers: getAuthenticationHeaders(
+          `/api/poollist/${batchIds.join('|')}/24hvolume/sum`
+        ),
       }
     )
       .then((res) => res.json())
@@ -440,7 +447,6 @@ export const getSearchResult = async ({
     const url = !onlyUseId
       ? `/pool/search?type=${type}&sort=${sort}&limit=${limit}&offset=${offset}&farm=${farm}&hide_low_pool=${hide_low_pool}&order_by=${order}&token_type=${tktype}&token_list=${token_list}&pool_id_list=${pool_id_list}`
       : `/pool/search?pool_id_list=${pool_id_list}`;
-    // use classicTestUrl to replace indexerUrl
     pools = await fetch(config.indexerUrl + url, {
       method: 'GET',
       headers: {
@@ -988,7 +994,7 @@ export const getAllV3Pool24Volume = async (): Promise<any[]> => {
 };
 
 export const getAllTvl = async () => {
-  return await fetch(config.sodakiApiUrl + '/historical-tvl?period=1', {
+  return await fetch(config.sodakiApiUrl + '/historical_tvl?period=1', {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -998,7 +1004,7 @@ export const getAllTvl = async () => {
 };
 
 export const getAllVolume24h = async () => {
-  return await fetch(config.sodakiApiUrl + '/24h-volume-variation', {
+  return await fetch(config.sodakiApiUrl + '/24h_volume_variation', {
     method: 'GET',
   })
     .then((res) => res.json())
@@ -1173,4 +1179,37 @@ export const getTokens = async () => {
     const tokens = await res.json();
     return tokens;
   });
+};
+export const addUserWallet = async (params) => {
+  return await fetch(config.indexerUrl + '/add-user-wallet', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      ...getAuthenticationHeaders('/add-user-wallet'),
+    },
+    body: JSON.stringify(params),
+  }).catch(async (res) => {
+    console.log('add user wallet failed', res);
+  });
+};
+
+export const checkIn = async (account_id: string) => {
+  return await fetch(
+    config.memeRankApiUrl +
+      `/v3/meme-farming/season/check-in?account_id=${account_id}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        ...getAuthenticationHeaders('/v3/meme-farming/season/check-in'),
+      },
+    }
+  )
+    .then(async (res) => {
+      const data = await res.json();
+      return data;
+    })
+    .catch(() => {
+      return [];
+    });
 };

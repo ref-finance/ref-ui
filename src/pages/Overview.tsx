@@ -165,7 +165,7 @@ function OverviewPc() {
           <TotalPanel></TotalPanel>
           <div className="flex  items-stretch justify-between gap-4 mt-7">
             <RefPanel></RefPanel>
-            <OrderlyPanel></OrderlyPanel>
+            {/* <OrderlyPanel></OrderlyPanel> */}
             <BurrowPanel></BurrowPanel>
           </div>
           <WalletPanel></WalletPanel>
@@ -188,7 +188,7 @@ function OverviewMobile() {
         <TotalPanel></TotalPanel>
         <div className="flex flex-col px-2.5 mt-5">
           <RefPanel></RefPanel>
-          <OrderlyPanel></OrderlyPanel>
+          {/* <OrderlyPanel></OrderlyPanel> */}
           <BurrowPanel></BurrowPanel>
         </div>
         <div className="px-2.5">

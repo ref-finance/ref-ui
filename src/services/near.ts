@@ -33,9 +33,11 @@ export const USDTT_USDCC_USDT_USDC_TOKEN_IDS =
   config.USDTT_USDCC_USDT_USDC_TOKEN_IDS;
 
 export const DEGEN_TOKEN_IDS = config.DEGEN_TOKEN_IDS;
+export const USDCW_TOKEN_IDS = config.USDCW_TOKEN_IDS;
 
 export const USDT_USDC_TOKEN_IDS = config.USDT_USDC_TOKEN_IDS;
 export const FRAX_USDC_TOKEN_IDS = config.FRAX_USDC_TOKEN_IDS;
+export const Frax_SFrax_TOKEN_IDS = config.Frax_SFrax_TOKEN_IDS;
 
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
@@ -56,6 +58,10 @@ export const USDT_USDC_POOL_ID = config.USDT_USDC_POOL_ID;
 export const FRAX_USDC_POOL_ID = config.FRAX_USDC_POOL_ID;
 export const RATED_SWAP_USDC_TOKEN_IDS = config.RATED_SWAP_USDC_TOKEN_IDS;
 export const RATED_SWAP_USDC_POOL_ID = config.RATED_SWAP_USDC_POOL_ID;
+
+export const USDCW_POOL_ID = config.USDCW_POOL_ID;
+export const Frax_SFrax_POOL_ID = config.Frax_SFrax_POOL_ID;
+
 export const {
   BTCIDS,
   CUSDIDS,
@@ -86,6 +92,8 @@ export const {
   USDC3E2,
   NEARUSDCC,
   RATED_SWAP_USDC_POOL_INDEX,
+  USDCW_TOKEN_INDEX,
+  Frax_SFrax_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
@@ -115,6 +123,8 @@ export const AllStableTokenIds = new Array(
       .concat(FRAX_USDC_TOKEN_IDS)
       .concat(DEGEN_TOKEN_IDS)
       .concat(RATED_SWAP_USDC_TOKEN_IDS)
+      .concat(USDCW_TOKEN_IDS)
+      .concat(Frax_SFrax_TOKEN_IDS)
   )
 );
 
@@ -123,12 +133,14 @@ export const isStableToken = (id: string) => {
 };
 
 // export const TOKEN_BLACK_LIST = [NEARXIDS[0], 'meta-token.near'];
-export const TOKEN_BLACK_LIST = [NEARXIDS[0]];
+export const TOKEN_BLACK_LIST = [NEARXIDS[0], BTCIDS[1]];
 
 export const ALL_STABLE_POOL_IDS = [
   USDTT_USDCC_USDT_USDC_POOL_ID,
   DEGEN_POOL_ID,
   STABLE_POOL_ID,
+  USDTT_USDCC_USDT_USDC_POOL_ID,
+  USDCW_POOL_ID,
   STABLE_POOL_USN_ID,
   BTC_STABLE_POOL_ID,
   STNEAR_POOL_ID,
@@ -141,6 +153,7 @@ export const ALL_STABLE_POOL_IDS = [
   FRAX_USDC_POOL_ID,
   DEGEN_POOL_ID1,
   RATED_SWAP_USDC_POOL_ID,
+  Frax_SFrax_POOL_ID,
 ]
   .filter((_) => _)
   .map((id) => id.toString());
@@ -192,6 +205,10 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return NEARX_POOL_INDEX;
     case RATED_SWAP_USDC_POOL_ID.toString():
       return RATED_SWAP_USDC_POOL_INDEX;
+    case USDCW_POOL_ID.toString():
+      return USDCW_TOKEN_INDEX;
+    case Frax_SFrax_POOL_ID.toString():
+      return Frax_SFrax_POOL_INDEX;
   }
 };
 
@@ -224,6 +241,8 @@ export const USD_CLASS_STABLE_POOL_IDS = [
   DEGEN_POOL_ID?.toString(),
   DEGEN_POOL_ID1?.toString(),
   RATED_SWAP_USDC_POOL_ID.toString(),
+  USDCW_POOL_ID?.toString(),
+  Frax_SFrax_POOL_ID?.toString(),
 ];
 
 export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;
@@ -288,6 +307,7 @@ export interface RefFiViewFunctionOptions {
 export interface RefFiFunctionCallOptions extends RefFiViewFunctionOptions {
   gas?: string;
   amount?: string;
+  deposit?: string;
 }
 
 export const refFiFunctionCall = ({

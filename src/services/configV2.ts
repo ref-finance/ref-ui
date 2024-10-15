@@ -34,7 +34,11 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|wrap.near|2000',
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near|wrap.near|2000',
+          'aurora|wrap.near|2000',
+          'usdt.tether-token.near|wrap.near|2000',
         ],
+        SUPPORT_SHADOW_POOL_IDS: ['4179'],
       };
     case 'pub-testnet':
       return {
@@ -48,6 +52,7 @@ export default function getConfig(
         ORDRRBOOK_COLLATTERAL_TOKEN: 'usdc.orderly.testnet',
         BLACK_LIST_DCL_POOL_IDS_IN_POOLS: [],
         WHITE_LIST_DCL_POOL_IDS_IN_LIMIT_ORDERS: [],
+        SUPPORT_SHADOW_POOL_IDS: ['1919'],
       };
     case 'testnet':
       return {
@@ -67,6 +72,7 @@ export default function getConfig(
           'usdcc.fakes.testnet|wrap.testnet|400',
           'ref.fakes.testnet|usdc.fakes.testnet|400',
         ],
+        SUPPORT_SHADOW_POOL_IDS: ['269', '711'],
       };
     default:
       return {
@@ -99,7 +105,11 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|token.v2.ref-finance.near|400',
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near|token.v2.ref-finance.near|400',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|wrap.near|2000',
+          '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near|wrap.near|2000',
+          'aurora|wrap.near|2000',
+          'usdt.tether-token.near|wrap.near|2000',
         ],
+        SUPPORT_SHADOW_POOL_IDS: ['4179'],
       };
   }
 }

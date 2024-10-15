@@ -12,7 +12,7 @@ import {
 import { Context } from 'src/components/wrapper';
 import getConfig from 'src/services/config';
 import { useRefPrice } from 'src/state/account';
-import { bridgeData, menuItemType, useMenusMobile } from 'src/utils/menu';
+import { menuItemType, useMenusMobile } from 'src/utils/menu';
 import { toPrecision } from 'src/utils/numbers';
 
 import { WalletContext } from '../../utils/wallets-integration';
@@ -439,7 +439,7 @@ export function MobileNavBar(props: any) {
         }
       } else {
         menusMobile.find((d) => {
-          let match = d.links.includes(pathname);
+          const match = d.links.includes(pathname);
           if (!match && Array.isArray(d.children)) {
             const level2Match = d.children.find((c) =>
               c.links?.includes(pathname)
@@ -593,8 +593,6 @@ export function MobileNavBar(props: any) {
     }
   }
 
-  const [showBridgeModalMobile, setShowBridgeModalMobile] =
-    useState<boolean>(false);
   function closeKeyModal() {
     setKeyModalShow(false);
   }
@@ -728,25 +726,6 @@ export function MobileNavBar(props: any) {
                 </div>
                 <div className="flex items-center gap-2">
                   <BuyNearButton />
-
-                  <div
-                    className={`frcc text-xs     rounded-lg py-1.5 px-3
-                  
-                  ${
-                    showBridgeModalMobile
-                      ? 'text-white  bg-priceBgColor'
-                      : 'text-cardBg bg-primaryText font-gothamBold'
-                  }
-                  `}
-                    onClick={() => {
-                      setShowBridgeModalMobile(true);
-                    }}
-                  >
-                    <FormattedMessage
-                      id="bridge_pure"
-                      defaultMessage={'Bridge'}
-                    ></FormattedMessage>
-                  </div>
                 </div>
               </div>
               <div className="text-primaryText gotham_bold pb-24">
@@ -933,115 +912,10 @@ export function MobileNavBar(props: any) {
         onClose={() => setShowWalletRisk(false)}
       />
 
-      <MobileBridgeModal
-        isOpen={showBridgeModalMobile}
-        onRequestClose={() => {
-          setShowBridgeModalMobile(false);
-        }}
-      ></MobileBridgeModal>
       {accountId && keyModalShow ? (
         <AccessKeyModal isOpen={keyModalShow} onRequestClose={closeKeyModal} />
       ) : null}
     </>
-  );
-}
-
-function MobileBridgeModal(props: Modal.Props) {
-  const { accountId } = useWalletSelector();
-  return (
-    <Modal
-      {...props}
-      style={{
-        overlay: {
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          zIndex: 9999999,
-          outline: 'none',
-        },
-        content: {
-          position: 'absolute',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          bottom: 0,
-          left: '50%',
-          top: 'none',
-          transform: 'translate(-50%, 0)',
-          outline: 'none',
-          width: '100%',
-        },
-      }}
-    >
-      <div
-        className="border rounded-2xl w-full pb-10 bg-cardBg p-2 text-base flex flex-col gap-4 text-white"
-        style={{
-          border: '1px solid #27343E',
-        }}
-      >
-        <div className="pl-4">
-          <FormattedMessage
-            id="bridge_pure"
-            defaultMessage={'Bridge'}
-          ></FormattedMessage>
-        </div>
-        {bridgeData.map((item) => {
-          if (!item.children) {
-            return (
-              <div
-                key={item.id}
-                className="flex flex-col gap-2 pl-1 text-white cursor-pointer frcs hover:bg-opacity-20 hover:rounded-xl"
-                onClick={() => {
-                  let targetUrl = item.link;
-                  if (item.needAccountId && accountId) {
-                    targetUrl = `${targetUrl}&address=${accountId}`;
-                  }
-                  openUrl(targetUrl);
-                }}
-              >
-                <div className="frcs gap-2 pl-3">
-                  <item.icon></item.icon>
-                  {item.name}
-                </div>
-              </div>
-            );
-          } else {
-            return (
-              <div
-                key={item.id}
-                className="flex flex-col gap-2 pl-1 text-primaryText "
-              >
-                <div className="frcs gap-2 pl-3">
-                  <item.icon></item.icon>
-
-                  {item.name}
-                </div>
-
-                {item.children.map((sub) => {
-                  return (
-                    <div
-                      key={sub.id}
-                      className="rounded-xl  py-1.5 pl-1 text-white bg-primaryText bg-opacity-20 cursor-pointer frcs"
-                      onClick={() => {
-                        openUrl(sub.link);
-                      }}
-                    >
-                      <div className="frcs pl-3 gap-2">
-                        <sub.icon></sub.icon>
-                        {sub.name}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          }
-        })}
-      </div>
-    </Modal>
   );
 }
 

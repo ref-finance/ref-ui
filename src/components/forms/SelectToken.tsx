@@ -82,6 +82,7 @@ import { sort_tokens_by_base, openUrl } from '../../services/commonV3';
 import getConfigV2 from '../../services/configV2';
 import SelectTokenTable from './SelectTokenTable';
 import CustomTooltip from '../customTooltip/customTooltip';
+import { getImageMark, isSuffix } from '../../utils/token';
 const configV2 = getConfigV2();
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST2';
@@ -106,46 +107,64 @@ export function tokenPrice(price: string, error?: boolean) {
     </span>
   );
 }
-export function SingleToken({
-  token,
-  price,
-  isRisk,
-}: {
-  token: TokenMetadata;
-  price: string;
-  isRisk: boolean;
-}) {
+export function SingleToken({ token }: { token: TokenMetadata }) {
   const is_native_token = configV2.NATIVE_TOKENS.includes(token?.id);
   const [showTooltip, setShowTooltip] = useState(false);
   const isTokenAtRisk = !!token.isRisk;
+  const mark = getImageMark(token);
   return (
     <>
       {token.icon ? (
-        <div className="relative flex-shrink-0">
+        <div
+          className="relative flex-shrink-0 overflow-hidden mr-2 rounded-full"
+          style={{ width: '30px', height: '30px' }}
+        >
           <img
             src={token.icon}
             alt={toRealSymbol(token.symbol)}
-            className="inline-block mr-2 border rounded-full border-black"
-            style={{ width: '30px', height: '30px' }}
+            className="inline-block mr-2 border rounded-full border-black w-full h-full"
           />
-          {isTokenAtRisk ? (
-            <div className="absolute bottom-0 left-0">
-              <TknIcon />
+          {mark ? (
+            <div
+              className="flex items-center justify-center bg-black bg-opacity-75 absolute bottom-0 left-0 right-0"
+              style={{ height: '11px' }}
+            >
+              <span
+                className="italic text-white text-sm gotham_bold relative"
+                style={{
+                  top: '-1px',
+                  left: '-1px',
+                  transform: 'scale(0.5, 0.5)',
+                }}
+              >
+                {mark}
+              </span>
             </div>
           ) : null}
         </div>
       ) : (
         <div
-          className="inline-block mr-2 border rounded-full border-black relative"
+          className="inline-block mr-2 border rounded-full border-black relative overflow-hidden"
           style={{ width: '30px', height: '30px' }}
         >
-          {isTokenAtRisk ? (
-            <div className="absolute bottom-0 left-0">
-              <TknIcon />
+          {mark ? (
+            <div
+              className="flex items-center justify-center bg-black bg-opacity-75 absolute bottom-0 left-0 right-0"
+              style={{ height: '11px' }}
+            >
+              <span
+                className="italic text-white text-sm gotham_bold relative"
+                style={{
+                  top: '-1px',
+                  left: '-1px',
+                  transform: 'scale(0.5, 0.5)',
+                }}
+              >
+                {mark}
+              </span>
             </div>
           ) : null}
         </div>
-        // <DefaultTokenImg className="mr-2"></DefaultTokenImg>
       )}
       <div className="flex flex-col justify-between">
         <div className={`flex items-center`}>
@@ -476,6 +495,9 @@ export default function SelectToken({
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [listTknData, setListTknData] = useState<TokenMetadata[]>([]);
   const [listTknxData, setListTknxData] = useState<TokenMetadata[]>([]);
+  const [listmemeCookingData, setListmemeCookingData] = useState<
+    TokenMetadata[]
+  >([]);
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
@@ -510,7 +532,7 @@ export default function SelectToken({
       tokens.filter(
         (t) =>
           TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
-          t.id.indexOf('tknx') == -1 &&
+          isSuffix(t.id, 'tkn') &&
           t.isRisk &&
           !t.isUserToken
       ),
@@ -522,13 +544,27 @@ export default function SelectToken({
       tokens.filter(
         (t) =>
           TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
-          t.id.indexOf('tknx') != -1 &&
+          isSuffix(t.id, 'tknx') &&
           t.isRisk &&
           !t.isUserToken
       ),
       balances,
       visible
     );
+  const {
+    tokensData: memeCookingTokensData,
+    loading: loadingMemeCookingTokensData,
+  } = useTokensData(
+    tokens.filter(
+      (t) =>
+        TOKEN_BLACK_LIST.indexOf(t.id) === -1 &&
+        isSuffix(t.id, 'meme-cooking') &&
+        t.isRisk &&
+        !t.isUserToken
+    ),
+    balances,
+    visible
+  );
   useEffect(() => {
     if (tokensData?.length && !loadingTokensData) {
       tokensData.sort(sortTypes[currentSort].fn);
@@ -548,6 +584,16 @@ export default function SelectToken({
       setListTknxData(tknxTokensData);
     }
   }, [tknxTokensData?.length, loadingTKNXTokensData, currentSort]);
+  useEffect(() => {
+    if (memeCookingTokensData?.length && !loadingMemeCookingTokensData) {
+      memeCookingTokensData.sort(sortTypes[currentSort].fn);
+      setListmemeCookingData(memeCookingTokensData);
+    }
+  }, [
+    memeCookingTokensData?.length,
+    loadingMemeCookingTokensData,
+    currentSort,
+  ]);
 
   useEffect(() => {
     getLatestCommonBassesTokens();
@@ -711,6 +757,10 @@ export default function SelectToken({
     <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
     Created by any user on https://tkn.homes with the tknx.near suffix, poses high risks. Ref has not certified it. Exercise caution.
     </div>`;
+  const memeCookingTip = `
+    <div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">
+    Created by any user on https://meme.cooking/create with the meme-cooking.near suffix, poses high risks. Ref has not certified it. Exercise caution.
+    </div>`;
   return (
     <MicroModal
       open={visible}
@@ -841,16 +891,6 @@ export default function SelectToken({
                 >
                   Default
                 </div>
-                {/* <div
-                  className={`flex-1 text-center py-2.5 ${
-                    activeTab === 'Watchlist'
-                      ? 'text-white border-b-2 border-white'
-                      : ''
-                  }`}
-                  onClick={() => setActiveTab('Watchlist')}
-                >
-                  Watchlist
-                </div> */}
                 <div
                   className={`text-center px-2.5 py-2 ${
                     activeTab === 'TKN'
@@ -871,8 +911,49 @@ export default function SelectToken({
                     <CustomTooltip id="tknId" />
                   </div>
                 </div>
+                <div
+                  className={`text-center px-2.5 py-2 ${
+                    activeTab === 'MC'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('MC')}
+                >
+                  MC
+                  <div
+                    className="text-white text-right ml-1 inline-block"
+                    data-class="reactTip"
+                    data-tooltip-id="mcId"
+                    data-place="left"
+                    data-tooltip-html={memeCookingTip}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <CustomTooltip id="mcId" />
+                  </div>
+                </div>
                 {/* tknx */}
                 {/* <div
+                  className={`text-center px-2.5 py-2 ${
+                    activeTab === 'MC'
+                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                      : ''
+                  }`}
+                  onClick={() => setActiveTab('MC')}
+                >
+                  MC
+                  <div
+                    className="text-white text-right ml-1 inline-block"
+                    data-class="reactTip"
+                    data-tooltip-id="mcId"
+                    data-place="left"
+                    data-tooltip-html={memeCookingTip}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <CustomTooltip id="mcId" />
+                  </div>
+                </div> */}
+                {/* tknx */}
+                <div
                   className={`text-center px-2.5 py-2 ${
                     activeTab === 'TKNX'
                       ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
@@ -891,7 +972,7 @@ export default function SelectToken({
                     <QuestionMark></QuestionMark>
                     <CustomTooltip id="tknId" />
                   </div>
-                </div> */}
+                </div>
               </div>
               <div>
                 {activeTab === 'Default' && (
@@ -920,24 +1001,6 @@ export default function SelectToken({
                     showRiskTokens={false}
                   />
                 )}
-                {/* {activeTab === 'Watchlist' && (
-                  <>
-                    {showCommonBasses && (
-                      <CommonBasses
-                        sortBy={sortBy}
-                        onClick={(token) => {
-                          onSelect && onSelect(token);
-                        }}
-                        tokenPriceList={tokenPriceList}
-                        allowWNEAR={allowWNEAR}
-                        handleClose={handleClose}
-                        balances={balances}
-                        forCross={forCross}
-                        tokens={listData.concat(listTknData)}
-                      />
-                    )}
-                  </>
-                )} */}
                 {activeTab === 'TKN' && (
                   <SelectTokenTable
                     sortBy={sortBy}
@@ -972,6 +1035,32 @@ export default function SelectToken({
                     currentSort={currentSort}
                     onSortChange={onSortChange}
                     tokens={listTknxData}
+                    onClick={(token) => {
+                      if (token.id != NEARXIDS[0]) {
+                        if (
+                          !(
+                            token.id == WRAP_NEAR_CONTRACT_ID &&
+                            token.symbol == 'wNEAR' &&
+                            !allowWNEAR
+                          )
+                        ) {
+                          onSelect && onSelect(token);
+                        }
+                      }
+                      handleClose();
+                    }}
+                    balances={balances}
+                    forCross={forCross}
+                    showRiskTokens={true}
+                  />
+                )}
+                {activeTab === 'MC' && (
+                  <SelectTokenTable
+                    sortBy={sortBy}
+                    tokenPriceList={tokenPriceList}
+                    currentSort={currentSort}
+                    onSortChange={onSortChange}
+                    tokens={listmemeCookingData}
                     onClick={(token) => {
                       if (token.id != NEARXIDS[0]) {
                         if (

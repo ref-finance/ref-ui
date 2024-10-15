@@ -46,8 +46,9 @@ import {
   PoolMode,
   REF_FI_SWAP_SIGNAL,
 } from '../services/swap';
-import { EstimateSwapView, swap } from '../services/swap';
+import { EstimateSwapView, swap, swapFromServer } from '../services/swap';
 import {
+  cacheAllDCLPools,
   get_pool,
   PoolInfo,
   quote,
@@ -72,6 +73,12 @@ import { toRealSymbol } from '../utils/token';
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { useIndexerStatus } from './pool';
 import { useTokenPriceList } from './token';
+import {
+  IEstimateSwapServerView,
+  getAvgFeeFromServer,
+  getPriceImpactFromServer,
+  getAllPoolsFromCache,
+} from '../services/smartRouterFromServer';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
@@ -129,23 +136,26 @@ export const useSwapPopUp = () => {
   const parseLimitOrderPopUp = async (res: any) => {
     const byNeth =
       res?.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
-
+    const byEvm =
+      res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+      'rlp_execute';
+    const isPackage = byNeth || byEvm;
     const ft_resolved_id =
       res?.receipts?.findIndex((r: any) =>
         r?.receipt?.Action?.actions?.some(
           (a: any) => a?.FunctionCall?.method_name === 'ft_resolve_transfer'
         )
-      ) + (byNeth ? 1 : 0);
+      ) + (isPackage ? 1 : 0);
 
     const ft_on_transfer_id =
       res?.receipts?.findIndex((r: any) =>
         r?.receipt?.Action?.actions?.some(
           (a: any) => a?.FunctionCall?.method_name === 'ft_on_transfer'
         )
-      ) + (byNeth ? 1 : 0);
+      ) + (isPackage ? 1 : 0);
 
     const ft_transfer_call_args = parsedArgs(
-      byNeth
+      isPackage
         ? res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall?.args
         : res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
     );
@@ -303,9 +313,12 @@ export const useSwapPopUp = () => {
           const byNeth =
             res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
             'execute';
-
+          const byEvm =
+            res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+            'rlp_execute';
+          const isPackage = byNeth || byEvm;
           const transaction = res.transaction;
-          const isSwapNeth =
+          const isSwapReceipt =
             res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
               ?.method_name === 'ft_transfer_call' ||
             res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
@@ -321,7 +334,7 @@ export const useSwapPopUp = () => {
                   'near_deposit' ||
                 transaction?.actions[0]?.FunctionCall?.method_name ===
                   'near_withdraw' ||
-                (isSwapNeth && byNeth)) &&
+                (isSwapReceipt && isPackage)) &&
               !isLimitOrder,
             transactionErrorType,
           };
@@ -368,25 +381,38 @@ export const estimateValidator = (
   swapTodos: EstimateSwapView[],
   tokenIn: TokenMetadata,
   parsedAmountIn: string,
-  tokenOut: TokenMetadata
+  tokenOut: TokenMetadata,
+  swapsToDoServer: IEstimateSwapServerView
 ) => {
-  if (swapTodos && swapTodos?.[0]?.pool === null) return true;
-
-  const tokenInId = swapTodos[0]?.inputToken;
-  const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
-
-  if (
-    tokenInId !== tokenIn.id ||
-    tokenOutId !== tokenOut.id ||
-    !BigNumber.sum(...swapTodos.map((st) => st.partialAmountIn || 0)).isEqualTo(
-      parsedAmountIn
-    ) ||
-    (!!localStorage.getItem(SUPPORT_LEDGER_KEY) && swapTodos?.length > 1)
-  ) {
-    return false;
+  if (swapTodos?.[0]?.pool === null || !swapsToDoServer) return true;
+  if (swapTodos) {
+    const tokenInId = swapTodos[0]?.inputToken;
+    const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
+    if (
+      tokenInId !== tokenIn.id ||
+      tokenOutId !== tokenOut.id ||
+      !BigNumber.sum(
+        ...swapTodos.map((st) => st.partialAmountIn || 0)
+      ).isEqualTo(parsedAmountIn) ||
+      (!!localStorage.getItem(SUPPORT_LEDGER_KEY) && swapTodos?.length > 1)
+    ) {
+      return false;
+    }
   }
+  if (swapsToDoServer) {
+    const { contract_in, contract_out, amount_in } = swapsToDoServer;
+    if (
+      contract_in !== tokenIn.id ||
+      contract_out !== tokenOut.id ||
+      !BigNumber(amount_in).isEqualTo(parsedAmountIn)
+    ) {
+      return false;
+    }
+  }
+
   return true;
 };
+// TODO 1
 export const useSwap = ({
   tokenIn,
   tokenInAmount,
@@ -406,13 +432,15 @@ export const useSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
+  const [swapsToDoServer, setSwapsToDoServer] =
+    useState<IEstimateSwapServerView>();
   const [quoteDone, setQuoteDone] = useState<boolean>(false);
 
   const tokenPriceList = useTokenPriceList(loadingTrigger);
 
   const { enableTri } = useContext(SwapProContext);
 
-  const [forceEstimate, setForceEstimate] = useState<boolean>(false);
+  const [tag, setTag] = useState<any>();
 
   const [priceImpactValue, setPriceImpactValue] = useState<string>('0');
 
@@ -459,29 +487,61 @@ export const useSwap = ({
 
     setAvgFee(avgFee);
   };
-
   const getEstimate = async () => {
     setCanSwap(false);
     setQuoteDone(false);
+    setEstimating(true);
 
-    if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
-      if (!tokenInAmount || ONLY_ZEROS.test(tokenInAmount)) {
-        setTokenOutAmount('0');
-        setSwapsToDo(null);
-
-        return;
-      }
-
-      setEstimating(true);
-      estimateSwap({
-        tokenIn,
-        tokenOut,
-        amountIn: tokenInAmount,
-        intl,
-        supportLedger,
-        loadingTrigger,
-      })
-        .then(async ({ estimates: estimatesRes }) => {
+    estimateSwap({
+      tokenIn,
+      tokenOut,
+      amountIn: tokenInAmount,
+      intl,
+      supportLedger,
+      loadingTrigger,
+      slippage: slippageTolerance,
+    })
+      .then(async (estimateResult) => {
+        if (estimateResult.source == 'server') {
+          const { estimatesFromServer, poolsMap, tokensMap } = estimateResult;
+          const { amount_out } = estimatesFromServer;
+          const expectedOut = toReadableNumber(tokenOut.decimals, amount_out);
+          setSwapError(null);
+          setSwapsToDo(null);
+          setTokenOutAmount(scientificNotationToString(expectedOut));
+          setEstimateInOut([tokenInAmount, expectedOut]);
+          setCanSwap(true);
+          setQuoteDone(true);
+          setSwapsToDoServer(estimatesFromServer);
+          getAvgFeeFromServer({
+            estimatesFromServer,
+            setAvgFee,
+            tokenInAmount,
+            tokenIn,
+            poolsMap,
+          });
+          const tokenPriceListForCal = !!tokenPriceList?.NEAR
+            ? tokenPriceList
+            : (await getTokenPriceListFromCache()).reduce(
+                (acc, cur) => ({
+                  ...acc,
+                  [cur.id]: cur,
+                }),
+                {}
+              );
+          getPriceImpactFromServer({
+            estimatesFromServer,
+            tokenIn,
+            tokenOut,
+            tokenInAmount,
+            tokenOutAmount: scientificNotationToString(expectedOut.toString()),
+            tokenPriceList: tokenPriceListForCal,
+            setPriceImpactValue,
+            poolsMap,
+            tokensMap,
+          });
+        } else if (estimateResult.source == 'script') {
+          const { estimates: estimatesRes } = estimateResult;
           const estimates = estimatesRes.map((e) => ({
             ...e,
             partialAmountIn: e.pool.partialAmountIn,
@@ -498,6 +558,7 @@ export const useSwap = ({
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
             setSwapError(null);
+            setSwapsToDoServer(null);
 
             const expectedOut = estimates.reduce(
               (acc, cur) =>
@@ -539,103 +600,55 @@ export const useSwap = ({
           }
 
           setPool(estimates[0].pool);
-        })
-        .catch((err) => {
-          // if (!loadingTrigger) {
-          setCanSwap(false);
-          setTokenOutAmount('');
-          setSwapError(err);
-          setQuoteDone(true);
-
-          // }
-        })
-        .finally(() => {
-          setForceEstimate && setForceEstimate(false);
-          setLoadingTrigger && setLoadingTrigger(false);
-          setEstimating && setEstimating(false);
-          setShowSwapLoading && setShowSwapLoading(false);
-        });
-    } else if (
-      tokenIn &&
-      tokenOut &&
-      !tokenInAmount &&
-      ONLY_ZEROS.test(tokenInAmount) &&
-      tokenIn.id !== tokenOut.id
+        }
+      })
+      .catch((err) => {
+        setCanSwap(false);
+        setTokenOutAmount('');
+        setSwapError(err);
+        setQuoteDone(true);
+      })
+      .finally(() => {
+        setLoadingTrigger && setLoadingTrigger(false);
+        setEstimating && setEstimating(false);
+        setShowSwapLoading && setShowSwapLoading(false);
+        setTag(`${tokenIn?.id}|${tokenOut?.id}|${tokenInAmount}`);
+      });
+  };
+  useEffect(() => {
+    getAllPoolsFromCache(true);
+  }, []);
+  useEffect(() => {
+    if (
+      tokenIn?.id &&
+      tokenOut?.id &&
+      tokenIn.id !== tokenOut.id &&
+      Number(tokenInAmount || 0) > 0
     ) {
+      getEstimate();
+    } else if (ONLY_ZEROS.test(tokenInAmount || '0')) {
       setTokenOutAmount('0');
     }
-  };
-
-  useEffect(() => {
-    const valRes =
-      !swapError &&
-      swapsToDo &&
-      tokenIn &&
-      tokenOut &&
-      estimateValidator(
-        swapsToDo,
-        tokenIn,
-        toNonDivisibleNumber(
-          tokenIn?.decimals === null || tokenIn?.decimals === undefined
-            ? 24
-            : tokenIn.decimals,
-          tokenInAmount
-        ),
-        tokenOut
-      );
-    if (!tokenDeflationRateData) return;
-    if (estimating && swapsToDo && !forceEstimate) return;
-
-    if (valRes && !loadingTrigger && !forceEstimate) {
-      return;
-    }
-
-    getEstimate();
   }, [
-    loadingTrigger,
-    loadingPause,
-    tokenIn?.id,
-    tokenOut?.id,
     tokenInAmount,
     reEstimateTrigger,
-    enableTri,
-    forceEstimate,
-    tokenDeflationRateData?.rate,
-  ]);
-
-  useEffect(() => {
-    const valRes =
-      swapsToDo &&
-      tokenIn &&
-      tokenOut &&
-      estimateValidator(
-        swapsToDo,
-        tokenIn,
-        toNonDivisibleNumber(
-          tokenIn?.decimals === null || tokenIn?.decimals === undefined
-            ? 24
-            : tokenIn.decimals,
-          tokenInAmount
-        ),
-        tokenOut
-      );
-    if (!tokenDeflationRateData) return;
-    if (estimating && swapsToDo && !forceEstimate) return;
-
-    if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
-    getEstimate();
-  }, [estimating, tokenDeflationRateData?.rate]);
-
-  useEffect(() => {
-    setForceEstimate(true);
-  }, [
     tokenIn?.id,
     tokenOut?.id,
-    tokenIn?.symbol,
-    tokenOut?.symbol,
     supportLedger,
+    enableTri,
+    slippageTolerance,
   ]);
-
+  useEffect(() => {
+    if (
+      loadingTrigger &&
+      tokenIn?.id &&
+      tokenOut?.id &&
+      tokenIn.id !== tokenOut.id &&
+      Number(tokenInAmount || 0) > 0
+    ) {
+      getEstimate();
+    }
+  }, [loadingTrigger]);
   useEffect(() => {
     let id: any = null;
     if (!loadingTrigger && !loadingPause) {
@@ -652,18 +665,28 @@ export const useSwap = ({
   }, [count, loadingTrigger, loadingPause]);
 
   const makeSwap = () => {
-    swap({
-      slippageTolerance,
-      swapsToDo,
-      tokenIn,
-      amountIn: Big(tokenInAmount)
-        .div(Big(1).minus(tokenDeflationRateData?.rate || 0))
-        .toFixed(),
-      tokenOut,
-      swapMarket: 'ref',
-    }).catch(setSwapError);
+    if (swapsToDo) {
+      swap({
+        slippageTolerance,
+        swapsToDo,
+        tokenIn,
+        amountIn: Big(tokenInAmount)
+          .div(Big(1).minus(tokenDeflationRateData?.rate || 0))
+          .toFixed(),
+        tokenOut,
+        swapMarket: 'ref',
+      }).catch(setSwapError);
+    } else if (swapsToDoServer) {
+      swapFromServer({
+        swapsToDoServer,
+        tokenIn,
+        amountIn: Big(tokenInAmount)
+          .div(Big(1).minus(tokenDeflationRateData?.rate || 0))
+          .toFixed(),
+        tokenOut,
+      }).catch(setSwapError);
+    }
   };
-
   return {
     canSwap,
     tokenOutAmount,
@@ -673,9 +696,8 @@ export const useSwap = ({
     swapError,
     makeSwap,
     avgFee,
-    tokenInAmount: !swapsToDo
-      ? '1'
-      : toReadableNumber(
+    tokenInAmount: swapsToDo
+      ? toReadableNumber(
           tokenIn.decimals,
           swapsToDo
             .reduce(
@@ -683,7 +705,11 @@ export const useSwap = ({
               new Big(0)
             )
             .toFixed()
-        ),
+        )
+      : swapsToDoServer
+      ? toReadableNumber(tokenIn.decimals, swapsToDoServer.amount_in || '0')
+      : '1',
+
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
@@ -692,6 +718,8 @@ export const useSwap = ({
       new Big(priceImpactValue).minus(new Big((avgFee || 0) / 100)).toString()
     ),
     estimateInOut,
+    swapsToDoServer,
+    tag,
   };
 };
 export const useSwapV3 = ({
@@ -789,7 +817,9 @@ export const useSwapV3 = ({
   const bestFee = bestEstimate?.tag?.split('|')?.[1]
     ? Number(bestEstimate?.tag?.split('|')?.[1])
     : null;
-
+  useEffect(() => {
+    cacheAllDCLPools();
+  }, []);
   useEffect(() => {
     if (!bestFee || wrapOperation) return;
 
@@ -805,7 +835,6 @@ export const useSwapV3 = ({
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount || wrapOperation) return;
-
     setQuoteDone(false);
 
     const storedPools = localStorage.getItem(REF_DCL_POOL_CACHE_KEY);
@@ -818,7 +847,6 @@ export const useSwapV3 = ({
     const allDCLPools = JSON.parse(
       localStorage.getItem(REF_DCL_POOL_CACHE_KEY)
     );
-
     Promise.all(
       fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
     )
@@ -840,9 +868,6 @@ export const useSwapV3 = ({
           setTokenOutAmount(
             toReadableNumber(tokenOut?.decimals || 24, bestEstimate.amount)
           );
-
-          setTag(bestEstimate.tag);
-
           return;
         }
       })
@@ -851,6 +876,7 @@ export const useSwapV3 = ({
         setQuoteDone(true);
         setPoolReFetch(!poolReFetch);
         setLoadingTrigger && setLoadingTrigger(false);
+        setTag(`${tokenIn?.id}|${tokenOut?.id}|${tokenInAmount}`);
       });
   }, [
     tokenIn?.id,
@@ -1521,6 +1547,8 @@ export const useRefSwap = ({
     priceImpactValue,
     tokenInAmount: tokenInAmountV1,
     estimateInOut,
+    swapsToDoServer,
+    tag,
   } = useSwap({
     tokenIn,
     tokenInAmount,
@@ -1538,7 +1566,6 @@ export const useRefSwap = ({
     tokenDeflationRateData,
   });
   const [estimateInAmount, tokenOutAmount] = estimateInOut;
-
   const {
     makeSwap: makeSwapV2,
     tokenOutAmount: tokenOutAmountV2,
@@ -1550,7 +1577,7 @@ export const useRefSwap = ({
     canSwap: canSwapV2,
     swapErrorV3: swapErrorV2,
     tokenInAmount: tokenInAmountV2,
-    tag: tagV2,
+    tag: tagV3,
   } = useSwapV3({
     tokenIn,
     tokenOut,
@@ -1562,11 +1589,23 @@ export const useRefSwap = ({
     setLoadingTrigger,
     reEstimateTrigger,
   });
-
-  const quoteDoneRef =
-    quoteDoneV2 &&
-    quoteDone &&
-    Big(estimateInAmount || 0).eq(tokenInAmount || 0);
+  function validator() {
+    if (tag && tagV3) {
+      const [inId, outId, inAmount] = tag.split('|');
+      const [dclInId, dclOutId, dclInAmount] = tagV3.split('|');
+      return (
+        inId == tokenIn?.id &&
+        outId == tokenOut.id &&
+        inAmount == tokenInAmount &&
+        dclInId == tokenIn?.id &&
+        dclOutId == tokenOut.id &&
+        dclInAmount == tokenInAmount
+      );
+    }
+    return false;
+  }
+  // TODO 2
+  const quoteDoneRef = quoteDoneV2 && quoteDone && validator();
   if (!quoteDoneRef)
     return {
       quoteDone: false,
@@ -1584,11 +1623,15 @@ export const useRefSwap = ({
       ? 'v2'
       : 'v1';
   if (bestSwap === 'v1') {
+    if (swapsToDoServer) {
+      swapsToDoServer.contract = 'Ref_Classic';
+    }
     return {
       quoteDone: true,
       canSwap,
       makeSwap: makeSwapV1,
       estimates: swapsToDo?.map((s) => ({ ...s, contract: 'Ref_Classic' })),
+      estimatesServer: swapsToDoServer ?? null,
       tokenOutAmount:
         !tokenOutAmount || swapError
           ? ''
@@ -1955,6 +1998,7 @@ export const useRefSwapPro = ({
     selectMarket,
     swapType,
   } = useContext(SwapProContext);
+  // TODO 3
   const resRef = useRefSwap({
     tokenIn,
     tokenInAmount,
@@ -2038,17 +2082,18 @@ export const useRefSwapPro = ({
         });
 
       resValid =
-        resValid &&
-        (!resAurora?.availableRoute ||
-          resAurora.tokenOutAmount ===
-            toPrecision(
-              resAurora.tokenOutAmount || '0',
-              Math.min(tokenOut.decimals, 8)
-            )) &&
-        (!resRef?.availableRoute ||
-          resRef.estimates?.[0]?.tokens?.[
-            resRef.estimates?.[0]?.tokens.length - 1
-          ]?.id === localStorage.getItem('REF_FI_SWAP_OUT'));
+        (resValid &&
+          (!resAurora?.availableRoute ||
+            resAurora.tokenOutAmount ===
+              toPrecision(
+                resAurora.tokenOutAmount || '0',
+                Math.min(tokenOut.decimals, 8)
+              )) &&
+          (!resRef?.availableRoute ||
+            resRef.estimates?.[0]?.tokens?.[
+              resRef.estimates?.[0]?.tokens.length - 1
+            ]?.id === localStorage.getItem('REF_FI_SWAP_OUT'))) ||
+        (resRef.estimatesServer && !resRef.estimates);
 
       if (!resValid) {
         setReEstimateTrigger(!reEstimateTrigger);

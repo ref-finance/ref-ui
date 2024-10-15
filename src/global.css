@@ -1448,6 +1448,12 @@ input[type='range']::-webkit-slider-runnable-track {
 .nws-modal-wrapper .nws-modal {
   border: 1px solid #414d55;
 }
+.nws-modal-wrapper .nws-modal .modal-left .modal-left-title {
+  background-color: rgb(49, 61, 70) !important;
+}
+input:checked + .nws-slider {
+  background-color: #47e586;
+}
 
 :root {
   --wallet-selector-backdrop-bg: rgba(0, 0, 0, 0.5);

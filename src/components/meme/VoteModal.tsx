@@ -37,7 +37,8 @@ import {
 } from 'src/components/button/Button';
 
 const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
-const { meme_winner_tokens, meme_nonListed_tokens } = getMemeDataConfig();
+const { meme_winner_tokens, meme_nonListed_tokens, coming_offline_soon_token } =
+  getMemeDataConfig();
 function VoteModel(props: any) {
   const { isOpen, onRequestClose } = props;
   const [selectedTab, setSelectedTab] = useState('');
@@ -212,6 +213,10 @@ function VoteModel(props: any) {
             </div>
             <div className="mt-5 flex flex-wrap xsm:hidden">
               {meme_winner_tokens
+                .filter(
+                  (memeTokenId) =>
+                    !coming_offline_soon_token.includes(memeTokenId)
+                )
                 .sort(sortByXrefStaked(xrefSeeds))
                 .map((memeTokenId) => {
                   return (
@@ -313,6 +318,10 @@ function VoteModel(props: any) {
                    cursor-pointer outline-none bg-memeModelgreyColor text-white w-max"
                   >
                     {Object.keys(MEME_TOKEN_XREF_MAP)
+                      .filter(
+                        (memeTokenId) =>
+                          !coming_offline_soon_token.includes(memeTokenId)
+                      )
                       .sort(sortByXrefStaked(xrefSeeds))
                       .map((memeTokenId, index, array) => (
                         <div
@@ -418,7 +427,6 @@ function VoteModel(props: any) {
                   xrefContractConfig?.[MEME_TOKEN_XREF_MAP[selectedTab]]
                     ?.delay_withdraw_sec
                 )}{' '}
-                days.
               </p>
             </div>
           </div>

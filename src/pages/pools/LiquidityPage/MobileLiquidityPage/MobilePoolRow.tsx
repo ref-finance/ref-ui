@@ -18,6 +18,7 @@ import { WatchListStartFull } from 'src/components/icon/WatchListStar';
 import { ALL_STABLE_POOL_IDS } from 'src/services/near';
 import { FarmStampNew, TokenRisk } from 'src/components/icon';
 import { TknIcon } from 'src/components/icon/Common';
+import { getImageMark } from '../../../../utils/token';
 
 function MobilePoolRow({
   pool,
@@ -129,35 +130,10 @@ function MobilePoolRow({
                 is_muti_tokens ? 'flex-wrap w-12' : ''
               } `}
             >
-              {/* <div
-                className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full relative z-10"
-                style={{
-                  height: '26px',
-                  width: '26px',
-                }}
-              >
-                <img
-                  key={curRowTokens?.[0]?.id.substring(0, 12).substring(0, 12)}
-                  className="rounded-full w-full"
-                  src={curRowTokens?.[0]?.icon}
-                />
-              </div>
-
-              <div
-                className="h-6 w-6 border-watchMarkBackgroundColor border-2 rounded-full -ml-1.5 relative z-10"
-                style={{
-                  height: '26px',
-                  width: '26px',
-                }}
-              >
-                <img
-                  key={curRowTokens?.[1].id}
-                  className="w-full rounded-full"
-                  src={curRowTokens?.[1].icon}
-                />
-              </div> */}
               {curRowTokens.map((token, index) => {
+                // TODMM
                 const atRisk = isTokenAtRisk(token);
+                const riskMark = getImageMark(token, atRisk);
                 return (
                   <div
                     key={token.id}
@@ -166,7 +142,7 @@ function MobilePoolRow({
                     }`}
                   >
                     <div
-                      className={`border-2 border-watchMarkBackgroundColor rounded-full relative ${
+                      className={`border-2 border-watchMarkBackgroundColor rounded-full overflow-hidden relative ${
                         index > 0 ? '-ml-1.5' : ''
                       } ${index > 0 ? 'z-20' : 'z-10'}`}
                       style={{
@@ -179,17 +155,23 @@ function MobilePoolRow({
                         src={token.icon}
                         alt={token.symbol}
                       />
+                      {riskMark ? (
+                        <div
+                          className="flex items-center justify-center bg-black bg-opacity-75 absolute bottom-0 left-0 right-0"
+                          style={{ height: '11px' }}
+                        >
+                          <span
+                            className="italic text-white text-xs gotham_bold relative"
+                            style={{
+                              left: '-1px',
+                              transform: 'scale(0.5, 0.5)',
+                            }}
+                          >
+                            {riskMark}
+                          </span>
+                        </div>
+                      ) : null}
                     </div>
-                    {atRisk && (
-                      <div
-                        className={`absolute bottom-0 transform -translate-x-1/2 text-center z-50 ${
-                          index > 0 ? 'left-1.5' : 'left-1/2'
-                        } 
-                       `}
-                      >
-                        <TknIcon className="transform scale-75" />
-                      </div>
-                    )}
                   </div>
                 );
               })}

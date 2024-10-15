@@ -1145,6 +1145,7 @@ const BLACKDRAGON_ID = 'blackdragon.tkn.near';
 const SOL_NATIVE_ID = '22.contract.portalbridge.near';
 const BABY_BLACKDRAGON_ID = 'babyblackdragon.tkn.near';
 const INTEL_ID = 'intel.tkn.near';
+const PORTALBRIDGE_ID = '16.contract.portalbridge.near';
 
 const ftGetTokenMetadata = async (id) => {
   try {
@@ -1181,11 +1182,15 @@ const ftGetTokenMetadata = async (id) => {
       metadata.id === FRAX_ID ||
       metadata.id === SOL_NATIVE_ID ||
       metadata.id === BABY_BLACKDRAGON_ID ||
-      metadata.id === INTEL_ID
+      metadata.id === INTEL_ID ||
+      metadata.id === PORTALBRIDGE_ID
     ) {
       metadata.icon = metadataDefaults[id];
       if (metadata.id === SOL_ID) {
         metadata.symbol = 'SOL.Allbridge';
+      }
+      if (metadata.id === PORTALBRIDGE_ID) {
+        metadata.symbol = 'USDC.w';
       }
     }
     return {

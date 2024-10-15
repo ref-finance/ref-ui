@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { toRealSymbol } from '../../utils/token';
+import { getImageMark, toRealSymbol } from '../../utils/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import { FormattedMessage } from 'react-intl';
 import { TknIcon, WNEARExchngeIcon } from '../../components/icon/Common';
@@ -50,9 +50,6 @@ export default function CommonBasses({
   handleClose,
 }: CommonBassesProps) {
   const { commonBassesTokens } = useContext(localTokens);
-  // const commonBassesTokenIds = new Set(
-  //   commonBassesTokens.map((token) => token.id)
-  // );
   return (
     <section className="px-6 xsm:px-3 pt-2">
       <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
@@ -75,20 +72,6 @@ export default function CommonBasses({
               }}
             >
               <Token token={token} price={price} />
-              {/* <SelectTokenList
-                  index={index}
-                  key={token.id + token.symbol}
-                  onClick={onClick}
-                  token={token}
-                  price={price}
-                  sortBy={sortBy}
-                  forCross={forCross}
-                  totalAmount={
-                    balances
-                      ? toReadableNumber(token.decimals, balances[token.id])
-                      : ''
-                  }
-                /> */}
             </div>
           );
         })}
@@ -114,7 +97,7 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
     );
     getLatestCommonBassesTokens();
   }
-  const isTokenAtRisk = !!token.isRisk;
+  const mark = getImageMark(token);
   return (
     <div
       onMouseEnter={() => setHover(true)}
@@ -125,15 +108,30 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
       style={{ minWidth: '90px' }}
     >
       {token.icon ? (
-        <div className="relative flex-shrink-0">
+        <div
+          className="relative flex-shrink-0 overflow-hidden mr-2 rounded-full"
+          style={{ width: '30px', height: '30px' }}
+        >
           <img
             src={token.icon}
             alt={toRealSymbol(token.symbol)}
-            className="w-7 h-7 inline-block mr-2 border rounded-full border-black"
+            className="w-full h-full inline-block mr-2 border rounded-full border-black"
           />
-          {isTokenAtRisk ? (
-            <div className="absolute bottom-0 left-0">
-              <TknIcon />
+          {mark ? (
+            <div
+              className="flex items-center justify-center bg-black bg-opacity-75 absolute bottom-0 left-0 right-0"
+              style={{ height: '11px' }}
+            >
+              <span
+                className="italic text-white text-sm gotham_bold relative"
+                style={{
+                  top: '-1px',
+                  left: '-1px',
+                  transform: 'scale(0.5, 0.5)',
+                }}
+              >
+                {mark}
+              </span>
             </div>
           ) : null}
         </div>
