@@ -1121,7 +1121,7 @@ export default function SelectToken({
               ) : (
                 <div className="">
                   <p className="mb-2 h-7 w-fit text-primaryText font-normal pb-9 pl-8 text-sm">
-                    Search Results
+                    Search Result
                   </p>
                   <SelectTokenTable
                     sortBy={sortBy}
