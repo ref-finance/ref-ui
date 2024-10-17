@@ -461,8 +461,16 @@ export const calc_d = (amp: number, c_amounts: number[]) => {
   let d = sum_amounts;
   for (let i = 0; i < 256; i++) {
     let d_prod = d;
+    let zeroCount = 0;
     for (const c_amount of c_amounts) {
+      if (c_amount === 0) {
+        zeroCount++;
+        continue;
+      }
       d_prod = (d_prod * d) / (c_amount * token_num);
+    }
+    if (zeroCount === token_num) {
+      return 0;
     }
     d_prev = d;
     const ann = amp * token_num ** token_num;
@@ -471,7 +479,7 @@ export const calc_d = (amp: number, c_amounts: number[]) => {
     d = numerator / denominator;
     if (Math.abs(d - d_prev) <= 1) break;
   }
-  return d;
+  return isNaN(d) ? 0 : d;
 };
 
 export const calc_y = (
@@ -722,13 +730,11 @@ export const getAddLiquidityShares = async (
       )
     )
     .map((amount) => Number(amount));
-
   // const deposit_c_amounts = amounts.map((amount) =>
   //   Number(toNonDivisibleNumber(STABLE_LP_TOKEN_DECIMALS, amount))
   // );
 
   // const old_c_amounts = stablePool.c_amounts.map((amount) => Number(amount));
-
   const pool_token_supply = Number(stablePool.shares_total_supply);
 
   const [min_shares, fee_ratio] = calc_add_liquidity(
