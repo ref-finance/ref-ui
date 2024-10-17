@@ -499,8 +499,8 @@ export default function AddFourLiquidityComponent(props: {
     ];
 
     return addLiquidityToStablePool({
-      tokens: tokens,
-      id: Number(USDTT_USDCC_USDT_USDC_POOL_ID),
+      tokens,
+      id: Number(pool.id || USDTT_USDCC_USDT_USDC_POOL_ID),
       amounts,
       min_shares,
     });
