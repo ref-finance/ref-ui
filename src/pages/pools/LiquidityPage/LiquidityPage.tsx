@@ -3025,11 +3025,12 @@ function StablePoolList({
         ? getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(
             p.pool.id.toString()
           )
-        : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
+        : option === 'BTC'
+        ? BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
+        : true;
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
     );
-
     return b1 && b2;
   };
   const pinned_pool_ids = [
