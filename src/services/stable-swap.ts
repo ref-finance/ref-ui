@@ -629,7 +629,6 @@ export const getSwappedAmount = (
   const trade_fee = stablePool.total_fee;
 
   const STABLE_TOKEN_INDEX = getStableTokenIndex(stablePool.id);
-
   const in_token_idx = STABLE_TOKEN_INDEX[tokenInId];
   const out_token_idx = STABLE_TOKEN_INDEX[tokenOutId];
 

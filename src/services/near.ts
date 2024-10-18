@@ -87,8 +87,6 @@ export const {
   USDTT_USDCC_USDT_USDC_POOL_INDEX,
   USDT_USDC_POOL_INDEX,
   FRAX_USDC_POOL_INDEX,
-  DEGEN_POOL_INDEX,
-  DEGEN_POOL_INDEX1,
   USDC3E2,
   NEARUSDCC,
   RATED_SWAP_USDC_POOL_INDEX,
@@ -96,6 +94,7 @@ export const {
   Frax_SFrax_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
+const { DEGEN_POOL_INDEX, DEGEN_POOL_INDEX1 } = getConfig();
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(USDTIDS)
   .concat(STNEARIDS)
@@ -111,7 +110,7 @@ export const isRatedPool = (id: string | number) => {
 };
 
 export const isDegenPool = (id: string | number) => {
-  return getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(id.toString());
+  return getConfig()?.DEGEN_POOLS_IDS?.includes(id.toString());
 };
 
 export const AllStableTokenIds = new Array(
