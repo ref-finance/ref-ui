@@ -651,6 +651,19 @@ export default function getConfig(
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
           'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near',
         ],
+        DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 5515,
+        DEGEN_POOL_ID1: process.env.DEGEN_POOL_ID1 || 5516,
+        DEGEN_POOLS_IDS: ['5515', '5516'],
+        DEGEN_POOL_INDEX: {
+          'wrap.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        DEGEN_POOL_INDEX1: {
+          'usdt.tether-token.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
+          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
+        },
         // RATED_SWAP_USDC_POOL_ID: process.env.RATED_SWAP_USDC_POOL_ID || '',
       };
   }
@@ -977,19 +990,6 @@ export function getExtraStablePoolConfig(
         Frax_SFrax_POOL_INDEX: {
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
           'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near': 1,
-        },
-        DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 5515,
-        DEGEN_POOL_ID1: process.env.DEGEN_POOL_ID1 || 5516,
-        DEGEN_POOLS_IDS: ['5515', '5516'],
-        DEGEN_POOL_INDEX: {
-          'wrap.near': 0,
-          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
-        },
-        DEGEN_POOL_INDEX1: {
-          'usdt.tether-token.near': 0,
-          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
-          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 2,
-          'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
         },
       };
   }

@@ -2635,9 +2635,7 @@ function StablePoolCard({
     poolData.pool.id == USDCW_POOL_ID ||
     poolData.pool.id == Frax_SFrax_POOL_ID ||
     poolData.pool.id == DEGEN_POOL_ID1 ||
-    poolData.pool.id == DEGEN_POOL_ID ||
-    poolData.pool.id == 5515 ||
-    poolData.pool.id == 5516;
+    poolData.pool.id == DEGEN_POOL_ID;
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
   );
