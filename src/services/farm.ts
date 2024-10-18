@@ -1100,7 +1100,7 @@ export const getBoostSeedsFromServer = async (): Promise<{
 export const getVeSeedShare = async (): Promise<any> => {
   // REF_VE_CONTRACT_ID
   return await fetch(
-    config.sodakiApiUrl + `/seed/v2.ref-finance.near@79/accounts`,
+    config.sodakiApiUrl + `/seedv2/v2.ref-finance.near@79/accounts`,
     {
       method: 'GET',
     }

@@ -52,7 +52,7 @@ export function FlexibleStableToken({
             icon={token.icon}
             className="h-9 w-9 mr-2 xs:w-7 xs:h-7 md:w-7 md-h-7"
           />
-          <div className="text-white text-base" title={token.id}>
+          <div className="text-white text-base break-all" title={token.id}>
             {toRealSymbol(token.symbol)}
           </div>
         </div>

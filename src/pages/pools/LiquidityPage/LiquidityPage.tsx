@@ -67,6 +67,7 @@ import {
   FRAX_USDC_POOL_ID,
   USDCW_POOL_ID,
   Frax_SFrax_POOL_ID,
+  ZNEARnM_USDC_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -2356,6 +2357,7 @@ function TokenChart({
     'USDC.w': '#2B6EB7',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
+    'zNEARnM-USDC': '#74FA9D',
   };
 
   const colorLight = {
@@ -2378,8 +2380,8 @@ function TokenChart({
     'USD Coin': 'rgba(0, 163, 255, 1)',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
+    'zNEARnM-USDC': '#74FA9D',
   };
-
   const innerRadius = 30;
   const outerRadius = 40;
   const width = 80;
@@ -2588,7 +2590,8 @@ function StablePoolCard({
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID ||
     poolData.pool.id == USDCW_POOL_ID ||
-    poolData.pool.id == Frax_SFrax_POOL_ID;
+    poolData.pool.id == Frax_SFrax_POOL_ID ||
+    poolData.pool.id == ZNEARnM_USDC_POOL_ID;
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -2986,6 +2989,7 @@ function StablePoolList({
     FRAX_USDC_POOL_ID,
     Frax_SFrax_POOL_ID,
     USDCW_POOL_ID,
+    ZNEARnM_USDC_POOL_ID,
   ];
 
   const sortingFunc = (p1: PoolData, p2: PoolData) => {

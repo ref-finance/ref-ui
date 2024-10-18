@@ -69,6 +69,7 @@ const icons: { [tokenId: string]: string } = {
   'intel.tkn.near': 'https://img.ref.finance/images/intel.jpeg',
   '16.contract.portalbridge.near':
     'https://img.ref.finance/images/portalbridge.svg',
+  'v1.guild-covenant.near': 'https://img.ref.finance/images/zNEARnM-USDC.svg',
 };
 
 export default icons;
