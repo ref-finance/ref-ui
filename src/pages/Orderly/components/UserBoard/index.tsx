@@ -3968,7 +3968,6 @@ export function AssetManagerModal(
                       buttonLoading
                 }
               >
-                {/* TODOXXX */}
                 <ButtonTextWrapper
                   loading={buttonLoading}
                   Text={() => (
@@ -4324,7 +4323,6 @@ function ConfirmOrderModal(
   } = props;
   const [loading, setLoading] = useState<boolean>(false);
   const [warningIsOpen, setWarningIsOpen] = useState(false);
-  // TODOXXX
   const isMobile = useClientMobile();
   const intl = useIntl();
   return (

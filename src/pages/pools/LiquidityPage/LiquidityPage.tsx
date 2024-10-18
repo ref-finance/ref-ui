@@ -69,6 +69,7 @@ import {
   Frax_SFrax_POOL_ID,
   DEGEN_POOL_ID,
   DEGEN_POOL_ID1,
+  ZNEARnM_USDC_POOL_ID,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -2401,6 +2402,7 @@ function TokenChart({
     'USDC.w': '#2B6EB7',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
+    'zNEARnM-USDC': '#74FA9D',
   };
 
   const colorLight = {
@@ -2423,8 +2425,8 @@ function TokenChart({
     'USD Coin': 'rgba(0, 163, 255, 1)',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
+    'zNEARnM-USDC': '#74FA9D',
   };
-
   const innerRadius = 30;
   const outerRadius = 40;
   const width = 80;
@@ -2635,7 +2637,9 @@ function StablePoolCard({
     poolData.pool.id == USDCW_POOL_ID ||
     poolData.pool.id == Frax_SFrax_POOL_ID ||
     poolData.pool.id == DEGEN_POOL_ID1 ||
-    poolData.pool.id == DEGEN_POOL_ID;
+    poolData.pool.id == DEGEN_POOL_ID ||
+    poolData.pool.id == ZNEARnM_USDC_POOL_ID;
+
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
   );
@@ -3028,8 +3032,6 @@ function StablePoolList({
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'DEGEN'
         ? getConfig()?.DEGEN_POOLS_IDS?.includes(p.pool.id.toString())
-        : option === 'BTC'
-        ? BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : true;
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
@@ -3041,6 +3043,7 @@ function StablePoolList({
     FRAX_USDC_POOL_ID,
     Frax_SFrax_POOL_ID,
     USDCW_POOL_ID,
+    ZNEARnM_USDC_POOL_ID,
   ];
 
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
@@ -3113,7 +3116,7 @@ function StablePoolList({
         <div className="flex items-center col-span-2 xsm:w-full">
           {activeType == 'degen'
             ? null
-            : ['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
+            : ['ALL', 'USD', 'NEAR'].map((o) => {
                 return (
                   <button
                     key={o + '-stable-pool-type'}

@@ -19,6 +19,7 @@ interface TokenListProps {
   tokenPriceList: Record<string, any>;
   forCross?: boolean;
   showRiskTokens?: boolean;
+  showAllTokens?: boolean;
 }
 
 export default function SelectTokenTable({
@@ -31,6 +32,7 @@ export default function SelectTokenTable({
   tokenPriceList,
   forCross,
   showRiskTokens,
+  showAllTokens,
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
@@ -64,6 +66,7 @@ export default function SelectTokenTable({
             {tokens
               .filter((token) => {
                 if (!token) return false;
+                if (showAllTokens) return true;
                 if (showRiskTokens) {
                   return 'isRisk' in token && !token.isUserToken;
                 } else {

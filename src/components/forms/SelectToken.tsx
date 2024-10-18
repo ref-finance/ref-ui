@@ -492,10 +492,14 @@ export default function SelectToken({
   className?: string;
 }) {
   const [visible, setVisible] = useState(false);
+  const [allListData, setAllListData] = useState<TokenMetadata[]>([]);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
   const [listTknData, setListTknData] = useState<TokenMetadata[]>([]);
   const [listTknxData, setListTknxData] = useState<TokenMetadata[]>([]);
   const [listmemeCookingData, setListmemeCookingData] = useState<
+    TokenMetadata[]
+  >([]);
+  const [searchResultslistData, setSearchResultsData] = useState<
     TokenMetadata[]
   >([]);
   const [currentSort, setSort] = useState<string>('down');
@@ -518,6 +522,9 @@ export default function SelectToken({
   const intl = useIntl();
   const searchRef = useRef(null);
   const [activeTab, setActiveTab] = useState('Default');
+  const [showTabs, setShowTabs] = useState(true);
+  const { tokensData: allTokensData, loading: loadingAllTokensData } =
+    useTokensData(tokens, balances, visible);
   const { tokensData, loading: loadingTokensData } = useTokensData(
     tokens.filter(
       (t) =>
@@ -565,6 +572,18 @@ export default function SelectToken({
     balances,
     visible
   );
+  useEffect(() => {
+    if (allTokensData?.length && !loadingAllTokensData) {
+      allTokensData.sort(sortTypes[currentSort].fn);
+      setAllListData(allTokensData);
+    }
+  }, [allTokensData?.length, loadingAllTokensData, currentSort]);
+  useEffect(() => {
+    if (searchResultslistData?.length) {
+      searchResultslistData.sort(sortTypes[currentSort].fn);
+      setSearchResultsData(searchResultslistData);
+    }
+  }, [searchResultslistData?.length, currentSort, allTokensData]);
   useEffect(() => {
     if (tokensData?.length && !loadingTokensData) {
       tokensData.sort(sortTypes[currentSort].fn);
@@ -637,40 +656,56 @@ export default function SelectToken({
     setAddTokenError(false);
     setAddTokenLoading(false);
     setSearchValue(value);
+    setShowTabs(value.length === 0);
     setShowCommonBasses(value.length === 0);
-    const result = tokensData.filter((token) => {
-      const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
-      if (!symbol) return false;
-      const condition1 = toRealSymbol(symbol)
-        .toLocaleUpperCase()
-        .includes(value.toLocaleUpperCase());
-      const condition2 =
-        token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
-      return condition1 || condition2;
-    });
-    const resultTkn = tknTokensData.filter((token) => {
-      const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
-      if (!symbol) return false;
-      const condition1 = toRealSymbol(symbol)
-        .toLocaleUpperCase()
-        .includes(value.toLocaleUpperCase());
-      const condition2 =
-        token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
-      return condition1 || condition2;
-    });
-    result.sort(sortBySymbol);
-    setListData(result);
-    setListTknData(resultTkn);
+    // const result = tokensData.filter((token) => {
+    //   const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
+    //   if (!symbol) return false;
+    //   const condition1 = toRealSymbol(symbol)
+    //     .toLocaleUpperCase()
+    //     .includes(value.toLocaleUpperCase());
+    //   const condition2 =
+    //     token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
+    //   return condition1 || condition2;
+    // });
+    // const resultTkn = tknTokensData.filter((token) => {
+    //   const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
+    //   if (!symbol) return false;
+    //   const condition1 = toRealSymbol(symbol)
+    //     .toLocaleUpperCase()
+    //     .includes(value.toLocaleUpperCase());
+    //   const condition2 =
+    //     token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
+    //   return condition1 || condition2;
+    // });
+    // result.sort(sortBySymbol);
+    // setListData(result);
+    // setListTknData(resultTkn);
+    const result = allListData
+      .filter((token) => {
+        const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
+        if (!symbol) return false;
+        const condition1 = toRealSymbol(symbol)
+          .toLocaleUpperCase()
+          .includes(value.toLocaleUpperCase());
+        const condition2 =
+          token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
+        return condition1 || condition2;
+      })
+      .sort(sortBySymbol);
+
+    setSearchResultsData(result);
+
     if (!loadingTokensData && value.length > 0 && result.length == 0) {
       setSearchNoData(true);
     } else {
       setSearchNoData(false);
     }
-    if (!loadingTKNTokensData && value.length > 0 && resultTkn.length == 0) {
-      setTknSearchNoData(true);
-    } else {
-      setTknSearchNoData(false);
-    }
+    // if (!loadingTKNTokensData && value.length > 0 && resultTkn.length == 0) {
+    //   setTknSearchNoData(true);
+    // } else {
+    //   setTknSearchNoData(false);
+    // }
   };
 
   const debounceSearch = _.debounce(onSearch, 300);
@@ -880,59 +915,61 @@ export default function SelectToken({
                   handleClose={handleClose}
                 />
               )}
-              <div className="mt-4 mb-4 relative z-50 mx-6 flex w-max items-center justify-between border border-borderColor rounded-lg border-opacity-20 text-primaryText text-sm cursor-pointer">
-                <div
-                  className={`text-center px-2.5 py-2 ${
-                    activeTab === 'Default'
-                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
-                      : ''
-                  }`}
-                  onClick={() => setActiveTab('Default')}
-                >
-                  Default
-                </div>
-                <div
-                  className={`text-center px-2.5 py-2 ${
-                    activeTab === 'TKN'
-                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
-                      : ''
-                  }`}
-                  onClick={() => setActiveTab('TKN')}
-                >
-                  TKN
-                  <div
-                    className="text-white text-right ml-1 inline-block"
-                    data-class="reactTip"
-                    data-tooltip-id="tknId"
-                    data-place="left"
-                    data-tooltip-html={TknTip}
-                  >
-                    <QuestionMark></QuestionMark>
-                    <CustomTooltip id="tknId" />
-                  </div>
-                </div>
-                <div
-                  className={`text-center px-2.5 py-2 ${
-                    activeTab === 'MC'
-                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
-                      : ''
-                  }`}
-                  onClick={() => setActiveTab('MC')}
-                >
-                  MC
-                  <div
-                    className="text-white text-right ml-1 inline-block"
-                    data-class="reactTip"
-                    data-tooltip-id="mcId"
-                    data-place="left"
-                    data-tooltip-html={memeCookingTip}
-                  >
-                    <QuestionMark></QuestionMark>
-                    <CustomTooltip id="mcId" />
-                  </div>
-                </div>
-                {/* tknx */}
-                {/* <div
+              {showTabs ? (
+                <>
+                  <div className="mt-4 mb-4 relative z-50 mx-6 flex w-max items-center justify-between border border-borderColor rounded-lg border-opacity-20 text-primaryText text-sm cursor-pointer">
+                    <div
+                      className={`text-center px-2.5 py-2 ${
+                        activeTab === 'Default'
+                          ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                          : ''
+                      }`}
+                      onClick={() => setActiveTab('Default')}
+                    >
+                      Default
+                    </div>
+                    <div
+                      className={`text-center px-2.5 py-2 ${
+                        activeTab === 'TKN'
+                          ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                          : ''
+                      }`}
+                      onClick={() => setActiveTab('TKN')}
+                    >
+                      TKN
+                      <div
+                        className="text-white text-right ml-1 inline-block"
+                        data-class="reactTip"
+                        data-tooltip-id="tknId"
+                        data-place="left"
+                        data-tooltip-html={TknTip}
+                      >
+                        <QuestionMark></QuestionMark>
+                        <CustomTooltip id="tknId" />
+                      </div>
+                    </div>
+                    <div
+                      className={`text-center px-2.5 py-2 ${
+                        activeTab === 'MC'
+                          ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                          : ''
+                      }`}
+                      onClick={() => setActiveTab('MC')}
+                    >
+                      MC
+                      <div
+                        className="text-white text-right ml-1 inline-block"
+                        data-class="reactTip"
+                        data-tooltip-id="mcId"
+                        data-place="left"
+                        data-tooltip-html={memeCookingTip}
+                      >
+                        <QuestionMark></QuestionMark>
+                        <CustomTooltip id="mcId" />
+                      </div>
+                    </div>
+                    {/* tknx */}
+                    {/* <div
                   className={`text-center px-2.5 py-2 ${
                     activeTab === 'MC'
                       ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
@@ -952,89 +989,147 @@ export default function SelectToken({
                     <CustomTooltip id="mcId" />
                   </div>
                 </div> */}
-                {/* tknx */}
-                <div
-                  className={`text-center px-2.5 py-2 ${
-                    activeTab === 'TKNX'
-                      ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
-                      : ''
-                  }`}
-                  onClick={() => setActiveTab('TKNX')}
-                >
-                  TKNX
-                  <div
-                    className="text-white text-right ml-1 inline-block"
-                    data-class="reactTip"
-                    data-tooltip-id="tknId"
-                    data-place="left"
-                    data-tooltip-html={TknxTip}
-                  >
-                    <QuestionMark></QuestionMark>
-                    <CustomTooltip id="tknId" />
+                    {/* tknx */}
+                    <div
+                      className={`text-center px-2.5 py-2 ${
+                        activeTab === 'TKNX'
+                          ? 'text-white bg-primaryOrderly bg-opacity-20 rounded-lg'
+                          : ''
+                      }`}
+                      onClick={() => setActiveTab('TKNX')}
+                    >
+                      TKNX
+                      <div
+                        className="text-white text-right ml-1 inline-block"
+                        data-class="reactTip"
+                        data-tooltip-id="tknId"
+                        data-place="left"
+                        data-tooltip-html={TknxTip}
+                      >
+                        <QuestionMark></QuestionMark>
+                        <CustomTooltip id="tknId" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div>
-                {activeTab === 'Default' && (
-                  <SelectTokenTable
-                    sortBy={sortBy}
-                    tokenPriceList={tokenPriceList}
-                    currentSort={currentSort}
-                    onSortChange={onSortChange}
-                    tokens={listData}
-                    onClick={(token) => {
-                      if (token.id != NEARXIDS[0]) {
-                        if (
-                          !(
-                            token.id == WRAP_NEAR_CONTRACT_ID &&
-                            token.symbol == 'wNEAR' &&
-                            !allowWNEAR
-                          )
-                        ) {
-                          onSelect && onSelect(token);
-                        }
-                      }
-                      handleClose();
-                    }}
-                    balances={balances}
-                    forCross={forCross}
-                    showRiskTokens={false}
-                  />
-                )}
-                {activeTab === 'TKN' && (
-                  <SelectTokenTable
-                    sortBy={sortBy}
-                    tokenPriceList={tokenPriceList}
-                    currentSort={currentSort}
-                    onSortChange={onSortChange}
-                    tokens={listTknData}
-                    onClick={(token) => {
-                      if (token.id != NEARXIDS[0]) {
-                        if (
-                          !(
-                            token.id == WRAP_NEAR_CONTRACT_ID &&
-                            token.symbol == 'wNEAR' &&
-                            !allowWNEAR
-                          )
-                        ) {
-                          onSelect && onSelect(token);
-                        }
-                      }
-                      handleClose();
-                    }}
-                    balances={balances}
-                    forCross={forCross}
-                    showRiskTokens={true}
-                  />
-                )}
+                  <div>
+                    {activeTab === 'Default' && (
+                      <SelectTokenTable
+                        sortBy={sortBy}
+                        tokenPriceList={tokenPriceList}
+                        currentSort={currentSort}
+                        onSortChange={onSortChange}
+                        tokens={listData}
+                        onClick={(token) => {
+                          if (token.id != NEARXIDS[0]) {
+                            if (
+                              !(
+                                token.id == WRAP_NEAR_CONTRACT_ID &&
+                                token.symbol == 'wNEAR' &&
+                                !allowWNEAR
+                              )
+                            ) {
+                              onSelect && onSelect(token);
+                            }
+                          }
+                          handleClose();
+                        }}
+                        balances={balances}
+                        forCross={forCross}
+                        showRiskTokens={false}
+                      />
+                    )}
+                    {activeTab === 'TKN' && (
+                      <SelectTokenTable
+                        sortBy={sortBy}
+                        tokenPriceList={tokenPriceList}
+                        currentSort={currentSort}
+                        onSortChange={onSortChange}
+                        tokens={listTknData}
+                        onClick={(token) => {
+                          if (token.id != NEARXIDS[0]) {
+                            if (
+                              !(
+                                token.id == WRAP_NEAR_CONTRACT_ID &&
+                                token.symbol == 'wNEAR' &&
+                                !allowWNEAR
+                              )
+                            ) {
+                              onSelect && onSelect(token);
+                            }
+                          }
+                          handleClose();
+                        }}
+                        balances={balances}
+                        forCross={forCross}
+                        showRiskTokens={true}
+                      />
+                    )}
 
-                {activeTab === 'TKNX' && (
+                    {activeTab === 'TKNX' && (
+                      <SelectTokenTable
+                        sortBy={sortBy}
+                        tokenPriceList={tokenPriceList}
+                        currentSort={currentSort}
+                        onSortChange={onSortChange}
+                        tokens={listTknxData}
+                        onClick={(token) => {
+                          if (token.id != NEARXIDS[0]) {
+                            if (
+                              !(
+                                token.id == WRAP_NEAR_CONTRACT_ID &&
+                                token.symbol == 'wNEAR' &&
+                                !allowWNEAR
+                              )
+                            ) {
+                              onSelect && onSelect(token);
+                            }
+                          }
+                          handleClose();
+                        }}
+                        balances={balances}
+                        forCross={forCross}
+                        showRiskTokens={true}
+                      />
+                    )}
+                    {activeTab === 'MC' && (
+                      <SelectTokenTable
+                        sortBy={sortBy}
+                        tokenPriceList={tokenPriceList}
+                        currentSort={currentSort}
+                        onSortChange={onSortChange}
+                        tokens={listmemeCookingData}
+                        onClick={(token) => {
+                          if (token.id != NEARXIDS[0]) {
+                            if (
+                              !(
+                                token.id == WRAP_NEAR_CONTRACT_ID &&
+                                token.symbol == 'wNEAR' &&
+                                !allowWNEAR
+                              )
+                            ) {
+                              onSelect && onSelect(token);
+                            }
+                          }
+                          handleClose();
+                        }}
+                        balances={balances}
+                        forCross={forCross}
+                        showRiskTokens={true}
+                      />
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="">
+                  <p className="mb-2 h-7 w-fit text-primaryText font-normal pb-9 pl-8 text-sm">
+                    Search Result
+                  </p>
                   <SelectTokenTable
                     sortBy={sortBy}
                     tokenPriceList={tokenPriceList}
                     currentSort={currentSort}
                     onSortChange={onSortChange}
-                    tokens={listTknxData}
+                    tokens={searchResultslistData}
                     onClick={(token) => {
                       if (token.id != NEARXIDS[0]) {
                         if (
@@ -1051,38 +1146,13 @@ export default function SelectToken({
                     }}
                     balances={balances}
                     forCross={forCross}
-                    showRiskTokens={true}
+                    showAllTokens={true}
                   />
-                )}
-                {activeTab === 'MC' && (
-                  <SelectTokenTable
-                    sortBy={sortBy}
-                    tokenPriceList={tokenPriceList}
-                    currentSort={currentSort}
-                    onSortChange={onSortChange}
-                    tokens={listmemeCookingData}
-                    onClick={(token) => {
-                      if (token.id != NEARXIDS[0]) {
-                        if (
-                          !(
-                            token.id == WRAP_NEAR_CONTRACT_ID &&
-                            token.symbol == 'wNEAR' &&
-                            !allowWNEAR
-                          )
-                        ) {
-                          onSelect && onSelect(token);
-                        }
-                      }
-                      handleClose();
-                    }}
-                    balances={balances}
-                    forCross={forCross}
-                    showRiskTokens={true}
-                  />
-                )}
-              </div>
+                </div>
+              )}
             </localTokens.Provider>
           </div>
+
           {searchNoData && activeTab === 'Default' ? (
             <div className="flex flex-col  items-center justify-center mt-32 relative z-10">
               <div className="text-sm text-farmText">

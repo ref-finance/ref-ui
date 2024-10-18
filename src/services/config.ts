@@ -291,6 +291,11 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
         },
         // RATED_SWAP_USDC_POOL_ID: process.env.RATED_SWAP_USDC_POOL_ID || '',
+        ZNEARnM_USDC_POOL_ID: 5442,
+        ZNEARnM_USDC_TOKEN_IDS: [
+          'v1.guild-covenant.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
       };
     case 'pub-testnet':
       return {
@@ -665,6 +670,11 @@ export default function getConfig(
           'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near': 3,
         },
         // RATED_SWAP_USDC_POOL_ID: process.env.RATED_SWAP_USDC_POOL_ID || '',
+        ZNEARnM_USDC_POOL_ID: 5442,
+        ZNEARnM_USDC_TOKEN_IDS: [
+          'v1.guild-covenant.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
       };
   }
 }
@@ -736,6 +746,7 @@ export function getExtraStablePoolConfig(
           '4514',
           '5219',
           '5029',
+          '5442',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -758,6 +769,10 @@ export function getExtraStablePoolConfig(
         Frax_SFrax_POOL_INDEX: {
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
           'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near': 1,
+        },
+        ZNEARnM_USDC_POOL_INDEX: {
+          'v1.guild-covenant.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
         },
       };
     case 'development':
@@ -841,6 +856,7 @@ export function getExtraStablePoolConfig(
           'usdte.ft.ref-labs.testnet': 2,
           'usdce.ft.ref-labs.testnet': 3,
         },
+        ZNEARnM_USDC_POOL_INDEX: {},
       };
     case 'testnet':
       return {
@@ -905,6 +921,7 @@ export function getExtraStablePoolConfig(
           'wrap.testnet': 0,
           'usdcc.fakes.testnet': 1,
         },
+        ZNEARnM_USDC_POOL_INDEX: {},
       };
     default:
       return {
@@ -968,6 +985,7 @@ export function getExtraStablePoolConfig(
           '4514',
           '5219',
           '5029',
+          '5442',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -990,6 +1008,10 @@ export function getExtraStablePoolConfig(
         Frax_SFrax_POOL_INDEX: {
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near': 0,
           'a663b02cf0a4b149d2ad41910cb81e23e1c41c32.factory.bridge.near': 1,
+        },
+        ZNEARnM_USDC_POOL_INDEX: {
+          'v1.guild-covenant.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
         },
       };
   }
