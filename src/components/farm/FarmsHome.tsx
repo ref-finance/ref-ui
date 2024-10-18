@@ -221,7 +221,7 @@ export default function FarmsHome(props: any) {
     get_user_unWithDraw_rewards();
     get_user_seeds_and_unClaimedRewards();
     getLoveTokenBalance();
-    get_ve_seed_share();
+    // get_ve_seed_share();
   }, [isSignedIn]);
   useEffect(() => {
     if (count > 0) {

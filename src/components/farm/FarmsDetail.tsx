@@ -568,7 +568,7 @@ function StakeContainer(props: {
   }
   useEffect(() => {
     getPoolFee();
-    get_ve_seed_share();
+    // get_ve_seed_share();
   }, []);
   async function get_ve_seed_share() {
     const result = await getVeSeedShare();
