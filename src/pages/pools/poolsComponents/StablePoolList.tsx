@@ -108,6 +108,7 @@ function StablePoolList({
     FRAX_USDC_POOL_ID,
     Frax_SFrax_POOL_ID,
     USDCW_POOL_ID,
+    ZNEARnM_USDC_POOL_ID,
   ];
   const sortingFunc = (p1: PoolData, p2: PoolData) => {
     const v1 = Number(p1?.poolTVL?.toString() || 0);

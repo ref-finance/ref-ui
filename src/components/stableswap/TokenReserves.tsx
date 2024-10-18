@@ -88,6 +88,7 @@ function TokenChart({
     'USDC.w': '#2B6EB7',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
+    'zNEARnM-USDC': '#74FA9D',
   };
 
   const noBorderTokens = ['LINEAR', 'USDt'];
