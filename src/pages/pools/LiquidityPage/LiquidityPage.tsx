@@ -67,6 +67,8 @@ import {
   FRAX_USDC_POOL_ID,
   USDCW_POOL_ID,
   Frax_SFrax_POOL_ID,
+  DEGEN_POOL_ID,
+  DEGEN_POOL_ID1,
 } from '../../../services/near';
 import { WatchListStartFull } from '../../../components/icon/WatchListStar';
 import _, { orderBy, sortBy, filter } from 'lodash';
@@ -2631,8 +2633,11 @@ function StablePoolCard({
     poolData.pool.id == USDT_USDC_POOL_ID ||
     poolData.pool.id == FRAX_USDC_POOL_ID ||
     poolData.pool.id == USDCW_POOL_ID ||
-    poolData.pool.id == Frax_SFrax_POOL_ID;
-
+    poolData.pool.id == Frax_SFrax_POOL_ID ||
+    poolData.pool.id == DEGEN_POOL_ID1 ||
+    poolData.pool.id == DEGEN_POOL_ID ||
+    poolData.pool.id == 5515 ||
+    poolData.pool.id == 5516;
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
   );
@@ -3017,7 +3022,11 @@ function StablePoolList({
   });
   const filterFunc = (p: PoolData) => {
     const b1 =
-      option === 'NEAR'
+      option === 'ALL'
+        ? !getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(
+            p.pool.id.toString()
+          )
+        : option === 'NEAR'
         ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
