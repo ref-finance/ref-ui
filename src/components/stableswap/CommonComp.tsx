@@ -30,14 +30,14 @@ import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
 import CustomTooltip from 'src/components/customTooltip/customTooltip';
 import { TknIcon } from '../icon/Common';
 import { TokenPriceListContext } from 'src/pages/pools/LiquidityPage/constLiquidityPage';
-import { getExtraStablePoolConfig } from 'src/services/config';
+import getConfig, { getExtraStablePoolConfig } from 'src/services/config';
 import { USDCWIcon } from '../icon/Common';
 import { getImageMark, isSuffix } from '../../utils/token';
 
 export function BackToStablePoolList() {
   const history = useHistory();
   const params: any = useParams();
-  const ids = getExtraStablePoolConfig().DEGEN_POOLS_IDS;
+  const ids = getConfig().DEGEN_POOLS_IDS;
   return (
     <div className="flex items-center text-base text-farmText ">
       <span

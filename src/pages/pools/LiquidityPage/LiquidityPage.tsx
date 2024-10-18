@@ -3021,17 +3021,13 @@ function StablePoolList({
   const filterFunc = (p: PoolData) => {
     const b1 =
       option === 'ALL'
-        ? !getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(
-            p.pool.id.toString()
-          )
+        ? !getConfig()?.DEGEN_POOLS_IDS?.includes(p.pool.id.toString())
         : option === 'NEAR'
         ? NEAR_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'DEGEN'
-        ? getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(
-            p.pool.id.toString()
-          )
+        ? getConfig()?.DEGEN_POOLS_IDS?.includes(p.pool.id.toString())
         : option === 'BTC'
         ? BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : true;

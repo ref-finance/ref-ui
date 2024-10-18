@@ -101,9 +101,7 @@ function StablePoolList({
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : option === 'DEGEN'
-        ? getExtraStablePoolConfig()?.DEGEN_POOLS_IDS?.includes(
-            p.pool.id.toString()
-          )
+        ? getConfig()?.DEGEN_POOLS_IDS?.includes(p.pool.id.toString())
         : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
     const b2 = p.tokens.some((t) =>
       _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
