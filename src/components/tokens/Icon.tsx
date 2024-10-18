@@ -175,8 +175,8 @@ export function DisplayIcon({
   token: TokenMetadata;
 }) {
   const style = {
-    height: height,
-    width: width,
+    height,
+    width,
   };
 
   if (!token.icon) {

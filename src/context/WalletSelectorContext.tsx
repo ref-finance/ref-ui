@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
 
 import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
@@ -8,8 +14,8 @@ import type {
   Wallet,
   Network,
 } from '@near-wallet-selector/core';
-import { setupModal } from '@near-wallet-selector/modal-ui';
-import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
+import { setupModal } from 'ref-modal-ui';
+import type { WalletSelectorModal } from 'ref-modal-ui';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupSender } from '@near-wallet-selector/sender';
 import { setupLedger } from '@near-wallet-selector/ledger';
@@ -31,10 +37,14 @@ import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet'
 import { setupOKXWallet } from '@near-wallet-selector/okx-wallet';
 import { setupMintbaseWallet } from '@near-wallet-selector/mintbase-wallet';
 import { setupBitteWallet } from '@near-wallet-selector/bitte-wallet';
+import type { Config } from '@wagmi/core';
+import { reconnect, http, createConfig } from '@wagmi/core';
+import { walletConnect, injected } from '@wagmi/connectors';
+import { setupEthereumWallets } from '@near-wallet-selector/ethereum-wallets';
+import { createWeb3Modal } from '@web3modal/wagmi';
 
-import '@near-wallet-selector/modal-ui/styles.css';
+import 'ref-modal-ui/styles.css';
 import { near } from '../services/near';
-import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
 import {
   REF_FI_SENDER_WALLET_ACCESS_KEY,
@@ -49,7 +59,7 @@ import { setupKeypom } from '@keypom/selector';
 import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { addUserWallet } from '../services/indexer';
 
-const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
+const CONTRACT_ID = getConfig().REF_FARM_BOOST_CONTRACT_ID;
 
 export const ACCOUNT_ID_KEY = 'REF_FI_STATE_SYNC_ACCOUNT_ID';
 
@@ -99,7 +109,51 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
   const [allKeys, setAllKeys] = useState<IAccountKey[]>([]);
-
+  const { wagmiConfig, web3Modal } = useMemo(() => {
+    const nearBlock = {
+      id: 397,
+      name: 'NEAR Mainnet',
+      nativeCurrency: {
+        decimals: 18,
+        name: 'NEAR',
+        symbol: 'NEAR',
+      },
+      rpcUrls: {
+        default: { http: ['https://eth-rpc.mainnet.near.org'] },
+        public: { http: ['https://eth-rpc.mainnet.near.org'] },
+      },
+      blockExplorers: {
+        default: {
+          name: 'NEAR Explorer',
+          url: 'https://eth-explorer.near.org',
+        },
+      },
+      testnet: false,
+    };
+    const wagmiConfig: Config = createConfig({
+      chains: [nearBlock],
+      transports: {
+        [nearBlock.id]: http(),
+      },
+      connectors: [
+        walletConnect({
+          projectId: '87e549918631f833447b56c15354e450',
+          showQrModal: false,
+        }),
+        injected({ shimDisconnect: true }),
+      ],
+    });
+    reconnect(wagmiConfig);
+    const web3Modal = createWeb3Modal({
+      wagmiConfig,
+      projectId: '87e549918631f833447b56c15354e450',
+      allowUnsupportedChain: true,
+    });
+    return {
+      wagmiConfig,
+      web3Modal,
+    };
+  }, []);
   const syncAccountState = (
     currentAccountId: string | null,
     newAccounts: Array<AccountState>
@@ -141,7 +195,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       },
     ],
   };
-
   const init = useCallback(async () => {
     const RPC_LIST_system = getExtendConfig().RPC_LIST;
     const RPC_LIST_custom = getCustomConfig();
@@ -154,13 +207,18 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         localStorage.removeItem('endPoint');
       }
     } catch (error) {}
-    const _selector = await setupWalletSelector({
+    const _selector: any = await setupWalletSelector({
       network: {
         networkId: getConfig().networkId as NetworkId,
         nodeUrl: RPC_LIST[endPoint].url,
       } as Network,
       debug: false,
       modules: [
+        setupEthereumWallets({
+          wagmiConfig,
+          web3Modal,
+          alwaysOnboardDuringSignIn: true,
+        } as any),
         setupOKXWallet({}),
         setupMyNearWallet({
           // iconUrl: walletIcons['my-near-wallet'],
@@ -232,6 +290,21 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     });
     const _modal = setupModal(_selector, {
       contractId: CONTRACT_ID,
+      blockFunctionKeyWallets: [
+        'okx-wallet',
+        'my-near-wallet',
+        'meteor-wallet',
+        'neth',
+        'nightly',
+        'ledger',
+        'wallet-connect',
+        'keypom',
+        'mintbase-wallet',
+        'bitte-wallet',
+        'ethereum-wallets',
+        'sender',
+        'coin98-wallet',
+      ],
     });
     const state = _selector.store.getState();
     syncAccountState(localStorage.getItem(ACCOUNT_ID_KEY), state.accounts);
@@ -255,7 +328,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
             distinctUntilChanged()
           )
           .subscribe((nextAccounts) => {
-            syncAccountState(accountId, nextAccounts);
+            // syncAccountState(accountId, nextAccounts);
           });
       });
   }, [init]);
@@ -270,6 +343,11 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         distinctUntilChanged()
       )
       .subscribe((nextAccounts) => {
+        if (
+          selector?.store?.getState()?.selectedWalletId == 'ethereum-wallets'
+        ) {
+          if (accountId == nextAccounts?.[0]?.accountId) return;
+        }
         syncAccountState(accountId, nextAccounts);
       });
 
@@ -289,7 +367,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     const account = await near.account(accountId);
 
     const allKeys = (await account.getAccessKeys()) as IAccountKey[];
-
     const isWalletMeta = allKeys.some((k) => {
       if (k.access_key.permission === 'FullAccess') return false;
       const meta = (
@@ -301,7 +378,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     const isSelectLedger =
       selector.store.getState().selectedWalletId === 'ledger';
     setAllKeys(allKeys);
-    // setIsLedger(isSelectLedger || isWalletMeta);
     setIsLedger(false);
   };
 

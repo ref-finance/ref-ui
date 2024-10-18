@@ -154,8 +154,8 @@ export default function useBridgeForm() {
 
       if (fromValue.chain !== 'NEAR')
         setChain(EVMConfig.chains[fromValue.chain.toLowerCase()]?.id);
-      else if (toValue.chain !== 'NEAR')
-        setChain(EVMConfig.chains[toValue.chain.toLowerCase()]?.id);
+      // else if (toValue.chain !== 'NEAR')
+      //   setChain(EVMConfig.chains[toValue.chain.toLowerCase()]?.id);
 
       logger.log('useBridgeForm', fromValue, toValue);
 
@@ -221,7 +221,7 @@ export default function useBridgeForm() {
       if (!getWallet(bridgeFromValue.chain)?.accountId) return '0';
       return tokenServices.getBalance(
         bridgeFromValue.chain,
-        getTokenMeta(bridgeToValue.tokenMeta.symbol),
+        getTokenMeta(bridgeFromValue.tokenMeta.symbol),
         true
       );
     },

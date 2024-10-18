@@ -277,6 +277,7 @@ export interface RefFiViewFunctionOptions {
 export interface RefFiFunctionCallOptions extends RefFiViewFunctionOptions {
   gas?: string;
   amount?: string;
+  deposit?: string;
 }
 
 export const refFiFunctionCall = ({

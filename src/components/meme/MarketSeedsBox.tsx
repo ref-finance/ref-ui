@@ -44,7 +44,6 @@ const MarketSeedsBox = ({
     origin == 'intro'
       ? [memeDataConfig.meme_winner_tokens[0]]
       : memeDataConfig.meme_winner_tokens;
-  const { MEME_TOKEN_XREF_MAP } = getMemeContractConfig();
   const { coming_offline_soon_token } = getMemeDataConfig();
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};

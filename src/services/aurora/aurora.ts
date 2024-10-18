@@ -173,6 +173,7 @@ export function auroraCallToAction(contract: any, input: any, value?: string) {
     methodName: 'call',
     args: prepareInput(args),
     gas: AuroraCallGas,
+    deposit: '0',
   };
 
   return action;

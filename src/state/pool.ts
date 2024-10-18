@@ -914,7 +914,7 @@ export const useRemoveLiquidity = ({
 
 export interface volumeType {
   pool_id: string;
-  dateString: string;
+  date_string: string;
   fiat_volume: string;
   asset_volume: string;
   volume_dollar: string;
@@ -937,6 +937,7 @@ export const useMonthVolume = (pool_id: string) => {
           return {
             ...v,
             volume_dollar: Number(v.volume_dollar),
+            dateString: v.date_string,
           };
         })
         .reverse();
@@ -948,46 +949,55 @@ export const useMonthVolume = (pool_id: string) => {
 };
 
 export interface TVLType {
+  // pool_id: string;
+  // asset_amount: string;
+  // fiat_amount: string;
+  // asset_price: string;
+  // fiat_price: string;
+  // asset_tvl: string;
+  // fiat_tvl: string;
+  // date: string;
+  date_string: string;
   pool_id: string;
-  asset_amount: string;
-  fiat_amount: string;
-  asset_price: string;
-  fiat_price: string;
-  asset_tvl: string;
-  fiat_tvl: string;
-  date: string;
+  time: number;
+  tvl: number;
 }
 export interface TVLDataType {
-  pool_id: string;
-  asset_amount: string;
-  fiat_amount: string;
-  asset_price: string;
-  fiat_price: string;
-  asset_tvl: number;
-  fiat_tvl: number;
+  // pool_id: string;
+  // asset_amount: string;
+  // fiat_amount: string;
+  // asset_price: string;
+  // fiat_price: string;
+  // asset_tvl: number;
+  // fiat_tvl: number;
   date: string;
   total_tvl: number;
-  scaled_tvl: number;
+  // scaled_tvl: number;
+  pool_id: string;
+  time: number;
+  tvl: number;
 }
 
 export const useMonthTVL = (pool_id: string) => {
   const [monthTVLById, setMonthTVLById] = useState<TVLDataType[]>();
   useEffect(() => {
     getPoolMonthTVL(pool_id).then((res) => {
-      const minDay = _.minBy(res, (o) => {
-        return Number(o.asset_tvl) + Number(o.fiat_tvl);
-      });
-      const minValue = Number(minDay?.asset_tvl) + Number(minDay?.fiat_tvl);
+      // const minDay = _.minBy(res, (o) => {
+      //   return Number(o.asset_tvl) + Number(o.fiat_tvl);
+      // });
+      // const minValue = Number(minDay?.asset_tvl) + Number(minDay?.fiat_tvl);
 
       const monthTVL = res
         .map((v, i) => {
           return {
             ...v,
-            asset_tvl: Number(v?.asset_tvl),
-            fiat_tvl: Number(v?.fiat_tvl),
-            total_tvl: Number(v?.fiat_tvl) + Number(v?.asset_tvl),
-            scaled_tvl:
-              Number(v?.fiat_tvl) + Number(v?.asset_tvl) - minValue * 0.99,
+            total_tvl: Number(v.tvl),
+            date: v.date_string,
+            // asset_tvl: Number(v?.asset_tvl),
+            // fiat_tvl: Number(v?.fiat_tvl),
+            // total_tvl: Number(v?.fiat_tvl) + Number(v?.asset_tvl),
+            // scaled_tvl:
+            //   Number(v?.fiat_tvl) + Number(v?.asset_tvl) - minValue * 0.99,
           };
         })
         .reverse();

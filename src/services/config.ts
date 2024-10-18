@@ -149,7 +149,7 @@ export default function getConfig(
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://mainnet-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: ' https://api.data-service.ref.finance/api',
         dataServiceApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
         memeRankApiUrl: 'https://api.ref.finance',
@@ -212,9 +212,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '3241971.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '4313890.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -271,7 +271,7 @@ export default function getConfig(
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
         MEME_CHECK_IN_CONTRACT_ID: 'checkin.refnft.near',
-        MEME_NFT_CONTRACT_ID: 'ms5.refnft.near',
+        MEME_NFT_CONTRACT_ID: 'ms6.refnft.near',
         Frax_SFrax_POOL_ID: 5029,
         Frax_SFrax_TOKEN_IDS: [
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
@@ -294,7 +294,7 @@ export default function getConfig(
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: ' https://api.data-service.ref.finance/api',
         dataServiceApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
         memeRankApiUrl: 'https://testnet-indexer.ref-finance.com',
@@ -346,9 +346,9 @@ export default function getConfig(
         },
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '3241971.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '4313890.03',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -387,7 +387,7 @@ export default function getConfig(
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.testnet',
         MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
-        MEME_NFT_CONTRACT_ID: 'ms_5.refnft.testnet',
+        MEME_NFT_CONTRACT_ID: 'ms_6.refnft.testnet',
       };
     case 'testnet':
       return {
@@ -400,7 +400,7 @@ export default function getConfig(
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.testnet.near.org/',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: ' https://api.data-service.ref.finance/api',
         dataServiceApiUrl: 'https://dev.data-service.ref-finance.com/api',
         txIdApiUrl: 'https://api-testnet.nearblocks.io',
         memeRankApiUrl: 'https://dev-indexer.ref-finance.com',
@@ -453,9 +453,9 @@ export default function getConfig(
         DCL_POOL_BLACK_LIST: ['usdt.fakes.testnet|wrap.testnet|100'],
 
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '3241971.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '4313890.03',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -490,7 +490,7 @@ export default function getConfig(
           'memefarm-dev2.ref-dev.testnet',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.testnet',
         MEME_CHECK_IN_CONTRACT_ID: 'check-in.testnet',
-        MEME_NFT_CONTRACT_ID: 'ms_5.refnft.testnet',
+        MEME_NFT_CONTRACT_ID: 'ms_6.refnft.testnet',
       };
     default:
       return {
@@ -503,7 +503,7 @@ export default function getConfig(
         pikespeakUrl: 'https://pikespeak.ai',
         nearExplorerUrl: 'https://explorer.near.org/',
         indexerUrl: 'https://api.ref.finance',
-        sodakiApiUrl: 'https://api.stats.ref.finance/api',
+        sodakiApiUrl: ' https://api.data-service.ref.finance/api',
         dataServiceApiUrl: 'https://api.data-service.ref.finance/api',
         txIdApiUrl: 'https://api3.nearblocks.io',
         memeRankApiUrl: 'https://api.ref.finance',
@@ -571,9 +571,9 @@ export default function getConfig(
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '2968234.25',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '3241971.25',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '3948907.03',
+          process.env.CUMULATIVE_REF_BUYBACK || '4313890.03',
 
         BLACKLIST_POOL_IDS: [
           '3699',
@@ -626,7 +626,7 @@ export default function getConfig(
           'meme-farming_011.ref-labs.near',
         REF_TOKEN_LOCKER_CONTRACT_ID: 'token-locker.ref-labs.near',
         MEME_CHECK_IN_CONTRACT_ID: 'checkin.refnft.near',
-        MEME_NFT_CONTRACT_ID: 'ms5.refnft.near',
+        MEME_NFT_CONTRACT_ID: 'ms6.refnft.near',
         Frax_SFrax_POOL_ID: 5029,
         Frax_SFrax_TOKEN_IDS: [
           '853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near',
