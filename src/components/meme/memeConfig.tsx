@@ -699,7 +699,7 @@ export function getMemeCheckInConfig(): any {
         'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
         'gear.enleap.near',
-        'gp.token0.near',
+        // 'gp.token0.near',
         'kat.token0.near',
       ],
       nftMetaData: {
