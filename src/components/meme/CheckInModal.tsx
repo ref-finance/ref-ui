@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import Modal from 'react-modal';
 import Big from 'big.js';
 import { ModalCloseIcon } from './icons';
@@ -22,6 +22,7 @@ import NFTTaskModal from '../../components/meme/NFTTaskModal';
 import { getMemeFarmingTotalAssetsList } from '../../services/api';
 import { IStakeItem, ILEVEL } from '../../interface/meme';
 import { ConnectToNearBtn } from '../../components/button/Button';
+import { MemeContext } from '../../components/meme/context';
 const CheckInModal = (props: any) => {
   const { isOpen, onRequestClose } = props;
   const [isNftTaskOpen, setIsNftTaskOpen] = useState<boolean>(false);
@@ -40,8 +41,8 @@ const CheckInModal = (props: any) => {
   const { accountId } = useWalletSelector();
   const w = is_mobile ? '95vw' : '436px';
   const memeCheckInConfig = getMemeCheckInConfig();
-  const token_id_list = memeCheckInConfig.token_id_list;
   const level = memeCheckInConfig.level;
+  const { valid_token_id_list } = useContext(MemeContext);
   useEffect(() => {
     get_nft_metadata().then((res) => {
       set_nft_metadata(res);
@@ -58,8 +59,8 @@ const CheckInModal = (props: any) => {
     }
   }, [shareButtonClicked]);
   useEffect(() => {
-    if (accountId && isOpen) {
-      query_user_claimed(token_id_list[0]).then((claimedTime) => {
+    if (accountId && isOpen && valid_token_id_list.length > 0) {
+      query_user_claimed(valid_token_id_list[0]).then((claimedTime) => {
         if (
           dayjs(Number(claimedTime || 0)).isBefore(dayjs().utc().startOf('day'))
         ) {
@@ -165,7 +166,7 @@ const CheckInModal = (props: any) => {
   function callCheckIn() {
     if (checkInLoading || claimed) return;
     setCheckInLoading(true);
-    check_in(token_id_list);
+    check_in(valid_token_id_list);
   }
   function onNftTaskRequestClose() {
     setIsNftTaskOpen(false);

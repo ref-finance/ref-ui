@@ -696,11 +696,11 @@ export function getMemeCheckInConfig(): any {
   } else {
     return {
       token_id_list: [
-        'token.lonkingnearbackto2024.near',
         'blackdragon.tkn.near',
+        'token.lonkingnearbackto2024.near',
         'gear.enleap.near',
-        // 'gp.token0.near',
         'kat.token0.near',
+        'gp.token0.near',
       ],
       nftMetaData: {
         title: 'MEME Honorary NFT 6',
