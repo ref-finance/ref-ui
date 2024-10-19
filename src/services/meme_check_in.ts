@@ -21,6 +21,14 @@ export async function query_user_nftInfo() {
     args: { account_id: accountId },
   });
 }
+export async function query_check_in_infos(tokens: string[]) {
+  const accountId = getCurrentWallet().wallet.getAccountId();
+  return await checkInViewFunction({
+    methodName: 'query_check_in_infos',
+    args: { user: accountId, tokens },
+  });
+}
+
 export async function check_in(tokenIds: string[]) {
   const transactions: Transaction[] = [];
   const accountId = getCurrentWallet().wallet.getAccountId();

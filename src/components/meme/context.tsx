@@ -44,6 +44,11 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { checkIn } from '../../services/indexer';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { useMemeStore } from '../../stores/memeStore';
+import getConfig from '../../services/config';
+import { getMemeCheckInConfig } from '../../components/meme/memeConfig';
+import { query_check_in_infos } from '../../services/meme_check_in';
+const MEME_CHECK_IN_CONTRACT_ID = getConfig().MEME_CHECK_IN_CONTRACT_ID;
+const memeCheckInConfig = getMemeCheckInConfig();
 const MemeContext = createContext<IMemeContext>(null);
 interface IMemeContext {
   tokenPriceList: Record<string, any>;
@@ -60,6 +65,7 @@ interface IMemeContext {
   donateBalances: Record<string, string>;
   loading: boolean;
   earnRewards: IReward[];
+  valid_token_id_list: string[];
 }
 export interface IFarmAccount {
   withdraw_list: Record<string, IFarmerWithdraw>;
@@ -97,6 +103,7 @@ function MemeContextProvider({ children }: any) {
   const [donateBalances, setDonateBalances] = useState<Record<string, string>>(
     {}
   );
+  const [valid_token_id_list, set_valid_token_id_list] = useState<string[]>([]);
   const [xrefFarmContractUserData, setXrefFarmContractUserData] =
     useState<Record<string, IFarmAccount>>();
   const [memeFarmContractUserData, setMemeFarmContractUserData] =
@@ -109,6 +116,21 @@ function MemeContextProvider({ children }: any) {
   const { accountId } = useWalletSelector();
   const memeStore = useMemeStore();
   const checkInLoading = memeStore.getCheckInLoading();
+  const token_id_list = memeCheckInConfig.token_id_list;
+  useEffect(() => {
+    if (token_id_list.length > 0) {
+      const valids: string[] = [];
+      query_check_in_infos(token_id_list).then((res) => {
+        const validTokens = res?.filter((item) =>
+          new Big(item.total).gt(item.lims[item.lims.length - 1])
+        );
+        validTokens.map((t) => {
+          valids.push(t.token);
+        });
+        set_valid_token_id_list(valids);
+      });
+    }
+  }, [token_id_list]);
   useEffect(() => {
     init();
   }, []);
@@ -513,6 +535,7 @@ function MemeContextProvider({ children }: any) {
         donateBalances,
         loading,
         earnRewards,
+        valid_token_id_list,
       }}
     >
       {children}
