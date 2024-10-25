@@ -282,6 +282,8 @@ export default function getConfig(
           'v1.guild-covenant.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
+        TRUNEAR_NEAR_POOL_ID: 5563,
+        TRUNEAR_NEAR_TOKEN_IDS: ['staker1.msig1.trufin.near', 'wrap.near'],
       };
     case 'pub-testnet':
       return {
@@ -637,6 +639,8 @@ export default function getConfig(
           'v1.guild-covenant.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
+        TRUNEAR_NEAR_POOL_ID: 5563,
+        TRUNEAR_NEAR_TOKEN_IDS: ['staker1.msig1.trufin.near', 'wrap.near'],
       };
   }
 }
@@ -665,6 +669,7 @@ export function getExtraStablePoolConfig(
         CUSD_STABLE_POOL_ID: '3433',
         STNEAR_POOL_ID: '3514',
         LINEAR_POOL_ID: '3515',
+        TRUNEAR_NEAR_POOL_ID: '5563',
         STNEARIDS: ['meta-pool.near', 'wrap.near'],
         LINEARIDS: ['linear-protocol.near', 'wrap.near'],
         STNEAR_POOL_INDEX: {
@@ -709,6 +714,7 @@ export function getExtraStablePoolConfig(
           '5219',
           '5029',
           '5442',
+          '5563',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -735,6 +741,10 @@ export function getExtraStablePoolConfig(
         ZNEARnM_USDC_POOL_INDEX: {
           'v1.guild-covenant.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        TRUNEAR_NEAR_POOL_INDEX: {
+          'staker1.msig1.trufin.near': 0,
+          'wrap.near': 1,
         },
       };
     case 'development':
@@ -794,6 +804,7 @@ export function getExtraStablePoolConfig(
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
         ZNEARnM_USDC_POOL_INDEX: {},
+        TRUNEAR_NEAR_POOL_INDEX: {},
       };
     case 'testnet':
       return {
@@ -850,6 +861,7 @@ export function getExtraStablePoolConfig(
         USDT_USDC_POOL_INDEX: {},
         FRAX_USDC_POOL_INDEX: {},
         ZNEARnM_USDC_POOL_INDEX: {},
+        TRUNEAR_NEAR_POOL_INDEX: {},
       };
     default:
       return {
@@ -870,6 +882,7 @@ export function getExtraStablePoolConfig(
         CUSD_STABLE_POOL_ID: '3433',
         STNEAR_POOL_ID: '3514',
         LINEAR_POOL_ID: '3515',
+        TRUNEAR_NEAR_POOL_ID: '5563',
         STNEARIDS: ['meta-pool.near', 'wrap.near'],
         LINEARIDS: ['linear-protocol.near', 'wrap.near'],
         STNEAR_POOL_INDEX: {
@@ -914,6 +927,7 @@ export function getExtraStablePoolConfig(
           '5219',
           '5029',
           '5442',
+          '5563',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -940,6 +954,10 @@ export function getExtraStablePoolConfig(
         ZNEARnM_USDC_POOL_INDEX: {
           'v1.guild-covenant.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        TRUNEAR_NEAR_POOL_INDEX: {
+          'staker1.msig1.trufin.near': 0,
+          'wrap.near': 1,
         },
       };
   }

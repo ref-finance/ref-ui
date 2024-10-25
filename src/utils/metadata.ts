@@ -70,6 +70,8 @@ const icons: { [tokenId: string]: string } = {
   '16.contract.portalbridge.near':
     'https://img.ref.finance/images/portalbridge.svg',
   'v1.guild-covenant.near': 'https://img.ref.finance/images/zNEARnM-USDC.svg',
+  'staker1.msig1.trufin.near':
+    'https://trufin-public-assets.s3.eu-west-2.amazonaws.com/truNEAR-logo.svg',
 };
 
 export default icons;

@@ -11,6 +11,7 @@ import {
   USDCW_POOL_ID,
   Frax_SFrax_POOL_ID,
   ZNEARnM_USDC_POOL_ID,
+  TRUNEAR_NEAR_POOL_ID,
 } from 'src/services/near';
 import _, { find } from 'lodash';
 import { FormattedMessage } from 'react-intl';
@@ -387,7 +388,8 @@ function StablePoolCard({
     poolData.pool.id == FRAX_USDC_POOL_ID ||
     poolData.pool.id == USDCW_POOL_ID ||
     poolData.pool.id == Frax_SFrax_POOL_ID ||
-    poolData.pool.id == ZNEARnM_USDC_POOL_ID;
+    poolData.pool.id == ZNEARnM_USDC_POOL_ID ||
+    poolData.pool.id == Number(TRUNEAR_NEAR_POOL_ID);
 
   const atRiskTokens = curRowTokens.filter((token) =>
     riskTokens.some((riskToken) => riskToken.id === token.id)
@@ -854,6 +856,7 @@ function TokenChart({
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
     'zNEARnM-USDC': '#74FA9D',
+    TruNEAR: '#A4F4BB',
   };
 
   const colorLight = {
@@ -876,6 +879,7 @@ function TokenChart({
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
     'zNEARnM-USDC': '#74FA9D',
+    TruNEAR: '#A4F4BB',
   };
 
   const innerRadius = 30;
