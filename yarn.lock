@@ -2620,6 +2620,15 @@
     near-seed-phrase "^0.2.0"
     util "^0.12.5"
 
+"@keypom/one-click-connect@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@keypom/one-click-connect/-/one-click-connect-1.0.1.tgz#fa578b45b94deaa5209cba4af3df9ba917ad27d7"
+  integrity sha512-HOYSdRChnjH2AzAsXHLpMOe/ruDczbMfQQeAEC/F88iwN/HpAfQLw5UJ+ywUyXz6GgzGHitKzvKobLVxa14PBw==
+  dependencies:
+    "@near-wallet-selector/core" "8.9.5"
+    "@near-wallet-selector/wallet-utils" "8.9.5"
+    bn.js "^5.2.1"
+
 "@keypom/selector@^1.2.3":
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/@keypom/selector/-/selector-1.2.3.tgz#93a53129714fb69ef13dd2cfc2621888107e7e36"
@@ -3665,6 +3674,14 @@
   integrity sha512-+aoKVGW+FULRO7pN1jb232jbt3PB8RBY5K8Xj/oMxutjlXrE50QyOr1GfTEtaylCp86iMTGEexdSqtIFbQ4v/A==
   dependencies:
     "@near-wallet-selector/core" "8.9.13"
+
+"@near-wallet-selector/wallet-utils@8.9.5":
+  version "8.9.5"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-8.9.5.tgz#33d0a471f75b1192bfadf5a2d312c59c54d69630"
+  integrity sha512-TBeQheoizs4EQIGQPJxz44ZsxL4VbjLQJLlpDsNpwQfkxjcyThsZ19hOvcj5XZjwdJxwM10VBcf/qh1mKzv1uQ==
+  dependencies:
+    "@near-wallet-selector/core" "8.9.5"
+    bn.js "5.2.1"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"

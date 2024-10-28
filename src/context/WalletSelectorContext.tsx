@@ -55,7 +55,7 @@ import {
   get_orderly_public_key_path,
 } from '../pages/Orderly/orderly/utils';
 import { isMobile } from '../utils/device';
-import { setupKeypom } from '@keypom/selector';
+import { setupOneClickConnect } from '@keypom/one-click-connect';
 import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { addUserWallet } from '../services/indexer';
 
@@ -263,16 +263,9 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
           chainId: `near:${getConfig().networkId}`,
           // iconUrl: walletIcons['wallet-connect'],
         }),
-        setupKeypom({
+        setupOneClickConnect({
           networkId: getConfig().networkId as NetworkId,
-          signInContractId: CONTRACT_ID,
-          trialAccountSpecs: {
-            url: '/trial-accounts/ACCOUNT_ID#SECRET_KEY',
-            modalOptions: KEYPOM_OPTIONS,
-          },
-          instantSignInSpecs: {
-            url: '/#instant-url/ACCOUNT_ID#SECRET_KEY/MODULE_ID',
-          },
+          contractId: CONTRACT_ID,
         }),
         setupMintbaseWallet({
           walletUrl: 'https://wallet.mintbase.xyz',
@@ -298,7 +291,7 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
         'nightly',
         'ledger',
         'wallet-connect',
-        'keypom',
+        // 'keypom',
         'mintbase-wallet',
         'bitte-wallet',
         'ethereum-wallets',

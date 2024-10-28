@@ -101,6 +101,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.20.7",
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
     "@craco/craco": "7.1.0",
+    "@keypom/one-click-connect": "^1.0.1",
     "@keypom/selector": "^1.2.3",
     "@ledgerhq/devices": "^7.0.0",
     "@metamask/detect-provider": "^2.0.0",
