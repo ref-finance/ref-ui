@@ -121,7 +121,7 @@ const CheckInModal = (props: any) => {
       </div>
       <div class="flex items-start gap-1.5">
         <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
-        <span>Unlock MEME Honorary NFT 6 for all users in MEME Season 6 by completing tasks.</span>
+        <span>Unlock MEME Honorary NFT 7 for all users in MEME Season 7 by completing tasks.</span>
       </div>
       <div class="flex items-start gap-1.5">
         <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
@@ -129,7 +129,7 @@ const CheckInModal = (props: any) => {
       </div>
       <div class="flex items-start gap-1.5">
         <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
-        <span>Holders of MEME Honorary NFT can accelerate MEME token acquisition and participate in Season 6 staking.</span>
+        <span>Holders of MEME Honorary NFT can accelerate MEME token acquisition and participate in Season 7 staking.</span>
       </div>
       <div class="flex items-start gap-1.5">
         <span class="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>
