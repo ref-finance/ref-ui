@@ -521,7 +521,6 @@ export const useSwap = ({
 
   const setAverageFee = (estimates: EstimateSwapView[]) => {
     let avgFee: number = 0;
-
     try {
       const routes = separateRoutes(estimates, tokenOut.id);
 
@@ -744,6 +743,14 @@ export const useSwap = ({
       }).catch(setSwapError);
     }
   };
+  // console.log('9999999999999-avgFee', avgFee);
+  // console.table([
+  //   `-------avgFee---${new Big((avgFee || 0) / 100).toFixed()}`,
+  //   `--------priceImpactValue---${priceImpactValue}`,
+  //   `--------display----${new Big(priceImpactValue)
+  //     .minus(new Big((avgFee || 0) / 100))
+  //     .toString()}`,
+  // ]);
   return {
     canSwap,
     tokenOutAmount,
@@ -1680,11 +1687,11 @@ export const useRefSwap = ({
     500,
     [bestSwap, JSON.stringify(mixEstimateResult || {})]
   );
-  console.table([
-    `pre-tag---${tag}---${tokenOutAmount}`,
-    `pre-tagV3---${tagV3}---${tokenOutAmountV2}`,
-    `pre-mixTag---${mixTag}---${tokenOutAmountMix}`,
-  ]);
+  // console.table([
+  //   `pre-tag---${tag}---${tokenOutAmount}`,
+  //   `pre-tagV3---${tagV3}---${tokenOutAmountV2}`,
+  //   `pre-mixTag---${mixTag}---${tokenOutAmountMix}`,
+  // ]);
   function validator() {
     if (tag && tagV3 && mixTag) {
       const [inId, outId, inAmount] = tag.split('|');
