@@ -21,10 +21,10 @@ const Countdown = ({ onCountdownFinish }) => {
   const is_mobile = isMobile();
   useEffect(() => {
     const targetDate = new Date(
-      Date.UTC(new Date().getUTCFullYear(), 9, 1, 0, 0, 0)
+      Date.UTC(new Date().getUTCFullYear(), 10, 1, 0, 0, 0) // 11月1日
     );
     const endDate = new Date(
-      Date.UTC(new Date().getUTCFullYear(), 9, 5, 0, 0, 0)
+      Date.UTC(new Date().getUTCFullYear(), 10, 5, 0, 0, 0) // 11月5日
     );
     const updateCountdown = () => {
       const nowUtc = Date.now();
@@ -66,7 +66,7 @@ const Countdown = ({ onCountdownFinish }) => {
           </div>
           {!is_mobile ? (
             <div className="absolute -right-1 top-0 xsm:hidden">
-              <CountdownLeftBg style={{ height: '240px' }} />
+              <CountdownLeftBg />
             </div>
           ) : null}
 
