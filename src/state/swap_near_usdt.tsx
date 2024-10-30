@@ -29,12 +29,10 @@ const four_pool_id = four_stable_pool_id;
 export const useSwapMix = ({
   tokenIn,
   tokenInAmount,
-  setShowSwapLoading,
   tokenOut,
   slippageTolerance,
   loadingTrigger,
   setLoadingTrigger,
-  loadingPause,
   reEstimateTrigger,
   supportLedger,
 }: SwapOptions): INEAR_USDT_SWAP_TODOS => {
@@ -76,10 +74,21 @@ export const useSwapMix = ({
       tokenInAmount,
       usdcMetadata?.id,
       supportLedger,
-      // loadingTrigger,
       reEstimateTrigger,
     ]
   );
+  useEffect(() => {
+    if (
+      tokenIn?.id == token_in_id &&
+      tokenOut?.id == token_out_id &&
+      usdcMetadata?.id &&
+      Big(tokenInAmount || 0).gt(0) &&
+      !supportLedger &&
+      loadingTrigger
+    ) {
+      getEstimate();
+    }
+  }, [loadingTrigger]);
   async function getEstimate() {
     setQuoteDone(false);
     try {
@@ -103,9 +112,11 @@ export const useSwapMix = ({
       setCanSwap(true);
       setMixTag(`${token_in_id}|${token_out_id}|${tokenInAmount}`);
       getPriceImpact(tokenInAmount, v1_quote_amount);
+      setLoadingTrigger(false);
     } catch (error) {
       initState();
       setMixError(error);
+      setLoadingTrigger(false);
     }
   }
   function initState() {
