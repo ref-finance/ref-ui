@@ -145,7 +145,8 @@ export const useSwapMix = ({
   }
   function getAverageFee(stablePool) {
     const dclPoolFee = 2000 / 100;
-    setAvgFee(dclPoolFee);
+    const stablePoolFee = stablePool.fee;
+    setAvgFee(dclPoolFee + +stablePoolFee);
   }
   const getPriceImpact = (tokenInAmount, estimateOutAmount) => {
     try {
@@ -162,7 +163,9 @@ export const useSwapMix = ({
       const priceImpact = newPrice.lt(oldPrice)
         ? '0'
         : newPrice.minus(oldPrice).div(newPrice).times(100).abs().toFixed();
-      setPriceImpact(priceImpact);
+      setPriceImpact(
+        new Big(priceImpact).minus(new Big((avgFee || 0) / 100)).toFixed()
+      );
     } catch (error) {
       setPriceImpact('0');
     }

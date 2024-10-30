@@ -1121,7 +1121,7 @@ export default function SwapCard(props: {
       setShowMixSwapModal(true);
     } else {
       if (ifDoubleCheck) setDoubleCheckOpen(true);
-      // TODO4 红色警告时待处理
+      // TODO4
       else selectTrade && selectTrade.makeSwap();
     }
   };

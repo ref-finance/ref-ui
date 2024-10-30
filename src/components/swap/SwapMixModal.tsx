@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Modal from 'react-modal';
 import { usePersistSwapStore } from '../../stores/swapStore';
 import { isMobile } from '../../utils/device';
