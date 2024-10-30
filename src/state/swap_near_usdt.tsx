@@ -98,13 +98,17 @@ export const useSwapMix = ({
         output_token: usdcMetadata,
         input_amount: tokenInAmount,
         tag: `${tokenIn.id}|2000|${tokenInAmount}`,
-      }).catch((e) => null);
+      }).catch((e) => {
+        console.log('dcl_quote------异常啦啦啦啦啦', e);
+      });
       const { amount: dcl_quote_amount } = dcl_quote;
       const v1_quote_amount = await getReturn({
         pool_id: four_pool_id,
         token_in: token_usdc_id,
         token_out: token_out_id,
         amount_in: dcl_quote_amount,
+      }).catch((e) => {
+        console.log('v1_quote------异常啦啦啦啦啦', e);
       });
       set_dcl_quote_amout(dcl_quote_amount);
       setEstimateOutAmount(v1_quote_amount);
