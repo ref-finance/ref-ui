@@ -89,6 +89,8 @@ import {
   FaExchangeAlt,
   MdOutlineRefresh,
 } from '../reactIcons';
+import SwapMixModal from './SwapMixModal';
+import { usePersistSwapStore } from '../../stores/swapStore';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -696,9 +698,12 @@ export default function SwapCard(props: {
     swapTab,
     globalWhiteListTokens,
   } = props;
-
+  const {
+    near_usdt_swapTodos,
+    near_usdt_swapTodos_transaction,
+    set_near_usdt_swapTodos_transaction,
+  } = usePersistSwapStore();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
-
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
@@ -729,6 +734,7 @@ export default function SwapCard(props: {
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
   const [tokenDeflationRateData, setTokenDeflationRateData] =
     useState<Record<string, any>>();
+  const [showMixSwapModal, setShowMixSwapModal] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -922,6 +928,11 @@ export default function SwapCard(props: {
       setTokenDeflationRateData(undefined);
     }
   }, [tokenIn?.id]);
+  useEffect(() => {
+    if (near_usdt_swapTodos_transaction?.process == '1') {
+      setShowMixSwapModal(true);
+    }
+  }, [near_usdt_swapTodos_transaction?.process]);
   async function getTokenDeflationRate() {
     setTokenDeflationRateData(undefined);
     const tokenMeta = await tokenFtMetadata(tokenIn.id);
@@ -1102,14 +1113,17 @@ export default function SwapCard(props: {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-
     const ifDoubleCheck =
       new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
         new BigNumber(tokenInMax || 0)
       ) && Number(selectTrade?.priceImpact || 0) > 2;
-
-    if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else selectTrade && selectTrade.makeSwap();
+    if (selectTrade.estimatesMix) {
+      setShowMixSwapModal(true);
+    } else {
+      if (ifDoubleCheck) setDoubleCheckOpen(true);
+      // TODO4 红色警告时待处理
+      else selectTrade && selectTrade.makeSwap();
+    }
   };
   const handleSubmit_wrap = (e: any) => {
     e.preventDefault();
@@ -1176,7 +1190,10 @@ export default function SwapCard(props: {
     tokenInAmount,
     tokenInAmountInput,
   ]);
-
+  function closeMixSwapModal() {
+    setShowMixSwapModal(false);
+    set_near_usdt_swapTodos_transaction(null);
+  }
   return (
     <>
       <SwapFormWrap
@@ -1223,6 +1240,7 @@ export default function SwapCard(props: {
           setShowSwapLoading,
         }}
         isInsufficient={isInsufficientBalance && selectMarket !== 'orderly'}
+        near_usdt_swapTodos={near_usdt_swapTodos}
       >
         <TokenAmountV3
           forSwap
@@ -1444,6 +1462,11 @@ export default function SwapCard(props: {
           setShowSkywardTip(false);
         }}
         isOpen={showSkywardTip}
+      />
+      {/* TODO4 */}
+      <SwapMixModal
+        onRequestClose={closeMixSwapModal}
+        isOpen={showMixSwapModal}
       />
     </>
   );
