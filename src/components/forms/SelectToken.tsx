@@ -505,10 +505,7 @@ export default function SelectToken({
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
   const [commonBassesTokens, setCommonBassesTokens] = useState([]);
-  const [searchNoData, setSearchNoData] = useState(false);
-  const [tknSearchNoData, setTknSearchNoData] = useState(false);
   const [addTokenLoading, setAddTokenLoading] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
   const [addTokenError, setAddTokenError] = useState(false);
   const addToken = () => <AddToken />;
   const { globalState } = useContext(WalletContext);
@@ -522,6 +519,9 @@ export default function SelectToken({
   const searchRef = useRef(null);
   const [activeTab, setActiveTab] = useState('Default');
   const [showTabs, setShowTabs] = useState(true);
+  const [searchValue, setSearchValue] = useState('');
+  const [searchNoData, setSearchNoData] = useState(false);
+  const [tknSearchNoData, setTknSearchNoData] = useState(false);
   const { tokensData: allTokensData, loading: loadingAllTokensData } =
     useTokensData(tokens, balances, visible);
   const { tokensData, loading: loadingTokensData } = useTokensData(
@@ -571,12 +571,47 @@ export default function SelectToken({
     balances,
     visible
   );
+  const sortTypes = useMemo(
+    () => ({
+      up: {
+        class: 'sort-up',
+        fn: (a: any, b: any) => sort(a[sortBy], b[sortBy]),
+      },
+      down: {
+        class: 'sort-down',
+        fn: (a: any, b: any) => sort(b[sortBy], a[sortBy]),
+      },
+      default: {
+        class: 'sort',
+        fn: (a: any, b: any) => a,
+      },
+    }),
+    [sortBy]
+  );
+
+  const searchResults = useMemo(() => {
+    if (!searchValue || !allListData.length) return [];
+
+    return allListData
+      .filter((token) => {
+        const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
+        if (!symbol) return false;
+
+        const searchLower = searchValue.toLowerCase();
+        const symbolLower = toRealSymbol(symbol).toLowerCase();
+        const idLower = token.id.toLowerCase();
+
+        return symbolLower.includes(searchLower) || idLower === searchLower;
+      })
+      .sort(sortTypes[currentSort].fn);
+  }, [searchValue, allListData, currentSort, sortTypes]);
+
   useEffect(() => {
     if (allTokensData?.length && !loadingAllTokensData) {
-      allTokensData.sort(sortTypes[currentSort].fn);
-      setAllListData(allTokensData);
+      const sortedData = [...allTokensData].sort(sortTypes[currentSort].fn);
+      setAllListData(sortedData);
     }
-  }, [allTokensData?.length, loadingAllTokensData, currentSort]);
+  }, [allTokensData?.length, loadingAllTokensData]);
   useEffect(() => {
     if (searchResultslistData?.length) {
       searchResultslistData.sort(sortTypes[currentSort].fn);
@@ -616,21 +651,6 @@ export default function SelectToken({
   useEffect(() => {
     getLatestCommonBassesTokens();
   }, [tokensData]);
-
-  const sortTypes: { [key: string]: any } = {
-    up: {
-      class: 'sort-up',
-      fn: (a: any, b: any) => sort(a[sortBy], b[sortBy]),
-    },
-    down: {
-      class: 'sort-down',
-      fn: (a: any, b: any) => sort(b[sortBy], a[sortBy]),
-    },
-    default: {
-      class: 'sort',
-      fn: (a: any, b: any) => a,
-    },
-  };
   const sortBySymbol = (a: TokenMetadata, b: TokenMetadata) => {
     if (+a.near == 0 && +b.near == 0) {
       const a_symbol = toRealSymbol(a.symbol).toLocaleLowerCase();
@@ -651,63 +671,28 @@ export default function SelectToken({
     setSortBy(params);
   };
 
-  const onSearch = (value: string) => {
-    setAddTokenError(false);
-    setAddTokenLoading(false);
-    setSearchValue(value);
-    setShowTabs(value.length === 0);
-    setShowCommonBasses(value.length === 0);
-    // const result = tokensData.filter((token) => {
-    //   const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
-    //   if (!symbol) return false;
-    //   const condition1 = toRealSymbol(symbol)
-    //     .toLocaleUpperCase()
-    //     .includes(value.toLocaleUpperCase());
-    //   const condition2 =
-    //     token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
-    //   return condition1 || condition2;
-    // });
-    // const resultTkn = tknTokensData.filter((token) => {
-    //   const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
-    //   if (!symbol) return false;
-    //   const condition1 = toRealSymbol(symbol)
-    //     .toLocaleUpperCase()
-    //     .includes(value.toLocaleUpperCase());
-    //   const condition2 =
-    //     token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
-    //   return condition1 || condition2;
-    // });
-    // result.sort(sortBySymbol);
-    // setListData(result);
-    // setListTknData(resultTkn);
-    const result = allListData
-      .filter((token) => {
-        const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
-        if (!symbol) return false;
-        const condition1 = toRealSymbol(symbol)
-          .toLocaleUpperCase()
-          .includes(value.toLocaleUpperCase());
-        const condition2 =
-          token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
-        return condition1 || condition2;
-      })
-      .sort(sortBySymbol);
+  const onSearch = useCallback(
+    (value: string) => {
+      setAddTokenError(false);
+      setAddTokenLoading(false);
+      setSearchValue(value);
+      setShowTabs(value.length === 0);
+      setShowCommonBasses(value.length === 0);
+      if (value.length > 0) {
+        setSearchNoData(!loadingTokensData && searchResults.length === 0);
+        setTknSearchNoData(!loadingTKNTokensData && searchResults.length === 0);
+      } else {
+        setSearchNoData(false);
+        setTknSearchNoData(false);
+      }
+    },
+    [loadingTokensData, loadingTKNTokensData, searchResults]
+  );
 
-    setSearchResultsData(result);
-
-    if (!loadingTokensData && value.length > 0 && result.length == 0) {
-      setSearchNoData(true);
-    } else {
-      setSearchNoData(false);
-    }
-    // if (!loadingTKNTokensData && value.length > 0 && resultTkn.length == 0) {
-    //   setTknSearchNoData(true);
-    // } else {
-    //   setTknSearchNoData(false);
-    // }
-  };
-
-  const debounceSearch = _.debounce(onSearch, 300);
+  const debounceSearch = useMemo(
+    () => _.debounce((value: string) => onSearch(value), 500),
+    [onSearch]
+  );
 
   const handleClose = () => {
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
@@ -874,10 +859,10 @@ export default function SelectToken({
               />
               <input
                 ref={searchRef}
-                className={`text-base text-white outline-none rounded w-full py-2 pl-1 mr-6`}
-                placeholder={intl.formatMessage({
-                  id: 'search_name_or_address',
-                })}
+                className="w-full px-2 py-2 bg-inputDarkBg outline-none"
+                placeholder={
+                  placeholder || intl.formatMessage({ id: 'search_token' })
+                }
                 onChange={(evt) => debounceSearch(evt.target.value)}
               />
               <SelectTokenCloseButton
@@ -1128,18 +1113,17 @@ export default function SelectToken({
                     tokenPriceList={tokenPriceList}
                     currentSort={currentSort}
                     onSortChange={onSortChange}
-                    tokens={searchResultslistData}
+                    tokens={searchResults}
                     onClick={(token) => {
-                      if (token.id != NEARXIDS[0]) {
-                        if (
-                          !(
-                            token.id == WRAP_NEAR_CONTRACT_ID &&
-                            token.symbol == 'wNEAR' &&
-                            !allowWNEAR
-                          )
-                        ) {
-                          onSelect && onSelect(token);
-                        }
+                      if (
+                        token.id != NEARXIDS[0] &&
+                        !(
+                          token.id == WRAP_NEAR_CONTRACT_ID &&
+                          token.symbol == 'wNEAR' &&
+                          !allowWNEAR
+                        )
+                      ) {
+                        onSelect?.(token);
                       }
                       handleClose();
                     }}
