@@ -342,7 +342,11 @@ export const useSwapPopUp = () => {
               receipt?.receipt?.Action?.actions?.[0]?.FunctionCall
                 ?.method_name === 'ft_transfer_call' ||
               receipt?.receipt?.Action?.actions?.[0]?.FunctionCall
-                ?.method_name === 'near_withdraw'
+                ?.method_name === 'near_withdraw' ||
+              receipt?.receipt?.Action?.actions?.[0]?.FunctionCall
+                ?.method_name === 'near_deposit' ||
+              receipt?.receipt?.Action?.actions?.[0]?.FunctionCall
+                ?.method_name === 'swap'
             );
           });
           return {
@@ -356,7 +360,7 @@ export const useSwapPopUp = () => {
                   'near_deposit' ||
                 transaction?.actions[0]?.FunctionCall?.method_name ===
                   'near_withdraw' ||
-                (isSwapReceipt && isPackage)) &&
+                isSwapReceipt) &&
               !isLimitOrder,
             transactionErrorType,
             res,
@@ -1730,7 +1734,7 @@ export const useRefSwap = ({
     canSwapMix && Big(tokenOutAmountMix || '0').gt(betterOutAmount)
       ? 'mix'
       : betterSwap;
-  bestSwap = 'mix'; // TODO4 Test code
+  // bestSwap = 'mix'; // TODO4 Test code
   if (bestSwap === 'v1') {
     if (swapsToDoServer) {
       swapsToDoServer.contract = 'Ref_Classic';

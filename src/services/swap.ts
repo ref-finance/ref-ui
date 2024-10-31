@@ -1271,8 +1271,8 @@ export const swapFromFourPool = async ({
 }) => {
   const transactions: Transaction[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
-  const gas =
-    getSelectedWalletId() == 'neth' ? '2500000000000000' : '300000000000000';
+  const walletId = getSelectedWalletId();
+  const gas = walletId == 'neth' ? '250000000000000' : '300000000000000';
   const registerToken = async (token: TokenMetadata) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
