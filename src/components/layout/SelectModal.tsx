@@ -54,10 +54,10 @@ export const SelectModal = ({
 
       <div
         className={`py-2 px-2   w-full hover:bg-white hover:bg-opacity-10 text-white text-opacity-40 ${
-          sortMode === 'apr' ? 'bg-white bg-opacity-10 text-opacity-100' : ''
+          sortMode === 'apy' ? 'bg-white bg-opacity-10 text-opacity-100' : ''
         } z-30`}
         onClick={() => {
-          onSortChange('apr');
+          onSortChange('apy');
           setShowModal(false);
         }}
       >
