@@ -54,13 +54,23 @@ export const getURLInfo = () => {
   const errorCode = new URLSearchParams(search).get('errorCode');
 
   const signInErrorType = new URLSearchParams(search).get('signInErrorType');
-
-  const txHashes = (
+  const selectedWalletId =
+    window.selector?.store?.getState()?.selectedWalletId ?? '';
+  let txHashes = [];
+  const txHashesStr =
     new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.NEAR_WALLET) ||
     new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.SENDER_WALLET) ||
-    new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.WalletSelector)
-  )?.split(',');
-
+    new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.WalletSelector);
+  if (
+    selectedWalletId == 'bitte-wallet' ||
+    selectedWalletId == 'mintbase-wallet'
+  ) {
+    txHashes = decodeURIComponent(decodeURIComponent(txHashesStr || '')).split(
+      ','
+    );
+  } else {
+    txHashes = (txHashesStr || '').split(',');
+  }
   return {
     txHash:
       txHashes && txHashes.length > 0 ? txHashes[txHashes.length - 1] : '',
