@@ -366,7 +366,7 @@ export const getTopPoolsByNewUI = async ({
   } else if (token_type == 'stablecoin') {
     tktype = 'stable_coin';
   }
-  if (sort == 'apr') {
+  if (sort == 'apr' || sort == 'apy') {
     sort = 'apy';
   }
   if (sort == 'volume_24h') {
@@ -436,7 +436,7 @@ export const getSearchResult = async ({
   } else if (token_type == 'stablecoin') {
     tktype = 'stable_coin';
   }
-  if (sort == 'apr') {
+  if (sort == 'apr' || sort == 'apy') {
     sort = 'apy';
   }
   if (sort == 'volume_24h') {
