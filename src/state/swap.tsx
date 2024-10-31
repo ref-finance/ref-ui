@@ -1661,37 +1661,29 @@ export const useRefSwap = ({
   });
   const {
     estimateOutAmount: tokenOutAmountMix,
-    dcl_quote_amout,
-    nonEstimateOutAmount,
     mixTag,
     quoteDone: quoteDoneMix,
     canSwap: canSwapMix,
-    pools,
-    tokens,
-    mixError,
-    process,
     fee: feeMix,
     priceImpact: priceImpactFix,
     estimateOutAmountWithSlippageTolerance: minAmountOutMix,
   } = mixEstimateResult;
   let bestSwap;
-  const { set_near_usdt_swapTodos } = usePersistSwapStore();
+  const { set_near_usdt_swapTodos, set_near_usdt_swapTodos_transaction } =
+    usePersistSwapStore();
   useDebounce(
     () => {
       if (bestSwap == 'mix') {
         set_near_usdt_swapTodos(mixEstimateResult);
-      } else {
+      }
+      if (bestSwap && bestSwap !== 'mix') {
         set_near_usdt_swapTodos(null);
+        set_near_usdt_swapTodos_transaction(null);
       }
     },
     500,
     [bestSwap, JSON.stringify(mixEstimateResult || {})]
   );
-  // console.table([
-  //   `pre-tag---${tag}---${tokenOutAmount}`,
-  //   `pre-tagV3---${tagV3}---${tokenOutAmountV2}`,
-  //   `pre-mixTag---${mixTag}---${tokenOutAmountMix}`,
-  // ]);
   function validator() {
     if (tag && tagV3 && mixTag) {
       const [inId, outId, inAmount] = tag.split('|');

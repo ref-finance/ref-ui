@@ -22,6 +22,7 @@ import {
 } from '../utils/swapConfig';
 import { getBoostTokenPrices } from '../services/farm';
 import { toPrecision } from '../utils/numbers';
+import { usePersistSwapStore } from '../stores/swapStore';
 const token_in_id = token_near_id;
 const token_out_id = token_usdt_id;
 const dcl_pool_id = near_udsc_pool_id;
@@ -48,6 +49,8 @@ export const useSwapMix = ({
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
   const [avgFee, setAvgFee] = useState<number>(0);
   const [priceImpact, setPriceImpact] = useState<string>('0');
+  const { set_near_usdt_swapTodos, set_near_usdt_swapTodos_transaction } =
+    usePersistSwapStore();
   useEffect(() => {
     getAssets();
   }, []);
@@ -77,6 +80,15 @@ export const useSwapMix = ({
       reEstimateTrigger,
     ]
   );
+  useEffect(() => {
+    if (
+      (tokenIn && tokenIn.id !== token_in_id) ||
+      (tokenOut && tokenOut.id !== token_out_id)
+    ) {
+      set_near_usdt_swapTodos(null);
+      set_near_usdt_swapTodos_transaction(null);
+    }
+  }, [tokenIn?.id, tokenOut?.id]);
   useEffect(() => {
     if (
       tokenIn?.id == token_in_id &&

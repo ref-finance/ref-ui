@@ -68,7 +68,7 @@ import {
   getUsedPools,
   getUsedTokens,
 } from './smartRouterFromServer';
-import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
+import { getSelectedWalletId } from '../pages/Orderly/orderly/utils';
 import { getTokenPriceListFromCacheForServer } from '../services/smartRouterFromServer';
 
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
@@ -1271,6 +1271,8 @@ export const swapFromFourPool = async ({
 }) => {
   const transactions: Transaction[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
+  const gas =
+    getSelectedWalletId() == 'neth' ? '2500000000000000' : '300000000000000';
   const registerToken = async (token: TokenMetadata) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
@@ -1282,7 +1284,7 @@ export const swapFromFourPool = async ({
           registration_only: true,
           account_id: getCurrentWallet()?.wallet?.getAccountId(),
         },
-        gas: '30000000000000',
+        gas,
         amount: STORAGE_TO_REGISTER_WITH_MFT,
       });
       transactions.push({
@@ -1301,7 +1303,6 @@ export const swapFromFourPool = async ({
       min_amount_out,
     },
   ];
-
   transactions.push({
     receiverId: tokenIn.id,
     functionCalls: [
@@ -1315,7 +1316,7 @@ export const swapFromFourPool = async ({
             actions: actionsList,
           }),
         },
-        gas: '300000000000000',
+        gas,
         amount: ONE_YOCTO_NEAR,
       },
     ],
@@ -1438,7 +1439,8 @@ export const nearInstantSwap = async ({
       });
     }
   }
-
+  const gas =
+    getSelectedWalletId() == 'neth' ? '2500000000000000' : '300000000000000';
   transactions.push({
     receiverId: tokenIn.id,
     functionCalls: [
@@ -1453,7 +1455,7 @@ export const nearInstantSwap = async ({
             ...(tokenOut.symbol == 'NEAR' ? { skip_unwrap_near: false } : {}),
           }),
         },
-        gas: '300000000000000',
+        gas,
         amount: ONE_YOCTO_NEAR,
       },
     ],
