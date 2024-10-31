@@ -158,7 +158,7 @@ function StablePoolList({
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
         return v2 - v1;
-      } else if (sortBy == 'apr') {
+      } else if (sortBy == 'apy') {
         return apr2 - apr1;
       } else {
         return vol2 - vol1;
@@ -166,7 +166,7 @@ function StablePoolList({
     } else {
       if (sortBy === 'tvl') {
         return v1 - v2;
-      } else if (sortBy == 'apr') {
+      } else if (sortBy == 'apy') {
         return apr1 - apr2;
       } else {
         return vol1 - vol2;
@@ -202,31 +202,31 @@ function StablePoolList({
             <span
               className={`pr-1 cursor-pointer
               
-              ${sortBy !== 'apr' ? 'hover:text-white' : 'text-gradientFrom'}
+              ${sortBy !== 'apy' ? 'hover:text-white' : 'text-gradientFrom'}
     
               `}
               onClick={() => {
                 setClicked(true);
-                setSortBy('apr');
+                setSortBy('apy');
 
                 setorderStable(
-                  orderStable === 'desc' && sortBy === 'apr' ? 'asc' : 'desc'
+                  orderStable === 'desc' && sortBy === 'apy' ? 'asc' : 'desc'
                 );
               }}
             >
-              <FormattedMessage id="apr" defaultMessage="APR" />
+              <FormattedMessage id="apy" defaultMessage="APY" />
             </span>
             <span
-              className={`cursor-pointer ${sortBy !== 'apr' ? 'hidden' : ''} `}
+              className={`cursor-pointer ${sortBy !== 'apy' ? 'hidden' : ''} `}
               onClick={() => {
                 setClicked(true);
-                setSortBy('apr');
+                setSortBy('apy');
                 setorderStable(
-                  orderStable === 'desc' && sortBy === 'apr' ? 'asc' : 'desc'
+                  orderStable === 'desc' && sortBy === 'apy' ? 'asc' : 'desc'
                 );
               }}
             >
-              {orderStable === 'desc' && sortBy === 'apr' ? (
+              {orderStable === 'desc' && sortBy === 'apy' ? (
                 <DownArrowLight />
               ) : (
                 <UpArrowLight />
@@ -564,7 +564,7 @@ function StablePoolCard({
       >
         <div className="lg:hidden w-full flex  justify-between text-sm text-white">
           <div className="text-xs text-v3SwapGray">
-            <FormattedMessage id="apr" defaultMessage={'APR'} />
+            <FormattedMessage id="apy" defaultMessage={'APY'} />
           </div>
 
           <div className="flex flex-col items-end ">

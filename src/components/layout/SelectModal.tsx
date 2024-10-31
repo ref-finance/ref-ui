@@ -61,7 +61,7 @@ export const SelectModal = ({
           setShowModal(false);
         }}
       >
-        <FormattedMessage id="apr" defaultMessage="APR" />
+        <FormattedMessage id="apy" defaultMessage="APY" />
       </div>
 
       <div
