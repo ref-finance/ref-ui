@@ -929,10 +929,21 @@ export default function SwapCard(props: {
     }
   }, [tokenIn?.id]);
   useEffect(() => {
-    if (near_usdt_swapTodos_transaction?.process == '1') {
+    if (
+      accountId &&
+      near_usdt_swapTodos_transaction?.accountId == accountId &&
+      near_usdt_swapTodos_transaction?.process == '1'
+    ) {
       setShowMixSwapModal(true);
     }
-  }, [near_usdt_swapTodos_transaction?.process]);
+    if (
+      accountId &&
+      near_usdt_swapTodos_transaction &&
+      near_usdt_swapTodos_transaction.accountId !== accountId
+    ) {
+      set_near_usdt_swapTodos_transaction(null);
+    }
+  }, [near_usdt_swapTodos_transaction?.process, accountId]);
   async function getTokenDeflationRate() {
     setTokenDeflationRateData(undefined);
     const tokenMeta = await tokenFtMetadata(tokenIn.id);
@@ -1118,6 +1129,9 @@ export default function SwapCard(props: {
         new BigNumber(tokenInMax || 0)
       ) && Number(selectTrade?.priceImpact || 0) > 2;
     if (selectTrade.estimatesMix) {
+      if (near_usdt_swapTodos_transaction?.process == '2') {
+        set_near_usdt_swapTodos_transaction(null);
+      }
       setShowMixSwapModal(true);
     } else {
       if (ifDoubleCheck) setDoubleCheckOpen(true);

@@ -30,7 +30,10 @@ export default function SwapMixModal(props: any) {
     e.stopPropagation();
     if (step1Disabled) return;
     setStep1Loading(true);
-    set_near_usdt_swapTodos_transaction(near_usdt_swapTodos);
+    set_near_usdt_swapTodos_transaction({
+      ...near_usdt_swapTodos,
+      accountId: window.selectorAccountId,
+    });
     const { pools, slippageTolerance, dcl_quote_amout, tokens, tokenInAmount } =
       near_usdt_swapTodos;
     makeDclSwap_nearUsdt({

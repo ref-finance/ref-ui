@@ -20,7 +20,7 @@ export interface INEAR_USDT_SWAP_TODOS {
   mixError: Error;
   fee: number;
   priceImpact: string;
-  accountId: string;
+  accountId?: string;
   process: '0' | '1' | '2' | '3'; // "0": dcl transaction has been processing, "1": "The dcl transaction has been completed", "2": "The v1 transaction has been processing", "3": "The v1 transaction has been completed"
 }
 export interface IPersistSwap {
