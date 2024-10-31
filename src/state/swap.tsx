@@ -1676,10 +1676,6 @@ export const useRefSwap = ({
       if (bestSwap == 'mix') {
         set_near_usdt_swapTodos(mixEstimateResult);
       }
-      if (bestSwap && bestSwap !== 'mix') {
-        set_near_usdt_swapTodos(null);
-        set_near_usdt_swapTodos_transaction(null);
-      }
     },
     500,
     [bestSwap, JSON.stringify(mixEstimateResult || {})]
@@ -1734,7 +1730,7 @@ export const useRefSwap = ({
     canSwapMix && Big(tokenOutAmountMix || '0').gt(betterOutAmount)
       ? 'mix'
       : betterSwap;
-  // bestSwap = 'mix'; // TODO4 Test code
+  bestSwap = 'mix'; // TODO4 Test code
   if (bestSwap === 'v1') {
     if (swapsToDoServer) {
       swapsToDoServer.contract = 'Ref_Classic';
