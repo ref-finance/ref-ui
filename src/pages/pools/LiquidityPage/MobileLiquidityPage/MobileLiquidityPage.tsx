@@ -286,7 +286,7 @@ function MobileLiquidityPage({
 
   const poolSortingFunc = (p1: Pool, p2: Pool) => {
     if (order === 'asc') {
-      if (sortBy === 'apr') {
+      if (sortBy === 'apy') {
         return (
           getPoolFeeApr(volumes[p1.id], p1) +
           (farmAprById?.[p1.id] || 0) * 100 -
@@ -297,7 +297,7 @@ function MobileLiquidityPage({
         return parseFloat(volumes[p1.id]) - parseFloat(volumes[p2.id]);
       }
     } else if (order === 'desc') {
-      if (sortBy === 'apr') {
+      if (sortBy === 'apy') {
         return (
           getPoolFeeApr(volumes[p2.id], p2) +
           (farmAprById?.[p2.id] || 0) * 100 -
@@ -720,7 +720,6 @@ function MobileWatchListCard({
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
-
   function getAllWatchPools() {
     const watchAllPools: any = [];
     watchList.forEach((d: WatchList) => {
@@ -795,7 +794,7 @@ function MobileWatchListCard({
             </div>
           </div>
         </header>
-        {sortBy === 'apr' && (
+        {sortBy === 'apy' && (
           <div className="text-right text-farmText text-xs mr-3 mb-0.5">
             *Pool Fee APY/Top Bin APR + Farm Rewards APR
           </div>
@@ -889,7 +888,7 @@ function MobilePoolRowV2({
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
-    } else if (sortBy === 'top_bin_apr' || (sortBy == 'apr' && mark)) {
+    } else if (sortBy === 'top_bin_apr' || (sortBy == 'apy' && mark)) {
       return value?.toString() == '-' ? '-' : formatPercentage(value);
     } else return '/';
   };
@@ -1051,11 +1050,11 @@ function MobilePoolRowV2({
           <div className="flex flex-col items-end">
             {showSortedValue({
               sortBy,
-              value: sortBy == 'apr' && mark ? pool.top_bin_apr : pool[sortBy],
+              value: sortBy == 'apy' && mark ? pool.top_bin_apr : pool[sortBy],
             })}
 
             {relatedSeed &&
-              (sortBy == 'top_bin_apr' || (sortBy == 'apr' && mark)) && (
+              (sortBy == 'top_bin_apr' || (sortBy == 'apy' && mark)) && (
                 <span className="text-xs text-gradientFrom">
                   {getFarmApr()}
                 </span>
