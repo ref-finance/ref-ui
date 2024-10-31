@@ -46,7 +46,8 @@ function MobilePoolRow({
 }) {
   const { ref } = useInView();
   const { riskTokens } = useContext(TokenPriceListContext);
-  const curRowTokens = useTokens(pool.tokenIds, tokens);
+  // const curRowTokens = useTokens(pool.tokenIds, tokens);
+  const curRowTokens = tokens;
   const [showTooltip, setShowTooltip] = useState(false);
   const { indexFail } = useContext(TokenPriceListContext);
   const isTokenAtRisk = (token) => {
@@ -91,7 +92,7 @@ function MobilePoolRow({
         : Number(pool.volume_24h) < 0.01
         ? '$ <0.01'
         : `$${toInternationalCurrencySystem(pool.volume_24h)}`;
-    else if (sortBy === 'apr')
+    else if (sortBy === 'apy')
       return `${
         Number(pool.apy).toFixed(0) != '0'
           ? formatNumber(Number(pool.apy))
@@ -252,7 +253,7 @@ function MobilePoolRow({
 
           <div className="flex flex-col items-end">
             {showSortedValue({ sortBy, value: pool[sortBy] })}
-            {sortBy === 'apr' &&
+            {sortBy === 'apy' &&
               farmApr !== null &&
               farmApr !== undefined &&
               farmApr > 0 && (
