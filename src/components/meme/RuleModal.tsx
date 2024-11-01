@@ -67,6 +67,10 @@ function RuleModal(props: any) {
                 2) xRef staking will determine the REF allocation ratio, while
                 MemeToken staking will only determine the NEAR allocation ratio.
               </p>
+              <p>
+                3) If users unstake during the campaign, they have to wait for a
+                10-day unstaking period.
+              </p>
             </li>
           </ul>
           <p className="mt-5 mb-2">
@@ -86,7 +90,7 @@ function RuleModal(props: any) {
             </li>
           </ul>
           <p className="mt-5 mb-2">
-            Criteria for New Tokens Launched During August - September**
+            Criteria for New Tokens Launched During October
           </p>
           <ul className="text-sm list-disc pl-3">
             <li>
