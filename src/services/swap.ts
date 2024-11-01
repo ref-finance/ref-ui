@@ -26,6 +26,7 @@ import {
   ftGetTokensMetadata,
   native_usdc_has_upgrated,
   TokenMetadata,
+  ftViewFunction,
 } from './ft-contract';
 import { getTokenFlow } from './indexer';
 import {
@@ -37,6 +38,7 @@ import {
   REF_FI_CONTRACT_ID,
   RefFiFunctionCallOptions,
   Transaction,
+  refFiViewFunction,
 } from './near';
 import {
   getAllStablePoolsFromCache,
@@ -66,7 +68,7 @@ import {
   getUsedPools,
   getUsedTokens,
 } from './smartRouterFromServer';
-import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
+import { getSelectedWalletId } from '../pages/Orderly/orderly/utils';
 import { getTokenPriceListFromCacheForServer } from '../services/smartRouterFromServer';
 
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
@@ -1259,6 +1261,69 @@ export const swapFromServer = async ({
 
   return executeMultipleTransactions(transactions);
 };
+export const swapFromFourPool = async ({
+  tokenIn,
+  tokenOut,
+  amountIn, // NonDivisibleNumber
+  pool_id,
+  min_amount_out,
+}) => {
+  const transactions: Transaction[] = [];
+  const tokenOutActions: RefFiFunctionCallOptions[] = [];
+  const walletId = getSelectedWalletId();
+  const gas = walletId == 'neth' ? '250000000000000' : '300000000000000';
+  const registerToken = async (token: TokenMetadata) => {
+    const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
+      throw new Error(`${token.id} doesn't exist.`);
+    });
+    if (tokenRegistered === null) {
+      tokenOutActions.push({
+        methodName: 'storage_deposit',
+        args: {
+          registration_only: true,
+          account_id: getCurrentWallet()?.wallet?.getAccountId(),
+        },
+        gas,
+        amount: STORAGE_TO_REGISTER_WITH_MFT,
+      });
+      transactions.push({
+        receiverId: token.id,
+        functionCalls: tokenOutActions,
+      });
+    }
+  };
+  await registerToken(tokenOut);
+  const actionsList = [
+    {
+      pool_id: +pool_id,
+      token_in: tokenIn.id,
+      token_out: tokenOut.id,
+      amount_in: amountIn,
+      min_amount_out,
+    },
+  ];
+  transactions.push({
+    receiverId: tokenIn.id,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer_call',
+        args: {
+          receiver_id: REF_FI_CONTRACT_ID,
+          amount: amountIn,
+          msg: JSON.stringify({
+            force: 0,
+            actions: actionsList,
+          }),
+        },
+        gas,
+        amount: ONE_YOCTO_NEAR,
+      },
+    ],
+  });
+
+  return executeMultipleTransactions(transactions);
+};
+
 export const nearInstantSwap = async ({
   tokenIn,
   tokenOut,
@@ -1373,7 +1438,8 @@ export const nearInstantSwap = async ({
       });
     }
   }
-
+  const gas =
+    getSelectedWalletId() == 'neth' ? '2500000000000000' : '300000000000000';
   transactions.push({
     receiverId: tokenIn.id,
     functionCalls: [
@@ -1388,7 +1454,7 @@ export const nearInstantSwap = async ({
             ...(tokenOut.symbol == 'NEAR' ? { skip_unwrap_near: false } : {}),
           }),
         },
-        gas: '300000000000000',
+        gas,
         amount: ONE_YOCTO_NEAR,
       },
     ],
@@ -1895,4 +1961,22 @@ export const smartRouteSwapCase = async ({
   // separate todos to different dexes
 
   return curTransactions;
+};
+
+// v1 pool estimate
+export const getReturn = async ({
+  pool_id,
+  token_in,
+  amount_in,
+  token_out,
+}: {
+  pool_id: number;
+  token_in: string;
+  amount_in: string;
+  token_out: string;
+}) => {
+  return refFiViewFunction({
+    methodName: 'get_return',
+    args: { pool_id, token_in, amount_in, token_out },
+  });
 };

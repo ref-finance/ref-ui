@@ -35,8 +35,8 @@ import BLACKTip from '../components/pool/BLACKTip';
 import OrderlyAirDropPop from '../components/orderlyAirdrop/index';
 import OrderlyAirDropPopMobile from '../components/orderlyAirdropMobile/index';
 import { useOrderlyGuidePopStore } from '../stores/orderlyGuidePop';
-import { isMobile } from 'src/utils/device';
 import { IEstimateSwapServerView } from '~src/services/smartRouterFromServer';
+import { INEAR_USDT_SWAP_TODOS } from '../stores/swapStore';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -73,6 +73,7 @@ export type SwapContractType =
 export interface ExchangeEstimate {
   estimates?: EstimateSwapView[];
   estimatesServer?: IEstimateSwapServerView;
+  estimatesMix?: INEAR_USDT_SWAP_TODOS;
   fee?: number;
   priceImpact?: string;
   minAmountOut?: string;

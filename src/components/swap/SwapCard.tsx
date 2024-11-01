@@ -89,6 +89,8 @@ import {
   FaExchangeAlt,
   MdOutlineRefresh,
 } from '../reactIcons';
+import SwapMixModal from './SwapMixModal';
+import { usePersistSwapStore } from '../../stores/swapStore';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -696,9 +698,12 @@ export default function SwapCard(props: {
     swapTab,
     globalWhiteListTokens,
   } = props;
-
+  const {
+    near_usdt_swapTodos,
+    near_usdt_swapTodos_transaction,
+    set_near_usdt_swapTodos_transaction,
+  } = usePersistSwapStore();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
-
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
@@ -729,6 +734,7 @@ export default function SwapCard(props: {
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
   const [tokenDeflationRateData, setTokenDeflationRateData] =
     useState<Record<string, any>>();
+  const [showMixSwapModal, setShowMixSwapModal] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -922,6 +928,22 @@ export default function SwapCard(props: {
       setTokenDeflationRateData(undefined);
     }
   }, [tokenIn?.id]);
+  useEffect(() => {
+    if (
+      accountId &&
+      near_usdt_swapTodos_transaction?.accountId == accountId &&
+      near_usdt_swapTodos_transaction?.process == '1'
+    ) {
+      setShowMixSwapModal(true);
+    }
+    if (
+      accountId &&
+      near_usdt_swapTodos_transaction &&
+      near_usdt_swapTodos_transaction.accountId !== accountId
+    ) {
+      set_near_usdt_swapTodos_transaction(null);
+    }
+  }, [near_usdt_swapTodos_transaction?.process, accountId]);
   async function getTokenDeflationRate() {
     setTokenDeflationRateData(undefined);
     const tokenMeta = await tokenFtMetadata(tokenIn.id);
@@ -1102,14 +1124,24 @@ export default function SwapCard(props: {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-
     const ifDoubleCheck =
       new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
         new BigNumber(tokenInMax || 0)
       ) && Number(selectTrade?.priceImpact || 0) > 2;
-
-    if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else selectTrade && selectTrade.makeSwap();
+    if (selectTrade.estimatesMix) {
+      if (near_usdt_swapTodos_transaction?.process == '2') {
+        set_near_usdt_swapTodos_transaction(null);
+      }
+      if (ifDoubleCheck) {
+        // TODO4
+        setDoubleCheckOpen(true);
+      } else {
+        setShowMixSwapModal(true);
+      }
+    } else {
+      if (ifDoubleCheck) setDoubleCheckOpen(true);
+      else selectTrade && selectTrade.makeSwap();
+    }
   };
   const handleSubmit_wrap = (e: any) => {
     e.preventDefault();
@@ -1176,7 +1208,10 @@ export default function SwapCard(props: {
     tokenInAmount,
     tokenInAmountInput,
   ]);
-
+  function closeMixSwapModal() {
+    setShowMixSwapModal(false);
+    set_near_usdt_swapTodos_transaction(null);
+  }
   return (
     <>
       <SwapFormWrap
@@ -1223,6 +1258,7 @@ export default function SwapCard(props: {
           setShowSwapLoading,
         }}
         isInsufficient={isInsufficientBalance && selectMarket !== 'orderly'}
+        near_usdt_swapTodos={near_usdt_swapTodos}
       >
         <TokenAmountV3
           forSwap
@@ -1435,7 +1471,16 @@ export default function SwapCard(props: {
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         from={tokenInAmount}
-        onSwap={() => selectTrade && selectTrade.makeSwap()}
+        isMixBest={!!selectTrade?.estimatesMix}
+        onSwap={() => {
+          if (selectTrade) {
+            if (selectTrade.estimatesMix) {
+              setShowMixSwapModal(true);
+            } else {
+              selectTrade && selectTrade.makeSwap();
+            }
+          }
+        }}
         priceImpactValue={selectTrade?.priceImpact || '0'}
       />
 
@@ -1444,6 +1489,10 @@ export default function SwapCard(props: {
           setShowSkywardTip(false);
         }}
         isOpen={showSkywardTip}
+      />
+      <SwapMixModal
+        onRequestClose={closeMixSwapModal}
+        isOpen={showMixSwapModal}
       />
     </>
   );

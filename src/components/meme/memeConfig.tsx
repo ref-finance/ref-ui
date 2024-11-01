@@ -286,6 +286,9 @@ export function getMemeContractConfig(
           'memefarm-xref-kat.ref-labs.near',
           'memefarm-xref-chill.ref-labs.near',
           'memefarm-xref-bd.ref-labs.near',
+          'memefarm-xref-gnear.ref-labs.near',
+          'memefarm-xref-illia.ref-labs.near',
+          'memefarm-xref-gnuff.ref-labs.near',
         ],
         MEME_TOKEN_XREF_MAP: {
           'blackdragon.tkn.near': 'memefarm-xref-blackdragon.ref-labs.near',
@@ -312,6 +315,9 @@ export function getMemeContractConfig(
           'kat.token0.near': 'memefarm-xref-kat.ref-labs.near',
           'chill-129.meme-cooking.near': 'memefarm-xref-chill.ref-labs.near',
           'benthedog.near': 'memefarm-xref-bd.ref-labs.near',
+          'gnear-229.meme-cooking.near': 'memefarm-xref-gnear.ref-labs.near',
+          '4illia-222.meme-cooking.near': 'memefarm-xref-illia.ref-labs.near',
+          'gnuff-283.meme-cooking.near': 'memefarm-xref-gnuff.ref-labs.near',
         },
       };
   }
@@ -447,10 +453,10 @@ export function getMemeDataConfig(): any {
         'kat.token0.near',
       ],
       meme_nonListed_tokens: [
-        '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
-        'gp.token0.near',
-        'chill-129.meme-cooking.near',
-        'benthedog.near',
+        'ftv2.nekotoken.near',
+        'gnear-229.meme-cooking.near',
+        '4illia-222.meme-cooking.near',
+        'gnuff-283.meme-cooking.near',
       ],
       pie_color: {
         'blackdragon.tkn.near': '#413B41',
@@ -476,6 +482,9 @@ export function getMemeDataConfig(): any {
         'kat.token0.near': '#FF795D',
         'chill-129.meme-cooking.near': '#5ac8ec',
         'benthedog.near': '#6124d9',
+        'gnear-229.meme-cooking.near': '#77B255',
+        '4illia-222.meme-cooking.near': '#ECE8C5',
+        'gnuff-283.meme-cooking.near': '#CD9865',
       },
       meme_cap_tokens: [
         'blackdragon.tkn.near',
@@ -489,7 +498,7 @@ export function getMemeDataConfig(): any {
         'usmeme.tg',
         'nkok.tkn.near',
         'bean.tkn.near',
-        'ftv2.nekotoken.near',
+        // 'ftv2.nekotoken.near',
         'marmaj.tkn.near',
         'babyblackdragon.tkn.near',
         'hat.tkn.near',
@@ -498,6 +507,10 @@ export function getMemeDataConfig(): any {
         'neiro.token0.near',
         'corgi.token0.near',
         'nearnvidia.near',
+        '438e48ed4ce6beecf503d43b9dbd3c30d516e7fd.factory.bridge.near',
+        'gp.token0.near',
+        'chill-129.meme-cooking.near',
+        'benthedog.near',
       ],
     };
   }
