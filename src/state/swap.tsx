@@ -747,14 +747,6 @@ export const useSwap = ({
       }).catch(setSwapError);
     }
   };
-  // console.log('9999999999999-avgFee', avgFee);
-  // console.table([
-  //   `-------avgFee---${new Big((avgFee || 0) / 100).toFixed()}`,
-  //   `--------priceImpactValue---${priceImpactValue}`,
-  //   `--------display----${new Big(priceImpactValue)
-  //     .minus(new Big((avgFee || 0) / 100))
-  //     .toString()}`,
-  // ]);
   return {
     canSwap,
     tokenOutAmount,
@@ -1646,7 +1638,6 @@ export const useRefSwap = ({
     setLoadingTrigger,
     reEstimateTrigger,
   });
-  // TODO4
   const mixEstimateResult = useSwapMix({
     tokenIn,
     tokenInAmount,
@@ -1714,11 +1705,11 @@ export const useRefSwap = ({
       market: 'ref',
       tokenOutAmount: '0',
     };
-  console.table([
-    `tag---${tag}---${tokenOutAmount}`,
-    `tagV3---${tagV3}---${tokenOutAmountV2}`,
-    `mixTag---${mixTag}---${tokenOutAmountMix}`,
-  ]);
+  // console.table([
+  //   `tag---${tag}---${tokenOutAmount}`,
+  //   `tagV3---${tagV3}---${tokenOutAmountV2}`,
+  //   `mixTag---${mixTag}---${tokenOutAmountMix}`,
+  // ]);
   const betterSwap =
     new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
     canSwapV2 &&
