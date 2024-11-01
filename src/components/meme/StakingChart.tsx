@@ -157,10 +157,30 @@ const StakingChart = ({ chartType }) => {
     if (activeIndex < 0 || activeIndex >= data.length) return null;
 
     const activeEntry = data[activeIndex];
+    const centerX = 275 / 2;
+    const imageSize = 44;
+    const imageX = centerX - imageSize / 2;
+    const imageY = 66;
 
     return (
       <>
-        <image x="43%" y="24%" width={44} height={44} href={activeEntry.icon} />
+        <defs>
+          <clipPath id="roundedImage">
+            <circle
+              cx={centerX}
+              cy={imageY + imageSize / 2}
+              r={imageSize / 2}
+            />
+          </clipPath>
+        </defs>
+        <image
+          x={imageX}
+          y={imageY}
+          width={imageSize}
+          height={imageSize}
+          href={activeEntry.icon}
+          clipPath="url(#roundedImage)"
+        />
         <text
           x="50%"
           y="46%"
