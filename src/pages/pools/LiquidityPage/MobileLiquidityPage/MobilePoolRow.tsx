@@ -19,6 +19,7 @@ import { ALL_STABLE_POOL_IDS } from 'src/services/near';
 import { FarmStampNew, TokenRisk } from 'src/components/icon';
 import { TknIcon } from 'src/components/icon/Common';
 import { getImageMark } from '../../../../utils/token';
+import { useTokens } from 'src/state/token';
 
 function MobilePoolRow({
   pool,
@@ -45,6 +46,7 @@ function MobilePoolRow({
 }) {
   const { ref } = useInView();
   const { riskTokens } = useContext(TokenPriceListContext);
+  // const curRowTokens = useTokens(pool.tokenIds, tokens);
   const curRowTokens = tokens;
   const [showTooltip, setShowTooltip] = useState(false);
   const { indexFail } = useContext(TokenPriceListContext);
@@ -52,7 +54,6 @@ function MobilePoolRow({
     return riskTokens.some((riskToken) => riskToken.id === token.id);
   };
   const history = useHistory();
-
   function formatNumber(value) {
     let formattedValue = value.toFixed(2); //
     if (formattedValue.endsWith('.00')) {
@@ -91,7 +92,7 @@ function MobilePoolRow({
         : Number(pool.volume_24h) < 0.01
         ? '$ <0.01'
         : `$${toInternationalCurrencySystem(pool.volume_24h)}`;
-    else if (sortBy === 'apr')
+    else if (sortBy === 'apy')
       return `${
         Number(pool.apy).toFixed(0) != '0'
           ? formatNumber(Number(pool.apy))
@@ -143,7 +144,13 @@ function MobilePoolRow({
                   >
                     <div
                       className={`border-2 border-watchMarkBackgroundColor rounded-full overflow-hidden relative ${
-                        index > 0 ? '-ml-1.5' : ''
+                        index == 1
+                          ? '-ml-1.5'
+                          : index == 2
+                          ? '-mt-1.5'
+                          : index == 3
+                          ? '-ml-1.5 -mt-1.5'
+                          : ''
                       } ${index > 0 ? 'z-20' : 'z-10'}`}
                       style={{
                         height: '26px',
@@ -175,40 +182,6 @@ function MobilePoolRow({
                   </div>
                 );
               })}
-              {curRowTokens?.[2] ? (
-                <div
-                  className={`h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full ${
-                    is_muti_tokens ? '-mt-2' : '-ml-1.5'
-                  }`}
-                  style={{
-                    height: '26px',
-                    width: '26px',
-                  }}
-                >
-                  <img
-                    key={curRowTokens[2].id}
-                    className="w-full rounded-full"
-                    src={curRowTokens[2].icon}
-                  />
-                </div>
-              ) : null}
-              {curRowTokens?.[3] ? (
-                <div
-                  className={`h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 ${
-                    is_muti_tokens ? '-mt-2' : ''
-                  }`}
-                  style={{
-                    height: '26px',
-                    width: '26px',
-                  }}
-                >
-                  <img
-                    key={curRowTokens[3].id}
-                    className="w-full rounded-full"
-                    src={curRowTokens[3].icon}
-                  />
-                </div>
-              ) : null}
             </div>
             <div className="flex flex-col">
               <div className="flex items-center justify-start">
@@ -280,7 +253,7 @@ function MobilePoolRow({
 
           <div className="flex flex-col items-end">
             {showSortedValue({ sortBy, value: pool[sortBy] })}
-            {sortBy === 'apr' &&
+            {sortBy === 'apy' &&
               farmApr !== null &&
               farmApr !== undefined &&
               farmApr > 0 && (

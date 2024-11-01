@@ -738,7 +738,7 @@ function WatchListCard({
 
             <div className="col-span-1 justify-self-center relative right-1 md:hidden flex items-center">
               <div className="pr-1 ">
-                <FormattedMessage id="apr" defaultMessage="APR" />
+                <FormattedMessage id="apy" defaultMessage="APY" />
               </div>
             </div>
 
@@ -978,13 +978,13 @@ function PcLiquidityPage({
     if (order === 'desc') {
       if (reSortBy === 'volume') {
         return v2 - v1;
-      } else if (reSortBy === 'apr') {
+      } else if (reSortBy === 'apy') {
         return apr2 - apr1;
       }
     } else if (order === 'asc') {
       if (reSortBy === 'volume') {
         return v1 - v2;
-      } else if (reSortBy === 'apr') {
+      } else if (reSortBy === 'apy') {
         return apr1 - apr2;
       }
     }
@@ -1497,7 +1497,7 @@ function PcLiquidityPage({
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
                   >
-                    <FormattedMessage id="apr" defaultMessage="APR" />
+                    <FormattedMessage id="apy" defaultMessage="APY" />
                   </span>
 
                   <span
@@ -2765,7 +2765,7 @@ function StablePoolCard({
       >
         <div className="lg:hidden w-full flex  justify-between text-sm text-white">
           <div className="text-xs text-v3SwapGray">
-            <FormattedMessage id="apr" defaultMessage={'APR'} />
+            <FormattedMessage id="apy" defaultMessage={'APY'} />
           </div>
 
           <div className="flex flex-col items-end ">
@@ -3040,7 +3040,7 @@ function StablePoolList({
     if (orderStable === 'desc') {
       if (sortBy === 'tvl') {
         return v2 - v1;
-      } else if (sortBy == 'apr') {
+      } else if (sortBy == 'apy') {
         return apr2 - apr1;
       } else {
         return vol2 - vol1;
@@ -3048,7 +3048,7 @@ function StablePoolList({
     } else {
       if (sortBy === 'tvl') {
         return v1 - v2;
-      } else if (sortBy == 'apr') {
+      } else if (sortBy == 'apy') {
         return apr1 - apr2;
       } else {
         return vol1 - vol2;
@@ -3084,31 +3084,31 @@ function StablePoolList({
             <span
               className={`pr-1 cursor-pointer
               
-              ${sortBy !== 'apr' ? 'hover:text-white' : 'text-gradientFrom'}
+              ${sortBy !== 'apy' ? 'hover:text-white' : 'text-gradientFrom'}
     
               `}
               onClick={() => {
                 setClicked(true);
-                setSortBy('apr');
+                setSortBy('apy');
 
                 setorderStable(
-                  orderStable === 'desc' && sortBy === 'apr' ? 'asc' : 'desc'
+                  orderStable === 'desc' && sortBy === 'apy' ? 'asc' : 'desc'
                 );
               }}
             >
-              <FormattedMessage id="apr" defaultMessage="APR" />
+              <FormattedMessage id="apy" defaultMessage="APY" />
             </span>
             <span
-              className={`cursor-pointer ${sortBy !== 'apr' ? 'hidden' : ''} `}
+              className={`cursor-pointer ${sortBy !== 'apy' ? 'hidden' : ''} `}
               onClick={() => {
                 setClicked(true);
-                setSortBy('apr');
+                setSortBy('apy');
                 setorderStable(
-                  orderStable === 'desc' && sortBy === 'apr' ? 'asc' : 'desc'
+                  orderStable === 'desc' && sortBy === 'apy' ? 'asc' : 'desc'
                 );
               }}
             >
-              {orderStable === 'desc' && sortBy === 'apr' ? (
+              {orderStable === 'desc' && sortBy === 'apy' ? (
                 <DownArrowLight />
               ) : (
                 <UpArrowLight />

@@ -365,11 +365,15 @@ export const getDepositableBalance = async (
       return toReadableNumber(decimals, '0');
     }
   } else if (tokenId) {
-    return ftGetBalance(tokenId)
-      .then((res: string) => {
-        return toReadableNumber(decimals, res);
-      })
-      .catch((res: any) => '0');
+    if (getCurrentWallet()?.wallet?.isSignedIn()) {
+      return ftGetBalance(tokenId)
+        .then((res: string) => {
+          return toReadableNumber(decimals, res);
+        })
+        .catch((res: any) => '0');
+    } else {
+      return toReadableNumber(decimals, '0');
+    }
   } else {
     return '';
   }
