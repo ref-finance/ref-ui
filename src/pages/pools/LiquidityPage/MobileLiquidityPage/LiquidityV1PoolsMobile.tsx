@@ -239,7 +239,10 @@ const LiquidityV1PoolsMobile = ({
                 }}
               >
                 <label>
-                  <FormattedMessage id={sortBy} defaultMessage={sortBy} />
+                  <FormattedMessage
+                    id={sortBy}
+                    defaultMessage={sortBy == 'apy' ? 'APY' : sortBy}
+                  />
                 </label>
                 <ArrowDownLarge />
               </span>
@@ -255,7 +258,7 @@ const LiquidityV1PoolsMobile = ({
             </div>
           </div>
         </header>
-        {sortBy === 'apr' && (
+        {sortBy === 'apy' && (
           <div className="text-right text-farmText text-xs mr-3 mb-0.5">
             *Pool Fee APY/Top Bin APR + Farm Rewards APR
           </div>

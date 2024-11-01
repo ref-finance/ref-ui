@@ -2527,7 +2527,7 @@ export default function PoolDetailsPage() {
     return (
       <div
         className={`rounded-lg xs:w-full md:w-full xs:mr-0 md:mr-0 ${
-          id !== 'apr' ? 'mr-3' : ''
+          id !== 'apy' ? 'mr-3' : ''
         }  py-3 w-full px-4 flex flex-col`}
         style={{
           background: 'rgba(29, 41, 50, 0.5)',
@@ -2847,7 +2847,7 @@ export default function PoolDetailsPage() {
                 <InfoCard
                   title={
                     <>
-                      <FormattedMessage id="apr" defaultMessage="APR" />
+                      <FormattedMessage id="apy" defaultMessage="APY" />
                       &nbsp;
                       {/* {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
                     <>
@@ -2858,7 +2858,7 @@ export default function PoolDetailsPage() {
                   )} */}
                     </>
                   }
-                  id="apr"
+                  id="apy"
                   value={
                     <div
                       data-type="info"
@@ -2939,7 +2939,7 @@ export default function PoolDetailsPage() {
                 <InfoCard
                   title={
                     <>
-                      <FormattedMessage id="apr" defaultMessage="APR" />
+                      <FormattedMessage id="apy" defaultMessage="APY" />
                       &nbsp;
                       {/* {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
                       <>
@@ -2950,7 +2950,7 @@ export default function PoolDetailsPage() {
                     )} */}
                     </>
                   }
-                  id="apr"
+                  id="apy"
                   value={
                     <div
                       data-type="info"

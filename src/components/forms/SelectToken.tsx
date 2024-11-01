@@ -571,12 +571,29 @@ export default function SelectToken({
     balances,
     visible
   );
+  const sortTypes = useMemo(
+    () => ({
+      up: {
+        class: 'sort-up',
+        fn: (a: any, b: any) => sort(a[sortBy], b[sortBy]),
+      },
+      down: {
+        class: 'sort-down',
+        fn: (a: any, b: any) => sort(b[sortBy], a[sortBy]),
+      },
+      default: {
+        class: 'sort',
+        fn: (a: any, b: any) => a,
+      },
+    }),
+    [sortBy]
+  );
   useEffect(() => {
     if (allTokensData?.length && !loadingAllTokensData) {
-      allTokensData.sort(sortTypes[currentSort].fn);
-      setAllListData(allTokensData);
+      const sortedData = [...allTokensData].sort(sortTypes[currentSort].fn);
+      setAllListData(sortedData);
     }
-  }, [allTokensData?.length, loadingAllTokensData, currentSort]);
+  }, [allTokensData?.length, loadingAllTokensData]);
   useEffect(() => {
     if (searchResultslistData?.length) {
       searchResultslistData.sort(sortTypes[currentSort].fn);
@@ -617,20 +634,6 @@ export default function SelectToken({
     getLatestCommonBassesTokens();
   }, [tokensData]);
 
-  const sortTypes: { [key: string]: any } = {
-    up: {
-      class: 'sort-up',
-      fn: (a: any, b: any) => sort(a[sortBy], b[sortBy]),
-    },
-    down: {
-      class: 'sort-down',
-      fn: (a: any, b: any) => sort(b[sortBy], a[sortBy]),
-    },
-    default: {
-      class: 'sort',
-      fn: (a: any, b: any) => a,
-    },
-  };
   const sortBySymbol = (a: TokenMetadata, b: TokenMetadata) => {
     if (+a.near == 0 && +b.near == 0) {
       const a_symbol = toRealSymbol(a.symbol).toLocaleLowerCase();

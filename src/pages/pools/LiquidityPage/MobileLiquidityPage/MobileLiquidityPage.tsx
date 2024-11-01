@@ -286,7 +286,7 @@ function MobileLiquidityPage({
 
   const poolSortingFunc = (p1: Pool, p2: Pool) => {
     if (order === 'asc') {
-      if (sortBy === 'apr') {
+      if (sortBy === 'apy') {
         return (
           getPoolFeeApr(volumes[p1.id], p1) +
           (farmAprById?.[p1.id] || 0) * 100 -
@@ -297,7 +297,7 @@ function MobileLiquidityPage({
         return parseFloat(volumes[p1.id]) - parseFloat(volumes[p2.id]);
       }
     } else if (order === 'desc') {
-      if (sortBy === 'apr') {
+      if (sortBy === 'apy') {
         return (
           getPoolFeeApr(volumes[p2.id], p2) +
           (farmAprById?.[p2.id] || 0) * 100 -
@@ -310,7 +310,6 @@ function MobileLiquidityPage({
     }
   };
   if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
-
   return (
     <>
       <PoolTabV3></PoolTabV3>
@@ -324,6 +323,7 @@ function MobileLiquidityPage({
           watchList={watchList}
           do_farms_v2_poos={do_farms_v2_poos}
           farmAprById={farmAprById}
+          tokenName={tokenName}
         />
 
         {/* start pool card */}
@@ -704,6 +704,7 @@ function MobileWatchListCard({
   volumes,
   watchV2Pools,
   watchList,
+  tokenName,
   do_farms_v2_poos,
   farmAprById,
 }: {
@@ -713,6 +714,7 @@ function MobileWatchListCard({
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
   watchList: WatchList[];
+  tokenName: string;
   do_farms_v2_poos: Record<string, Seed>;
   farmAprById: Record<string, number>;
 }) {
@@ -720,7 +722,6 @@ function MobileWatchListCard({
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
-
   function getAllWatchPools() {
     const watchAllPools: any = [];
     watchList.forEach((d: WatchList) => {
@@ -738,8 +739,26 @@ function MobileWatchListCard({
     });
     return watchAllPools;
   }
-
   const watchAllPools = getAllWatchPools();
+  function v1PoolFilter(p: Pool) {
+    return Object.values(p.metas)?.some((t: any) =>
+      _.includes(t.symbol.toLowerCase(), tokenName.toLowerCase())
+    );
+  }
+
+  function v2PoolFilter(p: PoolInfo) {
+    return (
+      _.includes(
+        p.token_x_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      ) ||
+      _.includes(
+        p.token_y_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      )
+    );
+  }
+
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4 mt-2">
       <div className="mx-4 flex items-center justify-between mt-4">
@@ -779,7 +798,10 @@ function MobileWatchListCard({
                 }}
               >
                 <label>
-                  <FormattedMessage id={sortBy} defaultMessage={sortBy} />
+                  <FormattedMessage
+                    id={sortBy}
+                    defaultMessage={sortBy == 'apy' ? 'APY' : sortBy}
+                  />
                 </label>
                 <ArrowDownLarge />
               </span>
@@ -795,45 +817,53 @@ function MobileWatchListCard({
             </div>
           </div>
         </header>
-        {sortBy === 'apr' && (
+        {sortBy === 'apy' && (
           <div className="text-right text-farmText text-xs mr-3 mb-0.5">
             *Pool Fee APY/Top Bin APR + Farm Rewards APR
           </div>
         )}
         <div className="border-b border-gray-700 border-opacity-70" />
         <div className="max-h-96 overflow-y-auto">
-          {watchAllPools.map((pool: any, i: number) => {
-            if (pool.id?.toString()) {
-              return (
-                <div className="w-full hover:bg-poolRowHover" key={pool.id}>
-                  <MobilePoolRow
-                    tokens={poolTokenMetas[pool.id]}
-                    sortBy={sortBy}
+          {watchAllPools
+            .filter((p: any) => {
+              if (p.id?.toString()) {
+                return v1PoolFilter(p);
+              } else if (p.pool_id) {
+                return v2PoolFilter(p);
+              }
+            })
+            .map((pool: any, i: number) => {
+              if (pool.id?.toString()) {
+                return (
+                  <div className="w-full hover:bg-poolRowHover" key={pool.id}>
+                    <MobilePoolRow
+                      tokens={poolTokenMetas[pool.id]}
+                      sortBy={sortBy}
+                      pool={pool}
+                      watched={!!find(watchPools, { id: pool.id })}
+                      supportFarm={!!farmCounts[pool.id]}
+                      h24volume={volumes[pool.id]}
+                      watchPool
+                      mark={true}
+                      farmApr={farmAprById[pool.id]}
+                      farmCount={farmCounts[pool.id]}
+                    />
+                  </div>
+                );
+              } else if (pool.pool_id) {
+                return (
+                  <MobilePoolRowV2
+                    tokens={[pool.token_x_metadata, pool.token_y_metadata]}
                     pool={pool}
-                    watched={!!find(watchPools, { id: pool.id })}
-                    supportFarm={!!farmCounts[pool.id]}
-                    h24volume={volumes[pool.id]}
-                    watchPool
+                    sortBy={sortBy}
                     mark={true}
-                    farmApr={farmAprById[pool.id]}
-                    farmCount={farmCounts[pool.id]}
+                    key={pool.pool_id + '-mobile-pool-row-v2'}
+                    h24volume={volumes[pool.pool_id]}
+                    relatedSeed={do_farms_v2_poos[pool.pool_id]}
                   />
-                </div>
-              );
-            } else if (pool.pool_id) {
-              return (
-                <MobilePoolRowV2
-                  tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                  pool={pool}
-                  sortBy={sortBy}
-                  mark={true}
-                  key={pool.pool_id + '-mobile-pool-row-v2'}
-                  h24volume={volumes[pool.pool_id]}
-                  relatedSeed={do_farms_v2_poos[pool.pool_id]}
-                />
-              );
-            }
-          })}
+                );
+              }
+            })}
         </div>
       </section>
     </Card>
@@ -889,7 +919,7 @@ function MobilePoolRowV2({
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
-    } else if (sortBy === 'top_bin_apr' || (sortBy == 'apr' && mark)) {
+    } else if (sortBy === 'top_bin_apr' || (sortBy == 'apy' && mark)) {
       return value?.toString() == '-' ? '-' : formatPercentage(value);
     } else return '/';
   };
@@ -1051,11 +1081,11 @@ function MobilePoolRowV2({
           <div className="flex flex-col items-end">
             {showSortedValue({
               sortBy,
-              value: sortBy == 'apr' && mark ? pool.top_bin_apr : pool[sortBy],
+              value: sortBy == 'apy' && mark ? pool.top_bin_apr : pool[sortBy],
             })}
 
             {relatedSeed &&
-              (sortBy == 'top_bin_apr' || (sortBy == 'apr' && mark)) && (
+              (sortBy == 'top_bin_apr' || (sortBy == 'apy' && mark)) && (
                 <span className="text-xs text-gradientFrom">
                   {getFarmApr()}
                 </span>
