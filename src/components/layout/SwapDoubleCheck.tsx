@@ -151,7 +151,9 @@ export function DoubleCheckModal(
                 setButtonLoading(true);
               }
               onSwap();
-              props.onRequestClose(e);
+              if (isMixBest) {
+                props.onRequestClose(e);
+              }
             }}
             className="text-sm w-auto text-center"
             padding="px-4 py-1.5"
