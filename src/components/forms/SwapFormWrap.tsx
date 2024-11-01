@@ -135,7 +135,6 @@ export default function SwapFormWrap({
 
     if (isSignedIn || selectMarket === 'orderly') {
       try {
-        // TODO4
         if (near_usdt_swapTodos) {
           setLoadingPause(true);
         } else {

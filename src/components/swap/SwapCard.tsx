@@ -1135,7 +1135,6 @@ export default function SwapCard(props: {
       setShowMixSwapModal(true);
     } else {
       if (ifDoubleCheck) setDoubleCheckOpen(true);
-      // TODO4
       else selectTrade && selectTrade.makeSwap();
     }
   };
@@ -1477,7 +1476,6 @@ export default function SwapCard(props: {
         }}
         isOpen={showSkywardTip}
       />
-      {/* TODO4 */}
       <SwapMixModal
         onRequestClose={closeMixSwapModal}
         isOpen={showMixSwapModal}
