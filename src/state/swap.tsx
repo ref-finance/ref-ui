@@ -1725,7 +1725,7 @@ export const useRefSwap = ({
     canSwapMix && Big(tokenOutAmountMix || '0').gt(betterOutAmount)
       ? 'mix'
       : betterSwap;
-  // bestSwap = 'mix'; // TODO4 Test code
+  bestSwap = 'mix'; // TODO4 Test code
   if (bestSwap === 'v1') {
     if (swapsToDoServer) {
       swapsToDoServer.contract = 'Ref_Classic';
