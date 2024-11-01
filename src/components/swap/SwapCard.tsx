@@ -1132,7 +1132,12 @@ export default function SwapCard(props: {
       if (near_usdt_swapTodos_transaction?.process == '2') {
         set_near_usdt_swapTodos_transaction(null);
       }
-      setShowMixSwapModal(true);
+      if (ifDoubleCheck) {
+        // TODO4
+        setDoubleCheckOpen(true);
+      } else {
+        setShowMixSwapModal(true);
+      }
     } else {
       if (ifDoubleCheck) setDoubleCheckOpen(true);
       else selectTrade && selectTrade.makeSwap();
@@ -1466,7 +1471,16 @@ export default function SwapCard(props: {
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         from={tokenInAmount}
-        onSwap={() => selectTrade && selectTrade.makeSwap()}
+        isMixBest={!!selectTrade?.estimatesMix}
+        onSwap={() => {
+          if (selectTrade) {
+            if (selectTrade.estimatesMix) {
+              setShowMixSwapModal(true);
+            } else {
+              selectTrade && selectTrade.makeSwap();
+            }
+          }
+        }}
         priceImpactValue={selectTrade?.priceImpact || '0'}
       />
 

@@ -56,9 +56,11 @@ export function DoubleCheckModal(
     from: string;
     onSwap: (e?: any) => void;
     priceImpactValue: string;
+    isMixBest?: boolean;
   }
 ) {
-  const { tokenIn, tokenOut, from, onSwap, priceImpactValue } = props;
+  const { tokenIn, tokenOut, from, onSwap, priceImpactValue, isMixBest } =
+    props;
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
@@ -145,8 +147,11 @@ export function DoubleCheckModal(
           </OutlineButton>
           <SolidButton
             onClick={(e) => {
-              setButtonLoading(true);
+              if (!isMixBest) {
+                setButtonLoading(true);
+              }
               onSwap();
+              props.onRequestClose(e);
             }}
             className="text-sm w-auto text-center"
             padding="px-4 py-1.5"
