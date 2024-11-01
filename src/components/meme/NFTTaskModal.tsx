@@ -10,7 +10,7 @@ const NFTTaskModal = (props: any) => {
   function share() {
     setShareButtonClicked('1');
     onRequestClose();
-    window.open('https://x.com/intent/retweet?tweet_id=1840935987545063790');
+    window.open('https://x.com/finance_ref/status/1852016524456047028');
   }
   return (
     <Modal
@@ -33,14 +33,14 @@ const NFTTaskModal = (props: any) => {
       >
         <div className="flex items-center justify-between">
           <span className="text-white text-base gotham_bold">
-            MEME Honorary NFT6
+            MEME Honorary NFT7
           </span>
           <ModalCloseIcon className="cursor-pointer" onClick={onRequestClose} />
         </div>
         <div className="flex flex-col items-center mt-3 text-white text-sm gap-2">
           <p className="text-left">
             Unlock endless rewards from the MEME world, exclusive to MEME Season
-            6! Complete the following tasks to claim:
+            7! Complete the following tasks to claim:
           </p>
           <div className="flex items-start justify-start w-full gap-1.5 text-left">
             <span className="relative top-1.5 w-1 h-1 rounded-full bg-white flex-shrink-0"></span>

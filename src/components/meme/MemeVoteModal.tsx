@@ -47,6 +47,7 @@ function MemeVoteModal(props: any) {
     memeContractConfig,
   } = useContext(MemeContext);
   const { delay_withdraw_sec } = memeContractConfig;
+  console.log(memeContractConfig, 'memeContractConfig');
   useEffect(() => {
     if (!isEmpty(xrefSeeds)) {
       setSelectedTab(
