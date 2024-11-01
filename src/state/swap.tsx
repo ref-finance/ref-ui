@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
-
+import { useDebounce } from 'react-use';
 import {
   failToast,
   getURLInfo,
@@ -21,11 +21,6 @@ import {
 } from '../components/layout/transactionTipPopUp';
 import { parsedTransactionSuccessValue } from '../components/layout/transactionTipPopUp';
 import { SUPPORT_LEDGER_KEY } from '../components/swap/SwapCard';
-import { useWalletSelector } from '../context/WalletSelectorContext';
-import { parseSymbol } from '../pages/Orderly/components/RecentTrade';
-import { getAccountInformation } from '../pages/Orderly/orderly/off-chain-api';
-import { useOrderlyContext } from '../pages/Orderly/orderly/OrderlyContext';
-import { ClientInfo, Orders } from '../pages/Orderly/orderly/type';
 import {
   ExchangeEstimate,
   SWAP_MODE,
@@ -34,7 +29,6 @@ import {
   SwapProContext,
 } from '../pages/SwapPage';
 import { hasTriPools } from '../services/aurora/aurora';
-import { openUrl } from '../services/commonV3';
 import getConfig from '../services/config';
 import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
 import { isStablePool, POOL_TOKEN_REFRESH_INTERVAL } from '../services/near';
@@ -73,17 +67,28 @@ import { toRealSymbol } from '../utils/token';
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import { useIndexerStatus } from './pool';
 import { useTokenPriceList } from './token';
+import { useSwapMix } from './swap_near_usdt';
+import { usePersistSwapStore } from '../stores/swapStore';
 import {
   IEstimateSwapServerView,
   getAvgFeeFromServer,
   getPriceImpactFromServer,
   getAllPoolsFromCache,
 } from '../services/smartRouterFromServer';
+import {
+  token_near_id,
+  token_usdc_id,
+  token_usdt_id,
+  near_udsc_pool_id,
+  four_stable_pool_id,
+} from '../utils/swapConfig';
+import { useWalletSelector } from '../context/WalletSelectorContext';
+import { safeJSONParse } from '../pages/Bridge/utils/common';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
 
-interface SwapOptions {
+export interface SwapOptions {
   tokenIn: TokenMetadata;
   tokenInAmount: string;
   tokenOut: TokenMetadata;
@@ -132,6 +137,12 @@ const getTokenPriceListFromCache = async () => {
 export const useSwapPopUp = () => {
   const { txHash, pathname, errorType } = getURLInfo();
   const history = useHistory();
+  const { accountId } = useWalletSelector();
+  const {
+    near_usdt_swapTodos,
+    near_usdt_swapTodos_transaction,
+    set_near_usdt_swapTodos_transaction,
+  } = usePersistSwapStore();
 
   const parseLimitOrderPopUp = async (res: any) => {
     const byNeth =
@@ -305,10 +316,18 @@ export const useSwapPopUp = () => {
   useEffect(() => {
     if (swapSig === 'tri') return;
     if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+      if (
+        near_usdt_swapTodos_transaction &&
+        near_usdt_swapTodos_transaction?.process !== '0'
+      ) {
+        set_near_usdt_swapTodos_transaction(null);
+      }
       checkTransaction(txHash)
         .then(async (res: any) => {
-          const isLimitOrder = await parseLimitOrderPopUp(res);
-
+          let isLimitOrder;
+          try {
+            isLimitOrder = await parseLimitOrderPopUp(res);
+          } catch (error) {}
           const transactionErrorType = getErrorMessage(res);
           const byNeth =
             res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
@@ -318,11 +337,18 @@ export const useSwapPopUp = () => {
             'rlp_execute';
           const isPackage = byNeth || byEvm;
           const transaction = res.transaction;
-          const isSwapReceipt =
-            res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
-              ?.method_name === 'ft_transfer_call' ||
-            res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
-              ?.method_name === 'near_withdraw';
+          const isSwapReceipt = !!res?.receipts?.find((receipt) => {
+            return (
+              receipt?.receipt?.Action?.actions?.[0]?.FunctionCall
+                ?.method_name === 'ft_transfer_call' ||
+              receipt?.receipt?.Action?.actions?.[0]?.FunctionCall
+                ?.method_name === 'near_withdraw' ||
+              receipt?.receipt?.Action?.actions?.[0]?.FunctionCall
+                ?.method_name === 'near_deposit' ||
+              receipt?.receipt?.Action?.actions?.[0]?.FunctionCall
+                ?.method_name === 'swap'
+            );
+          });
           return {
             isSwap:
               (transaction?.actions[1]?.FunctionCall?.method_name ===
@@ -334,20 +360,56 @@ export const useSwapPopUp = () => {
                   'near_deposit' ||
                 transaction?.actions[0]?.FunctionCall?.method_name ===
                   'near_withdraw' ||
-                (isSwapReceipt && isPackage)) &&
+                isSwapReceipt) &&
               !isLimitOrder,
             transactionErrorType,
+            res,
           };
         })
-        .then(({ isSwap, transactionErrorType }) => {
+        .then(({ isSwap, transactionErrorType, res }) => {
           if (isSwap) {
-            !transactionErrorType && !errorType && swapToast(txHash);
-            transactionErrorType && failToast(txHash, transactionErrorType);
+            if (!transactionErrorType && !errorType) {
+              if (near_usdt_swapTodos_transaction?.process == '0') {
+                handle_near_usdt_swap(res);
+              } else {
+                if (near_usdt_swapTodos_transaction) {
+                  set_near_usdt_swapTodos_transaction(null);
+                }
+                swapToast(txHash);
+              }
+            } else if (transactionErrorType) {
+              failToast(txHash, transactionErrorType);
+            }
           }
           history.replace(pathname);
         });
     }
   }, [txHash]);
+  function handle_near_usdt_swap(res: any) {
+    const targetReceipt = res.receipts.find((receipt) => {
+      return (
+        receipt.receiver_id == token_usdc_id &&
+        receipt.receipt?.Action?.actions?.[0]?.FunctionCall?.method_name ==
+          'ft_transfer'
+      );
+    });
+    const args = parsedArgs(
+      targetReceipt.receipt?.Action?.actions?.[0]?.FunctionCall?.args
+    );
+    const argsObj: {
+      receiver_id: string;
+      amount: string;
+    } = safeJSONParse(args);
+    if (argsObj?.amount && argsObj?.receiver_id == accountId) {
+      set_near_usdt_swapTodos_transaction({
+        ...near_usdt_swapTodos_transaction,
+        process: '1',
+        dcl_quote_amout_real: argsObj?.amount,
+      });
+    } else {
+      set_near_usdt_swapTodos_transaction(null);
+    }
+  }
 };
 
 export const useCrossSwapPopUp = () => {
@@ -412,7 +474,6 @@ export const estimateValidator = (
 
   return true;
 };
-// TODO 1
 export const useSwap = ({
   tokenIn,
   tokenInAmount,
@@ -464,7 +525,6 @@ export const useSwap = ({
 
   const setAverageFee = (estimates: EstimateSwapView[]) => {
     let avgFee: number = 0;
-
     try {
       const routes = separateRoutes(estimates, tokenOut.id);
 
@@ -823,10 +883,7 @@ export const useSwapV3 = ({
   useEffect(() => {
     if (!bestFee || wrapOperation) return;
 
-    get_pool_from_cache(
-      getV3PoolId(tokenIn.id, tokenOut.id, bestFee),
-      tokenIn.id
-    )
+    get_pool_from_cache(getV3PoolId(tokenIn.id, tokenOut.id, bestFee))
       .then((bestPool) => {
         setBestPool(bestPool);
       })
@@ -1581,23 +1638,63 @@ export const useRefSwap = ({
     setLoadingTrigger,
     reEstimateTrigger,
   });
+  const mixEstimateResult = useSwapMix({
+    tokenIn,
+    tokenInAmount,
+    tokenOut,
+    slippageTolerance,
+    setLoadingData,
+    loadingTrigger,
+    setLoadingTrigger,
+    setShowSwapLoading,
+    loadingData,
+    loadingPause,
+    swapMode,
+    reEstimateTrigger,
+    supportLedger,
+    tokenDeflationRateData,
+  });
+  const {
+    estimateOutAmount: tokenOutAmountMix,
+    mixTag,
+    quoteDone: quoteDoneMix,
+    canSwap: canSwapMix,
+    fee: feeMix,
+    priceImpact: priceImpactFix,
+    estimateOutAmountWithSlippageTolerance: minAmountOutMix,
+  } = mixEstimateResult;
+  let bestSwap;
+  const { set_near_usdt_swapTodos, set_near_usdt_swapTodos_transaction } =
+    usePersistSwapStore();
+  useDebounce(
+    () => {
+      if (bestSwap == 'mix') {
+        set_near_usdt_swapTodos(mixEstimateResult);
+      }
+    },
+    500,
+    [bestSwap, JSON.stringify(mixEstimateResult || {})]
+  );
   function validator() {
-    if (tag && tagV3) {
+    if (tag && tagV3 && mixTag) {
       const [inId, outId, inAmount] = tag.split('|');
       const [dclInId, dclOutId, dclInAmount] = tagV3.split('|');
+      const [mixInId, mixOutId, mixInAmount] = mixTag.split('|');
       return (
         inId == tokenIn?.id &&
         outId == tokenOut.id &&
         inAmount == tokenInAmount &&
         dclInId == tokenIn?.id &&
         dclOutId == tokenOut.id &&
-        dclInAmount == tokenInAmount
+        dclInAmount == tokenInAmount &&
+        mixInId == tokenIn?.id &&
+        mixOutId == tokenOut.id &&
+        mixInAmount == tokenInAmount
       );
     }
     return false;
   }
-  // TODO 2
-  const quoteDoneRef = quoteDoneV2 && quoteDone && validator();
+  const quoteDoneRef = quoteDoneV2 && quoteDone && quoteDoneMix && validator();
   if (!quoteDoneRef)
     return {
       quoteDone: false,
@@ -1608,12 +1705,27 @@ export const useRefSwap = ({
       market: 'ref',
       tokenOutAmount: '0',
     };
-  const bestSwap =
+  // console.table([
+  //   `tag---${tag}---${tokenOutAmount}`,
+  //   `tagV3---${tagV3}---${tokenOutAmountV2}`,
+  //   `mixTag---${mixTag}---${tokenOutAmountMix}`,
+  // ]);
+  const betterSwap =
     new Big(tokenOutAmountV2 || '0').gte(tokenOutAmount || '0') &&
     canSwapV2 &&
     !swapErrorV2
       ? 'v2'
       : 'v1';
+  const betterOutAmount = new Big(tokenOutAmountV2 || '0').gte(
+    tokenOutAmount || '0'
+  )
+    ? tokenOutAmountV2
+    : tokenOutAmount;
+  bestSwap =
+    canSwapMix && Big(tokenOutAmountMix || '0').gt(betterOutAmount)
+      ? 'mix'
+      : betterSwap;
+  // bestSwap = 'mix'; // TODO4 Test code
   if (bestSwap === 'v1') {
     if (swapsToDoServer) {
       swapsToDoServer.contract = 'Ref_Classic';
@@ -1672,289 +1784,23 @@ export const useRefSwap = ({
       exchange_name: <div className="text-white">Ref</div>,
     };
   }
-};
-
-export const useOrderlySwap = ({
-  tokenIn,
-  tokenOut,
-  tokenInAmount,
-  loadingTrigger,
-  reEstimateTrigger,
-}: SwapOptions): ExchangeEstimate => {
-  const [estimate, setEstimate] = useState<string>();
-
-  const { swapType } = useContext(SwapProContext);
-
-  const [orderlyQuoteDone, setOrderlyQuoteDone] = useState<boolean>(false);
-
-  const { accountId } = useWalletSelector();
-
-  const [side, setCurSide] = useState<'Sell' | 'Buy'>();
-
-  const {
-    tokenInfo,
-    availableSymbols,
-    systemAvailable,
-    symbol,
-    orders,
-    setSymbol,
-  } = useOrderlyContext();
-
-  const [userInfo, setUserInfo] = useState<ClientInfo>();
-
-  const calculatePrice = (
-    side: 'Sell' | 'Buy',
-    orders: Orders,
-    tokenInAmount: string | number
-  ) => {
-    const asks = (side === 'Buy' ? orders?.asks : orders?.bids) || [];
-
-    if (asks.length == 0) {
-      setCanSwap(false);
-      setEstimate('');
-      setOrderlyQuoteDone(true);
-      return 0;
-    }
-
-    let totalPrice = 0;
-    let totalAmount = 0;
-
-    if (side === 'Sell') {
-      for (let i = 0; i < asks.length; i++) {
-        const [price, quantity] = asks[i];
-        if (totalAmount + quantity <= Number(tokenInAmount)) {
-          totalPrice += price * quantity;
-          totalAmount += quantity;
-        } else {
-          const remainingQuantity = Number(tokenInAmount) - totalAmount;
-          totalPrice += price * remainingQuantity;
-          totalAmount += remainingQuantity;
-          break;
-        }
-      }
-    }
-
-    if (side === 'Buy') {
-      for (let i = 0; i < asks.length; i++) {
-        const [price, quantity] = asks[i];
-        if (totalAmount + price * quantity <= Number(tokenInAmount)) {
-          totalPrice += quantity;
-          totalAmount += price * quantity;
-        } else {
-          const remainingQuantity = Number(tokenInAmount) - totalAmount;
-          totalPrice += remainingQuantity / price;
-          totalAmount += remainingQuantity;
-          break;
-        }
-      }
-    }
-
-    return totalPrice;
-  };
-
-  const getAmountByAsksAndBids = async (
-    amount: number,
-    tokenInProp: TokenMetadata,
-    tokenOutProp: TokenMetadata,
-    loadingTrigger?: boolean
-  ) => {
-    const tokenIn =
-      tokenInProp.symbol === 'NEAR'
-        ? {
-            ...tokenInProp,
-            id: 'near',
-          }
-        : tokenInProp;
-
-    const tokenOut =
-      tokenOutProp.symbol === 'NEAR'
-        ? {
-            ...tokenOutProp,
-            id: 'near',
-          }
-        : tokenOutProp;
-
-    const availableSymbolsWithTokens = availableSymbols?.map((symbol) => {
-      const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-
-      return {
-        ...symbol,
-        token_ids: [
-          tokenInfo?.find((token) => token.token === symbolFrom)
-            ?.token_account_id,
-          tokenInfo?.find((token) => token.token === symbolTo)
-            ?.token_account_id,
-        ],
-      };
-    });
-
-    const canSwapSymbol = availableSymbolsWithTokens?.find((symbol) => {
-      return (
-        symbol.token_ids.includes(tokenIn.id) &&
-        symbol.token_ids.includes(tokenOut.id) &&
-        symbol.symbol.indexOf('SPOT') > -1
-      );
-    });
-
-    const side = (
-      canSwapSymbol?.token_ids[0] === tokenIn.id ? 'Sell' : 'Buy'
-    ) as 'Sell' | 'Buy';
-
-    if (!availableSymbols || !canSwapSymbol || !canSwapSymbol?.token_ids) {
-      setCanSwap(false);
-      setEstimate('0');
-
-      setOrderlyQuoteDone(true);
-      setCurSide(side);
-
-      return;
-    }
-
-    if (canSwapSymbol.symbol !== symbol || !orders) {
-      // setReEstimate(!reEstimate);
-      setCurSide(side);
-
-      setSymbol(canSwapSymbol.symbol);
-
-      return;
-    }
-
-    if (canSwapSymbol.symbol === symbol) {
-      const calcRes = calculatePrice(side, orders, tokenInAmount);
-
-      if (calcRes > 0) {
-        setEstimate(
-          scientificNotationToString(
-            percentLess(
-              (userInfo?.taker_fee_rate || 10) / 100,
-
-              calcRes
-            ).toString()
-          )
-        );
-
-        setOrderlyQuoteDone(true);
-        setCurSide(side);
-        setCanSwap(true);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (!accountId) return;
-
-    getAccountInformation({ accountId }).then((res) => {
-      setUserInfo(res);
-    });
-  }, [accountId]);
-
-  const history = useHistory();
-
-  const [canSwap, setCanSwap] = useState<boolean>(false);
-
-  const availableSymbolsWithTokens =
-    symbol &&
-    availableSymbols?.map((symbol) => {
-      const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-
-      return {
-        ...symbol,
-        token_ids: [
-          tokenInfo?.find((token) => token.token === symbolFrom)
-            ?.token_account_id,
-          tokenInfo?.find((token) => token.token === symbolTo)
-            ?.token_account_id,
-        ],
-      };
-    });
-
-  const canSwapSymbol = availableSymbolsWithTokens?.find((symbol) => {
-    return (
-      symbol.token_ids.includes(
-        tokenIn?.symbol === 'NEAR' ? 'near' : tokenIn?.id
-      ) &&
-      symbol.token_ids.includes(
-        tokenOut?.symbol === 'NEAR' ? 'near' : tokenOut?.id
-      )
-    );
-  });
-
-  const pairExist =
-    tokenIn &&
-    tokenOut &&
-    tokenIn.id !== tokenOut.id &&
-    symbol &&
-    !!tokenInfo?.find(
-      (token) =>
-        token.token_account_id ===
-        (tokenIn.symbol === 'NEAR' ? 'near' : tokenIn?.id)
-    ) &&
-    !!tokenInfo?.find(
-      (token) =>
-        token.token_account_id ===
-        (tokenOut.symbol === 'NEAR' ? 'near' : tokenOut?.id)
-    ) &&
-    canSwapSymbol;
-
-  useEffect(() => {
-    if (!tokenIn || !tokenOut || !pairExist) return;
-
-    setOrderlyQuoteDone(false);
-    setCanSwap(false);
-
-    getAmountByAsksAndBids(Number(tokenInAmount), tokenIn, tokenOut);
-  }, [
-    loadingTrigger,
-    JSON.stringify(tokenInfo || ''),
-    JSON.stringify(availableSymbols || ''),
-    tokenIn?.id,
-    tokenOut?.id,
-    tokenInAmount,
-    pairExist,
-    reEstimateTrigger,
-  ]);
-
-  const makeSwap = () => {
-    openUrl(`/orderbook/spot?side=${side}&orderType=Market`);
-  };
-
-  return {
-    maker_fee: userInfo?.maker_fee_rate || 10,
-    taker_fee: userInfo?.taker_fee_rate || 10,
-    estimates: !estimate
-      ? null
-      : [
-          {
-            contract: 'Orderly',
-            estimate,
-            tokens: [tokenIn, tokenOut],
-            outputToken: tokenOut?.id,
-            inputToken: tokenIn?.id,
-            pool: null,
-            totalInputAmount: toNonDivisibleNumber(
-              tokenIn?.decimals === null || tokenIn?.decimals === undefined
-                ? 24
-                : tokenIn.decimals,
-              tokenInAmount
-            ),
-          },
-        ],
-    makeSwap,
-    quoteDone: !pairExist || orderlyQuoteDone,
-    canSwap,
-    tokenInAmount,
-    tokenIn,
-    tokenOut,
-    market: 'orderly',
-    availableRoute:
-      swapType === SWAP_TYPE.Pro &&
-      !!systemAvailable &&
-      !!pairExist &&
-      !!canSwap,
-    swapError: null,
-    tokenOutAmount: toPrecision(estimate, Math.min(8, tokenOut?.decimals ?? 8)),
-    exchange_name: <div className="text-white">Orderly</div>,
-  };
+  if (bestSwap == 'mix') {
+    return {
+      estimatesMix: mixEstimateResult,
+      quoteDone: true,
+      canSwap: true,
+      tokenOutAmount: mixEstimateResult.estimateOutAmount,
+      minAmountOut: minAmountOutMix,
+      tokenInAmount,
+      availableRoute: !mixEstimateResult.mixError,
+      tokenIn,
+      tokenOut,
+      market: 'ref',
+      fee: feeMix,
+      priceImpact: priceImpactFix,
+      exchange_name: <div className="text-white">Ref</div>,
+    };
+  }
 };
 
 export const REF_FI_BEST_MARKET_ROUTE = 'REF_FI_BEST_MARKET_ROUTE';
@@ -1990,7 +1836,6 @@ export const useRefSwapPro = ({
     selectMarket,
     swapType,
   } = useContext(SwapProContext);
-  // TODO 3
   const resRef = useRefSwap({
     tokenIn,
     tokenInAmount,
@@ -2027,15 +1872,6 @@ export const useRefSwapPro = ({
     reEstimateTrigger,
   });
 
-  const resOrderly = useOrderlySwap({
-    tokenIn,
-    tokenInAmount,
-    tokenOut,
-    loadingTrigger,
-    slippageTolerance,
-    reEstimateTrigger,
-  });
-
   useEffect(() => {
     if (tokenIn && tokenOut && tokenIn.id === tokenOut.id) {
       setSelectMarket('ref');
@@ -2043,15 +1879,10 @@ export const useRefSwapPro = ({
   }, [tokenIn, tokenOut]);
 
   useEffect(() => {
-    if (
-      resRef.quoteDone &&
-      (!enableTri || resAurora.quoteDone) &&
-      resOrderly.quoteDone
-    ) {
+    if (resRef.quoteDone && (!enableTri || resAurora.quoteDone)) {
       const trades = {
         ['ref']: resRef,
         ['tri']: resAurora,
-        ['orderly']: resOrderly,
       };
 
       const tradeList = [resRef, resAurora];
@@ -2085,7 +1916,8 @@ export const useRefSwapPro = ({
             resRef.estimates?.[0]?.tokens?.[
               resRef.estimates?.[0]?.tokens.length - 1
             ]?.id === localStorage.getItem('REF_FI_SWAP_OUT'))) ||
-        (resRef.estimatesServer && !resRef.estimates);
+        (resRef.estimatesServer && !resRef.estimates) ||
+        (resRef.estimatesMix && !resRef.estimatesServer && !resRef.estimates);
 
       if (!resValid) {
         setReEstimateTrigger(!reEstimateTrigger);
@@ -2130,7 +1962,6 @@ export const useRefSwapPro = ({
     resRef.quoteDone,
     enableTri,
     resAurora.quoteDone,
-    resOrderly.quoteDone,
 
     slippageTolerance,
     swapType,
@@ -2139,7 +1970,6 @@ export const useRefSwapPro = ({
     quoting,
     JSON.stringify(resRef?.tokenOutAmount || {}),
     JSON.stringify(resAurora?.tokenOutAmount || {}),
-    JSON.stringify(resOrderly?.tokenOutAmount || {}),
 
     JSON.stringify(resRef?.estimates || {}),
     JSON.stringify(resAurora?.estimates || {}),

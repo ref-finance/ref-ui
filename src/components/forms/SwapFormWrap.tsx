@@ -17,6 +17,7 @@ import { get_pool_name, openUrl } from '../../services/commonV3';
 import { PoolInfo } from 'src/services/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/utils';
+import { INEAR_USDT_SWAP_TODOS } from '../../stores/swapStore';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -54,6 +55,7 @@ interface SwapFormWrapProps {
   wrapOperation?: boolean;
   isInsufficient?: boolean;
   mostPoolDetail?: PoolInfo;
+  near_usdt_swapTodos?: INEAR_USDT_SWAP_TODOS;
 }
 
 export default function SwapFormWrap({
@@ -76,6 +78,7 @@ export default function SwapFormWrap({
   quoteDoneLimit,
   isInsufficient,
   mostPoolDetail,
+  near_usdt_swapTodos,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
@@ -132,13 +135,17 @@ export default function SwapFormWrap({
 
     if (isSignedIn || selectMarket === 'orderly') {
       try {
-        selectMarket !== 'orderly' &&
-          setShowSwapLoading &&
-          setShowSwapLoading(true);
-
-        selectMarket !== 'orderly' &&
-          setShowSwapLoading &&
+        if (near_usdt_swapTodos) {
           setLoadingPause(true);
+        } else {
+          selectMarket !== 'orderly' &&
+            setShowSwapLoading &&
+            setShowSwapLoading(true);
+
+          selectMarket !== 'orderly' &&
+            setLoadingPause &&
+            setLoadingPause(true);
+        }
         onSubmit(event);
       } catch (err) {
         setError(err);

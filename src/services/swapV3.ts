@@ -584,7 +584,7 @@ export const get_pool_old_version = async (
   }) as Promise<PoolInfo>;
 };
 
-export const get_pool_from_cache = async (pool_id: string, token0?: string) => {
+export const get_pool_from_cache = async (pool_id: string) => {
   const [token_x, token_y, fee] = pool_id.split('|');
 
   const token_seq = [token_x, token_y].sort().join('|');
