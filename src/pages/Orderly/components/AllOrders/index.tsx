@@ -2264,7 +2264,7 @@ function MobileFilterModal(
       </div>
     );
   }
-  // TODOX
+  // TODOXx
   function SelectListDex({ listKey }: { listKey: string }) {
     return (
       <div className="mb-5 flex items-start w-full justify-between">
