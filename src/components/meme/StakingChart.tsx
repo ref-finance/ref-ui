@@ -45,23 +45,23 @@ const StakingChart = ({ chartType }) => {
   const meme_winner_tokens = memeDataConfig.meme_winner_tokens;
   const displaySeeds = useMemo(() => {
     if (emptyObject(seeds)) return {};
-    return meme_winner_tokens.reduce(
-      (acc: any, memeTokenId: string | number) => ({
-        ...acc,
-        ...{ [memeTokenId]: seeds[memeTokenId] },
-      }),
-      {}
-    ) as Record<string, Seed>;
-    // return Object.entries(MEME_TOKEN_XREF_MAP).reduce((acc, [memeTokenId]) => {
-    //   const seed = seeds[memeTokenId];
-    //   if (seed && !coming_offline_soon_token.includes(memeTokenId)) {
-    //     return {
-    //       ...acc,
-    //       [memeTokenId]: seed,
-    //     };
-    //   }
-    //   return acc;
-    // }, {} as Record<string, Seed>);
+    // return meme_winner_tokens.reduce(
+    //   (acc: any, memeTokenId: string | number) => ({
+    //     ...acc,
+    //     ...{ [memeTokenId]: seeds[memeTokenId] },
+    //   }),
+    //   {}
+    // ) as Record<string, Seed>;
+    return Object.entries(MEME_TOKEN_XREF_MAP).reduce((acc, [memeTokenId]) => {
+      const seed = seeds[memeTokenId];
+      if (seed && !coming_offline_soon_token.includes(memeTokenId)) {
+        return {
+          ...acc,
+          [memeTokenId]: seed,
+        };
+      }
+      return acc;
+    }, {} as Record<string, Seed>);
   }, [seeds, MEME_TOKEN_XREF_MAP]);
 
   useEffect(() => {
