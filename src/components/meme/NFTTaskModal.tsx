@@ -10,7 +10,7 @@ const NFTTaskModal = (props: any) => {
   function share() {
     setShareButtonClicked('1');
     onRequestClose();
-    window.open('https://x.com/finance_ref/status/1852016524456047028');
+    window.open('https://x.com/intent/retweet?tweet_id=1852387777192870132');
   }
   return (
     <Modal
