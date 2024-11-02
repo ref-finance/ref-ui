@@ -24,7 +24,7 @@ const Countdown = ({ onCountdownFinish }) => {
       Date.UTC(new Date().getUTCFullYear(), 10, 1, 0, 0, 0) // 11月1日
     );
     const endDate = new Date(
-      Date.UTC(new Date().getUTCFullYear(), 10, 5, 0, 0, 0) // 11月5日
+      Date.UTC(new Date().getUTCFullYear(), 10, 11, 0, 0, 0) // 11月11日
     );
     const updateCountdown = () => {
       const nowUtc = Date.now();
