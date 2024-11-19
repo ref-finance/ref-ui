@@ -109,51 +109,51 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
   const [isLedger, setIsLedger] = useState<boolean>(undefined);
   const [allKeys, setAllKeys] = useState<IAccountKey[]>([]);
-  const { wagmiConfig, web3Modal } = useMemo(() => {
-    const nearBlock = {
-      id: 397,
-      name: 'NEAR Mainnet',
-      nativeCurrency: {
-        decimals: 18,
-        name: 'NEAR',
-        symbol: 'NEAR',
-      },
-      rpcUrls: {
-        default: { http: ['https://eth-rpc.mainnet.near.org'] },
-        public: { http: ['https://eth-rpc.mainnet.near.org'] },
-      },
-      blockExplorers: {
-        default: {
-          name: 'NEAR Explorer',
-          url: 'https://eth-explorer.near.org',
-        },
-      },
-      testnet: false,
-    };
-    const wagmiConfig: Config = createConfig({
-      chains: [nearBlock],
-      transports: {
-        [nearBlock.id]: http(),
-      },
-      connectors: [
-        walletConnect({
-          projectId: '87e549918631f833447b56c15354e450',
-          showQrModal: false,
-        }),
-        injected({ shimDisconnect: true }),
-      ],
-    });
-    reconnect(wagmiConfig);
-    const web3Modal = createWeb3Modal({
-      wagmiConfig,
-      projectId: '87e549918631f833447b56c15354e450',
-      allowUnsupportedChain: true,
-    });
-    return {
-      wagmiConfig,
-      web3Modal,
-    };
-  }, []);
+  // const { wagmiConfig, web3Modal } = useMemo(() => {
+  //   const nearBlock = {
+  //     id: 397,
+  //     name: 'NEAR Mainnet',
+  //     nativeCurrency: {
+  //       decimals: 18,
+  //       name: 'NEAR',
+  //       symbol: 'NEAR',
+  //     },
+  //     rpcUrls: {
+  //       default: { http: ['https://eth-rpc.mainnet.near.org'] },
+  //       public: { http: ['https://eth-rpc.mainnet.near.org'] },
+  //     },
+  //     blockExplorers: {
+  //       default: {
+  //         name: 'NEAR Explorer',
+  //         url: 'https://eth-explorer.near.org',
+  //       },
+  //     },
+  //     testnet: false,
+  //   };
+  //   const wagmiConfig: Config = createConfig({
+  //     chains: [nearBlock],
+  //     transports: {
+  //       [nearBlock.id]: http(),
+  //     },
+  //     connectors: [
+  //       walletConnect({
+  //         projectId: '87e549918631f833447b56c15354e450',
+  //         showQrModal: false,
+  //       }),
+  //       injected({ shimDisconnect: true }),
+  //     ],
+  //   });
+  //   reconnect(wagmiConfig);
+  //   const web3Modal = createWeb3Modal({
+  //     wagmiConfig,
+  //     projectId: '87e549918631f833447b56c15354e450',
+  //     allowUnsupportedChain: true,
+  //   });
+  //   return {
+  //     wagmiConfig,
+  //     web3Modal,
+  //   };
+  // }, []);
   const syncAccountState = (
     currentAccountId: string | null,
     newAccounts: Array<AccountState>
@@ -214,11 +214,11 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
       } as Network,
       debug: false,
       modules: [
-        setupEthereumWallets({
-          wagmiConfig,
-          web3Modal,
-          alwaysOnboardDuringSignIn: true,
-        } as any),
+        // setupEthereumWallets({
+        //   wagmiConfig,
+        //   web3Modal,
+        //   alwaysOnboardDuringSignIn: true,
+        // } as any),
         setupOKXWallet({}),
         setupMyNearWallet({
           // iconUrl: walletIcons['my-near-wallet'],
