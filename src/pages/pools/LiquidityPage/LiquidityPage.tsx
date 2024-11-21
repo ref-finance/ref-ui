@@ -2399,7 +2399,8 @@ function TokenChart({
     USDC: '#2FA7DB',
     USDt: '#45D0C0',
     'USD Coin': '#2FA7DB',
-    'USDC.w': '#2B6EB7',
+    'USDC.ws': '#2B6EB7',
+    'USDC.we': '#2B6EB7',
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
     'zNEARnM-USDC': '#74FA9D',
@@ -2543,15 +2544,11 @@ const RenderDisplayTokensAmounts = ({
               }`}
             >
               <span className="mr-1.5 flex-shrink-0">
-                {token.id == '16.contract.portalbridge.near' ? (
-                  <USDCWIcon className="w-4 h-4 border border-gradientFrom rounded-full flex-1 flex-shrink-0" />
-                ) : (
-                  <img
-                    src={token.icon}
-                    alt=""
-                    className="w-4 h-4 border border-gradientFrom rounded-full flex-1 flex-shrink-0"
-                  />
-                )}
+                <img
+                  src={token.icon}
+                  alt=""
+                  className="w-4 h-4 border border-gradientFrom rounded-full flex-1 flex-shrink-0"
+                />
               </span>
 
               <span

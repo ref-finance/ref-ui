@@ -103,10 +103,7 @@ export const TknImages = ({
         displayTokens
           ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
           ?.map((token, index) => {
-            const icon =
-              token.id == '16.contract.portalbridge.near'
-                ? 'usdcw'
-                : token?.icon;
+            const icon = token?.icon;
             const id = token?.id;
             const isRisk = riskTokens.some((riskToken) => riskToken.id === id);
             const mark = getImageMark(token, isRisk);
@@ -123,30 +120,20 @@ export const TknImages = ({
                     border: borderStyle || 'none',
                   }}
                 >
-                  {token.id == '16.contract.portalbridge.near' ? (
-                    <USDCWIcon
-                      className={`inline-block flex-shrink-0 frcc ${
-                        is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
-                      }  h-${size || 10} w-${size || 10} rounded-full ${
-                        tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
-                      } bg-cardBg`}
-                    />
-                  ) : (
-                    <img
-                      key={
-                        (id || 0) +
-                        '-' +
-                        index +
-                        '-' +
-                        token?.id +
-                        '-' +
-                        uId +
-                        Date.now()
-                      }
-                      src={icon}
-                      className="rounded-full"
-                    />
-                  )}
+                  <img
+                    key={
+                      (id || 0) +
+                      '-' +
+                      index +
+                      '-' +
+                      token?.id +
+                      '-' +
+                      uId +
+                      Date.now()
+                    }
+                    src={icon}
+                    className="rounded-full"
+                  />
                   {mark ? (
                     <div
                       className="absolute flex items-center justify-center bg-black bg-opacity-75 bottom-0 left-0 right-0 z-40"
@@ -254,23 +241,10 @@ export const Images = ({
         displayTokens
           ?.slice(0, isRewardDisplay ? 5 : displayTokens.length)
           ?.map((token, index) => {
-            const icon =
-              token?.id == '16.contract.portalbridge.near'
-                ? '16.contract.portalbridge.near'
-                : token?.icon;
+            const icon = token?.icon;
             const id = token?.id;
             if (icon)
-              return icon == '16.contract.portalbridge.near' ? (
-                <USDCWIcon
-                  className={`inline-block flex-shrink-0 ${
-                    is_vertical && index > 1 ? '-mt-3' : 'relative z-10'
-                  }  h-${size || 10} w-${size || 10} rounded-full border ${
-                    border ? 'border' : ''
-                  } border-gradientFromHover ${
-                    tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
-                  } bg-cardBg`}
-                />
-              ) : (
+              return (
                 <img
                   key={
                     (id || 0) +
@@ -348,9 +322,7 @@ export const Symbols = ({
       {tokens?.map((token, index) => (
         <span key={token?.id + '-' + index}>
           {index ? separator || '-' : ''}
-          {token?.id == '16.contract.portalbridge.near'
-            ? 'USDC.w'
-            : toRealSymbol(token?.symbol || '')}
+          {toRealSymbol(token?.symbol || '')}
         </span>
       ))}
       {withArrow ? <span className="ml-1.5">{'>'}</span> : null}
