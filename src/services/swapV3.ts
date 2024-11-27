@@ -83,7 +83,7 @@ export interface UserOrderInfo {
   swap_earn_amount: string;
   buy_token: string;
   unclaimed_amount: string; // claim will push it to inner account
-  bought_amount: string; // accumalated amount into inner account
+  bought_amount: string; // accumulated amount into inner account
 }
 export const quote = async ({
   pool_ids,

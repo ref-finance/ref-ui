@@ -1904,7 +1904,7 @@ function MobileAccount(props: any) {
         newCross ? 'cross' : 'normal'
       );
     }
-    // seleced tab
+    // selected tab
     setActiveTab('near');
     if (newCross && mapOver) {
       setActiveTab('aurora');
