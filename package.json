@@ -132,7 +132,7 @@
     "@near-wallet-selector/nightly": "^8.9.7",
     "@near-wallet-selector/okx-wallet": "^8.9.10",
     "@near-wallet-selector/sender": "^8.9.7",
-    "@near-wallet-selector/wallet-connect": "^7.9.1",
+    "@near-wallet-selector/wallet-connect": "7.9.3",
     "@react-icons/all-files": "https://github.com/react-icons/react-icons/releases/download/v4.7.1/react-icons-all-files-4.7.1.tgz",
     "@tanstack/react-query": "^5.56.2",
     "@transak/transak-sdk": "1.2.2",

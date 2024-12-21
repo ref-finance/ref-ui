@@ -3617,9 +3617,9 @@
     "@near-wallet-selector/core" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/wallet-connect@^7.9.1":
+"@near-wallet-selector/wallet-connect@7.9.3":
   version "7.9.3"
-  resolved "https://registry.npmjs.org/@near-wallet-selector/wallet-connect/-/wallet-connect-7.9.3.tgz#7dc3a071f4212576e22677c53dae6cfdaff36289"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-connect/-/wallet-connect-7.9.3.tgz#7dc3a071f4212576e22677c53dae6cfdaff36289"
   integrity sha512-Fo0RWnH6NJoKj9AoxcC+CigUTIhuoRctcMReoXhHiO49PhPpXwNKW9rLHkVLjaJ8XbFncFI6KZNlnUwxaWRs5w==
   dependencies:
     "@near-wallet-selector/core" "7.9.3"
