@@ -866,6 +866,7 @@ function TokenChart({
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
     'zNEARnM-USDC': '#74FA9D',
+    NBTC: '#00e99f',
   };
 
   const colorLight = {
@@ -888,6 +889,7 @@ function TokenChart({
     FRAX: '#OE1519',
     sFRAX: '#4A6D7C',
     'zNEARnM-USDC': '#74FA9D',
+    NBTC: '#00e99f',
   };
 
   const innerRadius = 30;

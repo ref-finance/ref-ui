@@ -284,7 +284,7 @@ export default function getConfig(
         ],
         DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 5515,
         DEGEN_POOL_ID1: process.env.DEGEN_POOL_ID1 || 5516,
-        DEGEN_POOLS_IDS: ['5515', '5516'],
+        DEGEN_POOLS_IDS: ['5515', '5516', '5949'],
         DEGEN_POOL_INDEX: {
           'wrap.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
@@ -301,6 +301,12 @@ export default function getConfig(
           'v1.guild-covenant.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
+        DEGEN_POOL_NBTC_ID: 5949,
+        DEGEN_NBTC_TOKEN_IDS: ['nbtc.bridge.near', 'wrap.near'],
+        DEGEN_POOL_NBTC_INDEX: {
+          'nbtc.bridge.near': 0,
+          'wrap.near': 1,
+        },
       };
     case 'pub-testnet':
       return {
@@ -668,7 +674,7 @@ export default function getConfig(
         ],
         DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 5515,
         DEGEN_POOL_ID1: process.env.DEGEN_POOL_ID1 || 5516,
-        DEGEN_POOLS_IDS: ['5515', '5516'],
+        DEGEN_POOLS_IDS: ['5515', '5516', '5949'],
         DEGEN_POOL_INDEX: {
           'wrap.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
@@ -685,6 +691,12 @@ export default function getConfig(
           'v1.guild-covenant.near',
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
         ],
+        DEGEN_POOL_NBTC_ID: 5949,
+        DEGEN_NBTC_TOKEN_IDS: ['nbtc.bridge.near', 'wrap.near'],
+        DEGEN_POOL_NBTC_INDEX: {
+          'nbtc.bridge.near': 0,
+          'wrap.near': 1,
+        },
       };
   }
 }

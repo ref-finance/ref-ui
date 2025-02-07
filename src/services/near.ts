@@ -40,6 +40,7 @@ export const FRAX_USDC_TOKEN_IDS = config.FRAX_USDC_TOKEN_IDS;
 export const Frax_SFrax_TOKEN_IDS = config.Frax_SFrax_TOKEN_IDS;
 export const ZNEARnM_USDC_TOKEN_IDS = config.ZNEARnM_USDC_TOKEN_IDS;
 export const USDCWE_USDC_TOKEN_IDS = config.USDCWE_USDC_TOKEN_IDS;
+export const DEGEN_NBTC_TOKEN_IDS = config.DEGEN_NBTC_TOKEN_IDS;
 
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
@@ -65,6 +66,7 @@ export const USDCW_POOL_ID = config.USDCW_POOL_ID;
 export const Frax_SFrax_POOL_ID = config.Frax_SFrax_POOL_ID;
 export const ZNEARnM_USDC_POOL_ID = config.ZNEARnM_USDC_POOL_ID;
 export const USDCWE_USDC_POOL_ID = config.USDCWE_USDC_POOL_ID;
+export const DEGEN_POOL_NBTC_ID = config.DEGEN_POOL_NBTC_ID;
 
 export const {
   BTCIDS,
@@ -100,7 +102,8 @@ export const {
   USDCWE_USDC_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
-const { DEGEN_POOL_INDEX, DEGEN_POOL_INDEX1 } = getConfig();
+const { DEGEN_POOL_INDEX, DEGEN_POOL_INDEX1, DEGEN_POOL_NBTC_INDEX } =
+  getConfig();
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(USDTIDS)
   .concat(STNEARIDS)
@@ -132,6 +135,7 @@ export const AllStableTokenIds = new Array(
       .concat(Frax_SFrax_TOKEN_IDS)
       .concat(ZNEARnM_USDC_TOKEN_IDS)
       .concat(USDCWE_USDC_TOKEN_IDS)
+      .concat(DEGEN_NBTC_TOKEN_IDS)
   )
 );
 
@@ -162,6 +166,7 @@ export const ALL_STABLE_POOL_IDS = [
   Frax_SFrax_POOL_ID,
   ZNEARnM_USDC_POOL_ID,
   USDCWE_USDC_POOL_ID,
+  DEGEN_POOL_NBTC_ID,
 ]
   .filter((_) => _)
   .map((id) => id.toString());
@@ -221,6 +226,8 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return ZNEARnM_USDC_POOL_INDEX;
     case USDCWE_USDC_POOL_ID.toString():
       return USDCWE_USDC_POOL_INDEX;
+    case DEGEN_POOL_NBTC_ID.toString():
+      return DEGEN_POOL_NBTC_INDEX;
   }
 };
 
