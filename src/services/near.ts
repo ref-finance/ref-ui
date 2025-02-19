@@ -41,6 +41,10 @@ export const Frax_SFrax_TOKEN_IDS = config.Frax_SFrax_TOKEN_IDS;
 export const ZNEARnM_USDC_TOKEN_IDS = config.ZNEARnM_USDC_TOKEN_IDS;
 export const USDCWE_USDC_TOKEN_IDS = config.USDCWE_USDC_TOKEN_IDS;
 export const DEGEN_NBTC_TOKEN_IDS = config.DEGEN_NBTC_TOKEN_IDS;
+export const DEGEN_SOL_TOKEN_IDS = config.DEGEN_SOL_TOKEN_IDS;
+export const DEGEN_ETH_TOKEN_IDS = config.DEGEN_ETH_TOKEN_IDS;
+export const DEGEN_ETH_NEAR_TOKEN_IDS = config.DEGEN_ETH_NEAR_TOKEN_IDS;
+export const DEGEN_WBTC_TOKEN_IDS = config.DEGEN_WBTC_TOKEN_IDS;
 
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
 
@@ -67,6 +71,10 @@ export const Frax_SFrax_POOL_ID = config.Frax_SFrax_POOL_ID;
 export const ZNEARnM_USDC_POOL_ID = config.ZNEARnM_USDC_POOL_ID;
 export const USDCWE_USDC_POOL_ID = config.USDCWE_USDC_POOL_ID;
 export const DEGEN_POOL_NBTC_ID = config.DEGEN_POOL_NBTC_ID;
+export const DEGEN_SOL_POOL_ID = config.DEGEN_SOL_POOL_ID;
+export const DEGEN_ETH_POOL_ID = config.DEGEN_ETH_POOL_ID;
+export const DEGEN_ETH_NEAR_POOL_ID = config.DEGEN_ETH_NEAR_POOL_ID;
+export const DEGEN_WBTC_POOL_ID = config.DEGEN_WBTC_POOL_ID;
 
 export const {
   BTCIDS,
@@ -102,8 +110,15 @@ export const {
   USDCWE_USDC_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
-const { DEGEN_POOL_INDEX, DEGEN_POOL_INDEX1, DEGEN_POOL_NBTC_INDEX } =
-  getConfig();
+const {
+  DEGEN_POOL_INDEX,
+  DEGEN_POOL_INDEX1,
+  DEGEN_POOL_NBTC_INDEX,
+  DEGEN_SOL_POOL_INDEX,
+  DEGEN_ETH_POOL_INDEX,
+  DEGEN_ETH_NEAR_POOL_INDEX,
+  DEGEN_WBTC_POOL_INDEX,
+} = getConfig();
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(USDTIDS)
   .concat(STNEARIDS)
@@ -136,6 +151,10 @@ export const AllStableTokenIds = new Array(
       .concat(ZNEARnM_USDC_TOKEN_IDS)
       .concat(USDCWE_USDC_TOKEN_IDS)
       .concat(DEGEN_NBTC_TOKEN_IDS)
+      .concat(DEGEN_SOL_TOKEN_IDS)
+      .concat(DEGEN_ETH_TOKEN_IDS)
+      .concat(DEGEN_ETH_NEAR_TOKEN_IDS)
+      .concat(DEGEN_WBTC_TOKEN_IDS)
   )
 );
 
@@ -162,11 +181,14 @@ export const ALL_STABLE_POOL_IDS = [
   USDT_USDC_POOL_ID,
   FRAX_USDC_POOL_ID,
   DEGEN_POOL_ID1,
-  // RATED_SWAP_USDC_POOL_ID,
   Frax_SFrax_POOL_ID,
   ZNEARnM_USDC_POOL_ID,
   USDCWE_USDC_POOL_ID,
   DEGEN_POOL_NBTC_ID,
+  DEGEN_SOL_POOL_ID,
+  DEGEN_ETH_POOL_ID,
+  DEGEN_ETH_NEAR_POOL_ID,
+  DEGEN_WBTC_POOL_ID,
 ]
   .filter((_) => _)
   .map((id) => id.toString());
@@ -216,8 +238,6 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return FRAX_USDC_POOL_INDEX;
     case NEARX_POOL_ID.toString():
       return NEARX_POOL_INDEX;
-    // case RATED_SWAP_USDC_POOL_ID.toString():
-    //   return RATED_SWAP_USDC_POOL_INDEX;
     case USDCW_POOL_ID.toString():
       return USDCW_TOKEN_INDEX;
     case Frax_SFrax_POOL_ID.toString():
@@ -228,6 +248,14 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return USDCWE_USDC_POOL_INDEX;
     case DEGEN_POOL_NBTC_ID.toString():
       return DEGEN_POOL_NBTC_INDEX;
+    case DEGEN_SOL_POOL_ID.toString():
+      return DEGEN_SOL_POOL_INDEX;
+    case DEGEN_ETH_POOL_ID.toString():
+      return DEGEN_ETH_POOL_INDEX;
+    case DEGEN_ETH_NEAR_POOL_ID.toString():
+      return DEGEN_ETH_NEAR_POOL_INDEX;
+    case DEGEN_WBTC_POOL_ID.toString():
+      return DEGEN_WBTC_POOL_INDEX;
   }
 };
 

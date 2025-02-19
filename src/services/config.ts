@@ -284,7 +284,15 @@ export default function getConfig(
         ],
         DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 5515,
         DEGEN_POOL_ID1: process.env.DEGEN_POOL_ID1 || 5516,
-        DEGEN_POOLS_IDS: ['5515', '5516', '5949'],
+        DEGEN_POOLS_IDS: [
+          '5515',
+          '5516',
+          '5949',
+          '5965',
+          '5747',
+          '5840',
+          '5992',
+        ],
         DEGEN_POOL_INDEX: {
           'wrap.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
@@ -305,6 +313,36 @@ export default function getConfig(
         DEGEN_NBTC_TOKEN_IDS: ['nbtc.bridge.near', 'wrap.near'],
         DEGEN_POOL_NBTC_INDEX: {
           'nbtc.bridge.near': 0,
+          'wrap.near': 1,
+        },
+        DEGEN_SOL_POOL_ID: 5965,
+        DEGEN_SOL_TOKEN_IDS: ['22.contract.portalbridge.near', 'wrap.near'],
+        DEGEN_SOL_POOL_INDEX: {
+          '22.contract.portalbridge.near': 0,
+          'wrap.near': 1,
+        },
+        DEGEN_ETH_POOL_ID: 5747,
+        DEGEN_ETH_TOKEN_IDS: [
+          'aurora',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
+        DEGEN_ETH_POOL_INDEX: {
+          aurora: 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        DEGEN_WBTC_POOL_ID: 5840,
+        DEGEN_WBTC_TOKEN_IDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
+        DEGEN_WBTC_POOL_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        DEGEN_ETH_NEAR_POOL_ID: 5992,
+        DEGEN_ETH_NEAR_TOKEN_IDS: ['aurora', 'wrap.near'],
+        DEGEN_ETH_NEAR_POOL_INDEX: {
+          aurora: 0,
           'wrap.near': 1,
         },
       };
@@ -674,7 +712,15 @@ export default function getConfig(
         ],
         DEGEN_POOL_ID: process.env.DEGEN_POOL_ID || 5515,
         DEGEN_POOL_ID1: process.env.DEGEN_POOL_ID1 || 5516,
-        DEGEN_POOLS_IDS: ['5515', '5516', '5949'],
+        DEGEN_POOLS_IDS: [
+          '5515',
+          '5516',
+          '5949',
+          '5965',
+          '5747',
+          '5840',
+          '5992',
+        ],
         DEGEN_POOL_INDEX: {
           'wrap.near': 0,
           '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
@@ -695,6 +741,36 @@ export default function getConfig(
         DEGEN_NBTC_TOKEN_IDS: ['nbtc.bridge.near', 'wrap.near'],
         DEGEN_POOL_NBTC_INDEX: {
           'nbtc.bridge.near': 0,
+          'wrap.near': 1,
+        },
+        DEGEN_SOL_POOL_ID: 5965,
+        DEGEN_SOL_TOKEN_IDS: ['22.contract.portalbridge.near', 'wrap.near'],
+        DEGEN_SOL_POOL_INDEX: {
+          '22.contract.portalbridge.near': 0,
+          'wrap.near': 1,
+        },
+        DEGEN_ETH_POOL_ID: 5747,
+        DEGEN_ETH_TOKEN_IDS: [
+          'aurora',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
+        DEGEN_ETH_POOL_INDEX: {
+          aurora: 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        DEGEN_WBTC_POOL_ID: 5840,
+        DEGEN_WBTC_TOKEN_IDS: [
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near',
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+        ],
+        DEGEN_WBTC_POOL_INDEX: {
+          '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': 0,
+          '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1': 1,
+        },
+        DEGEN_ETH_NEAR_POOL_ID: 5992,
+        DEGEN_ETH_NEAR_TOKEN_IDS: ['aurora', 'wrap.near'],
+        DEGEN_ETH_NEAR_POOL_INDEX: {
+          aurora: 0,
           'wrap.near': 1,
         },
       };
