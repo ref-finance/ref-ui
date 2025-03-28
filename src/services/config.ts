@@ -345,6 +345,15 @@ export default function getConfig(
           aurora: 0,
           'wrap.near': 1,
         },
+        ABTC_NBTC_POOL_ID: 5991,
+        ABTC_NBTC_TOKEN_IDS: [
+          '31761a152f1e96f966c041291644129144233b0b.factory.bridge.near',
+          'nbtc.bridge.near',
+        ],
+        ABTC_NBTC_POOL_INDEX: {
+          '31761a152f1e96f966c041291644129144233b0b.factory.bridge.near': 0,
+          'nbtc.bridge.near': 1,
+        },
       };
     case 'pub-testnet':
       return {
@@ -773,6 +782,15 @@ export default function getConfig(
           aurora: 0,
           'wrap.near': 1,
         },
+        ABTC_NBTC_POOL_ID: 5991,
+        ABTC_NBTC_TOKEN_IDS: [
+          '31761a152f1e96f966c041291644129144233b0b.factory.bridge.near',
+          'nbtc.bridge.near',
+        ],
+        ABTC_NBTC_POOL_INDEX: {
+          '31761a152f1e96f966c041291644129144233b0b.factory.bridge.near': 0,
+          'nbtc.bridge.near': 1,
+        },
       };
   }
 }
@@ -846,6 +864,7 @@ export function getExtraStablePoolConfig(
           '5029',
           '5442',
           '5623',
+          '5991',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,
@@ -1090,6 +1109,7 @@ export function getExtraStablePoolConfig(
           '5029',
           '5442',
           '5623',
+          '5991',
         ],
         USDTT_USDCC_USDT_USDC_POOL_INDEX: {
           'usdt.tether-token.near': 0,

@@ -2405,6 +2405,7 @@ function TokenChart({
     sFRAX: '#4A6D7C',
     'zNEARnM-USDC': '#74FA9D',
     NBTC: '#00e99f',
+    aBTC: '#f3941e',
   };
 
   const colorLight = {
@@ -2429,6 +2430,7 @@ function TokenChart({
     sFRAX: '#4A6D7C',
     'zNEARnM-USDC': '#74FA9D',
     NBTC: '#00e99f',
+    aBTC: '#f3941e',
   };
   const innerRadius = 30;
   const outerRadius = 40;
